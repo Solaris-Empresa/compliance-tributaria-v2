@@ -1,18 +1,12108 @@
 /**
- * Corpus RAG — Resolução CGIBS 6/2026 (apenas Livro II — normas específicas IBS)
+ * Corpus RAG — Resolução CGIBS 6/2026 (documento COMPLETO — Arts 1-617)
  * Fonte: https://www.cgibs.gov.br (Diário Oficial 30/04/2026)
- * Escopo: Art. 467-615 (Livro I omitido — idêntico ao Livro I do Decreto 12.955
- * conforme Portaria Conjunta MF/CGIBS 7/2026).
- * CORPUS-RFC-008 — Issue #1074 (P0 fast-track ORQ-11).
+ * Escopo: LIVRO I (1-466 normas comuns/IBS — cadastro, fato gerador, split payment,
+ * DTE, fiscalização, transição IBS) + LIVRO II (467-615 específicas IBS) + LIVRO III.
+ * CORPUS-RFC-010 / BUG-IBS-00 — correção da ingestão parcial CORPUS-RFC-008 (#1074).
  *
  * Gerado automaticamente por scripts/build-corpus-resolucao-cgibs-6.ts.
- * Total de entradas: 187 (145 artigos)
+ * Total de entradas: 828 (603 artigos)
  * NÃO editar manualmente — re-gerar via script para preservar determinismo.
  */
 
 import type { CorpusEntry } from './rag-corpus';
 
 export const RAG_CORPUS_RESOLUCAO_CGIBS_6: CorpusEntry[] = [
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 1",
+    titulo: "O Imposto sobre Bens e Serviços (IBS), de competência compartilhada entre Estados, Distrito\nFederal e Municípios, de que trata o art",
+    conteudo: `Art. 1º O Imposto sobre Bens e Serviços (IBS), de competência compartilhada entre Estados, Distrito
+Federal e Municípios, de que trata o art. 156-A da Constituição Federal, e instituído pela Lei Complementar
+nº 214, de 16 de janeiro de 2025, será regido pelas disposições contidas neste Regulamento.
+LIVRO I - DAS NORMAS COMUNS AO IBS E À CBS
+TÍTULO I - DAS NORMAS GERAIS DO IBS
+CAPÍTULO I - DISPOSIÇÕES PRELIMINARES`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 2",
+    titulo: "Para fins deste Regulamento, consideram-se",
+    conteudo: `Art. 2º Para fins deste Regulamento, consideram-se: (Art. 3º da LC 214/2025)
+I - operações com:
+a) bens todas e quaisquer que envolvam bens móveis ou imóveis, materiais ou imateriais, inclusive
+direitos;
+b) serviços todas as demais que não sejam enquadradas como operações com bens nos termos da
+alínea “a” deste inciso;
+II - fornecimento:
+a) entrega ou disponibilização de bem material;
+b) instituição, transferência, cessão, concessão, licenciamento ou disponibilização de bem imaterial,
+inclusive direito;
+c) prestação ou disponibilização de serviço;
+III - fornecedor: pessoa física ou jurídica que, residente ou domiciliado no País ou no exterior, realiza o
+fornecimento;
+IV - adquirente:
+a) aquele obrigado ao pagamento ou a qualquer outra forma de contraprestação pelo fornecimento de
+bem ou serviço;
+b) nos casos de pagamento ou de qualquer outra forma de contraprestação por conta e ordem ou em
+nome de terceiros, aquele por conta de quem ou em nome de quem decorre a obrigação de pagamento ou
+de qualquer outra forma de contraprestação pelo fornecimento de bem ou serviço;
+V - destinatário: aquele a quem for fornecido o bem ou serviço, podendo ser o próprio adquirente ou
+não;
+VI - crédito:
+a) a apropriar a expectativa de crédito originada de débito de IBS decorrente de documento fiscal idôneo
+e ainda não extinto pelas modalidades previstas no art. 26;
+b) apropriado aquele que, após o cumprimento dos requisitos para apropriação, está disponível para
+compensação ou ressarcimento, por contribuinte no regime regular; e
+c) utilizado aquele compensado com débito de IBS por contribuinte no regime regular ou a ele
+ressarcido.
+§ 1º Equiparam-se a bens materiais as energias que tenham valor econômico.
+
+6`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 2 (parte 2)",
+    titulo: "§ 2º Incluem-se no conceito de fornecedor de que trata o inciso III do caput deste artigo as entidades\nsem personalidade jurídica, inclusive",
+    conteudo: `§ 2º Incluem-se no conceito de fornecedor de que trata o inciso III do caput deste artigo as entidades
+sem personalidade jurídica, inclusive:
+I - sociedade em comum;
+II - sociedade em conta de participação;
+III - consórcio;
+IV - condomínio; e
+V - fundo de investimento.
+§ 3º Incluem-se nas operações de que trata a alínea “a” do inciso I do caput deste artigo a locação, o
+arrendamento e a cessão temporária do bem.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 3",
+    titulo: "Para fins deste Regulamento: (Art",
+    conteudo: `Art. 3º Para fins deste Regulamento: (Art. 492 da LC 214/2025)
+I - a Nomenclatura Comum do Mercosul/Sistema Harmonizado (NCM/SH) corresponde àquela
+aprovada pela Resolução Gecex nº 272, de 19 de novembro de 2021; e
+II - a Nomenclatura Brasileira de Serviços, Intangíveis e Outras Operações que Produzam Variações
+no Patrimônio (NBS) corresponde àquela aprovada pela Portaria Conjunta RFB/SCS nº 2.000, de 18 de
+dezembro de 2018.
+§ 1º Os códigos constantes deste Regulamento estão em conformidade com a NCM/SH e com a NBS
+de que tratam os incisos I e II do caput deste artigo.
+§ 2º Eventuais alterações futuras da NCM/SH e NBS de que trata o caput deste artigo que acarretem
+modificação da classificação fiscal dos produtos mencionados neste Regulamento não afetarão as
+disposições a eles aplicadas com base na classificação anterior.
+CAPÍTULO II - DO IBS SOBRE OPERAÇÕES COM BENS E SERVIÇOS
+Seção I - Das Hipóteses de Incidência`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 4",
+    titulo: "O IBS incide sobre operações onerosas com bens ou com serviços",
+    conteudo: `Art. 4º O IBS incide sobre operações onerosas com bens ou com serviços. (Art. 4º da LC 214/2025)
+§ 1º As operações não onerosas com bens ou com serviços serão tributadas nas hipóteses
+expressamente previstas neste Regulamento.
+§ 2º Para fins do disposto neste artigo, considera-se operação onerosa com bens ou com serviços
+qualquer fornecimento com contraprestação, incluindo o decorrente de:
+I - compra e venda, troca ou permuta, dação em pagamento e demais espécies de alienação;
+II - locação;
+III - licenciamento, concessão, cessão;
+IV - mútuo oneroso;
+V - doação com contraprestação em benefício do doador;
+VI - instituição onerosa de direitos reais;
+VII - arrendamento, inclusive mercantil; e
+VIII - prestação de serviços.
+§ 3º São irrelevantes para a caracterização das operações de que trata este artigo:
+I - o título jurídico pelo qual o bem encontra-se na posse do fornecedor;
+II - a espécie, tipo ou forma jurídica, a validade jurídica e os efeitos dos atos ou negócios jurídicos;
+III - a obtenção de lucro com a operação; e
+IV - o cumprimento de exigências legais, regulamentares ou administrativas.
+§ 4º O IBS incide sobre qualquer operação com bem ou com serviço realizada pelo contribuinte,
+incluídas aquelas realizadas com ativo não circulante ou no exercício de atividade econômica não habitual.
+§ 5º Nas hipóteses de troca ou permuta de que trata o inciso I do § 2º, cada um dos fornecimentos será
+considerado uma operação distinta para fins de incidência do IBS, ressalvado o disposto no inciso I do § 3º
+do art. 360.
+
+7
+
+§ 6º A aquisição e o fornecimento, por pessoa física caracterizada como contribuinte, de bens e serviços
+não relacionados ao desenvolvimento de sua atividade econômica sujeitam-se às mesmas regras aplicáveis
+aos não contribuintes.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 5",
+    titulo: "O IBS também incide sobre as seguintes operações",
+    conteudo: `Art. 5º O IBS também incide sobre as seguintes operações: (Art. 5º da LC 214/2025)
+I - fornecimento não oneroso ou a valor inferior ao de mercado de bens e serviços:
+a) adquiridos pelo contribuinte, que tenham permitido a apropriação de créditos de IBS, para:
+1. o próprio contribuinte, caso este seja pessoa física;
+2. as pessoas físicas que sejam sócias, acionistas, administradoras e membros de conselhos de
+administração e fiscal e comitês de assessoramento do conselho de administração do contribuinte previstos
+em lei;
+3. os empregados do contribuinte; e
+4. os cônjuges, companheiros ou parentes, consanguíneos ou afins, até o terceiro grau, das pessoas
+físicas referidas nos itens 1 a 3 desta alínea;
+b) produzidos ou prestados pelo contribuinte para:
+1. as pessoas físicas de que tratam os itens 2 e 3 da alínea “a” deste inciso; e
+2. os cônjuges, companheiros ou parentes, consanguíneos ou afins, até o terceiro grau, das pessoas
+físicas referidas no item 1 desta alínea; e
+c) nas demais hipóteses previstas neste Regulamento;
+II - fornecimento de brindes e bonificações;
+III - transmissão, pelo contribuinte, para sócio ou acionista que não seja contribuinte no regime regular,
+por devolução de capital, dividendos in natura ou de outra forma, de bens cuja aquisição tenha permitido a
+apropriação de créditos pelo contribuinte, inclusive na produção; e
+IV - demais fornecimentos não onerosos ou a valor inferior ao de mercado de bens e serviços por
+contribuinte a parte relacionada.
+§ 1º Considera-se:
+I - brinde o bem ou serviço fornecido gratuitamente a consumidor final que não constitui objeto das
+atividades do fornecedor;
+II - bonificação o fornecimento a maior de bem ou serviço objeto da atividade do contribuinte em
+substituição a desconto no valor da operação.
+§ 2º O disposto no inciso II do caput deste artigo:
+I - não se aplica às bonificações que constem do respectivo documento fiscal e que não dependam de
+evento posterior; e
+II - aplica-se ao bem dado em bonificação sujeit`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 5 (parte 2)",
+    titulo: "o a alíquota específica por unidade de medida, inclusive\nna hipótese do inciso I deste parágrafo",
+    conteudo: `o a alíquota específica por unidade de medida, inclusive
+na hipótese do inciso I deste parágrafo.
+§ 3º Para fins do disposto neste Regulamento, considera-se que as partes são relacionadas quando no
+mínimo uma delas estiver sujeita à influência, exercida direta ou indiretamente por outra parte, que possa
+levar ao estabelecimento de termos e de condições em suas transações que divirjam daqueles que seriam
+estabelecidos entre partes não relacionadas em transações comparáveis.
+§ 4º São consideradas partes relacionadas, sem prejuízo de outras hipóteses que se enquadrem no
+disposto no § 3º:
+I - o controlador e as suas controladas;
+II - as coligadas;
+III - as entidades incluídas nas demonstrações financeiras consolidadas ou que seriam incluídas caso
+o controlador final do grupo multinacional de que façam parte preparasse tais demonstrações se o seu capital
+fosse negociado nos mercados de valores mobiliários de sua jurisdição de residência;
+IV - as entidades, quando uma delas possuir o direito de receber, direta ou indiretamente, no mínimo
+25% (vinte e cinco por cento) dos lucros da outra ou de seus ativos em caso de liquidação;
+
+8
+
+V - as entidades que estiverem, direta ou indiretamente, sob controle comum ou em que o mesmo
+sócio, acionista ou titular detiver 20% (vinte por cento) ou mais do capital social de cada uma;
+VI - as entidades em que os mesmos sócios ou acionistas, ou os seus cônjuges, companheiros,
+parentes, consanguíneos ou afins, até o terceiro grau, detiverem no mínimo 20% (vinte por cento) do capital
+social de cada uma; e
+VII - a entidade e a pessoa física que for cônjuge, companheiro ou parente, consanguíneo ou afim, até
+o terceiro grau, de conselheiro, de diretor ou de controlador daquela entidade.
+§ 5º Para fins da definição de partes relacionadas, o termo entidade compreende as pessoas físicas e
+jurídicas e as entidades sem personalidade jurídica.
+§ 6º Para fins do disposto no § 4º, fica caracterizada a relação de controle quando uma entidade:
+I - detiv`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 5 (parte 3)",
+    titulo: "er, de forma direta ou indireta, isoladamente ou em conjunto com outras entidades, inclusive em\nfunção da existência de acordos de votos, direitos que lhe assegurem preponderância nas deliberações...",
+    conteudo: `er, de forma direta ou indireta, isoladamente ou em conjunto com outras entidades, inclusive em
+função da existência de acordos de votos, direitos que lhe assegurem preponderância nas deliberações
+sociais ou o poder de eleger ou destituir a maioria dos administradores de outra entidade;
+II - participar, direta ou indiretamente, de mais de 50% (cinquenta por cento) do capital social de outra
+entidade; ou
+III - detiver ou exercer o poder de administrar ou gerenciar, de forma direta ou indireta, as atividades de
+outra entidade.
+§ 7º Para fins do disposto no inciso II do § 4º, considera-se coligada a entidade que detenha influência
+significativa sobre outra entidade, conforme previsto nos §§ 1º, 4º e 5º do art. 243 da Lei nº 6.404, de 15 de
+dezembro de 1976.
+§ 8º Não se aplica o disposto nas alíneas “a” e “b” do inciso I do caput deste artigo ao fornecimento às
+pessoas físicas neles referidas de bens e serviços utilizados preponderantemente na atividade econômica do
+contribuinte, conforme os critérios previstos nos §§ 1º e 2º do art. 63.
+§ 9º O fornecimento não oneroso ou a valor inferior ao de mercado dos bens e serviços nas hipóteses
+de que tratam as alíneas “a” e “b” do inciso I do caput deste artigo será tributado em montante equivalente ao
+IBS incidente sobre o valor de mercado do bem ou serviço.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 6",
+    titulo: "O IBS não incide sobre: (Art. 6º da LC 214/2025)\nI - fornecimento de serviços por pessoas físicas em decorrência de:\na) relação de emprego com o contribuinte; ou\nb) sua atuação como administradores...",
+    conteudo: `Art. 6º O IBS não incide sobre: (Art. 6º da LC 214/2025)
+I - fornecimento de serviços por pessoas físicas em decorrência de:
+a) relação de emprego com o contribuinte; ou
+b) sua atuação como administradores ou membros de conselhos de administração e fiscal e comitês
+de assessoramento do conselho de administração do contribuinte previstos em lei;
+II - transferência de bens entre estabelecimentos pertencentes ao mesmo contribuinte;
+III - baixa, liquidação e transmissão, incluindo alienação, de participação societária, ressalvado o
+disposto no inciso III do caput do art. 5º;
+IV - transmissão de bens em decorrência de fusão, cisão e incorporação e de integralização e
+devolução de capital, ressalvado o disposto no inciso III do caput do art. 5º;
+V - rendimentos financeiros, exceto quando incluídos na base de cálculo no regime específico de
+serviços financeiros de que trata o Capítulo II do Título VI do Livro I ou quando cobrados pelo fornecedor a
+título de juros, multas, acréscimos e encargos;
+VI - recebimento de dividendos e de juros sobre capital próprio, de juros ou remuneração ao capital
+pagos pelas cooperativas e os resultados de avaliação de participações societárias, ressalvado o disposto no
+inciso III do caput do art. 5º;
+VII - demais operações com títulos ou valores mobiliários, com exceção do disposto para essas
+operações no regime específico de serviços financeiros de que trata a Seção III do Capítulo II do Título VI do
+Livro I, nos termos previstos nesse regime e das demais situações previstas expressamente neste
+Regulamento;
+VIII - doações sem contraprestação em benefício do doador;
+IX - transferências de recursos públicos e demais bens públicos para organizações da sociedade civil
+constituídas como pessoas jurídicas sem fins lucrativos no País, por meio de termos de fomento, termos de
+colaboração, acordos de cooperação, termos de parceria, termos de execução descentralizada, contratos de
+
+9`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 6 (parte 2)",
+    titulo: "gestão, contratos de repasse, subvenções, convênios e demais instrumentos celebrados pela administração\npública direta, por autarquias e por fundações públicas;\nX - destinação de recursos por socie...",
+    conteudo: `gestão, contratos de repasse, subvenções, convênios e demais instrumentos celebrados pela administração
+pública direta, por autarquias e por fundações públicas;
+X - destinação de recursos por sociedade cooperativa para os fundos previstos no art. 28 da Lei nº
+5.764, de 16 de dezembro de 1971, e reversão dos recursos dessas reservas;
+XI - o repasse da cooperativa para os seus associados dos valores decorrentes das operações
+previstas no caput do art. 391 e a distribuição em dinheiro das sobras por sociedade cooperativa aos
+associados, apuradas em demonstração do resultado do exercício, ressalvado o disposto no inciso III do caput
+do art. 5º; e
+XII - as contribuições associativas estatutárias, de natureza não contraprestacional e destinadas à
+manutenção das associações civis sem fins econômicos que atendam aos requisitos previstos no art. 14 da
+Lei nº 5.172, de 25 de outubro de 1966 (Código Tributário Nacional);
+§ 1º O IBS incide sobre o conjunto de atos ou negócios jurídicos envolvendo as hipóteses previstas nos
+incisos III a VII do caput deste artigo que constituam, na essência, operação onerosa com bem ou com serviço.
+§ 2º Caso as doações de que trata o inciso VIII do caput deste artigo tenham por objeto bens ou serviços
+que tenham permitido a apropriação de créditos pelo doador, inclusive na produção:
+I - a doação será tributada com base no valor de mercado do bem ou serviço doado; ou
+II - por opção do contribuinte, os créditos serão anulados.
+§ 3º O disposto no § 2º não se aplica:
+I - às operações de que tratam os incisos I, III e IV do caput do art. 5º; e
+II - ao Fundo de Arrendamento Residencial (FAR) de que trata a Lei nº 10.188, de 12 de fevereiro de
+2001, que poderá manter a integralidade dos créditos de IBS relativos aos bens ou serviços adquiridos pelo
+FAR, mesmo em caso de doação. (Art.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 6 (parte 3)",
+    titulo: "490 da LC 214/2025)\n§ 4º Compreende-se na não incidência prevista no inciso VIII do caput deste artigo a amostra grátis,\nassim considerado o bem ou serviço, de diminuto ou nenhum valor comercial, q...",
+    conteudo: `490 da LC 214/2025)
+§ 4º Compreende-se na não incidência prevista no inciso VIII do caput deste artigo a amostra grátis,
+assim considerado o bem ou serviço, de diminuto ou nenhum valor comercial, que constitui objeto da atividade
+econômica do fornecedor e que, atendidos os requisitos estabelecidos em ato conjunto da RFB e do CGIBS,
+observe os seguintes critérios:
+I - no caso de bem material, seja fornecido em quantidade necessária para dar conhecimento de sua
+natureza e qualidade; e
+II - no caso de serviço e de bem imaterial, seja fornecido em período predeterminado necessário para
+dar conhecimento de sua natureza e qualidade pelo prazo máximo de 31 (trinta e um) dias corridos.
+§ 5º Na hipótese de amostra grátis de medicamentos, além dos requisitos de que trata o § 4º, deverá
+ser observada a legislação específica expedida pela respectiva agência reguladora.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 7",
+    titulo: "Na hipótese de fornecimento de diferentes bens e de serviços em uma mesma operação, será\nobrigatória a especificação de cada fornecimento e de seu respectivo valor, exceto se",
+    conteudo: `Art. 7º Na hipótese de fornecimento de diferentes bens e de serviços em uma mesma operação, será
+obrigatória a especificação de cada fornecimento e de seu respectivo valor, exceto se: (Art. 7º da LC 214/2025)
+I - todos os fornecimentos estiverem sujeitos ao mesmo tratamento tributário; ou
+II - algum dos fornecimentos puder ser considerado principal e os demais seus acessórios, hipótese
+em que se considerará haver fornecimento único, aplicando-se a ele o tratamento tributário correspondente
+ao fornecimento principal.
+§ 1º Para fins do disposto no inciso I do caput deste artigo, há tratamento tributário distinto caso os
+fornecimentos estejam sujeitos a regras diferentes em relação a incidência, regimes de tributação, isenção,
+momento de ocorrência do fato gerador, local da operação, alíquota, sujeição passiva e não cumulatividade.
+§ 2º Para fins do disposto no inciso II do caput deste artigo, consideram-se fornecimentos acessórios
+aqueles que sejam condição ou meio para o fornecimento principal.
+§ 3º Caso haja a cobrança unificada de diferentes fornecimentos em desacordo com o disposto neste
+artigo, cada fornecimento será considerado independente para todos os fins e a base de cálculo
+correspondente a cada um será arbitrada na forma do art. 16.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, fato_gerador, isencao, nao_cumulatividade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 8",
+    titulo: "Caso seja possível a aplicação de mais de um dos seguintes institutos à mesma operação,\nprevalecerá a ordem de aplicação a seguir",
+    conteudo: `Art. 8º Caso seja possível a aplicação de mais de um dos seguintes institutos à mesma operação,
+prevalecerá a ordem de aplicação a seguir: (Art. 7º-A da LC 214/2025)
+I - redução a zero de alíquota;
+II - suspensão com conversão em alíquota zero;
+
+10
+
+III - isenção;
+IV - diferimento; e
+V - redução de alíquota distinta daquela de que trata o inciso I do caput deste artigo.
+Parágrafo único. Caso seja possível a aplicação de mais de uma redução de alíquota à mesma
+operação:
+I - somente em caso de previsão expressa haverá a aplicação cumulativa das reduções; e
+II - não havendo previsão de cumulação, prevalecerá a maior redução.
+Seção II - Das Imunidades`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, imunidade, isencao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 9",
+    titulo: "São imunes ao IBS as exportações de bens e de serviços, nos termos do Capítulo IV deste\nTítulo",
+    conteudo: `Art. 9º São imunes ao IBS as exportações de bens e de serviços, nos termos do Capítulo IV deste
+Título. (Art. 8º da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 10",
+    titulo: "São imunes também ao IBS os fornecimentos",
+    conteudo: `Art. 10. São imunes também ao IBS os fornecimentos: (Art. 9º da LC 214/2025)
+I - realizados pela União, pelos Estados, pelo Distrito Federal e pelos Municípios;
+II - realizados por entidades religiosas e templos de qualquer culto, inclusive suas organizações
+assistenciais e beneficentes;
+III - realizados por partidos políticos, inclusive seus institutos e fundações, entidades sindicais dos
+trabalhadores e instituições de educação e de assistência social, sem fins lucrativos;
+IV - de livros, jornais, periódicos e do papel destinado a sua impressão;
+V - de fonogramas e videofonogramas musicais produzidos no Brasil contendo obras musicais ou
+literomusicais de autores brasileiros e/ou obras em geral interpretadas por artistas brasileiros, bem como os
+suportes materiais ou arquivos digitais que os contenham, salvo na etapa de replicação industrial de mídias
+ópticas de leitura a laser;
+VI - de serviço de comunicação nas modalidades de radiodifusão sonora e de sons e imagens de
+recepção livre e gratuita; e
+VII - de ouro, quando definido em lei como ativo financeiro ou instrumento cambial.
+§ 1º A imunidade prevista no inciso I do caput deste artigo é extensiva às autarquias e às fundações
+instituídas e mantidas pelo poder público e à empresa pública prestadora de serviço postal, bem como:
+I - compreende somente as operações relacionadas com as suas finalidades essenciais ou às delas
+decorrentes;
+II - não se aplica às operações relacionadas com exploração de atividades econômicas regidas pelas
+normas aplicáveis a empreendimentos privados, inclusive as realizadas por agências franqueadas da
+empresa pública prestadora de serviço postal, ou em que haja contraprestação ou pagamento de preços ou
+tarifas pelo usuário; e
+III - não exonera o promitente comprador da obrigação de pagar tributo relativamente a bem imóvel.
+§ 2º Para efeitos do disposto no inciso II do caput deste artigo, considera-se:
+I - entidade religiosa e templo de qualquer culto a pessoa jurídica de direito privado`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 10 (parte 2)",
+    titulo: "sem fins lucrativos\nque tem como objetivos professar a fé religiosa e praticar a religião; e\nII - organização assistencial e beneficente a pessoa jurídica de direito privado sem fins lucrativos\nvin...",
+    conteudo: `sem fins lucrativos
+que tem como objetivos professar a fé religiosa e praticar a religião; e
+II - organização assistencial e beneficente a pessoa jurídica de direito privado sem fins lucrativos
+vinculada e mantida por entidade religiosa e templo de qualquer culto, que fornece bens e serviços na área
+de assistência social, sem discriminação ou exigência de qualquer natureza aos assistidos.
+§ 3º A imunidade prevista no inciso III do caput deste artigo aplica-se, exclusivamente, às pessoas
+jurídicas sem fins lucrativos que cumpram, de forma cumulativa, os requisitos previstos no art. 14 da Lei nº
+5.172, de 25 de outubro de 1966 (Código Tributário Nacional).
+§ 4º As imunidades das entidades previstas nos incisos I a III do caput deste artigo não se aplicam às
+suas aquisições de bens materiais e imateriais, inclusive direitos, e serviços.
+Seção III - Do Momento de Ocorrência do Fato Gerador`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 11",
+    titulo: "Considera-se ocorrido o fato gerador do IBS no momento do fornecimento nas operações com\nbens ou com serviços, ainda que de execução continuada ou fracionada",
+    conteudo: `Art. 11. Considera-se ocorrido o fato gerador do IBS no momento do fornecimento nas operações com
+bens ou com serviços, ainda que de execução continuada ou fracionada. (Art. 10 da LC 214/2025)
+
+11
+
+§ 1º Para fins do disposto no caput deste artigo, considera-se ocorrido o fornecimento no momento:
+I - da entrega ou disponibilização de bem material;
+II - da instituição, transferência, cessão, concessão, licenciamento ou disponibilização de bem imaterial,
+inclusive direito;
+III - do início do transporte, na prestação de serviço de transporte iniciado no País;
+IV - do término do transporte, na prestação de serviço de transporte de carga quando iniciado no
+exterior;
+V - do término do fornecimento, no caso dos demais serviços;
+VI - em que o bem for encontrado desacobertado de documentação fiscal idônea; e
+VII - da aquisição do bem nas hipóteses de:
+a) licitação promovida pelo poder público de bem apreendido ou abandonado; ou
+b) leilão judicial.
+§ 2º Nas aquisições de bens e serviços pela administração pública direta, por autarquias e por
+fundações públicas, que estejam sujeitas ao disposto no art. 439, considera-se ocorrido o fato gerador no
+momento em que se realiza o pagamento.
+§ 3º Nas operações de execução continuada ou fracionada, considera-se ocorrido o fato gerador na
+primeira entre as seguintes ocorrências:
+I - quando se torna exigível a parte da contraprestação correspondente a cada pagamento assim
+considerada a data em que constituído o direito de recebimento do fornecedor contra o adquirente; ou
+II - pagamento da obrigação decorrente do fornecimento.
+§ 4º Para fins do disposto no inciso I do § 3º, na hipótese de fornecimentos em relação aos quais seja
+emitida fatura ou outro documento que constitua o direito de recebimento do fornecedor, considera-se exigível
+a parte da contraprestação correspondente a cada pagamento na data da respectiva emissão.
+§ 5º Para fins do disposto no caput deste artigo, caso ocorra pagamento, integral ou parcial, antes do
+fornecimento`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 11 (parte 2)",
+    titulo: ":\nI - na data de pagamento de cada parcela:\na) serão exigidas antecipações dos tributos, calculadas da seguinte forma:\n1",
+    conteudo: `:
+I - na data de pagamento de cada parcela:
+a) serão exigidas antecipações dos tributos, calculadas da seguinte forma:
+1. a base de cálculo corresponderá ao valor de cada parcela paga;
+2. as alíquotas serão aquelas vigentes e aplicáveis à operação na data da emissão do documento fiscal
+que corresponda ao pagamento ou na data do pagamento, o que ocorrer primeiro;
+b) as antecipações de que trata a alínea “a” deste inciso constarão como débitos na apuração;
+II - na data do fornecimento:
+a) os valores definitivos dos tributos serão calculados da seguinte forma:
+1. a base de cálculo será o valor total da operação, incluindo as parcelas pagas antecipadamente;
+2. as alíquotas serão aquelas vigentes na data do fornecimento;
+b) caso os valores das antecipações sejam inferiores aos definitivos, as diferenças constarão como
+débitos na apuração; e
+c) caso os valores das antecipações sejam superiores aos definitivos, será observado o disposto nos
+arts. 38 e 485.
+§ 6º Na hipótese do § 5º, caso não ocorra o fornecimento a que se refere o pagamento, inclusive em
+decorrência de distrato, será observado o disposto no art. 57.
+§ 7º A extinção dos débitos de que trata o § 4º permitirá ao adquirente a apropriação de crédito nos
+termos dos arts. 47 a 64.
+§ 8º Quando informada em documento fiscal, a data de previsão de entrega ou de disponibilização,
+considera-se seu fornecimento nessa data, salvo comprovação em contrário.
+§ 9º Na falta da informação da data de previsão de entrega ou de disponibilização, considera-se seu
+fornecimento na data de emissão do documento fiscal.
+
+12
+
+Seção IV - Do Local da Operação`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 12",
+    titulo: "Considera-se local da operação com",
+    conteudo: `Art. 12. Considera-se local da operação com: (Art. 11 da LC 214/2025)
+I - bem móvel material, o local da entrega ou disponibilização do bem ao destinatário;
+II - bem imóvel, bem móvel imaterial, inclusive direito, relacionado a bem imóvel, serviço prestado
+fisicamente sobre bem imóvel e serviço de administração e intermediação de bem imóvel, o local onde o
+imóvel estiver situado;
+III - serviço prestado fisicamente sobre a pessoa física ou fruído presencialmente por pessoa física, o
+local da prestação do serviço;
+IV - serviço de planejamento, organização e administração de feiras, exposições, congressos,
+espetáculos, exibições e congêneres, o local do evento a que se refere o serviço;
+V - serviço prestado fisicamente sobre bem móvel material e serviços portuários, o local da prestação
+do serviço;
+VI - serviço de transporte de passageiros, o local de início do transporte;
+VII - serviço de transporte de carga, o local da entrega ou disponibilização do bem ao destinatário
+constante no documento fiscal;
+VIII - serviço de exploração de via, mediante cobrança de valor a qualquer título, incluindo tarifas,
+pedágios e quaisquer outras formas de cobrança, o território de cada Município e Estado, ou do Distrito
+Federal, proporcionalmente à correspondente extensão da via explorada;
+IX - serviço de telefonia fixa e demais serviços de comunicação prestados por meio de cabos, fios,
+fibras e meios similares, o local de instalação do terminal; e
+X - bem ou serviço não abrangido pelos demais incisos deste artigo:
+a) se a operação for onerosa:
+1. o local do domicílio principal do adquirente residente ou domiciliado no País; ou
+2.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 12 (parte 2)",
+    titulo: "o local do domicílio principal do destinatário residente ou domiciliado no País, caso o adquirente não\nseja residente ou domiciliado no País",
+    conteudo: `o local do domicílio principal do destinatário residente ou domiciliado no País, caso o adquirente não
+seja residente ou domiciliado no País.
+b) se a operação for não onerosa, o local do domicílio principal do destinatário residente ou domiciliado
+no País.
+§ 1º Para fins do disposto no inciso I do caput deste artigo:
+I - em operação realizada de forma não presencial, assim entendida aquela em que a entrega ou
+disponibilização não ocorra na presença do adquirente ou destinatário no estabelecimento do fornecedor,
+considera-se local da entrega ou disponibilização do bem ao destinatário o destino final indicado pelo
+adquirente:
+a) ao fornecedor, caso o serviço de transporte seja de responsabilidade do fornecedor; ou
+b) ao terceiro responsável pelo transporte, caso o serviço de transporte seja de responsabilidade do
+adquirente;
+II - considera-se ocorrida a operação no local do domicílio principal do destinatário, na aquisição de
+veículo automotor terrestre, aquático ou aéreo;
+III - considera-se ocorrida a operação no local onde se encontra o bem móvel material:
+a) na aquisição de bem nas hipóteses de:
+1. licitação promovida pelo poder público de bem apreendido ou abandonado; ou
+2. leilão judicial; e
+b) na constatação de irregularidade pela falta de documentação fiscal ou pelo acobertamento por
+documentação inidônea.
+§ 2º Para fins do disposto no inciso II do caput deste artigo, caso o bem imóvel esteja situado em mais
+de um município, considera-se local do imóvel o município onde está situada a maior parte da sua área.
+§ 3º Para fins deste Regulamento, considera-se local do domicílio principal do adquirente ou, conforme
+o caso, do destinatário:
+
+13`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 12 (parte 3)",
+    titulo: "I - o local constante do cadastro com identificação única de que trata o Capítulo I do Título II deste Livro,\nque deverá considerar",
+    conteudo: `I - o local constante do cadastro com identificação única de que trata o Capítulo I do Título II deste Livro,
+que deverá considerar:
+a) para as pessoas físicas, o local da sua habitação permanente ou, na hipótese de inexistência ou de
+mais de uma habitação permanente, o local onde as suas relações econômicas forem mais relevantes; e
+b) para as pessoas jurídicas e entidades sem personalidade jurídica, conforme aplicável, o local de
+cada estabelecimento para o qual seja fornecido o bem ou serviço;
+II - na hipótese de adquirente ou destinatário não regularmente cadastrado, o que resultar da
+combinação de ao menos 2 (dois) critérios não conflitantes entre si, à escolha do fornecedor, entre os
+seguintes:
+a) endereço declarado ao fornecedor;
+b) endereço obtido mediante coleta de outras informações comercialmente relevantes no curso da
+execução da operação;
+c) endereço do adquirente constante do cadastro do arranjo de pagamento utilizado para o pagamento
+da operação; e
+d) endereço de Protocolo de Internet (IP) do dispositivo utilizado para contratação da operação ou
+obtido por emprego de método de geolocalização;
+III - caso não seja possível cumprir o disposto no inciso II deste parágrafo, será considerado o endereço
+declarado ao fornecedor.
+§ 4º Nas aquisições realizadas de forma centralizada por contribuinte sujeito ao regime regular do IBS
+que possui mais de um estabelecimento e que não estejam sujeitas a vedação à apropriação de créditos:
+I - os serviços de que trata o inciso IX do caput deste artigo e a locação de bem móvel material serão
+considerados fornecidos no domicílio principal do adquirente; e
+II - para fins do disposto no inciso X do caput deste artigo e no inciso I deste parágrafo, considera-se
+como domicílio principal do adquirente o local do seu estabelecimento matriz.
+§ 5º Aplica-se aos serviços de que trata o inciso III do caput deste artigo que forem prestados à
+distância, ainda que parcialmente, o disposto no inciso X do caput deste artigo.
+§ 6º Caso a`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 12 (parte 4)",
+    titulo: "autoridade tributária constate que as informações prestadas pelo adquirente nos termos\ndo § 3º estejam incorretas e resultem em pagamento a menor do IBS, a diferença será exigida do adquirente,\ncom...",
+    conteudo: `autoridade tributária constate que as informações prestadas pelo adquirente nos termos
+do § 3º estejam incorretas e resultem em pagamento a menor do IBS, a diferença será exigida do adquirente,
+com acréscimos legais.
+§ 7º Nas operações de abastecimento de água, fornecimento de gás canalizado e de energia elétrica,
+considera-se como local da operação:
+I - o local da entrega ou disponibilização, nas operações destinadas a consumo;
+II - o local do estabelecimento principal do adquirente, definido nos termos do § 4º, nas operações que
+não envolvam efetivo consumo:
+a) no fornecimento de serviços de transmissão de energia elétrica; e
+b) nas demais operações, inclusive nas hipóteses de geração, distribuição ou comercialização de
+energia elétrica.
+§ 8º Nas aquisições de energia elétrica realizadas de forma multilateral, considera-se local da operação
+o do estabelecimento do agente ou de seus representados que figurem na posição devedora da liquidação
+financeira apurada pela Câmara de Comercialização de Energia Elétrica.
+§ 9º Nas operações de transporte dutoviário de gás natural, o local da operação será o do
+estabelecimento principal do:
+I - fornecedor na contratação de capacidade de entrada de gás natural do duto, nos termos da legislação
+aplicável; e
+II - adquirente, na contratação de capacidade de saída do gás natural do duto.
+§ 10. Aplica-se o disposto no inciso X do caput deste artigo às operações de cessão de espaço para
+prestação de serviços publicitários.
+§ 11. Nas operações de serviços notariais e de registro relativos a bem imóvel ou a bem móvel imaterial,
+inclusive direito, relacionado a bem imóvel, aplica-se o disposto no inciso III do caput deste artigo, caso seja
+fruído presencialmente, ou o disposto no inciso X do caput deste artigo, nas demais hipóteses.
+
+14`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 3,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 12 (parte 5)",
+    titulo: "§ 12. Aplica-se o disposto no inciso V do caput deste artigo aos serviços prestados em portos secos e\naeroportos.\n§ 13. Para efeito do inciso VI do caput deste artigo, consideram-se",
+    conteudo: `§ 12. Aplica-se o disposto no inciso V do caput deste artigo aos serviços prestados em portos secos e
+aeroportos.
+§ 13. Para efeito do inciso VI do caput deste artigo, consideram-se:
+I - incluídas no serviço de transporte de passageiros as bagagens que levarem consigo;
+II - para cada fornecimento, irrelevantes os trajetos parciais e os respectivos modais utilizados.
+§ 14. Para os efeitos da alínea “b” do inciso I do § 1º:
+I - se não for emitido o documento fiscal relacionado ao transporte, o local da entrega será aquele
+informado no documento fiscal idôneo relativo ao bem; e
+II - se houver divergência entre o endereço informado no documento fiscal relativo ao bem e no
+documento fiscal relativo ao transporte, será considerado o local de entrega aquele constante no documento
+fiscal idôneo relacionado ao transporte.
+§ 15. Aplica-se o disposto no inciso II do § 1º nas aquisições de veículo automotor em licitação
+promovida pelo poder público de bem apreendido ou abandonado ou leilão judicial.
+Seção V - Da Base de Cálculo`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 4,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 13",
+    titulo: "A base de cálculo do IBS é o valor da operação, salvo disposição em contrário prevista neste\nRegulamento",
+    conteudo: `Art. 13. A base de cálculo do IBS é o valor da operação, salvo disposição em contrário prevista neste
+Regulamento. (Art. 12 da LC 214/2025)
+§ 1º O valor da operação compreende o valor integral cobrado pelo fornecedor a qualquer título,
+inclusive os valores correspondentes a:
+I - acréscimos decorrentes de ajuste do valor da operação;
+II - juros, multas, acréscimos e encargos;
+III - descontos concedidos sob condição;
+IV - valor do transporte cobrado como parte do valor da operação, no transporte efetuado pelo próprio
+fornecedor ou no transporte por sua conta e ordem;
+V - tributos e preços públicos, inclusive tarifas, incidentes sobre a operação ou suportados pelo
+fornecedor, exceto aqueles previstos no § 2º; e
+VI - demais importâncias cobradas ou recebidas como parte do valor da operação, inclusive seguros e
+taxas.
+§ 2º Não integram a base de cálculo do IBS:
+I - o montante do IBS e da CBS incidentes sobre a operação;
+II - o montante do Imposto sobre Produtos Industrializados (IPI);
+III - os descontos incondicionais;
+IV - os reembolsos ou ressarcimentos recebidos por valores pagos relativos a operações por conta e
+ordem ou em nome de terceiros, desde que a documentação fiscal relativa a essas operações seja emitida
+em nome do terceiro;
+V - o montante incidente na operação dos tributos a que se referem o inciso II do caput do art. 155,
+inclusive aquele retido por substituição tributária nas operações anteriores, o inciso III do caput do art. 156 e
+a alínea “b” do inciso I e o inciso IV do caput do art. 195 da Constituição Federal, e da Contribuição para os
+Programas de Integração Social e de Formação do Patrimônio do Servidor Público (Contribuição para o
+PIS/Pasep) a que se refere o art. 239 da Constituição Federal, de 1º de janeiro de 2026 a 31 de dezembro de
+2032; e
+VI - a contribuição de que trata o art.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, fato_gerador, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 13 (parte 2)",
+    titulo: "149-A da Constituição Federal.\n§ 3º Para efeitos do disposto no inciso III do § 2º, considera-se desconto incondicional a parcela\nredutora do preço da operação que conste do respectivo documento fi...",
+    conteudo: `149-A da Constituição Federal.
+§ 3º Para efeitos do disposto no inciso III do § 2º, considera-se desconto incondicional a parcela
+redutora do preço da operação que conste do respectivo documento fiscal e não dependa de evento posterior,
+inclusive se realizado por meio de programa de fidelidade concedido de forma não onerosa pelo próprio
+fornecedor.
+§ 4º Sem prejuízo do disposto no art. 81, se o valor da operação estiver expresso em moeda
+estrangeira, será feita sua conversão em moeda nacional por taxa de câmbio apurada pelo Banco Central do
+Brasil, observado o seguinte:
+
+15
+
+I - será utilizada a taxa de câmbio para venda do dólar dos Estados Unidos da América, divulgada pelo
+Banco Central do Brasil (PTAX), ou outra que vier a substituí-la, referente ao dia imediatamente anterior ao
+do momento da ocorrência do fato gerador, conforme disposto no art. 11;
+II - na ausência de divulgação da taxa referida no inciso I no dia imediatamente anterior ao do momento
+da ocorrência do fato gerador, será utilizada a última taxa disponível;
+III - caso a moeda seja diversa do dólar dos Estados Unidos da América, será utilizada a taxa de câmbio
+para venda calculada pela autoridade monetária do país de origem da referida moeda e divulgada pelo Banco
+Central do Brasil, referente ao dia imediatamente anterior ao do momento da ocorrência do fato gerador; e
+IV - caso a moeda não tenha cotação no País, o valor da operação será convertido em dólares dos
+Estados Unidos da América e, em seguida, aplicar-se-á o disposto nos incisos I e II deste parágrafo.
+§ 5º Caso o contribuinte contrate instrumentos financeiros derivativos fora de condições de mercado e
+que ocultem, parcial ou integralmente, o valor da operação, o ganho no derivativo comporá a base de cálculo
+do IBS.
+§ 6º A base de cálculo relativa à devolução ou ao cancelamento será a mesma utilizada na operação
+original.
+§ 7º No transporte internacional de passageiros, caso os trechos de ida e volta sejam vendidos em
+conjunto, a base de c`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, fato_gerador, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 13 (parte 3)",
+    titulo: "álculo será a metade do valor cobrado",
+    conteudo: `álculo será a metade do valor cobrado.
+§ 8º Nas aquisições de energia elétrica realizadas de forma multilateral, a base de cálculo é o valor da
+liquidação financeira apurada pela Câmara de Comercialização de Energia Elétrica, observada a participação
+proporcional dos estabelecimentos do agente ou de seus representados.
+§ 9º O disposto no inciso I do § 1º alcança, inclusive, o acréscimo havido caso o valor de mercado do
+bem ou serviço recebido em dação em pagamento de dívida em dinheiro seja superior ao valor original desta.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, fato_gerador, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 14",
+    titulo: "A base de cálculo corresponderá ao valor de mercado dos bens ou serviços, entendido como\no valor praticado em operações comparáveis entre partes não relacionadas, nas seguintes hipóteses",
+    conteudo: `Art. 14. A base de cálculo corresponderá ao valor de mercado dos bens ou serviços, entendido como
+o valor praticado em operações comparáveis entre partes não relacionadas, nas seguintes hipóteses: (Art.
+12, § 4º, da LC 214/2025)
+I - falta do valor da operação;
+II - operação sem valor determinado;
+III - valor da operação não representado em dinheiro; e
+IV - operação entre partes relacionadas, nos termos do inciso IV do caput do art. 5º, observado o
+disposto nos seus §§ 3º a 7º
+§ 1º Ressalvadas as operações com bens imóveis de que trata o Capítulo V do Título VI deste Livro, a
+apuração do valor de mercado a que se refere o caput deste artigo será obtida considerando-se as operações
+mais recentes realizadas pelo contribuinte ou por terceiros, em um período de 3 (três) meses considerando,
+sempre que possível, os seguintes critérios:
+I - a natureza e a qualidade dos bens ou serviços;
+II - a quantidade envolvida;
+III - as condições de pagamento;
+IV - o prazo do fornecimento;
+V - o mercado geográfico do destino da operação;
+VI - demais circunstâncias que possam influenciar o preço praticado.
+§ 2º Quando necessário, a apuração do valor de mercado para fins deste artigo será realizada pela
+administração tributária com base nas informações constantes do banco de dados de documentos fiscais.
+§ 3º Na impossibilidade de apuração do valor de mercado com base nos critérios referidos no § 1º, os
+seguintes critérios poderão ser utilizados sucessivamente:
+I - o valor de operações anteriores, preferencialmente em período não superior a 1 (um) ano, realizados
+os ajustes pertinentes e observadas circunstâncias que possam influenciar o preço praticado;
+II - o custo total, incluindo custos diretos e indiretos, de produção ou aquisição do bem ou de prestação
+do serviço, acrescido do lucro bruto apurado com base na escrita contábil ou fiscal; ou
+
+16`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 14 (parte 2)",
+    titulo: "III - o custo total, incluindo custos diretos e indiretos, de produção ou aquisição do bem ou de prestação\ndo serviço, acrescido das despesas indispensáveis à manutenção das atividades do sujeito p...",
+    conteudo: `III - o custo total, incluindo custos diretos e indiretos, de produção ou aquisição do bem ou de prestação
+do serviço, acrescido das despesas indispensáveis à manutenção das atividades do sujeito passivo.
+§ 4º Na hipótese de bens negociados em bolsas de mercadorias e futuros, considera-se valor de
+mercado a média das cotações de fechamento da data da operação, conforme as bolsas de mercadorias e
+futuros consideradas no levantamento, nos termos de ato conjunto da RFB e do CGIBS.
+§ 5º A apuração do valor de mercado de ativos virtuais poderá ser baseada na cotação do ativo na data
+da operação em transações realizadas por intermédio de uma ou mais prestadoras de serviços de ativos
+virtuais, nos termos de ato conjunto da RFB e do CGIBS.
+§ 6º Nas hipóteses de que trata o § 5º do art. 4º, a base de cálculo de cada fornecimento corresponderá
+ao valor de mercado do bem ou serviço recebido em troca ou permuta.
+§ 7º Ato conjunto da RFB e do CGIBS poderá disciplinar sobre:
+I - outros requisitos e ajustes na apuração do valor de mercado;
+II - critérios para delimitação do mercado geográfico a que se refere o § 1º;
+III - forma simplificada de apuração do valor de mercado e respectiva obrigação acessória; e
+IV - forma de apresentação da memória de cálculo, dos critérios e dos elementos utilizados pelo
+contribuinte na apuração do valor de mercado.
+§ 8º O valor de mercado no fornecimento de brindes será o preço de aquisição do bem ou serviço.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 15",
+    titulo: "Exclui-se da base de cálculo do IBS o valor da energia elétrica fornecida pela distribuidora à\nunidade consumidora, na quantidade correspondente à energia injetada na rede de distribuição pela mesm...",
+    conteudo: `Art. 15. Exclui-se da base de cálculo do IBS o valor da energia elétrica fornecida pela distribuidora à
+unidade consumidora, na quantidade correspondente à energia injetada na rede de distribuição pela mesma
+unidade consumidora, acrescido do valor dos créditos de energia elétrica originados na própria unidade
+consumidora no mesmo mês, em meses anteriores ou em outra unidade consumidora do mesmo titular. (Art.
+28, §§ 3º e 4º, da LC 214/2025)
+§ 1º A exclusão de que trata o caput deste artigo aplica-se somente:
+I - a consumidores participantes do Sistema de Compensação de Energia Elétrica, de que trata a Lei
+nº 14.300, de 6 de janeiro de 2022;
+II - à compensação de energia elétrica produzida por microgeração e minigeração, cuja potência
+instalada seja, respectivamente, menor ou igual a 75 kW e superior a 75 kW e menor ou igual a 1 MW.
+§ 2º A exclusão de que trata o caput deste artigo não se aplica:
+I - aos valores relativos:
+a) ao custo de disponibilidade;
+b) à energia reativa;
+c) à demanda de potência;
+d) aos encargos de conexão ou uso do sistema de distribuição;
+e) aos componentes tarifários não associados ao custo da energia; e
+f) a quaisquer outros cobrados pela distribuidora;
+II - às unidades consumidoras de energia elétrica participantes dos sistemas de compensação de
+energia nas seguintes modalidades:
+a) geração compartilhada, por meio de consórcio, cooperativa, condomínio civil voluntário ou edilício,
+ou associação civil constituída para esse fim;
+b) empreendimento com múltiplas unidades consumidoras.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 16",
+    titulo: "O valor da operação será arbitrado pela administração tributária quando",
+    conteudo: `Art. 16. O valor da operação será arbitrado pela administração tributária quando: (Art. 13 da LC
+214/2025)
+I - não forem exibidos à fiscalização, inclusive sob alegação de perda, extravio, desaparecimento ou
+sinistro, os elementos necessários à comprovação do valor da operação nos casos em que:
+a) for realizada a operação sem emissão de documento fiscal ou estiver acobertada por documentação
+inidônea; ou
+b) for declarado em documento fiscal valor notoriamente inferior ao valor de mercado da operação;
+
+17
+
+II - em qualquer outra hipótese em que forem omissos, conflitantes ou não merecerem fé as
+declarações, informações ou documentos apresentados pelo sujeito passivo ou por terceiro legalmente
+obrigado.
+Parágrafo único. Para fins do arbitramento de que trata este artigo, a base de cálculo do IBS será:
+I - o valor de mercado dos bens ou serviços fornecidos, entendido como o valor praticado em operações
+comparáveis entre partes não relacionadas, conforme o disposto no art. 14; ou
+II - quando não estiver disponível o valor de que trata o inciso I deste parágrafo, aquela calculada:
+a) com base no custo do bem ou serviço, acrescido das despesas indispensáveis à manutenção das
+atividades do sujeito passivo ou do lucro bruto apurado com base na escrita contábil ou fiscal; ou
+b) pelo valor fixado por órgão competente, pelo preço final a consumidor sugerido pelo fabricante ou
+importador ou pelo preço divulgado ou fornecido por entidades representativas dos respectivos setores,
+conforme o caso.
+Seção VI - Das Alíquotas`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 17",
+    titulo: "As disposições relativas às alíquotas do IBS, fixadas por lei específica do ente federativo, e à\nalíquota de referência, fixada na forma do art",
+    conteudo: `Art. 17. As disposições relativas às alíquotas do IBS, fixadas por lei específica do ente federativo, e à
+alíquota de referência, fixada na forma do art. 18 da Lei Complementar nº 214, de 2025, serão tratadas no
+Livro II.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 18",
+    titulo: "A alíquota aplicada para fins de devolução ou cancelamento da operação será a mesma\ncobrada na operação original",
+    conteudo: `Art. 18. A alíquota aplicada para fins de devolução ou cancelamento da operação será a mesma
+cobrada na operação original. (Art. 17 da LC 214/2025)
+Seção VII - Da Sujeição Passiva`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 19",
+    titulo: "São contribuintes do IBS: (Art. 21 da LC 214/2025)\nI - o fornecedor que realizar operações:\na) no desenvolvimento de atividade econômica;\nb) de modo habitual ou em volume que caracterize atividade...",
+    conteudo: `Art. 19. São contribuintes do IBS: (Art. 21 da LC 214/2025)
+I - o fornecedor que realizar operações:
+a) no desenvolvimento de atividade econômica;
+b) de modo habitual ou em volume que caracterize atividade econômica; ou
+c) de forma profissional, ainda que a profissão não seja regulamentada;
+II - o adquirente, ainda que não enquadrado no inciso I, na aquisição de bem:
+a) apreendido ou abandonado, em licitação promovida pelo poder público; ou
+b) em leilão judicial;
+III - o importador;
+IV - aquele previsto expressamente em outras hipóteses neste Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 20",
+    titulo: "As plataformas digitais, ainda que domiciliadas no exterior, são responsáveis pelo pagamento\ndo IBS relativo às operações e importações realizadas por seu intermédio, nas seguintes hipóteses",
+    conteudo: `Art. 20. As plataformas digitais, ainda que domiciliadas no exterior, são responsáveis pelo pagamento
+do IBS relativo às operações e importações realizadas por seu intermédio, nas seguintes hipóteses: (Art. 22
+da LC 214/2025)
+I - solidariamente com o adquirente ou destinatário e em substituição ao fornecedor, caso este seja
+residente ou domiciliado no exterior; e
+II - solidariamente com o fornecedor residente e domiciliado no País, caso:
+a) a plataforma digital não forneça as informações previstas no § 4º; ou
+b) o fornecedor:
+1. seja contribuinte, ainda que não inscrito no cadastro com identificação única nos termos do Capítulo
+I do Título II deste Livro; e
+2. não emita documento fiscal no valor da operação realizada por meio da plataforma.
+c) não registre a operação em documento fiscal.
+§ 1º Considera-se plataforma digital aquela que:
+I - atua como intermediária entre fornecedores e adquirentes nas operações e importações realizadas
+de forma não presencial ou por meio eletrônico; e
+II - controla um ou mais dos seguintes elementos essenciais à operação:
+
+18
+
+a) cobrança;
+b) pagamento;
+c) definição dos termos e condições; ou
+d) entrega.
+§ 2º Não é considerada plataforma digital aquela que executa somente uma das seguintes atividades:
+I - fornecimento de acesso à internet;
+II - serviços de pagamentos prestados por instituições autorizadas a funcionar pelo Banco Central do
+Brasil;
+III - publicidade; ou
+IV - busca ou comparação de fornecedores, desde que não cobre pelo serviço com base nas vendas
+realizadas.
+§ 3º Para fins de aplicação do disposto no item 1 da alínea “b” do inciso II do caput deste artigo, caso
+o fornecedor residente ou domiciliado no País não esteja inscrito, a condição de contribuinte do fornecedor
+será informada à plataforma digital pela administração tributária, nos termos de ato conjunto da RFB e do
+CGIBS.
+§ 4º A plataforma digital apresentará, nos termos de ato conjunto da RFB e do CGIBS, informações
+sobre as operações e importações com bens ou c`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 20 (parte 2)",
+    titulo: "om serviços realizadas por seu intermédio, inclusive\nidentificando o fornecedor, ainda que não seja contribuinte",
+    conteudo: `om serviços realizadas por seu intermédio, inclusive
+identificando o fornecedor, ainda que não seja contribuinte.
+§ 5º Na hipótese em que a plataforma digital seja a originadora da transação de pagamento, esta deverá
+apresentar as informações necessárias para a segregação e o recolhimento dos valores do IBS devido pelo
+fornecedor na liquidação financeira da operação (split payment), quando disponível, inclusive no
+procedimento simplificado, nos termos dos arts. 28 a 35.
+§ 6º Para fins do § 5º, considera-se disponível o split payment sempre que a legislação preveja sua
+aplicação à transação de pagamento realizada pelo meio de pagamento adotado na operação.
+§ 7º A plataforma digital não será responsável pelo pagamento de eventuais diferenças entre os valores
+de IBS recolhidos e aqueles devidos na operação pelo fornecedor residente e domiciliado no País caso:
+I - seja possível realizar o split payment na liquidação financeira da operação e a plataforma digital
+apresente corretamente as informações de que trata o § 5º; e
+II - a plataforma digital apresente as informações de que trata o § 4º
+§ 8º Nas hipóteses em que a plataforma digital for responsável, nos termos dos incisos I e II do caput
+deste artigo:
+I - haverá solidariedade pelos débitos de IBS do fornecedor relativos à operação, de acordo com as
+regras tributárias a ele aplicáveis, caso o fornecedor:
+a) seja residente ou domiciliado no País; e
+b) esteja inscrito como contribuinte do IBS, no regime regular ou em regime favorecido; e
+II - nos demais casos, o débito de IBS será calculado pelas regras do regime regular, inclusive quanto
+às alíquotas, regimes diferenciados e regimes específicos aplicáveis aos bens e serviços.
+§ 9º A plataforma digital poderá optar, com anuência do fornecedor residente ou domiciliado no País,
+observados os critérios estabelecidos em ato conjunto da RFB e do CGIBS:
+I - por emitir documentos fiscais em nome do fornecedor, inclusive de forma consolidada; e
+II - por pagar o IBS, com base n`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 20 (parte 3)",
+    titulo: "o valor e nas demais informações da operação intermediada pela\nplataforma, mantida a obrigação do fornecedor em relação a eventuais diferenças",
+    conteudo: `o valor e nas demais informações da operação intermediada pela
+plataforma, mantida a obrigação do fornecedor em relação a eventuais diferenças.
+§ 10. A plataforma digital poderá optar, com anuência do fornecedor, na forma estabelecida em ato
+conjunto da RFB e do CGIBS, por ser substituta tributária em relação às operações que intermediar de
+fornecedor residente ou domiciliado no País, hipótese na qual deverá:
+I - emitir documentos fiscais relativos às operações do fornecedor substituído, inclusive de forma
+consolidada;
+II - apurar o IBS decorrente das mencionadas operações de acordo com o disposto nos incisos I ou II
+do § 8º, conforme o caso; e
+
+19
+
+III - pagar o IBS com base no valor e nas demais informações da operação intermediada pela
+plataforma, mantida a obrigação do fornecedor em relação a eventuais diferenças.
+§ 11. Na hipótese da alínea “b” do inciso II do caput deste artigo, caso a plataforma emita o documento
+fiscal no prazo de 30 (trinta) dias contado da data em que o fornecedor deveria tê-lo emitido e pague o IBS
+nos termos deste Regulamento, com base no valor e nas demais informações da operação por ela
+intermediada, os acréscimos de que trata o § 2º do art. 27 e a penalidade por falta de emissão do documento
+fiscal serão exigidos exclusivamente do fornecedor.
+§ 12. Nas hipóteses dos §§ 9º, 10 e 11, a plataforma digital fica autorizada a calcular os débitos de IBS
+pelas alíquotas de referência no caso de indisponibilidade de informação quanto às regras tributárias
+aplicáveis ao fornecedor e eventual diferença do IBS devido na operação deverá ser:
+I - paga pelo fornecedor, caso as alíquotas incidentes sejam maiores que as alíquotas de referência;
+ou
+II - devolvida caso as alíquotas incidentes sejam menores que as alíquotas de referência.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 21",
+    titulo: "Caso o fornecedor ou a plataforma digital residentes ou domiciliados no exterior não sejam\ninscritos no cadastro com identificação única de que trata o Capítulo I do Título II deste Livro, no regim...",
+    conteudo: `Art. 21. Caso o fornecedor ou a plataforma digital residentes ou domiciliados no exterior não sejam
+inscritos no cadastro com identificação única de que trata o Capítulo I do Título II deste Livro, no regime
+regular: (Art. 23, parágrafo único, da LC 214/2025)
+I - o IBS será segregado e recolhido, pelas alíquotas de referência, nas remessas ao fornecedor ou à
+plataforma, pela instituição que realiza a operação de câmbio, observados os critérios estabelecidos em ato
+conjunto da RFB e do CGIBS; e
+II - eventual diferença do IBS devido na operação ou importação deverá ser:
+a) paga pelo adquirente ou importador, caso as alíquotas incidentes sejam maiores que as alíquotas
+de referência; ou
+b) devolvida ao adquirente ou importador, caso as alíquotas incidentes sejam menores que as alíquotas
+de referência.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 22",
+    titulo: "Nas operações com energia elétrica ou com direitos a ela relacionados, o recolhimento do IBS\nrelativo a importação, geração, comercialização, distribuição e transmissão será realizado exclusivamente",
+    conteudo: `Art. 22. Nas operações com energia elétrica ou com direitos a ela relacionados, o recolhimento do IBS
+relativo a importação, geração, comercialização, distribuição e transmissão será realizado exclusivamente:
+(Art. 28 da LC 214/2025)
+I - pela distribuidora de energia elétrica, nas hipóteses de fornecimento para adquirente atendido no
+ambiente de contratação regulada ou de cobrança pelo uso dos sistemas de distribuição para consumidores
+atendidos no ambiente de contratação livre;
+II - pelo alienante, caso se trate de aquisição no ambiente de contratação livre de energia para consumo
+do adquirente ou quando o adquirente não esteja sujeito ao regime regular do IBS;
+III - na hipótese de aquisição para consumo, realizada de forma multilateral:
+a) pelo comercializador varejista, em relação ao consumo das unidades consumidoras representadas;
+ou
+b) nos demais casos, pelo estabelecimento consumidor;
+IV - pela transmissora de energia elétrica, na prestação de serviço de transmissão de energia elétrica
+e de conexão ao sistema de transmissão a consumidor conectado diretamente à rede básica de transmissão.
+§ 1º O recolhimento do IBS incidente nas operações com energia elétrica, ou com direitos a ela
+relacionados, relativas a importação, geração, comercialização, distribuição e transmissão ocorrerá somente
+no fornecimento:
+I - para consumo; ou
+II - para contribuinte não sujeito ao regime regular do IBS.
+§ 2º No serviço de transmissão de energia elétrica e de conexão aos sistemas de transmissão,
+considera-se ocorrido o fornecimento no momento definido nos termos do § 3º do art. 11.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 23",
+    titulo: "Sem prejuízo das demais hipóteses previstas na Lei nº 5",
+    conteudo: `Art. 23. Sem prejuízo das demais hipóteses previstas na Lei nº 5.172, de 25 de outubro de 1966 (Código
+Tributário Nacional) e na legislação civil, são solidariamente responsáveis pelo pagamento do IBS: (Art. 24 da
+LC 214/2025)
+I - a pessoa ou entidade sem personalidade jurídica que, a qualquer título, adquire, importa, recebe, dá
+entrada ou saída ou mantém em depósito bem, ou toma serviço, não acobertado por documento fiscal idôneo;
+
+20
+
+II - o transportador, inclusive empresa de serviço postal ou entrega expressa:
+a) em relação a bem transportado desacobertado de documento fiscal idôneo;
+b) quando efetuar a entrega de bem em local distinto daquele indicado no documento fiscal;
+III - o leiloeiro, pelo IBS devido na operação realizada em leilão;
+IV - os desenvolvedores ou fornecedores de programas ou aplicativos utilizados para registro de
+operações com bens ou com serviços que contenham funções ou comandos inseridos com a finalidade de
+descumprir a legislação tributária;
+V - qualquer pessoa física, pessoa jurídica ou entidade sem personalidade jurídica que concorra por
+seus atos e omissões para o descumprimento de obrigações tributárias, por meio de:
+a) ocultação da ocorrência ou do valor da operação; ou
+b) abuso da personalidade jurídica, caracterizado pelo desvio de finalidade ou pela confusão
+patrimonial; e
+VI - o entreposto aduaneiro, o recinto alfandegado ou estabelecimento a ele equiparado, o depositário
+ou o despachante, em relação ao bem:
+a) destinado para o exterior sem documentação fiscal correspondente;
+b) recebido para exportação e não exportado;
+c) destinado a pessoa ou entidade sem personalidade jurídica diversa daquela que o tiver importado
+ou arrematado; ou
+d) importado e entregue sem a devida autorização das administrações tributárias competentes.
+§ 1º A imunidade de que trata o § 1º do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, biocombustivel, combustivel, exportacao, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 23 (parte 2)",
+    titulo: "10 não exime a empresa pública prestadora de serviço\npostal da responsabilidade solidária nas hipóteses previstas no inciso II do caput deste artigo",
+    conteudo: `10 não exime a empresa pública prestadora de serviço
+postal da responsabilidade solidária nas hipóteses previstas no inciso II do caput deste artigo.
+§ 2º A responsabilidade a que se refere a alínea “a” do inciso V do caput deste artigo restringe-se ao
+valor ocultado da operação.
+§ 3º Não enseja responsabilidade solidária a mera existência de grupo econômico quando inexistente
+qualquer ação ou omissão que se enquadre no disposto no inciso V do caput deste artigo.
+§ 4º Os rerrefinadores ou coletores autorizados pela Agência Nacional do Petróleo, Gás Natural e
+Biocombustíveis (ANP) são solidariamente responsáveis pelo pagamento do IBS incidente na aquisição de
+óleo lubrificante usado ou contaminado de contribuinte sujeito ao regime regular.`,
+    topicos: "CBS, IBS, Reforma Tributária, biocombustivel, combustivel, exportacao, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 24",
+    titulo: "As responsabilidades de que trata este Regulamento compreendem a obrigação pelo\npagamento do IBS, acrescido de correção e atualização monetária, multa de mora, multas punitivas e demais\nencargos",
+    conteudo: `Art. 24. As responsabilidades de que trata este Regulamento compreendem a obrigação pelo
+pagamento do IBS, acrescido de correção e atualização monetária, multa de mora, multas punitivas e demais
+encargos. (Art. 25 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 25",
+    titulo: "Não são contribuintes do IBS, ressalvado o disposto no inciso III do art",
+    conteudo: `Art. 25. Não são contribuintes do IBS, ressalvado o disposto no inciso III do art. 19: (Art. 26 da LC
+214/2025)
+I - o condomínio edilício;
+II - o consórcio de que trata o art. 278 da Lei nº 6.404, de 15 de dezembro de 1976;
+III - a sociedade em conta de participação;
+IV - o nanoempreendedor, assim entendido a pessoa física que tenha auferido receita bruta inferior a
+50% (cinquenta por cento) do limite estabelecido para adesão ao regime do Microempreendedor Individual
+(MEI) previsto no § 1º do art. 18-A, observado, ainda, o disposto nos §§ 4º e 4º-B do referido artigo, todos da
+Lei Complementar nº 123, de 14 de dezembro de 2006, e não tenha aderido a esse regime;
+V - os fundos de investimento, observado o disposto nos §§ 7º a 11;
+VI - o produtor rural de que trata o art. 239;
+VII - o transportador autônomo de carga de que trata o art. 250;
+VIII - a entidade ou unidade de natureza econômico-contábil, sem fins lucrativos, que presta serviços
+de planos de assistência à saúde sob a modalidade de autogestão;
+IX - as entidades de previdência complementar fechada, constituídas de acordo com a Lei
+Complementar nº 109, de 29 de maio de 2001; e
+X - os fundos patrimoniais instituídos nos termos da Lei nº 13.800, de 4 de janeiro de 2019.
+
+21
+
+§ 1º Poderão optar pelo regime regular do IBS, observado o disposto no § 6º do art. 41, devendo
+permanecer por pelo menos 12 (doze) meses nesse regime:
+I - as entidades sem personalidade jurídica de que tratam os incisos I a III do caput deste artigo;
+II - a pessoa física de que trata o inciso IV do caput deste artigo;
+III - o produtor rural de que trata o inciso VI do caput deste artigo, na forma do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 25 (parte 2)",
+    titulo: "241; e\nIV - o transportador autônomo de carga de que trata o inciso VII do caput deste artigo",
+    conteudo: `241; e
+IV - o transportador autônomo de carga de que trata o inciso VII do caput deste artigo.
+§ 2º A opção pelo regime regular do IBS em relação às entidades e às pessoas físicas referidas nos
+incisos I e II do § 1º observará o seguinte:
+I - seus efeitos dar-se-ão a partir da data da opção;
+II - na hipótese de início de atividade, a opção será simultânea à solicitação de registro no cadastro
+com identificação única de que trata o Capítulo I do Título II deste Livro e produzirá efeitos a partir da data do
+registro;
+III - a renúncia à opção produzirá efeitos a partir do primeiro dia do ano-calendário seguinte à renúncia,
+a ser disciplinada na forma de ato conjunto da RFB e do CGIBS.
+§ 3º Relativamente às pessoas físicas referidas nos incisos IV, VI e VII do caput deste artigo:
+I - aplicam-se os mesmos procedimentos de inscrição e de baixa no CNPJ conferidos ao MEI pela Lei
+Complementar nº 123, de 2006;
+II - devem ser consideradas todas as atividades econômicas exercidas, as receitas brutas auferidas e
+as demais disposições das entidades de que trata o caput, ainda que em inscrições cadastrais distintas ou na
+qualidade de contribuinte individual, em um mesmo ano-calendário.
+§ 4º Em relação ao condomínio edilício de que trata o inciso I do caput deste artigo:
+I - caso exerça a opção pelo regime regular, nos termos do § 1º, o IBS incidirá sobre todas as taxas e
+demais valores cobrados pelo condomínio dos seus condôminos e de terceiros; e
+II - caso não exerça a opção pelo regime regular e desde que as taxas e demais valores condominiais
+cobrados de seus condôminos representem menos de 80% (oitenta por cento) da receita total do condomínio:
+a) ficará sujeito à incidência do IBS sobre as operações com bens e com serviços que realizar de acordo
+com o disposto no inciso I do caput do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 25 (parte 3)",
+    titulo: "19; e\nb) apropriará créditos na proporção da receita decorrente das operações tributadas na forma da alínea\n“a”, em relação à receita total do condomínio",
+    conteudo: `19; e
+b) apropriará créditos na proporção da receita decorrente das operações tributadas na forma da alínea
+“a”, em relação à receita total do condomínio.
+§ 5º Caso o consórcio de que trata o inciso II do caput deste artigo não exerça a opção pelo regime
+regular de que trata o § 1º, os consorciados ficarão obrigados ao pagamento do IBS quanto às operações
+realizadas pelo consórcio, proporcionalmente às suas participações.
+§ 6º Caso a sociedade em conta de participação de que trata o inciso III do caput deste artigo não
+exerça a opção pelo regime regular de que trata o § 1º, o sócio ostensivo ficará obrigado ao pagamento do
+IBS quanto às operações realizadas pela sociedade, vedada a exclusão de valores devidos a sócios
+participantes.
+§ 7º Para fins do disposto no inciso V do caput deste artigo, não são contribuintes do IBS:
+I - os Fundos de Investimento Imobiliário (FII) e os Fundos de Investimento nas Cadeias Produtivas do
+Agronegócio (Fiagro), de que trata a Lei nº 8.668, de 25 de junho de 1993, que realizem operações com bens
+imóveis, inclusive operações com direitos reais sobre bens imóveis, e que, cumulativamente:
+a) tenham suas cotas admitidas à negociação exclusivamente em bolsas de valores ou mercado de
+balcão organizado e possuam, no mínimo, 100 (cem) cotistas;
+b) não possuam:
+1. cotista pessoa física titular de cotas que representem 20% (vinte por cento) ou mais da totalidade
+das cotas emitidas pelos FII ou pelos Fiagro, ou ainda cujas cotas lhe derem direito ao recebimento de
+rendimento superior a 20% (vinte por cento) do total de rendimentos;
+2. conjunto de cotistas pessoas físicas ligadas, assim entendidos os parentes até segundo grau,
+titulares de cotas que representem 40% (quarenta por cento) ou mais da totalidade das cotas emitidas pelos
+FII ou pelos Fiagro, ou ainda cujas cotas lhes deem direito ao recebimento de rendimento superior a 40%
+(quarenta por cento) do total de rendimentos auferidos pelo fundo;
+
+22`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 25 (parte 4)",
+    titulo: "3. cotistas pessoas jurídicas que, isoladamente ou em conjunto com cotistas que sejam seu sócio\ncontrolador ou suas controladas e coligadas, detenham mais de 50% (cinquenta por cento) das cotas do...",
+    conteudo: `3. cotistas pessoas jurídicas que, isoladamente ou em conjunto com cotistas que sejam seu sócio
+controlador ou suas controladas e coligadas, detenham mais de 50% (cinquenta por cento) das cotas do
+fundo, exceto quando o cotista for entidade fechada de previdência;
+II - os FII e os Fiagro que realizem operações com bens imóveis, inclusive operações com direitos reais
+sobre bens imóveis, e que não atendam às condições estabelecidas no inciso I deste parágrafo, cujas cotas
+sejam detidas, direta ou indiretamente, em mais de 95% (noventa e cinco por cento), por:
+a) FII ou Fiagro que atenda ao disposto no inciso I deste parágrafo;
+b) fundo de investimento constituído no País exclusivamente para acolher recursos de planos de
+benefícios de previdência complementar e de planos de seguros de pessoas, regulados e fiscalizados pelos
+órgãos governamentais competentes;
+c) entidades de previdência e fundos de pensão no País, regulados e fiscalizados pelos órgãos
+governamentais competentes; ou
+d) fundo de investimento que, embora não constituído como FII ou Fiagro, atenda aos requisitos
+previstos nas alíneas “a” e “b” do inciso I deste parágrafo; e
+III - os demais fundos de investimento cujo patrimônio seja constituído exclusivamente por aplicações
+em participações societárias, certificados, direitos, títulos, valores mobiliários e demais ativos financeiros
+permitidos pela Comissão de Valores Mobiliários, observado o disposto nos §§ 9º e 11.
+§ 8º Não descaracteriza o cumprimento das exigências de que tratam os incisos do § 7º a posse
+temporária pelo fundo de investimento de bens obtidos em decorrência de procedimentos judiciais ou
+extrajudiciais relativos à recuperação de ativos integrantes de sua carteira.
+§ 9º São contribuintes do IBS no regime regular:
+I - os FII e os Fiagro que realizem operações com bens imóveis, inclusive operações com direitos reais
+sobre bens imóveis, que:
+a) não atendam às condições estabelecidas no inciso I ou no inciso II do § 7º; ou
+b) estejam sujeitos`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 3,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 25 (parte 5)",
+    titulo: "à tributação aplicável às pessoas jurídicas, nos termos da legislação vigente; e\nII - os Fundos de Investimento em Direitos Creditórios (FIDC) e os demais fundos de investimentos que\nliquidem antec...",
+    conteudo: `à tributação aplicável às pessoas jurídicas, nos termos da legislação vigente; e
+II - os Fundos de Investimento em Direitos Creditórios (FIDC) e os demais fundos de investimentos que
+liquidem antecipadamente recebíveis, não caracterizados como entidade de investimento, nos termos
+previstos no § 5º do art. 287, ou no § 7º do art. 314.
+§ 10. Os FII e os Fiagro de que tratam os incisos I e II do § 7º poderão optar a qualquer momento, de
+forma irretratável, pelo regime regular do IBS.
+§ 11. Caso venha a ser permitida, conforme regulamentação a ser expedida pelos órgãos
+governamentais que compõem o Sistema Financeiro Nacional, a realização de novas operações com bens
+ou com serviços sujeitas à incidência do IBS por fundo de investimento, esse fundo será considerado
+contribuinte no regime regular.
+§ 12. As entidades e as unidades de natureza econômico-contábil referidas nos incisos VIII e IX do
+caput deste artigo serão contribuintes do IBS caso descumpram os requisitos previstos no art. 14 da Lei nº
+5.172, de 25 de outubro de 1966 (Código Tributário Nacional).
+§ 13. Na hipótese em que os fundos de investimento sejam contribuintes do IBS no regime regular,
+quando o cotista estiver sujeito à tributação pelo regime específico de serviços financeiros, nos termos do
+Capítulo II do Título VI deste Livro, a parcela dos rendimentos percebidos pelo cotista correspondente às
+operações tributadas no fundo não integrará a base de cálculo do regime específico de serviços financeiros.
+§ 14. Para fins de enquadramento como nanoempreendedor nos termos do inciso IV do caput deste
+artigo, será considerada como receita bruta da pessoa física prestadora de serviço de transporte privado
+individual de passageiros ou de entrega de bens, inclusive na hipótese em que houver intermediação por
+plataformas digitais, 25% (vinte e cinco por cento) do valor bruto mensal recebido pela pessoa física.
+Seção VIII - Das Modalidades de Extinção dos Débitos
+Subseção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 4,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 26",
+    titulo: "Os débitos do IBS decorrentes da incidência sobre operações com bens ou com serviços serão\nextintos mediante as seguintes modalidades",
+    conteudo: `Art. 26. Os débitos do IBS decorrentes da incidência sobre operações com bens ou com serviços serão
+extintos mediante as seguintes modalidades: (Art. 27 da LC 214/2025)
+
+23
+
+I - compensação com créditos de IBS apropriados pelo contribuinte, de acordo com a ordem cronológica
+de apropriação, nos termos dos arts. 47 a 61 e das demais disposições deste Regulamento;
+II - pagamento pelo contribuinte;
+III - recolhimento na liquidação financeira da operação (split payment), nos termos dos arts. 28 a 35;
+IV - recolhimento pelo adquirente, nos termos do art. 36; ou
+V - pagamento por aquele a quem a Lei Complementar nº 214, de 2025, atribuir responsabilidade.
+§ 1º A extinção de débitos de que trata o caput deste artigo:
+I - nas hipóteses dos incisos I e II do caput deste artigo, será imputada aos valores dos débitos não
+extintos do IBS incidente sobre as operações ocorridas no período de apuração na ordem cronológica do
+documento fiscal, com base no momento de autorização;
+II - nas hipóteses dos incisos III e IV do caput deste artigo, será vinculada à respectiva operação; e
+III - na hipótese do inciso V do caput deste artigo:
+a) será vinculada à operação específica a que se refere; ou
+b) caso não se refira a uma operação específica, será imputada aos débitos do responsável tributário
+na forma do inciso I deste parágrafo.
+§ 2º Para efeitos da ordem cronológica a que se refere o inciso I do § 1º, observar-se-á o seguinte:
+I - quando se tratar de extinção parcial dos débitos gerados por um mesmo documento fiscal, os débitos
+que geram créditos para o adquirente serão extintos em primeiro lugar;
+II - a ordenação será realizada em períodos de até 48 (quarenta e oito) horas, salvo motivo de força
+maior;
+III - a ordenação será realizada com base no momento de autorização, pelo ente federativo autorizador,
+nos termos do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 26 (parte 2)",
+    titulo: "131, segundo o horário de Brasília, dos documentos fiscais recebidos, até o período de\nordenação corrente, pelo sistema informatizado de apuração do IBS, mantido pelo CGIBS, e da CBS, mantido\npela...",
+    conteudo: `131, segundo o horário de Brasília, dos documentos fiscais recebidos, até o período de
+ordenação corrente, pelo sistema informatizado de apuração do IBS, mantido pelo CGIBS, e da CBS, mantido
+pela RFB;
+IV - o documento fiscal cujo débito já tenha sido extinto não será incluído em ordenação posterior.
+§ 3º Ato conjunto da RFB e do CGIBS poderá dispor sobre a definição do momento de referência para
+aplicação da ordem cronológica, na hipótese de o disposto neste artigo não ser aplicável à modalidade do
+documento fiscal.
+Subseção II - Do Pagamento pelo Contribuinte`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 27",
+    titulo: "O contribuinte deverá, até a data de vencimento a que se refere o art",
+    conteudo: `Art. 27. O contribuinte deverá, até a data de vencimento a que se refere o art. 45, efetuar o pagamento
+do saldo a recolher de que trata o art. 44. (Art. 29 da LC 214/2025)
+§ 1º Caso o pagamento efetuado pelo contribuinte seja maior do que o saldo a recolher, a parcela
+excedente, até o montante dos débitos do período de apuração que tenham sido extintos pelas modalidades
+previstas nos incisos III a V do caput do art. 26 entre o final do período de apuração e o processamento do
+pagamento efetuado pelo contribuinte, será transferida ao contribuinte em até 3 (três) dias úteis, contados da
+data mais recente entre o pagamento total do saldo a recolher de que trata o art. 44 e a data a que se refere
+o § 6º do art. 44.
+§ 2º O pagamento efetuado após a data de vencimento será acrescido de:
+I - multa de mora, calculada à taxa de 0,33% (trinta e três centésimos por cento), por dia de atraso; e
+II - juros de mora, calculados à taxa referencial do Sistema Especial de Liquidação e de Custódia (Selic),
+a partir do primeiro dia do mês subsequente ao vencimento do prazo até o mês anterior ao do pagamento, e
+de 1% (um por cento) no mês de pagamento.
+§ 3º A multa de que trata o inciso I do § 2º será calculada a partir do primeiro dia subsequente ao do
+vencimento do prazo previsto para o pagamento do tributo até o dia em que ocorrer o seu pagamento.
+§ 4º O percentual da multa de que trata o inciso I do § 2º fica limitado a 20% (vinte por cento).
+§ 5º Incidem juros de mora, nos termos do inciso II do § 2º, sobre as multas punitivas inadimplidas.
+
+24
+
+§ 6º Em caso de atraso cometido pelo banco arrecadador no envio da informação do pagamento ao
+CGIBS, os 3 (três) dias úteis previstos no § 1º serão contados a partir da data em que o CGIBS receber a
+informação do pagamento.
+Subseção III - Do Recolhimento na Liquidação Financeira (Split Payment)`,
+    topicos: "CBS, IBS, Reforma Tributária, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 28",
+    titulo: "Nas transações de pagamento relativas a operações com bens ou com serviços, os prestadores\nde serviços de pagamento eletrônico e as instituições operadoras de sistemas de pagamentos deverão\nsegrega...",
+    conteudo: `Art. 28. Nas transações de pagamento relativas a operações com bens ou com serviços, os prestadores
+de serviços de pagamento eletrônico e as instituições operadoras de sistemas de pagamentos deverão
+segregar e recolher ao CGIBS, no momento da liquidação financeira da transação (split payment), os valores
+do IBS, de acordo com o disposto nesta Subseção. (Art. 31 da LC 214/2025)
+§ 1º Para fins desta Subseção, considera-se:
+I - segregar o ato de reservar o valor do IBS a ser recolhido ao CGIBS;
+II - originador da transação de pagamento aquele que iniciar a transação junto ao arranjo de pagamento,
+podendo ser o pagador ou o recebedor dos recursos;
+III - transações de pagamento iniciadas pelo recebedor aquelas originadas por meio de instrução ou
+instrumento emitido pelo recebedor dos recursos, que define o valor do pagamento, cabendo ao pagador
+apenas efetivar o pagamento, ainda que parcial; e
+IV - transações de pagamento iniciadas pelo pagador aquelas originadas pelo pagador, que define o
+valor do pagamento, sem intervenção prévia do recebedor dos recursos junto ao arranjo de pagamento.
+§ 2º Os procedimentos do split payment previstos nesta Subseção compreendem:
+I - o procedimento padrão, de que trata o art. 29; e
+II - o procedimento simplificado, de que trata o art. 30.
+§ 3º O disposto nesta Subseção aplica-se a todos os prestadores de serviços de pagamento eletrônico
+de que trata o caput deste artigo, participantes de arranjos de pagamento, abertos e fechados, públicos e
+privados, inclusive os participantes de arranjos que não estão sujeitos à regulação do Banco Central do Brasil.
+§ 4º O intercâmbio de informações necessárias à realização do split payment entre o prestador de
+serviços de pagamento ou a instituição operadora de sistemas de pagamento e o CGIBS e a RFB ocorrerá
+exclusivamente por meio de plataforma pública, de governança compartilhada entre o CGIBS e a RFB.
+§ 5º O split payment é aplicável aos seguintes arranjos de pagamento:
+I - boleto;
+II - Pix mediant`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, split_payment",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 28 (parte 2)",
+    titulo: "e código de resposta dinâmica (QR Code Dinâmico);\nIII - Pix automático;\nIV - Pix mediante código de resposta rápida estático (QR Code Estático);\nV - Pix mediante informação relacionada ao titular d...",
+    conteudo: `e código de resposta dinâmica (QR Code Dinâmico);
+III - Pix automático;
+IV - Pix mediante código de resposta rápida estático (QR Code Estático);
+V - Pix mediante informação relacionada ao titular de conta transacional (chave Pix ou agência e conta
+bancária);
+VI - Transferência Eletrônica Disponível (TED);
+VII - Transferência Eletrônica de Fundos (TEF);
+VIII - cartão de crédito;
+IX - cartão de débito;
+X - cartão pré-pago; e
+XI - voucher (arranjo aberto e arranjo fechado);
+XII - outros, conforme previsto no inciso I do § 3º do art. 33.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, split_payment",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 29",
+    titulo: "O procedimento padrão do split payment obedecerá ao disposto neste artigo",
+    conteudo: `Art. 29. O procedimento padrão do split payment obedecerá ao disposto neste artigo. (Art. 32 da LC
+214/2025)
+§ 1º O originador da transação de pagamento deverá transmitir ao prestador de serviço de pagamento
+informações que permitam:
+I - a vinculação das operações com a transação de pagamento; e
+II - a identificação do valor do IBS incidente sobre as operações.
+
+25
+
+§ 2º As informações previstas no § 1º deverão ser transmitidas aos prestadores de serviço de
+pagamento:
+I - pelo fornecedor ou pelo adquirente, nos casos em que iniciarem a transação de pagamento;
+II - pela plataforma digital, em relação às operações e importações realizadas por seu intermédio, nos
+termos do art. 20; ou
+III - por outra pessoa ou entidade sem personalidade jurídica, nos casos em que iniciarem a transação
+de pagamento.
+§ 3º Nas transações de pagamento iniciadas pelo recebedor, este poderá optar por não transmitir ao
+prestador de serviço de pagamento a informação a que se refere o inciso I do § 1º, hipótese em que o
+fornecedor ou a plataforma digital deverá incluir no documento fiscal informações que permitam a vinculação
+da operação com a transação de pagamento.
+§ 4º Antes da disponibilização dos recursos ao fornecedor, o prestador de serviço de pagamento ou a
+instituição operadora do sistema de pagamento deverá, com base nas informações recebidas, consultar a
+plataforma pública de governança compartilhada do CGIBS e da RFB, sobre os valores a serem segregados
+e recolhidos, que corresponderão à diferença positiva entre:
+I - os valores dos débitos do IBS incidente sobre a operação, destacados no documento fiscal; e
+II - as parcelas dos débitos referidos no inciso I deste parágrafo já extintas por quaisquer das
+modalidades previstas no art.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 29 (parte 2)",
+    titulo: "26.\n§ 5º Caso a consulta não possa ser efetuada nos termos do § 4º, deverá ser adotado o seguinte\nprocedimento",
+    conteudo: `26.
+§ 5º Caso a consulta não possa ser efetuada nos termos do § 4º, deverá ser adotado o seguinte
+procedimento:
+I - o prestador de serviços de pagamento ou a instituição operadora do sistema de pagamentos
+segregará e recolherá ao CGIBS o valor dos débitos do IBS incidente sobre as operações vinculadas à
+transação de pagamento, com base nas informações recebidas; e
+II - o CGIBS:
+a) efetuará o cálculo dos valores dos débitos do IBS das operações vinculadas à transação de
+pagamento, com a dedução das parcelas já extintas por quaisquer das modalidades previstas no art. 26; e
+b) transferirá, ao fornecedor, os valores recebidos que excederem ao montante de que trata a alínea
+“a” deste inciso, em até 3 (três) dias úteis contados a partir da data em que ocorrer a liquidação financeira da
+transação ou da data em que for realizada corretamente a vinculação a que se refere o § 1º, o que ocorrer
+por último.
+§ 6º Em caso de atraso cometido pelo prestador de serviço de pagamento ou pela instituição operadora
+do sistema de pagamento no envio da informação da liquidação financeira ao CGIBS, os 3 (três) dias úteis
+previstos na alínea “b” do inciso II do § 5º serão contados a partir da data em que o CGIBS receber a
+informação da liquidação financeira ou a data em que for realizada corretamente a vinculação a que se refere
+o § 1º, o que ocorrer por último.
+§ 7º Nas transações de pagamento destinadas a indústria incentivada na Zona Franca de Manaus, o
+originador da transação de pagamento poderá aplicar os percentuais de incentivo estabelecidos pelo § 1º do
+art. 521 a cada débito de IBS para reduzir os valores a serem segregados e recolhidos pelo prestador de
+serviço de pagamento ou pela instituição operadora do sistema de pagamentos.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 30",
+    titulo: "O procedimento simplificado do split payment será opcional e obedecerá ao disposto neste\nartigo",
+    conteudo: `Art. 30. O procedimento simplificado do split payment será opcional e obedecerá ao disposto neste
+artigo. (Art. 33 da LC 214/2025)
+§ 1º No procedimento simplificado de que trata o caput deste artigo, os valores do IBS a serem
+segregados e recolhidos pelo prestador de serviço de pagamento ou pela instituição operadora do sistema
+de pagamentos serão calculados com base em percentual preestabelecido do valor das operações.
+§ 2º O percentual de que trata o § 1º:
+I - será estabelecido por ato conjunto da RFB e do CGIBS;
+II - poderá ser diferenciado por setor econômico ou por contribuinte, a partir de cálculos baseados em
+metodologia uniforme previamente divulgada, incluindo dados da alíquota média incidente sobre as
+operações e do histórico de utilização de créditos; e
+III - não guardará relação com o valor dos débitos do IBS efetivamente incidentes sobre a operação.
+
+26
+
+§ 3º A originação de transação de pagamento relativa à operação com bem ou com serviço sem a
+identificação dos valores do IBS, nos termos do inciso II do § 1º do art. 29, implica opção pelo procedimento
+simplificado de que trata este artigo.
+§ 4º Os valores do IBS recolhidos por meio do procedimento simplificado de que trata este artigo serão
+utilizados para pagamento, em ordem cronológica do documento fiscal:
+I - de débitos não extintos do contribuinte decorrentes de operações ocorridas no período de apuração
+em que o adquirente não seja contribuinte do IBS no regime regular; e
+II - de outros débitos não extintos do contribuinte, no final do período de apuração, caso remanesçam
+valores não utilizados nos termos do inciso I deste parágrafo.
+§ 5º O CGIBS transferirá ao fornecedor, em até 3 (três) dias úteis contados da conclusão da apuração
+a que se refere o § 6º do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 30 (parte 2)",
+    titulo: "44, os valores do IBS recolhidos por meio do procedimento simplificado no\nperíodo de apuração e não utilizados nos termos do § 4º\n§ 6º Ato conjunto da RFB e do CGIBS poderá determinar a utilização...",
+    conteudo: `44, os valores do IBS recolhidos por meio do procedimento simplificado no
+período de apuração e não utilizados nos termos do § 4º
+§ 6º Ato conjunto da RFB e do CGIBS poderá determinar a utilização do procedimento simplificado de
+que trata este artigo para as operações em que o adquirente não seja contribuinte do IBS e da CBS no regime
+regular, enquanto o procedimento padrão descrito no art. 29 não estiver em funcionamento em nível adequado
+para os principais instrumentos de pagamento eletrônico utilizados nessas operações.
+§ 7º O recolhimento do IBS por meio do procedimento simplificado de que trata este artigo:
+I - assegura a extinção de débitos do contribuinte exclusivamente nos termos do § 4º; e
+II - não gera direito ao adquirente contribuinte do IBS no regime regular à apropriação de crédito pelo
+valor segregado e recolhido.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 31",
+    titulo: "Deverão ser observadas ainda as seguintes regras para o split payment",
+    conteudo: `Art. 31. Deverão ser observadas ainda as seguintes regras para o split payment: (Art. 34 da LC
+214/2025)
+I - a segregação e o recolhimento do IBS ao CGIBS ocorrerão na data da liquidação financeira da
+transação de pagamento, observados os fluxos de pagamento estabelecidos entre os participantes do arranjo;
+II - nas operações com bens ou com serviços com pagamento parcelado pelo fornecedor, a segregação
+e o recolhimento do IBS deverão ser efetuados, de forma proporcional, na liquidação financeira de todas as
+parcelas, conforme ato conjunto da RFB e do CGIBS;
+III - a liquidação antecipada de recebíveis não altera a obrigação de segregação e de recolhimento do
+IBS na forma dos incisos I e II do caput deste artigo;
+IV - o disposto nesta Subseção não afasta a responsabilidade do sujeito passivo pelo pagamento do
+eventual saldo a recolher do IBS, observados o momento da ocorrência do fato gerador e o prazo de
+vencimento do imposto; e
+V - os prestadores de serviços de pagamentos e as instituições operadoras de sistemas de pagamento:
+a) serão responsáveis por segregar e recolher os valores do IBS de acordo com o disposto nesta
+Subseção; e
+b) não serão responsáveis tributários pelo IBS incidente sobre as operações com bens e com serviços
+cujos pagamentos eles liquidem.`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador, split_payment",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 32",
+    titulo: "Na hipótese em que o processo de pagamento da operação ou importação seja iniciado por\nplataforma digital definida nos termos do art",
+    conteudo: `Art. 32. Na hipótese em que o processo de pagamento da operação ou importação seja iniciado por
+plataforma digital definida nos termos do art. 20, os procedimentos serão aqueles definidos nos arts. 20 e 21.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 33",
+    titulo: "Nas transações de pagamento a que se refere o art",
+    conteudo: `Art. 33. Nas transações de pagamento a que se refere o art. 28, o split payment será implementado de
+forma gradual em, no mínimo, duas etapas, nos termos de ato conjunto da RFB e do CGIBS.
+§ 1º Na primeira etapa de implementação, o ato conjunto poderá estabelecer que o split payment:
+I - será utilizado apenas:
+a) nos termos do procedimento padrão a que se refere o art. 29; e
+b) nas transações de pagamento relativas a operações em que o adquirente seja contribuinte do regime
+regular;
+II - será aplicado aos arranjos de pagamento a que se referem os incisos I a VII do § 5º do art. 28; e
+III - será de uso facultativo, nos termos do referido ato.
+§ 2º Em etapa posterior à que se refere o § 1º, será observado o seguinte:
+
+27
+
+I - todos os arranjos de pagamento de que trata § 5º do art. 28 serão obrigados a se habilitar para
+operar com o procedimento simplificado previsto no art. 30;
+II - nas operações em que o adquirente não seja contribuinte do regime regular, o split payment entrará
+em funcionamento de forma simultânea para todos os arranjos de pagamento previstos no § 5º do art. 28; e
+III - enquanto o arranjo de pagamento não estiver habilitado para operar nos termos do procedimento
+padrão de que trata o art. 29, deverá se habilitar ao procedimento simplificado de que trata o art. 30 para
+todas as transações de pagamento.
+§ 3º Ato conjunto da RFB e do CGIBS poderá: (Art. 35, § 2º, da LC 214/2025)
+I - prever a obrigatoriedade de utilização do split payment para outros arranjos de pagamento de que
+trata o § 3º do art. 28, além dos previstos no § 5º do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 33 (parte 2)",
+    titulo: "28;\nII - prever as hipóteses em que a adoção do split payment será facultativa;\nIII - divulgar a lista dos arranjos de pagamento em que a transação é iniciada pelo recebedor ou pelo\npagador;\nIV - e...",
+    conteudo: `28;
+II - prever as hipóteses em que a adoção do split payment será facultativa;
+III - divulgar a lista dos arranjos de pagamento em que a transação é iniciada pelo recebedor ou pelo
+pagador;
+IV - estabelecer os procedimentos e padrões operacionais exigidos de intervenientes nas transações
+de pagamento para viabilizar a realização do split payment, incluindo, no mínimo:
+a) informações sobre a transação de pagamento, sobre o documento fiscal que acoberta a operação a
+que se refere a transação de pagamento e sobre o IBS incidente na operação;
+b) o responsável por incluir as informações de que trata a alínea “a” deste inciso;
+c) a forma de identificação, em cada operação, da modalidade de split payment a ser utilizada;
+d) prazo máximo para informação, pela plataforma pública a que se refere o § 4º do art. 28, ao prestador
+do serviço de pagamento e às instituições operadoras de sistemas de pagamento do resultado do cotejamento
+entre o valor de IBS registrado no documento fiscal emitido pelo fornecedor, que será o valor máximo do split
+payment, e os valores transmitidos pelo originador da transação de pagamento ao prestador ou operadora;
+e) prazo, periodicidade e critérios para a resposta, pela plataforma pública, à consulta de que trata o §
+4º do art. 29;
+f) prazo para recolhimento ao CGIBS, pelo prestador do serviço de pagamento ou pelas instituições
+operadoras de sistemas de pagamento, dos valores segregados em razão do split payment; e
+g) disciplina relativa ao cancelamento da transação de pagamento sujeita ao split payment.`,
+    topicos: "CBS, IBS, Reforma Tributária, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 34",
+    titulo: "Nas hipóteses em que aplicável o disposto na alínea “d” do inciso IV do § 3º do art",
+    conteudo: `Art. 34. Nas hipóteses em que aplicável o disposto na alínea “d” do inciso IV do § 3º do art. 33, o
+prestador do serviço de pagamento ou instituição operadora de sistemas de pagamento deverá segregar e
+recolher o valor do IBS informado:
+I - pelo CGIBS, por intermédio da plataforma pública, caso a resposta à consulta ocorra no prazo
+máximo estabelecido; ou
+II - pelo originador da transação de pagamento, nos demais casos.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 35",
+    titulo: "Os prestadores de serviços de pagamento e as instituições operadoras de sistemas de\npagamento não serão responsáveis por",
+    conteudo: `Art. 35. Os prestadores de serviços de pagamento e as instituições operadoras de sistemas de
+pagamento não serão responsáveis por:
+I - validar informações transmitidas pelo originador da transação de pagamento;
+II - validar dados e informações recebidos do CGIBS, por intermédio da plataforma pública;
+III - devolver ao recebedor valores de IBS eventualmente recolhidos a maior em razão do split payment;
+IV - informar ao recebedor os critérios utilizados pelo CGIBS na definição dos valores do IBS
+transmitidos aos referidos prestadores ou operadoras; e
+V - eventuais falhas na comunicação decorrentes de indisponibilidade da plataforma pública.
+Subseção IV - Do Recolhimento pelo Adquirente`,
+    topicos: "CBS, IBS, Reforma Tributária, split_payment",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 36",
+    titulo: "O adquirente de bens ou de serviços que seja contribuinte do IBS pelo regime regular poderá\npagar o IBS incidente sobre a operação, caso o pagamento ao fornecedor seja efetuado mediante a utilizaçã...",
+    conteudo: `Art. 36. O adquirente de bens ou de serviços que seja contribuinte do IBS pelo regime regular poderá
+pagar o IBS incidente sobre a operação, caso o pagamento ao fornecedor seja efetuado mediante a utilização
+de instrumento de pagamento que não permita a segregação e o recolhimento nos termos dos arts. 29 e 30.
+(Art. 36 da LC 214/2025)
+
+28
+
+§ 1º Caso o pagamento ao fornecedor seja efetuado mediante a utilização de mais de um instrumento
+de pagamento, cada transação de pagamento será considerada separadamente para fins do disposto neste
+artigo.
+§ 2º A opção de que trata o caput deste artigo será exercida exclusivamente mediante o recolhimento,
+pelo adquirente, do IBS incidente sobre a operação.
+§ 3º O valor recolhido na forma deste artigo:
+I - será utilizado exclusivamente para pagamento dos valores dos débitos ainda não extintos do IBS
+relativo às respectivas operações; e
+II - quando excedente ao valor utilizado nos termos do inciso I deste parágrafo, será transferido ao
+fornecedor em até 3 (três) dias úteis, contados a partir da data em que ocorrer o pagamento.
+§ 4º Em caso de atraso cometido pelo banco arrecadador no envio da informação do pagamento ao
+CGIBS, os 3 (três) dias úteis previstos no inciso II do § 3º serão contados a partir da data em que o CGIBS
+receber a informação do pagamento.
+Subseção V - Do Pagamento pelo Responsável`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 37",
+    titulo: "Aplica-se, no que couber, o disposto no art",
+    conteudo: `Art. 37. Aplica-se, no que couber, o disposto no art. 27 ao pagamento do IBS por aquele a quem a Lei
+atribuir a condição de responsável. (Art. 37 da LC 214/2025)
+Seção IX - Do Pagamento Indevido ou a Maior`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 38",
+    titulo: "Em caso de pagamento indevido ou a maior, a restituição do IBS somente será devida ao\ncontribuinte, nas hipóteses em que",
+    conteudo: `Art. 38. Em caso de pagamento indevido ou a maior, a restituição do IBS somente será devida ao
+contribuinte, nas hipóteses em que: (Art. 38 da LC 214/2025)
+I - a operação não tenha gerado crédito para o adquirente dos bens ou serviços; e
+II - o fornecedor prove que:
+a) assumiu o encargo financeiro do IBS; ou
+b) está expressamente autorizado a recebê-la por terceiro que tenha assumido o encargo do IBS.
+Parágrafo único. O disposto neste artigo aplica-se inclusive nas hipóteses de pagamento indevido ou
+a maior em decorrência de enquadramento retroativo no Regime Especial Unificado de Arrecadação de
+Tributos e Contribuições devidos pelas Microempresas e Empresas de Pequeno Porte (Simples Nacional), de
+que trata a Lei Complementar nº 123, de 14 de dezembro de 2006, sem que tenha havido a opção pelo regime
+regular.
+Seção X - Do Ressarcimento`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 39",
+    titulo: "O contribuinte do IBS que apurar saldo a recuperar, na forma do art",
+    conteudo: `Art. 39. O contribuinte do IBS que apurar saldo a recuperar, na forma do art. 44, ao final do período de
+apuração poderá solicitar seu ressarcimento integral ou parcial até o último dia útil do mês seguinte ao período
+a que se refere o saldo. (Art. 39 da LC 214/2025)
+§ 1º Formalizado o pedido de ressarcimento, o valor solicitado não será utilizado para compensação
+dos débitos de que trata o art. 53, até que seja concluída a sua apreciação.
+§ 2º O pedido de ressarcimento poderá ser cancelado, hipótese em que o valor remanescente do saldo
+a recuperar poderá, quando cabível, ser utilizado para compensação nos termos do art. 53.
+§ 3º Não serão objeto de ressarcimento os valores já utilizados para compensação de débitos.
+§ 4º O contribuinte poderá, até o último dia útil do período de apuração, manifestar a intenção de
+solicitar o ressarcimento de eventual saldo a recuperar resultante da apuração do período.
+§ 5º Realizada a manifestação de que trata o § 4º, o saldo a recuperar não será utilizado para
+compensação dos débitos do período de apuração seguinte de que trata o inciso III do caput do art. 53.
+§ 6º Após a manifestação de intenção a que se refere o § 4º, o contribuinte poderá:
+I - formalizar o pedido de ressarcimento até o prazo previsto no caput deste artigo, observado o disposto
+no § 8º; ou
+II - cancelar a manifestação de intenção, expressamente, hipótese em que, a partir desse momento,
+eventual saldo a recuperar será utilizado para compensação nos termos do art. 53.
+
+29
+
+§ 7º Caso não ocorra a manifestação de intenção de que trata o § 4º, o saldo a recuperar será utilizado
+para compensação de débitos na forma do art. 53 desde o primeiro dia do período de apuração seguinte.
+§ 8º O valor remanescente do saldo a recuperar poderá, quando cabível, ser utilizado para
+compensação nos termos do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 39 (parte 2)",
+    titulo: "53 se:\nI - não houver pedido de ressarcimento;\nII - na hipótese do § 4º, o pedido de ressarcimento não for formalizado até o prazo previsto no caput\ndeste artigo;\nIII - a solicitação for parcial, e...",
+    conteudo: `53 se:
+I - não houver pedido de ressarcimento;
+II - na hipótese do § 4º, o pedido de ressarcimento não for formalizado até o prazo previsto no caput
+deste artigo;
+III - a solicitação for parcial, em relação ao valor que não for objeto do pedido, a partir da data do pedido;
+ou
+IV - indeferido o pedido de ressarcimento, em razão de os créditos apropriados não serem passíveis
+de ressarcimento ou de outras hipóteses previstas neste Regulamento, a partir da data em que se tornar
+definitiva a decisão de indeferimento.
+§ 9º O prazo para apreciação do pedido de ressarcimento pelo CGIBS, contado da data da solicitação
+de que trata o caput deste artigo, será de:
+I - até 30 (trinta) dias, para pedidos de ressarcimento de contribuintes enquadrados em programas de
+conformidade desenvolvidos pelo CGIBS que atendam ao disposto no art. 40;
+II - até 60 (sessenta) dias, para pedidos de ressarcimento que atendam ao disposto no art. 40,
+ressalvada a hipótese prevista no inciso I deste parágrafo; ou
+III - até 180 (cento e oitenta) dias, nos demais casos.
+§ 10. Se não houver manifestação do CGIBS nos prazos previstos no § 9º, o crédito será ressarcido ao
+contribuinte nos 15 (quinze) dias subsequentes. (Art. 39, § 4º, da LC 214/2025)
+§ 11. Caso seja iniciado procedimento de fiscalização relativo ao pedido de ressarcimento antes do
+encerramento dos prazos estabelecidos no § 9º, serão:
+I - suspensos os prazos; e
+II - ressarcidos os créditos homologados em até 15 (quinze) dias contados da conclusão da fiscalização.
+§ 12. O procedimento de fiscalização de que trata o § 11 não poderá se estender por mais de 360
+(trezentos e sessenta) dias.
+§ 13. Caso o procedimento de fiscalização não seja encerrado no prazo de que trata o § 12, o crédito
+será ressarcido ao contribuinte nos 15 (quinze) dias subsequentes.
+§ 14.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 39 (parte 3)",
+    titulo: "O ressarcimento de que trata este artigo não afasta a possibilidade de fiscalização posterior dos\ncréditos ressarcidos nem prejudica a conclusão do procedimento de que trata o § 11",
+    conteudo: `O ressarcimento de que trata este artigo não afasta a possibilidade de fiscalização posterior dos
+créditos ressarcidos nem prejudica a conclusão do procedimento de que trata o § 11.
+§ 15. O valor dos saldos credores cujo ressarcimento tenha sido solicitado nos termos deste artigo será
+corrigido, caso o pagamento ocorra a partir do primeiro dia do segundo mês seguinte ao do pedido, pela taxa
+Selic acumulada mensalmente a partir desta data até o mês anterior ao pagamento, acrescido de 1% (um por
+cento) no mês de pagamento.
+§ 16. Os prazos de que trata o § 9º serão suspensos, por até 5 (cinco) anos, contados da data da
+opção, não aplicado o disposto no § 15, caso o contribuinte realize a opção:
+I - pelo Simples Nacional ou pelo MEI, exceto na hipótese de que trata o § 3º do art. 41; ou
+II - por não ser contribuinte de IBS, nas hipóteses autorizadas neste Regulamento.
+§ 17. Na hipótese de descumprimento dos prazos previstos nos §§ 9º a 11, o valor do saldo credor será
+corrigido diariamente pela taxa Selic a partir do primeiro dia do início do prazo para apreciação do pedido até
+o dia anterior ao do ressarcimento.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 40",
+    titulo: "Aplicam-se os prazos de ressarcimento previstos nos incisos I ou II do § 9º do art",
+    conteudo: `Art. 40. Aplicam-se os prazos de ressarcimento previstos nos incisos I ou II do § 9º do art. 39 para: (Art.
+40 da LC 214/2025)
+I - os créditos apropriados de IBS relativos à aquisição de bens e serviços incorporados ao ativo
+imobilizado do contribuinte;
+II - os pedidos de ressarcimento cujo valor seja igual ou inferior a 150% (cento e cinquenta por cento)
+do valor médio mensal da diferença entre:
+a) os créditos de IBS apropriados pelo contribuinte; e
+
+30
+
+b) os débitos de IBS incidentes sobre as operações do contribuinte.
+§ 1º O cálculo do valor médio mensal de que trata o inciso II do caput deste artigo será realizado com
+base nas informações relativas aos 24 (vinte e quatro) meses anteriores ao período de apuração, excluídos
+do cálculo os créditos apropriados nos termos do inciso I do caput deste artigo.
+§ 2º Durante os anos de 2027 e 2028, a média a que se refere o inciso II do caput deste artigo será
+calculada com base nas informações relativas aos meses nos quais houve cobrança de IBS.
+§ 3º Para os fins do disposto no inciso I do caput deste artigo, também serão considerados como bens
+e serviços incorporados ao ativo imobilizado aqueles com a mesma natureza que, em decorrência das normas
+contábeis aplicáveis, forem contabilizados por concessionárias de serviços públicos como ativo de contrato,
+intangível ou financeiro.
+Seção XI - Dos Regimes de Apuração`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 41",
+    titulo: "O regime regular do IBS compreende todas as regras de incidência e de apuração previstas\nneste Regulamento, incluindo aquelas aplicáveis aos regimes diferenciados e aos regimes específicos",
+    conteudo: `Art. 41. O regime regular do IBS compreende todas as regras de incidência e de apuração previstas
+neste Regulamento, incluindo aquelas aplicáveis aos regimes diferenciados e aos regimes específicos. (Art.
+41 da LC 214/2025)
+§ 1º Fica sujeito ao regime regular do IBS de que trata este Regulamento o contribuinte que não realizar
+a opção pelo Simples Nacional ou pelo MEI.
+§ 2º Os contribuintes optantes pelo Simples Nacional ou pelo MEI ficam sujeitos às regras desses
+regimes.
+§ 3º Os optantes pelo Simples Nacional poderão exercer a opção de apurar e recolher o IBS pelo regime
+regular, hipótese na qual o IBS será apurado e recolhido conforme o disposto neste Regulamento.
+§ 4º A opção a que se refere o § 3º será exercida nos termos da Lei Complementar nº 123, de 14 de
+dezembro de 2006.
+§ 5º É vedado ao contribuinte do Simples Nacional ou ao contribuinte que venha a fazer a opção por
+esse regime retirar-se do regime regular do IBS, caso tenha recebido ressarcimento de créditos desse tributo
+no ano-calendário corrente ou anterior, nos termos do art. 39.
+§ 6º Aplica-se o disposto no § 5º, em relação às demais hipóteses em que a pessoa física, pessoa
+jurídica ou entidade sem personalidade jurídica exerça a opção facultativa pela condição de contribuinte
+sujeito ao regime regular, nos casos previstos neste Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 42",
+    titulo: "A apuração relativa ao IBS consolidará as operações realizadas por todos os estabelecimentos\ndo contribuinte",
+    conteudo: `Art. 42. A apuração relativa ao IBS consolidará as operações realizadas por todos os estabelecimentos
+do contribuinte. (Art. 42 da LC 214/2025)
+§ 1º O pagamento do IBS e o pedido de ressarcimento de que trata o art. 39 serão centralizados no
+estabelecimento matriz do contribuinte.
+§ 2º A apuração consolidará todos os débitos e créditos do contribuinte no regime regular, inclusive
+aqueles decorrentes da apuração dos regimes diferenciados e específicos, salvo nas hipóteses previstas
+expressamente neste Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 43",
+    titulo: "O período de apuração do IBS será mensal, com início no primeiro dia à zero hora e\nencerramento no último dia às 23 (vinte e três) horas, 59 (cinquenta e nove) minutos e 59 (cinquenta e nove)\nsegun...",
+    conteudo: `Art. 43. O período de apuração do IBS será mensal, com início no primeiro dia à zero hora e
+encerramento no último dia às 23 (vinte e três) horas, 59 (cinquenta e nove) minutos e 59 (cinquenta e nove)
+segundos do horário de Brasília. (Art. 43 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 44",
+    titulo: "Para cada período de apuração, o contribuinte deverá apurar o saldo do IBS, que\ncorresponderá à diferença entre os valores",
+    conteudo: `Art. 44. Para cada período de apuração, o contribuinte deverá apurar o saldo do IBS, que
+corresponderá à diferença entre os valores: (Art. 45 da LC 214/2025)
+I - dos débitos do IBS decorrentes dos fatos geradores ocorridos no período de apuração; e
+II - dos créditos apropriados no mesmo período, incluindo os créditos presumidos, acrescido do saldo
+a recuperar de período ou períodos anteriores não utilizado para compensação ou ressarcimento.
+§ 1º O contribuinte poderá realizar ajustes positivos ou negativos no saldo apurado na forma do caput
+deste artigo mediante a emissão de documento fiscal.
+§ 2º Inclui-se entre os ajustes de que trata o § 1º o estorno de crédito apropriado em período de
+apuração anterior, ainda que seja de crédito presumido, aplicados os acréscimos de que tratam os §§ 2º a 4º
+do art. 27, desde a data em que:
+I - tiver ocorrido a apropriação indevida; ou
+II - em que se tornar exigível a anulação ou o estorno do crédito por fato superveniente.
+
+31
+
+§ 3º Do saldo apurado na forma do caput deste artigo e do § 1º, serão deduzidos os valores extintos
+pelas modalidades previstas nos incisos III a V do caput do art. 26, que resultará:
+I - quando positivo, saldo a recolher que deverá ser pago pelo contribuinte; e
+II - quando negativo, saldo a recuperar que poderá ser utilizado para ressarcimento ou compensação,
+na forma prevista neste Regulamento.
+§ 4º A apuração realizada nos termos deste artigo implica confissão de dívida pelo contribuinte e
+constitui o crédito tributário.
+§ 5º A confissão de dívida de que trata o § 4º é instrumento hábil e suficiente para a exigência do valor
+do IBS incidente sobre as operações nela consignadas.
+§ 6º A apuração de que trata este artigo deverá ser realizada e entregue ao CGIBS, inclusive com os
+ajustes a que se referem os §§ 1º e 2º, até o último dia útil do mês seguinte ao do período de apuração.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 45",
+    titulo: "O saldo a recolher apurado nos termos do art",
+    conteudo: `Art. 45. O saldo a recolher apurado nos termos do art. 44 deverá ser pago até o último dia útil do mês
+seguinte ao do período de apuração.
+Parágrafo único. A aferição do último dia útil a que se refere o caput deste artigo será efetuada
+conforme o calendário vigente no local do domicílio do estabelecimento matriz, considerados os feriados
+nacionais, estaduais e municipais.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 46",
+    titulo: "O CGIBS apresentará a apuração assistida do saldo do IBS do período de apuração",
+    conteudo: `Art. 46. O CGIBS apresentará a apuração assistida do saldo do IBS do período de apuração: (Art. 46
+da LC 214/2025)
+I - até o dia 20 (vinte) do mês seguinte ao do período de apuração, para os sujeitos passivos obrigados
+à entrega da Declaração de Regimes Específicos (DeRE), referida no Capítulo II do Título II deste Livro; e
+II - até o dia 15 (quinze) do mês seguinte ao do período de apuração, para os demais sujeitos passivos.
+§ 1º O saldo de que trata o caput deste artigo será calculado nos termos do art. 44 e terá por base:
+I - documentos fiscais;
+II - informações relativas à extinção dos débitos do IBS por quaisquer das modalidades previstas no
+art. 26; e
+III - outras informações prestadas pelo contribuinte ou a ele relativas.
+§ 2º Apresentada a apuração assistida pelo CGIBS, a apuração de que trata o art. 44 somente poderá
+ser realizada mediante ajustes positivos e negativos na apuração assistida de que trata o caput deste artigo,
+que será de uso obrigatório pelo contribuinte.
+§ 3º Os ajustes a que se refere o § 2º poderão ser realizados até o último dia útil do mês seguinte ao
+do período de apuração.
+§ 4º O saldo resultante da apuração de que trata este artigo constituirá saldo a recolher ou saldo a
+recuperar.
+§ 5º O contribuinte deverá emitir o documento de arrecadação com a correção necessária, quando o
+saldo resultante da apuração não contemplar a totalidade dos ajustes positivos e negativos realizados nos
+termos do § 3º
+§ 6º A apuração assistida realizada nos termos deste artigo, caso o contribuinte a confirme ou nela
+realize ajustes, implica confissão de dívida e constitui o crédito tributário.
+§ 7º Na ausência de manifestação do contribuinte sobre a apuração assistida até o prazo previsto no §
+3º, presume-se correto o saldo apurado e considera-se constituído o crédito tributário.
+§ 8º A apuração assistida, nos casos a que se referem os §§ 6º e 7º, após o vencimento previsto no art.
+45, é instrumento hábil e suficiente para a exigência dos valores do IBS so`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, nao_cumulatividade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 46 (parte 2)",
+    titulo: "bre as operações nela consignadas",
+    conteudo: `bre as operações nela consignadas.
+§ 9º O disposto neste artigo não afasta a prerrogativa de lançamento de ofício de crédito tributário
+relativo a diferenças posteriormente verificadas pela administração tributária.
+§ 10. A apuração assistida conterá as informações relativas:
+I - aos débitos de IBS extintos e ao momento da extinção, por qualquer das modalidades previstas no
+art. 26; e
+II - aos créditos de IBS apropriados e ao momento da apropriação.
+
+32
+
+Seção XII - Da Não Cumulatividade`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, nao_cumulatividade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 47",
+    titulo: "O contribuinte sujeito ao regime regular poderá apropriar créditos do IBS quando ocorrer a\nextinção, por qualquer das modalidades previstas no art",
+    conteudo: `Art. 47. O contribuinte sujeito ao regime regular poderá apropriar créditos do IBS quando ocorrer a
+extinção, por qualquer das modalidades previstas no art. 26, dos débitos relativos às operações em que seja
+adquirente, excetuadas exclusivamente aquelas consideradas de uso ou consumo pessoal e as demais
+hipóteses previstas neste Regulamento. (Art. 47 da LC 214/2025)
+§ 1º A apropriação dos créditos de que trata o caput deste artigo:
+I - será realizada de forma segregada para o IBS e para a CBS, vedada, em qualquer hipótese, a
+compensação de créditos de IBS com valores devidos de CBS; e
+II - está condicionada à comprovação da operação por meio de documento fiscal idôneo.
+§ 2º Os valores dos créditos do IBS apropriados corresponderão:
+I - aos valores dos débitos do IBS que tenham sido destacados no documento fiscal de aquisição e
+extintos por qualquer das modalidades previstas no art. 26; ou
+II - aos valores de crédito presumido, nas hipóteses previstas neste Regulamento.
+§ 3º O disposto neste artigo aplica-se, inclusive, às aquisições de bem ou serviço fornecido por optante
+pelo Simples Nacional.
+§ 4º Nas operações em que o contribuinte seja adquirente de combustíveis tributados no regime
+específico de que trata o Capítulo I do Título VI deste Livro, fica dispensada a comprovação de extinção dos
+débitos do IBS para apropriação dos créditos.
+§ 5º Na hipótese de que trata o § 4º, os créditos serão equivalentes aos valores do IBS registrados em
+documento fiscal idôneo, nos termos do disposto no § 4º do art. 267.
+§ 6º A realização de operações sujeitas à alíquota reduzida não acarretará o estorno, parcial ou integral,
+dos créditos apropriados pelo contribuinte em suas aquisições, salvo quando expressamente previsto neste
+Regulamento.
+§ 7º No caso de operações sujeitas à alíquota zero, serão mantidos os créditos relativos às operações
+anteriores, salvo quando expressamente previsto neste Regulamento. (Art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, combustivel, credito, credito_presumido, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 47 (parte 2)",
+    titulo: "52 da LC 214/2025)\n§ 8º O contribuinte do IBS no regime regular poderá creditar-se dos valores dos débitos extintos\nrelativos a fornecimentos de bens e serviços não pagos por adquirente que tenha a...",
+    conteudo: `52 da LC 214/2025)
+§ 8º O contribuinte do IBS no regime regular poderá creditar-se dos valores dos débitos extintos
+relativos a fornecimentos de bens e serviços não pagos por adquirente que tenha a falência decretada, nos
+termos da Lei nº 11.101, de 9 de fevereiro de 2005, desde que:
+I - a aquisição do bem ou serviço não tenha permitido a apropriação de créditos pelo adquirente;
+II - a operação tenha sido registrada na contabilidade do contribuinte desde o período de apuração em
+que ocorreu o fato gerador do IBS; e
+III - o pagamento dos credores do adquirente falido tenha sido encerrado de forma definitiva.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, combustivel, credito, credito_presumido, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 48",
+    titulo: "Caso o bem adquirido venha a perecer, deteriorar-se ou ser objeto de roubo, furto ou extravio,\nos créditos relacionados à sua aquisição, inclusive os de serviços, deverão ser estornados, mediante e...",
+    conteudo: `Art. 48. Caso o bem adquirido venha a perecer, deteriorar-se ou ser objeto de roubo, furto ou extravio,
+os créditos relacionados à sua aquisição, inclusive os de serviços, deverão ser estornados, mediante emissão
+de documento fiscal vinculado ao documento fiscal de aquisição, com a indicação dos valores de IBS
+referentes ao bem adquirido, de forma discriminada. (Art. 47, § 6º, da LC 214/2025)
+§ 1º No caso de roubo ou furto de bem do ativo imobilizado, o estorno de crédito de que trata o caput
+deste artigo será feito proporcionalmente ao prazo de vida útil restante e às taxas de depreciação definidos
+no Anexo I. (Art. 47, § 7º, da LC 214/2025)
+§ 2º Sendo impossível determinar qual aquisição corresponde ao bem ou serviço adquirido de que trata
+o caput deste artigo, a informação do valor do IBS deverá observar a ordem cronológica a partir da aquisição
+mais recente, respeitada a quantidade de itens indicada no documento fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 49",
+    titulo: "Na hipótese de o pagamento do IBS ser realizado por meio do Simples Nacional, quando não\nfor exercida a opção pelo regime regular de que trata o § 3º do art",
+    conteudo: `Art. 49. Na hipótese de o pagamento do IBS ser realizado por meio do Simples Nacional, quando não
+for exercida a opção pelo regime regular de que trata o § 3º do art. 41: (Art. 47, § 9º, da LC 214/2025)
+I - não será permitida a apropriação de créditos do IBS pelo optante pelo Simples Nacional; e
+II - será permitida ao contribuinte sujeito ao regime regular do IBS a apropriação de créditos do IBS
+correspondentes aos valores do tributo pago na aquisição de bens e de serviços de optante pelo Simples
+Nacional, em montante equivalente ao devido por meio desse regime.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 50",
+    titulo: "As operações imunes, isentas ou sujeitas à alíquota zero, a diferimento ou a suspensão não\npermitirão a apropriação de créditos pelos adquirentes dos bens e serviços",
+    conteudo: `Art. 50. As operações imunes, isentas ou sujeitas à alíquota zero, a diferimento ou a suspensão não
+permitirão a apropriação de créditos pelos adquirentes dos bens e serviços. (Art. 49 da LC 214/2025)
+
+33
+
+Parágrafo único. O disposto no caput deste artigo não impede a apropriação dos créditos presumidos
+previstos expressamente neste Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 51",
+    titulo: "Nas hipóteses de suspensão, caso haja a exigência do crédito suspenso, a apropriação dos\ncréditos será admitida somente no momento da extinção dos débitos por qualquer das modalidades previstas\nno art",
+    conteudo: `Art. 51. Nas hipóteses de suspensão, caso haja a exigência do crédito suspenso, a apropriação dos
+créditos será admitida somente no momento da extinção dos débitos por qualquer das modalidades previstas
+no art. 26, vedada a apropriação de créditos em relação aos acréscimos legais. (Art. 50 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 52",
+    titulo: "A imunidade e a isenção acarretarão a anulação dos créditos relativos às operações anteriores",
+    conteudo: `Art. 52. A imunidade e a isenção acarretarão a anulação dos créditos relativos às operações anteriores.
+(Art. 51 da LC 214/2025)
+§ 1º A anulação dos créditos de que trata o caput deste artigo:
+I - será proporcional ao valor das operações imunes e isentas sobre o valor de todas as operações do
+fornecedor no mesmo período de apuração;
+II - será realizada mediante emissão de documento fiscal cujo débito destacado deverá corresponder
+ao resultado da multiplicação entre:
+a) o valor total dos créditos apropriados no período de apuração; e
+b) a razão entre o valor das operações imunes e isentas sobre o valor de todas as operações do
+fornecedor no mesmo período de apuração; e
+III - deverá ser realizada pelo contribuinte até o prazo previsto no § 6º do art. 44.
+§ 2º O disposto no caput deste artigo e no § 1º não se aplica às:
+I - exportações; e
+II - operações de que tratam os incisos IV e VI do caput do art. 10.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, imunidade, isencao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 53",
+    titulo: "Os créditos do IBS apropriados em cada período de apuração poderão ser utilizados, na\nseguinte ordem, mediante",
+    conteudo: `Art. 53. Os créditos do IBS apropriados em cada período de apuração poderão ser utilizados, na
+seguinte ordem, mediante: (Art. 53 da LC 214/2025)
+I - compensação com o saldo a recolher do IBS vencido, não extinto e não inscrito em dívida ativa
+relativo a períodos de apuração anteriores, inclusive os acréscimos legais; e
+II - compensação com os débitos do IBS decorrentes de fatos geradores do mesmo período de
+apuração, observada a ordem cronológica de que trata o inciso I do § 1º do art. 26; e
+III - compensação, respectivamente, com os débitos do IBS decorrentes de fatos geradores de períodos
+de apuração subsequentes, observada a ordem cronológica de que trata o inciso I do § 1º do art. 26.
+§ 1º Alternativamente ao disposto no inciso III do caput deste artigo, o contribuinte poderá solicitar
+ressarcimento, nos termos do art. 39.
+§ 2º Os créditos do IBS serão apropriados e compensados ou ressarcidos pelo seu valor nominal,
+vedada atualização monetária, sem prejuízo das hipóteses de acréscimos de juros relativos a ressarcimento
+expressamente previstas neste Regulamento.
+§ 3º A compensação dos créditos de IBS decorrentes de operações devolvidas ou canceladas
+obedecerá aos critérios previstos no art. 57.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 54",
+    titulo: "O direito de utilização dos créditos extinguir-se-á após o prazo de 5 (cinco) anos, contado do\nprimeiro dia do período subsequente ao de apuração em que tiver ocorrido a apropriação do crédito",
+    conteudo: `Art. 54. O direito de utilização dos créditos extinguir-se-á após o prazo de 5 (cinco) anos, contado do
+primeiro dia do período subsequente ao de apuração em que tiver ocorrido a apropriação do crédito. (Art. 54
+da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 55",
+    titulo: "É vedada a transferência, a qualquer título, para outra pessoa ou entidade sem personalidade\njurídica, de créditos do IBS",
+    conteudo: `Art. 55. É vedada a transferência, a qualquer título, para outra pessoa ou entidade sem personalidade
+jurídica, de créditos do IBS. (Art. 55 da LC 214/2025)
+Parágrafo único. Na hipótese de fusão, cisão ou incorporação, os créditos apropriados e ainda não
+utilizados poderão ser transferidos para a pessoa jurídica sucessora, ficando preservada a data original da
+apropriação dos créditos para efeitos da contagem do prazo de que trata o art. 54.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 56",
+    titulo: "O disposto nesta Seção aplica-se a todas as hipóteses de apropriação e de utilização de\ncréditos do IBS previstas neste Regulamento",
+    conteudo: `Art. 56. O disposto nesta Seção aplica-se a todas as hipóteses de apropriação e de utilização de
+créditos do IBS previstas neste Regulamento. (Art. 56 da LC 214/2025)
+Seção XIII - Da Devolução e do Cancelamento`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 57",
+    titulo: "Na devolução e no cancelamento de operações observar-se-á o disposto neste artigo",
+    conteudo: `Art. 57. Na devolução e no cancelamento de operações observar-se-á o disposto neste artigo.
+§ 1º Considera-se:
+I - devolução de operação: desfazimento de operação após o fornecimento; e
+
+34
+
+II - cancelamento de operação: desfazimento de operação antes do fornecimento.
+§ 2º Na devolução e no cancelamento de operações que gerarem crédito para o adquirente, deverá ser
+emitido documento fiscal no valor da operação devolvida ou cancelada cujos efeitos serão, na seguinte ordem:
+I - na apuração do adquirente, com relação à operação devolvida ou cancelada:
+a) estorno do crédito a apropriar;
+b) estorno do crédito apropriado ainda não utilizado;
+c) geração de um débito no mesmo valor, na hipótese de crédito já apropriado e utilizado;
+II - na apuração do fornecedor:
+a) estorno da parcela não extinta do débito decorrente da operação devolvida ou cancelada;
+b) em relação à parcela de que trata a alínea “b” do inciso I deste parágrafo:
+1. transferência em dinheiro, caso a referida parcela tenha sido extinta pela modalidade de que trata o
+inciso III do caput do art. 26;
+2. restabelecimento do crédito na forma do § 5º, caso a referida parcela tenha sido extinta pela
+modalidade de que trata o inciso I do caput do art. 26;
+3. apropriação de crédito, caso a referida parcela tenha sido extinta pelas modalidades de que tratam
+os incisos II e V do caput do art. 26; e
+4. disciplinados na forma do art. 487, caso a referida parcela tenha sido extinta pela modalidade de que
+trata o inciso IV do caput do art. 26;
+c) em relação ao débito de que trata a alínea “c” do inciso I do § 2º:
+1. transferência em dinheiro, à medida que o débito for extinto, se o débito decorrente da operação
+devolvida ou cancelada tenha sido extinto pela modalidade de que trata o inciso III do caput do art. 26;
+2.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 57 (parte 2)",
+    titulo: "restabelecimento do crédito na forma do § 5º, à medida que o débito for extinto, caso o débito da\noperação devolvida ou cancelada tenha sido extinto pela modalidade de que trata o inciso I do caput...",
+    conteudo: `restabelecimento do crédito na forma do § 5º, à medida que o débito for extinto, caso o débito da
+operação devolvida ou cancelada tenha sido extinto pela modalidade de que trata o inciso I do caput do art.
+26;
+3. registro de crédito a apropriar, cuja apropriação ocorrerá à medida que o débito for extinto; e
+4. disciplinados na forma do art. 487, caso a referida parcela tenha sido extinta pela modalidade de que
+trata o inciso IV do caput do art. 26.
+§ 3º Na devolução e no cancelamento de operações que não gerarem crédito para o adquirente, deverá
+ser emitido documento fiscal no valor da operação devolvida ou cancelada, cujos efeitos serão, na seguinte
+ordem:
+I - estorno da parcela não extinta do débito decorrente da operação devolvida ou cancelada;
+II - em relação à parcela extinta do débito decorrente da operação devolvida ou cancelada:
+a) transferência em dinheiro, caso a referida parcela tenha sido extinta pela modalidade de que trata o
+inciso III do caput do art. 26;
+b) restabelecimento do crédito na forma do § 5º, caso a referida parcela tenha sido extinta pela
+modalidade de que trata o inciso I do caput do art. 26;
+c) apropriação de crédito, se o débito decorrente da operação devolvida ou cancelada tenha sido extinto
+pelas modalidades de que tratam os incisos II e V do caput do art. 26; e
+d) disciplinados na forma do Livro II, caso a referida parcela tenha sido extinta pela modalidade de que
+trata o inciso IV do caput do art. 26.
+§ 4º As transferências em dinheiro de que trata este artigo deverão ser realizadas pelo CGIBS ao
+fornecedor, no prazo de até 3 (três) dias úteis contado da data:
+I - do estorno a que se refere a alínea “b” do inciso I do § 2º, na hipótese de estorno do crédito apropriado
+ainda não utilizado na apuração do adquirente;
+II - da extinção do débito a que se refere a alínea “c” do inciso I do § 2º, na medida em que for extinto,
+na hipótese de o crédito ter sido apropriado e utilizado na apuração do adquirente;
+III - do registro do documento`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 57 (parte 3)",
+    titulo: "fiscal a que se refere o § 3º na apuração assistida, na hipótese de\ndevolução e cancelamento de operações que não gerarem crédito para o adquirente",
+    conteudo: `fiscal a que se refere o § 3º na apuração assistida, na hipótese de
+devolução e cancelamento de operações que não gerarem crédito para o adquirente.
+
+35
+
+§ 5º Para efeitos do restabelecimento de crédito previsto nas alíneas “b” e “c” do inciso II do § 2º e no
+inciso II do § 3º, ficam preservadas a data da apropriação e as demais características originais do crédito
+utilizado para compensação.
+§ 6º Os documentos fiscais a que se referem os §§ 2º e 3º serão emitidos:
+I - na hipótese de devolução da operação:
+a) pelo adquirente, se for emitente de documento fiscal;
+b) pelo fornecedor, se o adquirente não for emitente de documento fiscal;
+II - na hipótese de cancelamento da operação, pelo fornecedor.
+§ 7º É vedado o cancelamento de operação em que o destinatário atestar a existência da operação
+antes da emissão do documento fiscal relativo ao cancelamento.
+§ 8º Na devolução de operação que não tenha gerado créditos para o adquirente:
+I - a produção de efeitos estabelecida pelo § 3º fica condicionada ao cumprimento do requisito
+estabelecido pelo inciso II do caput do art. 38, cuja verificação pela fiscalização poderá ocorrer em momento
+posterior; e
+II - se o adquirente for contribuinte do regime regular, o destaque do IBS no documento fiscal de
+devolução não gerará débito na sua apuração.
+§ 9º Na hipótese do inciso I do § 8º, se o adquirente for emitente de documento fiscal, a autorização de
+que trata a alínea “b” do inciso II do caput do art. 38 será suprida pela emissão do documento fiscal de
+devolução.
+§ 10. O contribuinte deverá manter à disposição da fiscalização a documentação que comprove o
+cancelamento ou a devolução da operação.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 58",
+    titulo: "O disposto nesta Seção aplica-se a todas as hipóteses de apropriação e de utilização de\ncréditos do IBS previstas neste Regulamento",
+    conteudo: `Art. 58. O disposto nesta Seção aplica-se a todas as hipóteses de apropriação e de utilização de
+créditos do IBS previstas neste Regulamento. (Art. 56 da LC 214/2025)
+Seção XIV - Da Correção do Valor do Débito de IBS
+Subseção I - Da Correção nas Operações que Gerarem Crédito para o Adquirente`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 59",
+    titulo: "Após o fornecimento, na hipótese de erro na emissão do documento fiscal nas operações que\ngerarem crédito para o adquirente e cuja correção implique redução no valor do imposto destacado, o\nfornece...",
+    conteudo: `Art. 59. Após o fornecimento, na hipótese de erro na emissão do documento fiscal nas operações que
+gerarem crédito para o adquirente e cuja correção implique redução no valor do imposto destacado, o
+fornecedor emitirá documento fiscal com o valor a reduzir, cujos efeitos serão, na seguinte ordem:
+I - na apuração do adquirente, com relação à operação objeto de redução no valor:
+a) estorno do crédito a apropriar;
+b) estorno do crédito apropriado ainda não utilizado;
+c) geração de um débito no mesmo valor, na hipótese de crédito já apropriado e utilizado.
+II - na apuração do fornecedor:
+a) estorno da parcela não extinta do débito objeto de redução;
+b) em relação à parcela de que trata a alínea “b” do inciso I do caput deste artigo:
+1. restabelecimento do crédito na forma do § 3º, caso a referida parcela tenha sido extinta pela
+modalidade de que trata o inciso I do art. 26; e
+2. apropriação de crédito, se o débito objeto de redução tenha sido extinto pelas demais modalidades
+de que trata o art. 26;
+c) em relação ao débito de que trata a alínea “c” do inciso I do caput deste artigo:
+1. restabelecimento do crédito na forma do § 3º, à medida que o débito for extinto, caso o débito objeto
+de redução tenha sido extinto pela modalidade de que trata o inciso I do art. 26; e
+2. registro de crédito a apropriar, cuja apropriação ocorrerá à medida que o débito for extinto.
+§ 1º Os efeitos a que se refere este artigo são condicionados ao aceite do adquirente, que será realizado
+mediante emissão de documento fiscal.
+
+36
+
+§ 2º No caso de que trata o § 10 do art. 20, o documento fiscal de que trata o caput deste artigo será
+emitido pela plataforma digital.
+§ 3º Para os efeitos do restabelecimento de crédito previsto nas alíneas “b” e “c” do inciso II do caput
+deste artigo, ficam preservadas a data da apropriação e as demais características originais do crédito utilizado
+para compensação.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 60",
+    titulo: "O disposto nesta Seção aplica-se a todas as hipóteses de apropriação e de utilização de\ncréditos do IBS previstas neste Regulamento",
+    conteudo: `Art. 60. O disposto nesta Seção aplica-se a todas as hipóteses de apropriação e de utilização de
+créditos do IBS previstas neste Regulamento. (Art. 56 da LC 214/2025)
+Subseção II - Da Correção nas Operações que não Gerarem Crédito para o Adquirente`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 61",
+    titulo: "Após o fornecimento, na hipótese de erro na emissão do documento fiscal nas operações que\nnão gerarem crédito para o adquirente e cuja correção implicar redução no valor do imposto destacado, o\nfor...",
+    conteudo: `Art. 61. Após o fornecimento, na hipótese de erro na emissão do documento fiscal nas operações que
+não gerarem crédito para o adquirente e cuja correção implicar redução no valor do imposto destacado, o
+fornecedor emitirá documento fiscal no valor a reduzir, cujos efeitos serão, na seguinte ordem:
+I - estorno da parcela não extinta do débito decorrente da operação objeto de redução;
+II - em relação à parcela extinta do débito decorrente da operação objeto de redução:
+a) restabelecimento do crédito na forma do § 3º, caso a parcela tenha sido extinta pela modalidade de
+que trata o inciso I do art. 26; e
+b) apropriação de crédito, nas demais hipóteses.
+§ 1º A produção de efeitos estabelecida pelo caput deste artigo fica condicionada ao cumprimento do
+requisito estabelecido pelo inciso II do caput do art. 38, cuja verificação pela fiscalização poderá ocorrer em
+momento posterior.
+§ 2º Se o adquirente for emitente de documento fiscal, a autorização de que trata a alínea “b” do inciso
+II do caput do art. 38 será realizada mediante aceite pela emissão de documento fiscal.
+§ 3º Para efeitos do restabelecimento de crédito previsto no inciso II do caput deste artigo, ficam
+preservadas a data da apropriação e as demais características originais do crédito utilizado para
+compensação.
+Seção XV - Dos Bens e Serviços de Uso ou Consumo Pessoal`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 62",
+    titulo: "Consideram-se de uso ou consumo pessoal os seguintes bens e serviços adquiridos pelo\ncontribuinte",
+    conteudo: `Art. 62. Consideram-se de uso ou consumo pessoal os seguintes bens e serviços adquiridos pelo
+contribuinte: (Art. 57, I, da LC 214/2025)
+I - joias, pedras e metais preciosos;
+II - obras de arte e antiguidades de valor histórico ou arqueológico;
+III - bebidas alcoólicas;
+IV - derivados do tabaco;
+V - armas e munições;
+VI - bens e serviços recreativos, esportivos e estéticos; e
+VII - bens e serviços relacionados à aquisição ou à manutenção dos bens de que trata este artigo.
+Parágrafo único. Para fins do disposto no caput deste artigo, não se consideram bens e serviços de
+uso ou consumo pessoal aqueles utilizados preponderantemente na atividade econômica do contribuinte, de
+acordo com os seguintes critérios: (Art. 57, § 3º, da LC 214/2025)
+I - os bens previstos nos incisos I a IV do caput deste artigo que sejam comercializados ou utilizados
+para a fabricação de bens a serem comercializados;
+II - os bens previstos no inciso V do caput deste artigo que:
+a) cumpram o disposto no inciso I deste parágrafo; ou
+b) sejam utilizados por empresas de segurança;
+III - os bens previstos no inciso VI do caput deste artigo que:
+a) cumpram o disposto no inciso I deste parágrafo; ou
+b) sejam utilizados exclusivamente em estabelecimento físico pelos seus clientes; e
+IV - os serviços previstos no inciso VI do caput deste artigo que sejam:
+
+37
+
+a) adquiridos por contribuintes cuja atividade preponderante seja a prestação desses mesmos serviços;
+b) fornecidos onerosamente aos clientes; ou
+c) fornecidos aos clientes, exclusivamente, no estabelecimento físico do adquirente.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 63",
+    titulo: "Consideram-se de uso ou consumo pessoal os bens e serviços adquiridos pelo contribuinte e\nfornecidos de forma não onerosa ou a valor inferior ao de mercado para as seguintes pessoas físicas",
+    conteudo: `Art. 63. Consideram-se de uso ou consumo pessoal os bens e serviços adquiridos pelo contribuinte e
+fornecidos de forma não onerosa ou a valor inferior ao de mercado para as seguintes pessoas físicas: (Art.
+57, II, da LC 214/2025)
+I - o próprio contribuinte, quando pessoa física;
+II - sócios, acionistas, administradores e membros de conselhos de administração e fiscal e comitês de
+assessoramento do conselho de administração do contribuinte previstos em lei;
+III - empregados do contribuinte; e
+IV - cônjuges, companheiros ou parentes, consanguíneos ou afins, até o terceiro grau, das pessoas
+físicas referidas nos incisos I, II e III do caput deste artigo.
+§ 1º Para fins do disposto no caput deste artigo, não se consideram bens e serviços de uso ou consumo
+pessoal aqueles utilizados preponderantemente na atividade econômica do contribuinte, de acordo com os
+seguintes critérios: (Art. 57, § 3º, IV, da LC 214/2025)
+I - uniformes e fardamentos;
+II - equipamentos de proteção individual;
+III - alimentação e bebida não alcoólica disponibilizada no estabelecimento do contribuinte para seus
+empregados e administradores durante a jornada de trabalho;
+IV - serviços de saúde disponibilizados no estabelecimento do contribuinte para seus empregados e
+administradores durante a jornada de trabalho;
+V - serviços de creche disponibilizados no estabelecimento do contribuinte para seus empregados e
+administradores durante a jornada de trabalho;
+VI - serviços de planos de assistência à saúde destinados a empregados e seus dependentes em
+decorrência de cláusula compulsória estipulada em acordo ou convenção coletiva de trabalho, sendo os
+créditos na aquisição desses serviços equivalentes aos respectivos débitos do fornecedor apurados e extintos
+de acordo com o disposto no regime específico de planos de assistência à saúde;
+VII - fornecimento de vale-transporte, vale-refeição e vale-alimentação, sendo os créditos na aquisição
+desses serviços equivalentes aos respectivos débitos do fornecedor a`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 63 (parte 2)",
+    titulo: "purados e extintos de acordo com o\ndisposto no regime específico de serviços financeiros, observada a disciplina aplicável aos arranjos de\npagamento;\nVIII - benefícios educacionais a seus empregado...",
+    conteudo: `purados e extintos de acordo com o
+disposto no regime específico de serviços financeiros, observada a disciplina aplicável aos arranjos de
+pagamento;
+VIII - benefícios educacionais a seus empregados e dependentes em decorrência de acordo ou
+convenção coletiva de trabalho, inclusive mediante concessão de bolsas de estudo ou de descontos na
+contraprestação, desde que esses benefícios sejam oferecidos a todos os empregados, autorizada a
+diferenciação em favor dos empregados de menor renda ou com maior núcleo familiar.
+§ 2º Não se consideram bens e serviços de uso ou consumo pessoal aqueles utilizados
+preponderantemente na atividade econômica do contribuinte, de acordo com os seguintes critérios:
+I - haja obrigação legal ou regulamentar prevista na legislação trabalhista de fornecimento para uso ou
+consumo por parte de seus empregados;
+II - veículo, equipamento de informática e aparelho de comunicação fornecido a empregado para
+utilização em atividades estritamente vinculadas a suas funções perante o contribuinte, desde que:
+a) as características do bem sejam compatíveis com as referidas funções; e
+b) a quantidade fornecida seja compatível com a necessidade;
+III - serviços de transporte, de telefonia e de conexão de dados custeados para empregados para
+utilização em atividades estritamente vinculadas a suas funções perante o contribuinte, desde que:
+a) as características do serviço sejam compatíveis com as referidas funções; e
+b) a quantidade fornecida seja compatível com a necessidade;
+IV - fornecimento às pessoas de que tratam os incisos II a IV do caput deste artigo a valor inferior ao
+de mercado em razão de desconto especial concedido às referidas pessoas, desde que:
+
+38`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 63 (parte 3)",
+    titulo: "a) não resulte em fornecimento com preço inferior ao custo de aquisição, no caso de revenda de bens\nmateriais; ou\nb) o desconto não seja superior a 25% (vinte e cinco por cento), nos demais casos;...",
+    conteudo: `a) não resulte em fornecimento com preço inferior ao custo de aquisição, no caso de revenda de bens
+materiais; ou
+b) o desconto não seja superior a 25% (vinte e cinco por cento), nos demais casos; e
+V - outros bens e serviços utilizados preponderantemente na atividade econômica do contribuinte
+listados em ato conjunto da RFB e do CGIBS.
+§ 3º Para fins deste artigo, consideram-se de uso ou consumo pessoal os seguintes bens e serviços,
+entre outros: (Art. 57, § 1º, da LC 214/2025)
+I - bem imóvel residencial e demais bens e serviços relacionados à sua aquisição, locação ou
+manutenção; e
+II - veículo e demais bens e serviços relacionados à sua aquisição, locação ou manutenção, inclusive
+seguro e combustível.
+§ 4º No caso de sociedade que tenha como atividade principal a gestão de bens das pessoas físicas
+referidas nos incisos do caput deste artigo e dos ativos financeiros dessas pessoas físicas (family office), os
+bens e serviços relacionados à gestão serão considerados de uso e consumo pessoal. (Art. 57, § 2º, da LC
+214/2025)
+§ 5º O disposto no inciso VI do § 1º aplica-se até 6 (seis) meses após o encerramento da vigência do
+acordo ou convenção coletiva, independentemente do motivo.`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 64",
+    titulo: "Fica vedada a apropriação de créditos decorrentes da aquisição de bens e serviços de uso ou\nconsumo pessoal",
+    conteudo: `Art. 64. Fica vedada a apropriação de créditos decorrentes da aquisição de bens e serviços de uso ou
+consumo pessoal. (Art. 57, § 5º, da LC 214/2025)
+§ 1º Sempre que o bem ou serviço adquirido for considerado de uso ou consumo pessoal, os créditos
+decorrentes de sua aquisição deverão ser estornados, mediante emissão de documento fiscal vinculado ao
+de aquisição, com a indicação:
+I - do valor de IBS referente ao bem ou serviço destinado a tal fim; e
+II - da pessoa física destinatária.
+§ 2º Para efeitos do estorno de créditos de que trata este artigo, sendo impossível determinar qual
+aquisição corresponde ao bem ou serviço de uso ou consumo pessoal, será informado o valor do IBS a ser
+estornado, observada a ordem cronológica das aquisições a partir da mais recente.
+§ 3º Na hipótese de alienação de bem que não tenha permitido a apropriação de crédito quando de sua
+aquisição, nos termos do caput deste artigo, o contribuinte poderá excluir da base de cálculo o valor de
+aquisição do bem, até o limite do valor da alienação, desde que seja possível a identificação inequívoca do
+bem. (Art. 57, § 9º, da LC 214/2025)
+CAPÍTULO III - DO IBS SOBRE IMPORTAÇÕES
+Seção I - Da Hipótese de Incidência`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 65",
+    titulo: "O IBS incide sobre a importação de bens ou de serviços do exterior realizada por pessoa física\nou jurídica ou entidade sem personalidade jurídica, ainda que não inscrita ou obrigada a se inscrever...",
+    conteudo: `Art. 65. O IBS incide sobre a importação de bens ou de serviços do exterior realizada por pessoa física
+ou jurídica ou entidade sem personalidade jurídica, ainda que não inscrita ou obrigada a se inscrever no
+regime regular do IBS, qualquer que seja a sua finalidade. (Art. 63 da LC 214/2025)
+Parágrafo único. Salvo disposição específica prevista neste Capítulo, aplicam-se à importação de que
+trata o caput deste artigo as regras relativas às operações onerosas de que trata o Capítulo II deste Título.
+Seção II - Da Importação de Bens Imateriais e Serviços`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 66",
+    titulo: "Para fins do disposto no art. 65, considera-se importação de serviço ou de bem imaterial,\ninclusive direitos, o fornecimento realizado por residente ou domiciliado no exterior cujo consumo ocorra n...",
+    conteudo: `Art. 66. Para fins do disposto no art. 65, considera-se importação de serviço ou de bem imaterial,
+inclusive direitos, o fornecimento realizado por residente ou domiciliado no exterior cujo consumo ocorra no
+País, ainda que o fornecimento seja realizado no exterior. (Art. 64 da LC 214/2025)
+§ 1º Considera-se consumo no País de serviço ou de bem imaterial, inclusive direitos, o fornecimento
+realizado por residente ou domiciliado no exterior:
+I - cujo local da operação seja no País, nos termos dos incisos II a IX do caput do art. 12; ou
+II - em que o adquirente ou o destinatário tenham residência ou domicílio no País, nos demais casos.
+§ 2º Considera-se ainda importação de serviço a prestação por residente ou domiciliado no exterior:
+I - executada no País;
+
+39
+
+II - relacionada a bem imóvel ou bem móvel localizado no País; ou
+III - relacionada a bem móvel que seja remetido para o exterior a fim de ser submetido a execução de
+serviço e retorne ao País após a sua conclusão.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 67",
+    titulo: "Na hipótese de haver consumo de serviços ou de bens imateriais, inclusive direitos,\nconcomitantemente no território nacional e no exterior, apenas a parcela cujo consumo ocorrer no País será\nconsid...",
+    conteudo: `Art. 67. Na hipótese de haver consumo de serviços ou de bens imateriais, inclusive direitos,
+concomitantemente no território nacional e no exterior, apenas a parcela cujo consumo ocorrer no País será
+considerada importação. (Art. 64, § 3º, da LC 214/2025)
+Parágrafo único. O disposto no caput deste artigo não se aplica ao transporte internacional de
+passageiros, hipótese na qual se aplicará a regra do § 7º do art. 13.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 68",
+    titulo: "Os bens imateriais, inclusive direitos, e serviços cujo valor esteja incluído no valor aduaneiro\nde bens materiais importados nos termos do art",
+    conteudo: `Art. 68. Os bens imateriais, inclusive direitos, e serviços cujo valor esteja incluído no valor aduaneiro
+de bens materiais importados nos termos do art. 80 sujeitam-se à incidência do IBS na forma da Seção III
+deste Capítulo. (Art. 64, § 4º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 69",
+    titulo: "Na importação de serviços ou de bens imateriais, inclusive direitos",
+    conteudo: `Art. 69. Na importação de serviços ou de bens imateriais, inclusive direitos: (Art. 64, § 5º, da LC
+214/2025)
+I - considera-se ocorrido o fato gerador do IBS no momento definido conforme o disposto no art. 11;
+II - a base de cálculo é o valor da operação nos termos do art. 13;
+III - as alíquotas do IBS incidentes sobre as importações de bem imaterial, inclusive direitos, ou de
+serviços serão disciplinadas no Livro II;
+IV - para fins da determinação das alíquotas estadual, distrital e municipal do IBS, considera-se ocorrida
+a importação no local:
+a) da operação definido nos termos dos incisos II a IX do caput do art. 12; ou
+b) do domicílio principal do adquirente ou do destinatário, nos demais casos.
+V - o contribuinte do IBS nas aquisições de bens imateriais, inclusive direitos, e serviços de fornecedor
+residente ou domiciliado no exterior é o adquirente, ainda que não inscrito como contribuinte do IBS; e
+VI - caso o adquirente seja residente ou domiciliado no exterior, o contribuinte do IBS nas aquisições
+de bens imateriais, inclusive direitos, e serviços de fornecedor residente ou domiciliado no exterior é o
+destinatário, ainda que não inscrito como contribuinte do IBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 70",
+    titulo: "O adquirente sujeito ao regime regular do IBS pode apropriar e utilizar crédito conforme o\ndisposto nos arts",
+    conteudo: `Art. 70. O adquirente sujeito ao regime regular do IBS pode apropriar e utilizar crédito conforme o
+disposto nos arts. 47 a 61. (Art. 64, § 5º, VII, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 71",
+    titulo: "O fornecedor residente ou domiciliado no exterior é responsável solidário pelo pagamento do\nIBS com o contribuinte, observando-se o disposto nos arts",
+    conteudo: `Art. 71. O fornecedor residente ou domiciliado no exterior é responsável solidário pelo pagamento do
+IBS com o contribuinte, observando-se o disposto nos arts. 19 e 21. (Art. 64, § 5º, VIII, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 72",
+    titulo: "As plataformas digitais, ainda que residentes e domiciliadas no exterior, serão responsáveis\npelo pagamento do IBS nas importações realizadas por seu intermédio, observando-se o disposto nos arts",
+    conteudo: `Art. 72. As plataformas digitais, ainda que residentes e domiciliadas no exterior, serão responsáveis
+pelo pagamento do IBS nas importações realizadas por seu intermédio, observando-se o disposto nos arts.
+20 e 21. (Art. 64, § 5º, IX, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 73",
+    titulo: "Aplicam-se também as regras específicas previstas no Título VI deste Livro às importações de\nbens e serviços objeto de regimes específicos",
+    conteudo: `Art. 73. Aplicam-se também as regras específicas previstas no Título VI deste Livro às importações de
+bens e serviços objeto de regimes específicos. (Art. 64, § 6º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 74",
+    titulo: "Ato conjunto da RFB e do CGIBS poderá exigir a emissão, pelo contribuinte, de documento\nfiscal para acobertar a importação de serviço ou de bem imaterial, inclusive direitos",
+    conteudo: `Art. 74. Ato conjunto da RFB e do CGIBS poderá exigir a emissão, pelo contribuinte, de documento
+fiscal para acobertar a importação de serviço ou de bem imaterial, inclusive direitos.
+§ 1º Quando exigível o documento fiscal de que trata o caput deste artigo, o contribuinte da importação
+de serviço ou de bem imaterial, inclusive direitos, deverá incluir no respectivo documento fiscal a identificação
+do contrato de câmbio e da fatura de serviços ou do documento que comprove a transação ou o pagamento.
+§ 2º Na hipótese do art. 67, deverá também ser informada a parcela do consumo realizado no País.
+§ 3º O contribuinte, inclusive nas hipóteses de dispensa de emissão do documento fiscal, deverá manter
+sob sua guarda o documento que comprove a transação ou pagamento pelo prazo referido no art. 579, para
+exibição na forma solicitada pela autoridade fiscal da RFB ou da administração tributária estadual, distrital ou
+municipal.
+Seção III - Da Importação de Bens Materiais
+Subseção I - Do Fato Gerador`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 75",
+    titulo: "Para fins do disposto no art. 65, o fato gerador da importação de bens materiais é a entrada de\nbens de procedência estrangeira no território nacional. (Art. 65 da LC 214/2025)\n\n40\n\n\fParágrafo únic...",
+    conteudo: `Art. 75. Para fins do disposto no art. 65, o fato gerador da importação de bens materiais é a entrada de
+bens de procedência estrangeira no território nacional. (Art. 65 da LC 214/2025)
+
+40
+
+Parágrafo único. Para efeitos do disposto no caput deste artigo:
+I - presumem-se entrados no território nacional os bens que constem como tendo sido importados e
+cujo extravio venha a ser apurado pela autoridade aduaneira, exceto quanto às malas e às remessas postais
+internacionais; e (Art. 65, parágrafo único, da LC 214/2025)
+II - considera-se também entrada de bens de procedência estrangeira a importação de bem material
+nacional ou nacionalizado que tenha sido exportado, ainda que sem saída do território nacional nos termos
+deste Regulamento, observado o disposto no art. 76.`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 76",
+    titulo: "Não constituem fatos geradores do IBS sobre a importação os bens materiais",
+    conteudo: `Art. 76. Não constituem fatos geradores do IBS sobre a importação os bens materiais: (Art. 66 da LC
+214/2025)
+I - que retornem ao País, ao respectivo exportador, nas seguintes hipóteses:
+a) enviados em consignação e não vendidos no prazo autorizado;
+b) devolvidos por motivo de defeito técnico, para reparo ou para substituição;
+c) por motivo de modificações na sistemática de importação por parte do país importador;
+d) por motivo de guerra ou de calamidade pública; ou
+e) por outros fatores alheios à vontade do exportador;
+II - que, corretamente descritos nos documentos de transporte, cheguem ao País por erro inequívoco
+ou comprovado de expedição e que sejam redestinados ou devolvidos para o exterior;
+III - que sejam idênticos, em igual quantidade e valor, e que se destinem à reposição de outros
+anteriormente importados que se tenham revelado, após sua liberação pela autoridade aduaneira, defeituosos
+ou imprestáveis para o fim a que se destinavam;
+IV - que tenham sido objeto de pena de perdimento antes de sua liberação pela autoridade aduaneira;
+V - que tenham sido devolvidos para o exterior antes do registro da declaração de importação;
+VI - que sejam considerados como pescado capturado fora das águas territoriais do País por empresa
+localizada no seu território, desde que satisfeitas as exigências que regulam a atividade pesqueira;
+VII - aos quais tenha sido aplicado o regime de exportação temporária;
+VIII - que estejam em trânsito aduaneiro de passagem, acidentalmente destruídos; e
+IX - que tenham sido destruídos sob controle aduaneiro, sem ônus para o poder público, antes de sua
+liberação pela autoridade aduaneira.
+§ 1º Para fins de aplicação do inciso I do caput deste artigo, o exportador deverá justificar, nos termos
+de ato conjunto da RFB e do CGIBS, o retorno do bem ao País.
+§ 2º Para fins de aplicação da alínea “a” do inciso I do caput deste artigo, o prazo máximo para retorno
+do bem ao País será de 180 (cento e oitenta) dias, exceto quando definido prazo dist`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 76 (parte 2)",
+    titulo: "into em ato conjunto da\nRFB e do CGIBS",
+    conteudo: `into em ato conjunto da
+RFB e do CGIBS.
+§ 3º Para fins do disposto no inciso III do caput deste artigo, consideram-se bens idênticos, para fins
+de reposição, os bens de procedência estrangeira que atendam cumulativamente às seguintes condições:
+I - sejam classificados sob o mesmo código da NCM/SH;
+II - tenham as mesmas funções ou utilidades; e
+III - tenham a mesma qualidade e as mesmas especificações, dentre as quais dimensões,
+características e propriedades físicas.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 77",
+    titulo: "O momento da emissão do documento fiscal previsto no inciso I do art",
+    conteudo: `Art. 77. O momento da emissão do documento fiscal previsto no inciso I do art. 113 relativo à importação
+é na entrega dos bens ou na liberação prevista nos incisos I e II do art. 78, o que ocorrer primeiro.
+Subseção II - Do Momento da Apuração`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 78",
+    titulo: "Para efeitos de cálculo do IBS, considera-se ocorrido o fato gerador do IBS na importação de\nbens materiais",
+    conteudo: `Art. 78. Para efeitos de cálculo do IBS, considera-se ocorrido o fato gerador do IBS na importação de
+bens materiais: (Art. 67 da LC 214/2025)
+I - na liberação dos bens submetidos a despacho para consumo;
+II - na liberação dos bens submetidos ao regime aduaneiro especial de admissão temporária para
+utilização econômica;
+
+41
+
+III - no lançamento do correspondente crédito tributário, quando se tratar de:
+a) bens compreendidos no conceito de bagagem, acompanhada ou desacompanhada;
+b) bens constantes de manifesto ou de outras declarações de efeito equivalente, cujo extravio tenha
+sido verificado pela autoridade aduaneira; ou
+c) bens importados que não tenham sido objeto de declaração de importação.
+§ 1º Para efeitos do inciso I do caput deste artigo, entende-se por despacho para consumo na
+importação o despacho aduaneiro a que são submetidos os bens importados a título definitivo.
+§ 2º O disposto no inciso I do caput deste artigo aplica-se, inclusive, no caso de despacho para consumo
+de bens sob regime suspensivo de tributação e de bens contidos em remessa internacional ou conduzidos
+por viajante, sujeitos ao regime de tributação comum.
+§ 3º Nas hipóteses previstas no inciso III do caput deste artigo, a RFB deverá prestar as informações
+necessárias ao lançamento do IBS aos entes federativos competentes, nos termos definidos em ato conjunto
+da RFB e do CGIBS.
+Subseção III - Do Local da Importação de Bens Materiais`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 79",
+    titulo: "Para efeitos do IBS incidente sobre as importações de bens materiais, o local da importação\nde bens materiais corresponde ao",
+    conteudo: `Art. 79. Para efeitos do IBS incidente sobre as importações de bens materiais, o local da importação
+de bens materiais corresponde ao: (Art. 68 da LC 214/2025)
+I - local da entrega dos bens ao destinatário final, nos termos do art. 12, inclusive na remessa
+internacional;
+II - domicílio principal do adquirente de mercadoria entrepostada, observado o inciso II do art. 83; ou
+III - local onde ficou caracterizado o extravio.
+§ 1º Considera-se local de entrega dos bens ao destinatário final a que se refere o inciso I do caput
+deste artigo aquele onde for dada, dentre outras, uma das seguintes destinações:
+I - utilização dos bens, na hipótese de incorporação ao ativo imobilizado;
+II - revenda dos bens;
+III - utilização dos bens para a industrialização; ou
+IV - uso ou consumo dos bens.
+§ 2º Na hipótese do inciso II do § 1º, quando o bem for armazenado após sua liberação pela autoridade
+aduaneira, o local de entrega do bem ao destinatário final será aquele em que estiver localizado o depósito,
+próprio ou de terceiro, ou o armazém.
+§ 3º O local de importação, definido nos termos deste artigo, deverá ser informado na declaração de
+importação, a partir de dados fornecidos pelo:
+I - importador, na importação por conta própria;
+II - adquirente, na importação por conta e ordem de terceiro;
+III - encomendante, na importação por encomenda; ou
+IV - adquirente de mercadoria entrepostada.
+§ 4º Para fins de aplicação do disposto no inciso I do caput deste artigo, na hipótese de remessa
+internacional sujeita ao Regime de Tributação Simplificada (RTS), considera-se local da importação aquele
+indicado como endereço de entrega pelo destinatário da referida remessa, não se aplicando o disposto no §
+1º
+Subseção IV - Da Base de Cálculo`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 80",
+    titulo: "A base de cálculo do IBS na importação de bens materiais é o valor aduaneiro, assim\nconsiderado o valor que servir ou que serviria de base de cálculo para o Imposto de Importação, acrescido\nde",
+    conteudo: `Art. 80. A base de cálculo do IBS na importação de bens materiais é o valor aduaneiro, assim
+considerado o valor que servir ou que serviria de base de cálculo para o Imposto de Importação, acrescido
+de: (Art. 69 da LC 214/2025)
+I - Imposto sobre a Importação (II);
+II - Imposto Seletivo (IS);
+III - Taxa de Utilização do Sistema Integrado do Comércio Exterior (Siscomex);
+
+42
+
+IV - Adicional ao Frete para a Renovação da Marinha Mercante (AFRMM);
+V - Contribuição de Intervenção no Domínio Econômico incidente sobre a importação e a
+comercialização de petróleo e seus derivados, gás natural e seus derivados, e álcool etílico combustível (CideCombustíveis);
+VI - direitos antidumping;
+VII - direitos compensatórios;
+VIII - medidas de salvaguarda;
+IX - Taxa de Serviços Administrativos da Suframa (TSA);
+X - Taxa de Fiscalização de Vigilância Sanitária (TFVS);
+XI - Taxa de Utilização do Sistema Mercante (TUSM);
+XII - Taxa de Fiscalização Federal Agropecuária (TFFA); e
+XIII - outros impostos, taxas, contribuições ou direitos incidentes sobre os bens importados até a sua
+liberação.
+§ 1º A base de cálculo do IBS na hipótese de que trata o § 2º do art. 82 será o valor aduaneiro acrescido
+dos valores de que tratam o caput deste artigo, ressalvado o disposto no § 2º
+§ 2º Não compõem a base de cálculo do IBS:
+I - o Imposto sobre Produtos Industrializados (IPI), previsto no inciso IV do caput do art. 153 da
+Constituição Federal;
+II - o Imposto sobre operações relativas à Circulação de Mercadorias e sobre prestações de Serviços
+de Transporte Interestadual e Intermunicipal e de Comunicação (ICMS), previsto no inciso II do caput do art.
+155 da Constituição Federal; e
+III - o Imposto sobre Serviços de Qualquer Natureza (ISS), previsto no inciso III do caput do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, combustivel, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 80 (parte 2)",
+    titulo: "156 da\nConstituição Federal.\n§ 3º Na impossibilidade de individualização, por item da declaração de importação, do valor dos\ncomponentes acrescidos à base de cálculo previstos nos incisos do caput...",
+    conteudo: `156 da
+Constituição Federal.
+§ 3º Na impossibilidade de individualização, por item da declaração de importação, do valor dos
+componentes acrescidos à base de cálculo previstos nos incisos do caput deste artigo, o referido valor será
+calculado pela divisão do valor total proporcionalmente ao do item, tributado ou não, utilizando-se os seguintes
+critérios de rateio:
+I - peso líquido do bem material indicado em cada item, no caso do inciso IV do caput deste artigo; e
+II - valor aduaneiro do bem material indicado em cada item, nos demais casos.
+§ 4º Ato conjunto da RFB e do CGIBS poderá especificar os componentes da base de cálculo a que se
+refere o inciso XIII do caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, combustivel, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 81",
+    titulo: "Para efeitos de apuração da base de cálculo, os valores expressos em moeda estrangeira\ndeverão ser convertidos em moeda nacional pela taxa de câmbio utilizada para cálculo do Imposto sobre a\nImport...",
+    conteudo: `Art. 81. Para efeitos de apuração da base de cálculo, os valores expressos em moeda estrangeira
+deverão ser convertidos em moeda nacional pela taxa de câmbio utilizada para cálculo do Imposto sobre a
+Importação, sem qualquer ajuste posterior decorrente de eventual variação cambial. (Art. 70 da LC 214/2025)
+Parágrafo único. Na hipótese de não ser devido o Imposto sobre a Importação, deverá ser utilizada a
+taxa de câmbio que seria empregada caso houvesse tributação.
+Subseção V - Da Alíquota`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 82",
+    titulo: "As alíquotas do IBS incidentes sobre cada importação de bem material serão disciplinadas no\nLivro II",
+    conteudo: `Art. 82. As alíquotas do IBS incidentes sobre cada importação de bem material serão disciplinadas no
+Livro II. (Art. 71 da LC 214/2025)
+§ 1º Na hipótese de remessas internacionais, caso o importador faça a opção pelo RTS, para fins de
+cálculo do IBS incidente na importação, serão aplicadas as alíquotas-padrão do destino da operação.
+§ 2º Na impossibilidade de identificação do bem material importado, em razão de seu extravio ou
+consumo, e de descrição genérica nos documentos comerciais e de transporte disponíveis, serão aplicadas,
+para fins de determinação do IBS incidente na importação, as alíquotas-padrão do destino da operação.
+Subseção VI - Da Sujeição Passiva`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 83",
+    titulo: "É contribuinte do IBS na importação de bens materiais",
+    conteudo: `Art. 83. É contribuinte do IBS na importação de bens materiais: (Art. 72 da LC 214/2025)
+
+43
+
+I - o importador, assim considerado qualquer pessoa ou entidade sem personalidade jurídica que
+promova a entrada de bens materiais de procedência estrangeira no território nacional, observado o inciso II
+do parágrafo único do art. 75; e
+II - o adquirente de mercadoria entrepostada, assim considerado aquele que adquira os bens materiais
+entrepostados diretamente do proprietário desses no exterior.
+Parágrafo único. Para fins do IBS, na importação por conta e ordem de terceiro, quem promove a
+entrada de bens materiais de procedência estrangeira no território nacional é o adquirente dos bens no
+exterior.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 84",
+    titulo: "É responsável pelo IBS na importação de bens materiais, em substituição ao contribuinte",
+    conteudo: `Art. 84. É responsável pelo IBS na importação de bens materiais, em substituição ao contribuinte: (Art.
+73 da LC 214/2025)
+I - o transportador, em relação aos bens procedentes do exterior, ou sob controle aduaneiro, que
+transportar, quando constatado o extravio até a conclusão da descarga dos bens no local ou recinto
+alfandegado;
+II - o depositário, em relação aos bens procedentes do exterior que se encontrarem sob controle
+aduaneiro e sob sua custódia, quando constatado o extravio após a conclusão da descarga no local ou recinto
+alfandegado;
+III - o beneficiário de regime aduaneiro especial que não tiver promovido a entrada dos bens
+estrangeiros no território nacional; e
+IV - o beneficiário que der causa ao descumprimento de aplicação de regime aduaneiro suspensivo
+destinado à industrialização para exportação, no caso de admissão de mercadoria no regime por outro
+beneficiário, mediante sua anuência, com vistas à execução de etapa da cadeia industrial do produto a ser
+exportado.
+Parágrafo único. Nos casos dos incisos I e II do caput deste artigo, a responsabilidade será excluída
+nas hipóteses de caso fortuito ou de força maior.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 85",
+    titulo: "É responsável solidário pelo IBS na importação de bens materiais, sem prejuízo da\nresponsabilidade prevista no art",
+    conteudo: `Art. 85. É responsável solidário pelo IBS na importação de bens materiais, sem prejuízo da
+responsabilidade prevista no art. 23: (Art. 74 da LC 214/2025)
+I - a pessoa que registra, em seu nome, a declaração de importação de bens de procedência estrangeira
+adquiridos no exterior por outra pessoa;
+II - o encomendante predeterminado que adquire bens de procedência estrangeira de pessoa jurídica
+importadora;
+III - o representante, no País, do transportador estrangeiro;
+IV - o expedidor, o operador de transporte multimodal ou qualquer subcontratado para a realização do
+transporte multimodal; e
+V - o tomador de serviço ou o contratante de afretamento de embarcação ou aeronave, em contrato
+internacional, em relação aos bens admitidos em regime aduaneiro especial por terceiro.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 86",
+    titulo: "Os sujeitos passivos a que se referem os arts",
+    conteudo: `Art. 86. Os sujeitos passivos a que se referem os arts. 83 a 85 devem se inscrever no cadastro com
+identificação única de que trata o Capítulo I do Título II deste Livro para cumprimento das obrigações relativas
+ao IBS sobre importações. (Art. 75 da LC 214/2025)
+Subseção VII - Do Pagamento`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 87",
+    titulo: "O IBS devido na importação de bens materiais deverá ser pago até a entrega dos bens\nsubmetidos a despacho para consumo, ainda que esta ocorra antes da liberação dos bens pela autoridade\naduaneira",
+    conteudo: `Art. 87. O IBS devido na importação de bens materiais deverá ser pago até a entrega dos bens
+submetidos a despacho para consumo, ainda que esta ocorra antes da liberação dos bens pela autoridade
+aduaneira. (Art. 76 da LC 214/2025)
+§ 1º O sujeito passivo poderá optar por antecipar o pagamento do IBS para o momento do registro da
+declaração de importação.
+§ 2º Eventual diferença de tributos gerada pela antecipação do pagamento será cobrada do sujeito
+passivo na data de ocorrência do fato gerador para efeitos de cálculo do IBS, sem a incidência de acréscimos
+moratórios.
+§ 3º Ato conjunto da RFB e do CGIBS poderá estabelecer hipóteses em que o pagamento do IBS possa
+ocorrer em momento posterior ao definido no caput deste artigo, para:
+I - os sujeitos passivos certificados no Programa Brasileiro de Operador Econômico Autorizado
+(Programa OEA) estabelecido na forma da legislação específica; e
+
+44
+
+II - os bens de remessas internacionais em que se tenha aplicado o RTS.
+§ 4º O pagamento do IBS é condição para a entrega dos bens, observado o disposto no § 3º
+§ 5º O IBS devido na importação será extinto mediante recolhimento pelo sujeito passivo, não se
+aplicando o disposto no inciso I do art. 26.
+§ 6º O pagamento do IBS ou a sua exoneração serão submetidos à apreciação da administração
+tributária do Estado e do Município do local da operação, nos termos do art. 79, para sua averiguação e
+autorização da entrega do bem importado pelo depositário.
+§ 7º O disposto no § 6º será disciplinado por ato do CGIBS, inclusive nos casos de dispensa, e
+realizado, preferencialmente, de forma integrada e automatizada.`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 88",
+    titulo: "As diferenças percentuais de bens a granel que, por sua natureza ou condições de manuseio,\nestejam sujeitos a decréscimo ou a acréscimo, apuradas pela autoridade aduaneira, não serão consideradas\np...",
+    conteudo: `Art. 88. As diferenças percentuais de bens a granel que, por sua natureza ou condições de manuseio,
+estejam sujeitos a decréscimo ou a acréscimo, apuradas pela autoridade aduaneira, não serão consideradas
+para efeito de exigência do IBS, até o limite percentual de 1% (um por cento). (Art. 77 da LC 214/2025)
+§ 1º Ultrapassado o limite percentual previsto no caput deste artigo, o total da diferença será
+considerado para efeito de exigência do IBS.
+§ 2º Ato conjunto da RFB e do CGIBS poderá estabelecer limite percentual diferenciado por tipo de
+bem, hipótese em que não se aplicará o limite previsto no caput deste artigo.
+Subseção VIII - Da Não Cumulatividade`,
+    topicos: "CBS, IBS, Reforma Tributária, nao_cumulatividade",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 89",
+    titulo: "Quando estiverem sujeitos ao regime regular do IBS, os contribuintes de que trata o art",
+    conteudo: `Art. 89. Quando estiverem sujeitos ao regime regular do IBS, os contribuintes de que trata o art. 83 e
+os adquirentes de bens tributados pelo regime de remessa internacional de que trata o art. 172 poderão
+apropriar e utilizar créditos correspondentes aos valores do IBS efetivamente pagos na importação de bens
+materiais, observado o disposto nos arts. 47 a 61. (Art. 78 da LC 214/2025)
+CAPÍTULO IV - DO IBS SOBRE EXPORTAÇÕES
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 90",
+    titulo: "São imunes ao IBS as exportações de bens e de serviços para o exterior, nos termos do art",
+    conteudo: `Art. 90. São imunes ao IBS as exportações de bens e de serviços para o exterior, nos termos do art.
+9º (Art. 79 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 91",
+    titulo: "Ficam asseguradas ao exportador a apropriação e a utilização dos créditos relativos às\noperações nas quais seja adquirente de bem ou de serviço, observadas as vedações ao creditamento\nprevistas nos...",
+    conteudo: `Art. 91. Ficam asseguradas ao exportador a apropriação e a utilização dos créditos relativos às
+operações nas quais seja adquirente de bem ou de serviço, observadas as vedações ao creditamento
+previstas nos arts. 50 e 52, as demais disposições dos arts. 47 a 49 e 53 a 64 e o disposto neste Capítulo.
+(Art. 79 da LC 214/2025)
+Parágrafo único. Na exportação por conta e ordem de terceiro, o exportador é quem promove a venda
+de bens materiais para o exterior.
+Seção II - Das Exportações de Bens Imateriais e de Serviços`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 92",
+    titulo: "Para fins do disposto no art. 90, considera-se exportação de serviço ou de bem imaterial,\ninclusive direitos, o fornecimento para residente ou domiciliado no exterior e consumo no exterior. (Art. 8...",
+    conteudo: `Art. 92. Para fins do disposto no art. 90, considera-se exportação de serviço ou de bem imaterial,
+inclusive direitos, o fornecimento para residente ou domiciliado no exterior e consumo no exterior. (Art. 80 da
+LC 214/2025)
+§ 1º Considera-se consumo no exterior de serviço ou de bem imaterial, inclusive direitos, o
+fornecimento:
+I - cujo local da operação não seja no País, nos termos dos incisos II a IX do caput do art. 12; ou
+II - em que o adquirente e o destinatário sejam residentes ou domiciliados no exterior, nos demais
+casos.
+§ 2º Considera-se ainda exportação:
+I - a prestação de serviço para residente ou domiciliado no exterior relacionada a:
+a) bem imóvel localizado no exterior;
+b) bem móvel que ingresse no País para se submeter a prestação de serviço e retorne ao exterior após
+a sua conclusão, observado o prazo estabelecido para o regime referido no inciso III do art. 161; e
+II - o fornecimento dos seguintes bens e serviços, desde que vinculados direta e exclusivamente à
+exportação de bens materiais ou associados à entrega no exterior de bens materiais:
+
+45
+
+a) intermediação na distribuição de mercadorias no exterior (comissão de agente);
+b) seguro de cargas;
+c) despacho aduaneiro;
+d) armazenagem de mercadorias;
+e) transporte rodoviário, ferroviário, aéreo, aquaviário ou multimodal de cargas;
+f) manuseio de cargas;
+g) manuseio de contêineres;
+h) unitização ou desunitização de cargas;
+i) consolidação ou desconsolidação documental de cargas;
+j) agenciamento de transporte de carga;
+k) remessas expressas;
+l) pesagem e medição de cargas;
+m) refrigeração de cargas;
+n) arrendamento mercantil operacional ou locação de contêineres;
+o) instalação e montagem de mercadorias exportadas; e
+p) treinamento para uso de mercadorias exportadas.
+§ 3º Para que os fornecimentos previstos no inciso II do § 2º sejam considerados exportação, o
+respectivo documento fiscal deve referenciar o documento fiscal da exportação do bem material
+correspondente, observado o disposto no art.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 92 (parte 2)",
+    titulo: "96.\n§ 4º Aquele que não promover a exportação dos bens materiais de que trata o inciso II do § 2º ou não\ncomprovar a vinculação nos termos do § 3º fica obrigado a recolher o IBS, acrescido de juros...",
+    conteudo: `96.
+§ 4º Aquele que não promover a exportação dos bens materiais de que trata o inciso II do § 2º ou não
+comprovar a vinculação nos termos do § 3º fica obrigado a recolher o IBS, acrescido de juros e multa de mora,
+na forma do § 2º do art. 27, contados a partir da data da ocorrência da operação, na condição de responsável.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 93",
+    titulo: "Na hipótese de haver fornecimento de serviços ou de bens imateriais, inclusive direitos,\nconcomitantemente no território nacional e no exterior, apenas a parcela cuja execução ou consumo ocorrer\nno...",
+    conteudo: `Art. 93. Na hipótese de haver fornecimento de serviços ou de bens imateriais, inclusive direitos,
+concomitantemente no território nacional e no exterior, apenas a parcela cuja execução ou consumo ocorrer
+no exterior será considerada exportação. (Art. 80, § 5º, da LC 214/2025)
+Parágrafo único. O disposto no caput deste artigo não se aplica ao transporte internacional de
+passageiros, hipótese na qual se aplicará a regra do § 7º do art. 13.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 94",
+    titulo: "Aplicam-se também as regras específicas previstas no Título VI deste Livro às exportações de\nbens e serviços objeto de regimes específicos",
+    conteudo: `Art. 94. Aplicam-se também as regras específicas previstas no Título VI deste Livro às exportações de
+bens e serviços objeto de regimes específicos. (Art. 80, § 7º, da LC 214/2025)
+Seção III - Das Exportações de Bens Materiais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 95",
+    titulo: "A imunidade do IBS sobre a exportação de bens materiais a que se refere o art",
+    conteudo: `Art. 95. A imunidade do IBS sobre a exportação de bens materiais a que se refere o art. 90 aplica-se
+às exportações sem saída do território nacional, quando os bens exportados forem: (Art. 81 da LC 214/2025)
+I - totalmente incorporados a bem que se encontre temporariamente no País, de propriedade do
+comprador estrangeiro, inclusive em regime de admissão temporária sob a responsabilidade de terceiro;
+II - entregues a órgão da administração direta, autárquica ou fundacional da União, dos Estados, do
+Distrito Federal ou dos Municípios, em cumprimento de contrato decorrente de licitação internacional;
+III - entregues no País a órgão do Ministério da Defesa, para serem incorporados a produto de interesse
+da defesa nacional em construção ou fabricação no território nacional, em decorrência de acordo
+internacional;
+IV - entregues a empresa nacional autorizada a operar o regime de loja franca;
+V - vendidos para empresa sediada no exterior, quando se tratar de aeronave industrializada no País e
+entregue a fornecedor de serviços de transporte aéreo regular sediado no território nacional;
+VI - entregues no País para serem incorporados a embarcação ou plataforma em construção ou
+conversão contratada por empresa sediada no exterior ou a seus módulos, com posterior destinação às
+atividades de exploração, de desenvolvimento e de produção de petróleo, de gás natural e de outros
+hidrocarbonetos fluidos previstas na legislação específica; e
+
+46
+
+VII - destinados exclusivamente às atividades de exploração, de desenvolvimento e de produção de
+petróleo, de gás natural e de outros hidrocarbonetos fluidos previstas na legislação específica, quando
+vendidos a empresa sediada no exterior e conforme definido em legislação específica, ainda que se faça por
+terceiro sediado no País.
+Parágrafo único.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 95 (parte 2)",
+    titulo: "As exportações de que trata o caput deste artigo deverão ser formalizadas pelas\ndeclarações aduaneiras previstas em legislação específica referentes aos despachos de exportação e da\nconsequente imp...",
+    conteudo: `As exportações de que trata o caput deste artigo deverão ser formalizadas pelas
+declarações aduaneiras previstas em legislação específica referentes aos despachos de exportação e da
+consequente importação.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 96",
+    titulo: "A exportação de bens materiais, inclusive nos casos em que não haja saída física do território\nnacional de que trata o art",
+    conteudo: `Art. 96. A exportação de bens materiais, inclusive nos casos em que não haja saída física do território
+nacional de que trata o art. 95, será comprovada mediante registro no documento fiscal relativo à exportação,
+nos casos em que a declaração de exportação for processada no Siscomex. (Art. 81-A da LC 214/2025)
+§ 1º Nas hipóteses em que a declaração de exportação não for processada no Siscomex, a
+comprovação a que se refere o caput deste artigo será efetuada por meio de documentação e procedimentos
+estabelecidos na legislação aduaneira.
+§ 2º A comprovação de exportação a que se refere o caput deste artigo e o § 1º deve ser realizada no
+prazo de até 180 (cento e oitenta) dias, contado da emissão do documento fiscal.
+§ 3º O prazo referido no § 2º poderá ser prorrogado por até 180 (cento e oitenta) dias, na forma de ato
+conjunto da RFB e do CGIBS, nas hipóteses em que a impossibilidade de comprovação decorrer de situação
+não imputável ao exportador e que possua nexo causal direto com o atraso, nas seguintes situações:
+I - força maior ou caso fortuito, inclusive calamidade pública, emergência sanitária, eventos climáticos
+severos, sanções internacionais ou bloqueios comerciais que afetem rotas ou conflito armado que afetem a
+logística, o embarque ou transposição de fronteira, o transporte ou os registros necessários à comprovação;
+II - ato de autoridade pública nacional ou estrangeira que imponha interdições, embargos, sanções ou
+exigências supervenientes de anuência que restrinjam a operação;
+III - greve ou paralisação de serviços públicos ou de infraestrutura logística essencial ao despacho
+aduaneiro, embarque ou transposição de fronteira ou registro da exportação;
+IV - interrupção ou atraso logístico relevante, devidamente comprovado por documentação do
+transportador ou operador logístico, que inviabilize o embarque ou transposição de fronteira no prazo original;
+e
+V - situações similares às previstas nos incisos I a IV deste parágrafo, desde que demonstrados o nexo`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 96 (parte 2)",
+    titulo: "causal, a superveniência e a não imputabilidade ao exportador",
+    conteudo: `causal, a superveniência e a não imputabilidade ao exportador.
+§ 4º A ampliação do prazo não poderá ser utilizada de forma genérica ou por prazo indeterminado,
+devendo restringir-se ao tempo estritamente necessário à superação da situação excepcional que a motivou.
+§ 5º Após o decurso do prazo a que se refere o § 2º sem a comprovação da exportação, considera-se
+ocorrida operação onerosa e será exigido do exportador, com os devidos acréscimos legais, o IBS incidente
+na operação, inclusive o relativo à operação de que trata o inciso II do § 2º do art. 92.
+§ 6º O recolhimento do imposto não será exigido na devolução do bem ao remetente, desde que
+observado o prazo previsto no § 2º
+§ 7º A devolução do bem ao remetente de que trata o § 6º poderá ser simbólica, desde que o bem
+material esteja armazenado no recinto alfandegado ou no local de embarque e seja redestinado a destinatário
+diverso da operação original.
+§ 8º A devolução do bem deverá ser comprovada:
+I - pelo efetivo transporte de retorno do bem ao remetente; ou
+II - na hipótese do § 7º pelo cancelamento de fatura comercial e pela emissão de documento fiscal
+referente à nova exportação do estabelecimento remetente para destinatário diverso da exportação original.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 97",
+    titulo: "Poderá ser suspenso o pagamento do IBS no fornecimento de bens materiais com o fim\nespecífico de exportação a empresa comercial exportadora que atenda cumulativamente aos seguintes\nrequisitos",
+    conteudo: `Art. 97. Poderá ser suspenso o pagamento do IBS no fornecimento de bens materiais com o fim
+específico de exportação a empresa comercial exportadora que atenda cumulativamente aos seguintes
+requisitos: (Art. 82 da LC 214/2025)
+I - seja certificada no Programa OEA;
+II - possua patrimônio líquido igual ou superior ao maior entre os seguintes valores:
+a) R$ 1.000.000,00 (um milhão de reais); e
+b) uma vez o valor total do IBS e da CBS suspensos;
+
+47
+
+III - possua Domicílio Tributário Eletrônico (DTE) em situação regular, na forma da legislação específica;
+IV - mantenha a escrituração contábil e a apresente em meio digital na forma e nos prazos previstos
+na legislação; e
+V - esteja em situação de regularidade fiscal perante as administrações tributárias federal, estadual,
+distrital ou municipal de todos os entes federativos em que estejam localizados seus estabelecimentos.
+§ 1º Para fins do disposto no caput deste artigo, a empresa comercial exportadora deverá ser habilitada
+em ato conjunto da RFB e do CGIBS.
+§ 2º Consideram-se adquiridos com o fim específico de exportação os bens remetidos para embarque
+de exportação ou para recintos alfandegados, por conta e ordem da empresa comercial exportadora, sem que
+haja qualquer outra operação comercial ou industrial nesse interstício.
+§ 3º Não descaracteriza o fim específico de exportação a remessa de bens para locais diferentes
+daqueles previstos no § 2º, por conta e ordem da empresa comercial exportadora, para formação de lote e
+posterior despacho aduaneiro de exportação.
+§ 4º A suspensão do pagamento do IBS prevista no caput deste artigo converte-se em alíquota zero
+após a efetiva exportação dos bens, desde que observado o prazo previsto no inciso I do § 5º
+§ 5º A empresa comercial exportadora fica responsável pelo pagamento do IBS que tiver sido suspenso
+no fornecimento de bens para a empresa comercial exportadora, nas seguintes hipóteses:
+I - transcorridos 180 (cento e oitenta) dias da data da emissão do documento fiscal`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 97 (parte 2)",
+    titulo: "pelo fornecedor,\nnão houver sido efetivada a exportação;\nII - forem os bens redestinados para o mercado interno;\nIII - forem os bens submetidos a processo de industrialização; ou\nIV - ocorrer a des...",
+    conteudo: `pelo fornecedor,
+não houver sido efetivada a exportação;
+II - forem os bens redestinados para o mercado interno;
+III - forem os bens submetidos a processo de industrialização; ou
+IV - ocorrer a destruição, o extravio, o furto ou o roubo antes da efetiva exportação dos bens.
+§ 6º O recolhimento do IBS não será exigido se ocorrer a devolução do bem ao estabelecimento
+remetente, no prazo previsto no inciso I do § 5º
+§ 7º Para efeitos do disposto no § 5º, considera-se devido o IBS no momento de ocorrência do fato
+gerador, conforme definido no art. 11.
+§ 8º Nas hipóteses do § 5º, os valores que forem pagos espontaneamente ficarão sujeitos à incidência
+de multa e juros de mora, na forma do § 2º do art. 27. (Art. 82, § 7º, da LC 214/2025)
+§ 9º O valor fixado no inciso II do caput deste artigo será atualizado pelo Índice Nacional de Preços ao
+Consumidor Amplo (IPCA), em periodicidade não inferior a 12 (doze) meses, mediante ato conjunto da RFB
+e do CGIBS, que fixará os termos inicial e final da atualização.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 98",
+    titulo: "Não descaracterizam a remessa com fim específico de exportação as operações de transbordo,\nbaldeação e armazenamento contratados pela mesma empresa comercial exportadora até o local de\nembarque ou...",
+    conteudo: `Art. 98. Não descaracterizam a remessa com fim específico de exportação as operações de transbordo,
+baldeação e armazenamento contratados pela mesma empresa comercial exportadora até o local de
+embarque ou recinto alfandegado, desde que amparados pelo mesmo documento fiscal.
+Parágrafo único. O prazo previsto no inciso I do § 5º do art. 97 não será interrompido nas operações
+a que se refere o caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 99",
+    titulo: "Também fica suspenso o pagamento do IBS no fornecimento de produtos agropecuários in\nnatura, nos termos do § 1º do art",
+    conteudo: `Art. 99. Também fica suspenso o pagamento do IBS no fornecimento de produtos agropecuários in
+natura, nos termos do § 1º do art. 212, para contribuinte do regime regular que promova industrialização
+destinada à exportação para o exterior: (Art. 82, § 11, da LC 214/2025)
+I - cuja receita bruta decorrente de exportação para o exterior, nos 3 (três) anos-calendário
+imediatamente anteriores ao da aquisição, tenha sido superior a 50% (cinquenta por cento) de sua receita
+bruta total de venda de bens e serviços no mesmo período, após excluídos os tributos incidentes sobre a
+venda; e
+II - que cumpra o disposto nos incisos II a V do caput do art. 97.
+§ 1º O adquirente a que se refere o caput deste artigo fica responsável pelo pagamento do IBS
+suspenso, com os acréscimos previstos no § 2º do art. 27, caso, no prazo de 180 (cento e oitenta) dias
+contados da data da emissão do documento fiscal pelo fornecedor: (Art. 82, § 12, da LC 214/2025)
+I - o produto agropecuário in natura adquirido com suspensão não seja utilizado para industrialização;
+ou
+
+48
+
+II - o produto industrializado resultante dos produtos agropecuários in natura adquiridos com
+suspensão:
+a) não seja exportado para o exterior; ou
+b) não seja comercializado no mercado doméstico, com a respectiva tributação.
+§ 2º Para fins do disposto no caput deste artigo, o contribuinte do regime regular que promova
+industrialização destinada à exportação para o exterior deverá ser habilitado em ato conjunto da RFB e do
+CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 100",
+    titulo: "Ato conjunto da RFB e do CGIBS estabelecerá os procedimentos de habilitação a que se\nreferem o § 1º do art",
+    conteudo: `Art. 100. Ato conjunto da RFB e do CGIBS estabelecerá os procedimentos de habilitação a que se
+referem o § 1º do art. 97 e o § 2º do art. 99 e seus respectivos procedimentos de cancelamento.
+§ 1º A habilitação a que se refere o caput deste artigo será formalizada por meio de ato conjunto da
+RFB e do CGIBS e abrangerá todos os estabelecimentos da empresa comercial exportadora de que trata o
+caput do art. 97 e do adquirente de que trata o caput do art. 99.
+§ 2º A habilitação a que se refere o § 1º não impede a fiscalização individualizada das operações com
+pagamento suspenso relativas a cada um dos estabelecimentos das referidas empresas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 101",
+    titulo: "A habilitação a que se refere o § 1º do art",
+    conteudo: `Art. 101. A habilitação a que se refere o § 1º do art. 97 poderá ser cancelada nas seguintes hipóteses:
+(Art. 83 da LC 214/2025)
+I - descumprimento dos requisitos estabelecidos nos incisos I a V do caput do art. 97; ou
+II - pendência no pagamento a que se refere o § 5º do art. 97.
+§ 1º O cancelamento da habilitação será realizado pela autoridade fiscal da RFB ou da administração
+tributária estadual, distrital ou municipal de domicílio da matriz da empresa comercial exportadora.
+§ 2º Nas hipóteses previstas no caput deste artigo, será aberto processo de cancelamento da
+habilitação, instruído com termo de constatação, e a empresa comercial exportadora será intimada a se
+regularizar ou a apresentar impugnação no prazo de 30 (trinta) dias úteis, contado da data da ciência da
+intimação.
+§ 3º A intimação a que se refere o § 2º será efetuada preferencialmente por meio eletrônico, mediante
+envio ao DTE da empresa comercial exportadora.
+§ 4º Caso a empresa comercial exportadora se regularize por meio do cumprimento de todos os
+requisitos e condições estabelecidos no caput do art. 97, e desde que não haja pendência de pagamento
+relativo às hipóteses referidas no § 5º do art. 97, o processo de cancelamento de que trata o § 2º será extinto.
+§ 5º Fica caracterizada a revelia, e será dado prosseguimento ao processo de cancelamento, caso a
+empresa comercial exportadora não se regularize na forma do § 4º nem apresente a impugnação referida no
+§ 2º
+§ 6º Apresentada a impugnação referida no § 2º, a autoridade preparadora terá o prazo de 15 (quinze)
+dias para remessa do processo a julgamento, que se fará nos termos da legislação do ente.
+§ 7º Caberá recurso da decisão que mantiver o cancelamento da habilitação, a ser apresentado no
+prazo de 20 (vinte) dias úteis, contado da data da ciência da decisão, ao órgão competente do CGIBS ou da
+RFB, de acordo com a autoridade fiscal que houver realizado o cancelamento da habilitação nos termos do §
+1º
+§ 8º O disposto neste artigo aplica-se, no`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 101 (parte 2)",
+    titulo: "que couber, ao cancelamento da habilitação de que trata o §\n2º do art",
+    conteudo: `que couber, ao cancelamento da habilitação de que trata o §
+2º do art. 99.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 102",
+    titulo: "Considera-se efetivada a exportação de bens materiais destinados ao uso ou consumo de\nbordo, em aeronaves exclusivamente em tráfego internacional com destino ao exterior e entregues em zona\nprimári...",
+    conteudo: `Art. 102. Considera-se efetivada a exportação de bens materiais destinados ao uso ou consumo de
+bordo, em aeronaves exclusivamente em tráfego internacional com destino ao exterior e entregues em zona
+primária alfandegada ou área de porto organizado alfandegado, quando formalizado o despacho aduaneiro
+de exportação, observado o disposto no art. 96. (Art. 87, parágrafo único, da LC 214/2025)
+Seção IV - Do Regime de Fornecimento de Combustível para Aeronave em Tráfego Internacional`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 103",
+    titulo: "Considera-se comprovada a exportação de combustível ou lubrificante fornecido para\nabastecimento de aeronaves em tráfego internacional e com destino ao exterior, quando formalizado o\ndespacho aduan...",
+    conteudo: `Art. 103. Considera-se comprovada a exportação de combustível ou lubrificante fornecido para
+abastecimento de aeronaves em tráfego internacional e com destino ao exterior, quando formalizado o
+despacho aduaneiro de exportação, observado o disposto no art. 96. (Art. 98 da LC 214/2025)
+Parágrafo único. O disposto neste artigo somente se aplica no abastecimento de combustível ou
+lubrificante realizados exclusivamente em zona primária alfandegada ou área de porto organizado
+alfandegado.
+
+49
+
+TÍTULO II - DAS OBRIGAÇÕES ACESSÓRIAS
+CAPÍTULO I - DO CADASTRO COM IDENTIFICAÇÃO ÚNICA RELATIVO AO IBS E À CBS
+Seção I - Do Cadastro`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 104",
+    titulo: "Para fins do cadastro com identificação única a que se refere o art",
+    conteudo: `Art. 104. Para fins do cadastro com identificação única a que se refere o art. 59 da Lei Complementar
+nº 214, de 2025, consideram-se os seguintes cadastros administrados pela RFB:
+I - de pessoas físicas, o Cadastro de Pessoas Físicas (CPF);
+II - de pessoas jurídicas e entidades sem personalidade jurídica, o Cadastro Nacional da Pessoa
+Jurídica (CNPJ); e
+III - de imóveis rurais e urbanos, o Cadastro Imobiliário Brasileiro (CIB).
+Parágrafo único. As informações cadastrais terão integração, sincronização, cooperação e
+compartilhamento obrigatório e tempestivo no ambiente nacional de dados de que trata o art. 109 entre as
+administrações tributárias federal, estaduais, distrital e municipais, e o CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 105",
+    titulo: "As pessoas físicas e jurídicas e as entidades sem personalidade jurídica sujeitas ao IBS e à\nCBS, na condição de contribuinte ou de responsável tributário, são obrigadas, antes do início de suas\nat...",
+    conteudo: `Art. 105. As pessoas físicas e jurídicas e as entidades sem personalidade jurídica sujeitas ao IBS e à
+CBS, na condição de contribuinte ou de responsável tributário, são obrigadas, antes do início de suas
+atividades, em relação a cada estabelecimento que mantiverem, a se registrar em cadastro com identificação
+única, mediante inscrição no CNPJ.
+§ 1º A obrigação de que trata o caput deste artigo abrange a plataforma digital, inclusive a domiciliada
+no exterior para fins de cumprimento do disposto no art. 22. (Art. 23, caput, da LC 214/2025)
+§ 2º É vedada, para o IBS, a criação, a adoção ou a exigência de identificação, cadastro, inscrição ou
+registro distintos dos mencionados nos incisos I a III do caput do art. 104, observado o previsto no § 4º do art.
+59 da Lei Complementar nº 214, de 2025.
+§ 3º São obrigados, ainda, ao registro de que trata o caput deste artigo:
+I - as entidades imunes, isentas ou contempladas com alíquota zero ou suspensão;
+II - as entidades ou unidades de natureza econômico-contábil, sem fins lucrativos, que prestem serviços
+de planos de assistência à saúde sob a modalidade de autogestão;
+III - as entidades de previdência complementar fechada constituídas de acordo com a Lei
+Complementar nº 109, de 29 de maio de 2001;
+IV - os fundos de investimento de que trata o § 5º do art. 25;
+V - os fundos patrimoniais instituídos nos termos da Lei nº 13.800, de 4 de janeiro de 2019;
+VI - ainda que não optante pelo regime regular do IBS e da CBS, o:
+a) condomínio edilício;
+b) nanoempreendedor de que trata o inciso IV do caput do art. 25;
+c) produtor rural de que trata o art. 239; e
+d) transportador autônomo de cargas – TAC de que trata o art. 250;
+VII - caso exerçam a opção pelo regime regular do IBS e da CBS:
+a) o consórcio de que trata o art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 105 (parte 2)",
+    titulo: "278 da Lei nº 6.404, de 15 de dezembro de 1976; e\nb) a sociedade em conta de participação; e\nVIII - o sócio ostensivo da sociedade de que trata a alínea \"b\" do inciso VII deste parágrafo, na hipóte...",
+    conteudo: `278 da Lei nº 6.404, de 15 de dezembro de 1976; e
+b) a sociedade em conta de participação; e
+VIII - o sócio ostensivo da sociedade de que trata a alínea "b" do inciso VII deste parágrafo, na hipótese
+de a sociedade não exercer a opção pelo regime regular.
+§ 4º A obrigatoriedade de inscrição da pessoa física de que trata este artigo produz efeitos
+exclusivamente em relação à legislação do IBS e da CBS.
+§ 5º As administrações tributárias federal, estaduais, distrital e municipais poderão realizar de ofício os
+atos cadastrais existentes no CNPJ, com base em documentos comprobatórios, observado modelo de
+cooperação e interoperabilidade sistêmica, respeitadas as atribuições institucionais.
+§ 6º Na hipótese de que trata o art. 471-E da Lei Complementar nº 214, de 2025, a RFB e o CGIBS
+poderão, mediante ato conjunto, adotar as seguintes medidas no âmbito do CNPJ:
+
+50
+
+I - declarar a inaptidão da inscrição; e
+II - determinar a suspensão da inscrição.
+§ 7º A declaração de inaptidão de inscrição no CNPJ observará o disposto no art. 81 da Lei nº 9.430,
+de 27 de dezembro de 1996.
+§ 8º Ato conjunto da RFB e do CGIBS poderá dispensar a obrigatoriedade de registro de que trata o §
+3º`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 106",
+    titulo: "Para fins deste Regulamento, considera-se estabelecimento fornecedor o local privado ou\npúblico, edificado ou não, móvel ou imóvel, próprio ou de terceiros, físico ou virtual, pelo qual as pessoas...",
+    conteudo: `Art. 106. Para fins deste Regulamento, considera-se estabelecimento fornecedor o local privado ou
+público, edificado ou não, móvel ou imóvel, próprio ou de terceiros, físico ou virtual, pelo qual as pessoas
+físicas ou jurídicas ou as entidades sem personalidade jurídica sujeitas ao IBS e à CBS:
+I - exercem atividade em caráter temporário ou permanente; ou
+II - armazenam bens, incluídas as unidades auxiliares.
+§ 1º Também se considera estabelecimento a plataforma de produção e armazenamento de petróleo e
+gás natural e outras plataformas ou estruturas flutuantes, ainda que em construção, hipótese em que será
+utilizado para fins de inscrição o endereço do estabelecimento mais próximo localizado em terra firme.
+§ 2º É permitido o registro de estabelecimento em escritório virtual, bem como em espaço compartilhado
+de trabalho, desde que seja mantido contrato escrito para utilização do espaço e que sejam atendidas as
+condições estabelecidas em ato conjunto da RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 107",
+    titulo: "Para efeitos do disposto no § 3º do art",
+    conteudo: `Art. 107. Para efeitos do disposto no § 3º do art. 12, no cadastro com identificação única deverá constar
+como domicílio principal dos adquirentes, nos termos de ato conjunto da RFB e do CGIBS:
+I - para as pessoas jurídicas e entidades sem personalidade jurídica e para as pessoas físicas de que
+trata o caput do art. 105, conforme aplicável, o local de cada estabelecimento para o qual sejam fornecidos
+bens ou serviços; e
+II - para as demais pessoas físicas, o local da sua habitação permanente ou, na hipótese de inexistência
+ou de mais de uma habitação permanente, o local onde as suas relações econômicas forem mais relevantes.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 108",
+    titulo: "As pessoas físicas e jurídicas e as entidades sem personalidade jurídica de que trata o art",
+    conteudo: `Art. 108. As pessoas físicas e jurídicas e as entidades sem personalidade jurídica de que trata o art.
+105 deverão, na forma prevista em ato conjunto da RFB e do CGIBS:
+I - atualizar o domicílio principal no cadastro com identificação única, mediante alteração no CNPJ, até
+o último dia útil do mês subsequente ao da ocorrência da alteração; e
+II - comunicar à administração tributária a venda ou a transferência de estabelecimento e o
+encerramento ou a paralisação temporária de atividades, até o último dia útil do mês subsequente à data do
+evento.
+Seção II - Do Ambiente de Compartilhamento`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 109",
+    titulo: "O ambiente nacional de compartilhamento e integração das informações cadastrais consiste\nno conjunto de soluções tecnológicas destinadas a viabilizar a integração, a sincronização e o\ncompartilhame...",
+    conteudo: `Art. 109. O ambiente nacional de compartilhamento e integração das informações cadastrais consiste
+no conjunto de soluções tecnológicas destinadas a viabilizar a integração, a sincronização e o
+compartilhamento tempestivo dos dados e informações cadastrais necessários à gestão do IBS e da CBS,
+provenientes:
+I - do Cadastro de Pessoas Físicas (CPF);
+II - do Cadastro Nacional da Pessoa Jurídica (CNPJ);
+III - do Cadastro Imobiliário Brasileiro (CIB); e
+IV - de dados complementares e atributos específicos, conforme previsto no § 4º do art. 59 da Lei
+Complementar nº 214, de 2025.
+§ 1º As definições sobre o conteúdo, modo e periodicidade do compartilhamento a que se refere o caput
+serão realizadas conjuntamente pela RFB e pelo CGIBS.
+§ 2º Os dados e as informações cadastrais a que se referem o caput deste artigo serão compartilhados
+com as administrações tributárias federal, estaduais, distrital, municipais e com o CGIBS.
+§ 3º O compartilhamento de que trata o caput deste artigo limita-se às informações que guardem
+pertinência com a apuração, fiscalização, arrecadação, cobrança ou administração do IBS e da CBS.
+§ 4º O tratamento e a utilização das informações observarão os limites legais de sigilo fiscal e proteção
+de dados, vedada sua utilização para finalidade diversa da prevista neste artigo.
+
+51
+
+§ 5º O ambiente de que trata o caput deste artigo:
+I - limita-se à consolidação, à integração e à disponibilização de dados e informações cadastrais;
+II - deve refletir automaticamente a prática de qualquer ato cadastral nos cadastros previstos no art.
+104;
+III - não altera a titularidade, a gestão nem a responsabilidade administrativa dos cadastros que o
+alimentam.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 110",
+    titulo: "O ambiente nacional de compartilhamento e integração das informações cadastrais, de que\ntrata o art",
+    conteudo: `Art. 110. O ambiente nacional de compartilhamento e integração das informações cadastrais, de que
+trata o art. 109, observará:
+I - quanto às informações do CNPJ, gestão compartilhada por meio do CGSIM, de que trata o inciso III
+do caput do art. 2º da Lei Complementar nº 123, de 14 de dezembro de 2006; e
+II - quanto às informações cadastrais do CPF, do CIB e dos dados complementares e atributos
+específicos, regime de cooperação institucional entre a RFB, o CGIBS e as administrações tributárias
+estaduais, distrital e municipais.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 111",
+    titulo: "A RFB e o CGIBS poderão contribuir com propostas de aprimoramento, alinhamento técnico,\nintercâmbio de boas práticas, qualificação da utilização das informações cadastrais e fortalecimento da\natuaç...",
+    conteudo: `Art. 111. A RFB e o CGIBS poderão contribuir com propostas de aprimoramento, alinhamento técnico,
+intercâmbio de boas práticas, qualificação da utilização das informações cadastrais e fortalecimento da
+atuação integrada das administrações tributárias, servindo tais iniciativas como subsídio ao aprimoramento
+operacional e ao uso consistente das normas vigentes, respeitadas as atribuições legais de cada instituição.
+CAPÍTULO II - DO DOCUMENTO FISCAL ELETRÔNICO
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 112",
+    titulo: "O sujeito passivo do IBS, ao realizar operações com bens ou serviços, inclusive exportações\ne importações, deverá emitir documento fiscal eletrônico, nos termos de ato conjunto da RFB e do CGIBS,\nq...",
+    conteudo: `Art. 112. O sujeito passivo do IBS, ao realizar operações com bens ou serviços, inclusive exportações
+e importações, deverá emitir documento fiscal eletrônico, nos termos de ato conjunto da RFB e do CGIBS,
+que definirá as respectivas datas de início de obrigatoriedade de emissão. (Art. 60 da LC 214/2025)
+§ 1º Os adquirentes e destinatários das operações com bens ou serviços que se enquadrem na
+qualificação de sujeito passivo são obrigados a exigir documentos fiscais daqueles que devam emiti-los.
+§ 2º As informações prestadas pelo sujeito passivo nos termos deste artigo possuem caráter
+declaratório e constituem confissão do valor devido de IBS consignado no documento fiscal. (Art. 60, § 1º, da
+LC 214/2025)
+§ 3º Para fins de apuração do IBS, o CGIBS e as administrações tributárias responsáveis pela
+autorização ou recepção de documentos fiscais observarão a forma, o conteúdo e os prazos previstos em ato
+conjunto da RFB e do CGIBS. (Art. 60, § 3º, da LC 214/2025)
+§ 4º Os prazos de emissão e cancelamento de documentos fiscais deverão ser únicos para cada
+documento fiscal.
+§ 5º Os documentos fiscais deverão ser disponibilizados para todos os entes federativos no momento
+da autorização ou da recepção, com utilização de padrões técnicos uniformes. (Art. 60, § 4º, da LC 214/2025)
+§ 6º Ato conjunto da RFB e do CGIBS poderá disciplinar alterações e especificações nos documentos
+de que tratam os arts. 113 e 114, ressalvadas as competências do CGSN e do CGNFS-e.
+§ 7º O ato conjunto de que trata o § 6º disciplinará exclusivamente as informações que guardem
+pertinência com a apuração, fiscalização, arrecadação, cobrança ou administração do IBS e da CBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 113",
+    titulo: "Ficam recepcionados e instituídos os seguintes documentos fiscais eletrônicos",
+    conteudo: `Art. 113. Ficam recepcionados e instituídos os seguintes documentos fiscais eletrônicos:
+I - Nota Fiscal Eletrônica - NF-e, modelo 55;
+II - Nota Fiscal de Consumidor Eletrônica - NFC-e, modelo 65;
+III - Nota Fiscal de Serviços Eletrônica - NFS-e;
+IV - Conhecimento de Transporte Eletrônico - CT-e, modelo 57;
+V - Conhecimento de Transporte Eletrônico Para Outros Serviços - CT-e OS, modelo 67;
+VI - Bilhete de Passagem Eletrônico - BP-e, modelo 63;
+VII - Manifesto Eletrônico de Documentos Fiscais - MDF-e, modelo 58;
+VIII - Guia de Transporte de Valores Eletrônica - GTV-e, modelo 64;
+
+52
+
+IX - Nota Fiscal de Energia Elétrica Eletrônica - NF3e, modelo 66;
+X - Nota Fiscal Fatura de Serviços de Comunicação Eletrônica - NFCom, modelo 62;
+XI - Nota Fiscal Eletrônica do Gás - NFGas, modelo 76;
+XII - Declaração de Conteúdo eletrônica - DC-e, modelo 99;
+XIII - Nota Fiscal de Serviço eletrônica de Exploração de Via - NFS-e Via;
+XIV - Declaração Única de Importação - Duimp; e
+XV - Declaração de Importação de Remessa - DIR.
+Parágrafo único. Na importação de bens materiais, observar-se-á o seguinte:
+I - será exigida, cumulativamente à emissão dos documentos fiscais de que tratam os incisos XIV e XV
+do caput deste artigo, a emissão do documento fiscal de que trata o inciso I do caput deste artigo, permitida
+a dispensa do documento de que trata o inciso I do caput deste artigo por meio de ato conjunto da RFB e do
+CGIBS;
+II - ato conjunto da RFB e do CGIBS poderá dispor sobre a emissão automática do documento fiscal
+de que trata o inciso I do caput deste artigo a partir de informações constantes nos documentos fiscais de que
+tratam os incisos XIV e XV do caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 114",
+    titulo: "Ficam instituídos os seguintes documentos fiscais eletrônicos",
+    conteudo: `Art. 114. Ficam instituídos os seguintes documentos fiscais eletrônicos:
+I - Nota Fiscal de Água e Saneamento Eletrônica - NFAg, modelo 75;
+II - Declaração de Regimes Específicos - DeRE; e
+III - Nota Fiscal Eletrônica de Alienação de Bens Imóveis - NF-e ABI, modelo 77.
+Seção II - Da Obrigatoriedade`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 115",
+    titulo: "A obrigação de emissão de documentos fiscais de que trata o art",
+    conteudo: `Art. 115. A obrigação de emissão de documentos fiscais de que trata o art. 112 aplica-se inclusive: (Art.
+60, § 2º, da LC 214/2025)
+I - às operações imunes, isentas ou contempladas com alíquota zero ou suspensão;
+II - à transferência de bens entre estabelecimentos pertencentes ao mesmo contribuinte;
+III - às operações sujeitas ao diferimento;
+IV - a doações sem contraprestação em benefício do doador;
+V - à transferência de créditos apropriados e ainda não utilizados para a pessoa jurídica sucessora na
+hipótese de fusão, cisão ou incorporação;
+VI - à operação realizada:
+a) por produtor rural pessoa física ou jurídica, ou por produtor rural integrado não contribuintes do IBS,
+de que trata o art. 239;
+b) por nanoempreendedor de que trata o inciso IV do caput do art. 25;
+c) por transportador autônomo de carga de que trata o art. 250;
+d) por condomínio edilício;
+e) por não contribuintes previstos no art. 25 não relacionados nas demais alíneas deste inciso, que
+venham a ser identificados em ato conjunto da RFB e do CGIBS;
+VII - à plataforma digital quando emitir o documento em nome do fornecedor nos termos dos §§ 9º e 10
+do art. 20; e
+VIII - ao consórcio de que trata o art. 278 da Lei nº 6.404, de 15 de dezembro de 1976, e à sociedade
+em conta de participação que optarem pelo regime regular do IBS.
+§ 1º O documento fiscal deverá ser emitido pelo fornecedor de bens ou serviços, bem como pelos
+responsáveis indicados neste Regulamento.
+§ 2º Ato conjunto da RFB e do CGIBS poderá estabelecer hipóteses de dispensa da exigência de
+documento fiscal para os não contribuintes.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 116",
+    titulo: "Os obrigados à emissão de documento fiscal deverão observar",
+    conteudo: `Art. 116. Os obrigados à emissão de documento fiscal deverão observar:
+
+53
+
+I - as regras de credenciamento previamente estabelecidas em ato conjunto da RFB e do CGIBS;
+II - os leiautes, prazos, campos obrigatórios e padrões definidos na respectiva documentação técnica;
+e
+III - as diretrizes técnicas do ambiente de dados nacional do documento fiscal.
+Seção III - Disposições Técnicas`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 117",
+    titulo: "Considera-se documento fiscal o documento emitido e armazenado eletronicamente, de\nexistência apenas digital, que se destina a documentar as operações com bens e serviços",
+    conteudo: `Art. 117. Considera-se documento fiscal o documento emitido e armazenado eletronicamente, de
+existência apenas digital, que se destina a documentar as operações com bens e serviços.
+Parágrafo único. Consideram-se também documentos fiscais os eventos fiscais de que trata a Seção
+VII deste Capítulo.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 118",
+    titulo: "A validade do documento fiscal é assegurada pela",
+    conteudo: `Art. 118. A validade do documento fiscal é assegurada pela:
+I - assinatura eletrônica avançada ou qualificada do emitente ou pela assinatura eletrônica qualificada
+do ente federativo, com base nas informações prestadas pelo emitente, nos termos da legislação aplicável e
+de ato conjunto da RFB e do CGIBS; e
+II - autorização de uso pelo sistema autorizador ou pelo sistema de recepção da RFB, do Comitê Gestor
+da Nota Fiscal de Serviços Eletrônica de Padrão Nacional (CGNFS-e) ou do CGIBS, nos termos da Seção IV
+deste Capítulo.
+Parágrafo único. O documento fiscal somente poderá ser utilizado após a concessão de autorização
+de uso pela RFB, pelo CGNFS-e ou pelo CGIBS, observado o disposto na documentação técnica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 119",
+    titulo: "Para a assinatura digital de documentos fiscais e de mensagens, bem como para o\nestabelecimento de conexões seguras, deverá ser utilizada assinatura eletrônica avançada ou qualificada,\nnos termos d...",
+    conteudo: `Art. 119. Para a assinatura digital de documentos fiscais e de mensagens, bem como para o
+estabelecimento de conexões seguras, deverá ser utilizada assinatura eletrônica avançada ou qualificada,
+nos termos da legislação aplicável e de ato conjunto da RFB e do CGIBS.
+Parágrafo único. A assinatura eletrônica utilizada deverá conter a identificação no CNPJ, conforme o
+tipo de documento fiscal:
+I - de qualquer dos estabelecimentos do emitente; ou
+II - do sistema autorizador ou do sistema de recepção da RFB, do CGNFS-e ou do CGIBS, nos termos
+desta Seção.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 120",
+    titulo: "Ato conjunto da RFB e do CGIBS poderá estabelecer regimes especiais de emissão de\ndocumentos fiscais, nas hipóteses e nas condições por ele definidas",
+    conteudo: `Art. 120. Ato conjunto da RFB e do CGIBS poderá estabelecer regimes especiais de emissão de
+documentos fiscais, nas hipóteses e nas condições por ele definidas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 121",
+    titulo: "As situações cadastrais no Cadastro Nacional da Pessoa Jurídica (CNPJ) classificadas como\ninapta, suspensa, nula e baixada impedem a emissão de documento fiscal",
+    conteudo: `Art. 121. As situações cadastrais no Cadastro Nacional da Pessoa Jurídica (CNPJ) classificadas como
+inapta, suspensa, nula e baixada impedem a emissão de documento fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 122",
+    titulo: "Não é documento fiscal idôneo aquele que",
+    conteudo: `Art. 122. Não é documento fiscal idôneo aquele que:
+I - deixar de atender às exigências ou requisitos previstos na legislação do imposto;
+II - for emitido por sujeito passivo com a inscrição suspensa, inapta, baixada ou nula no cadastro com
+identificação única de que trata o Capítulo I do Título II deste Livro;
+III - indicar, como adquirente ou destinatário, pessoa com inscrição classificada como inapta, suspensa,
+nula ou baixada no cadastro com identificação única de que trata o Capítulo I do Título II deste Livro;
+IV - não corresponder efetivamente à operação com bem ou serviço ou à aquisição de bem ou serviço;
+V - indicar, como destinatário ou adquirente, pessoa ou estabelecimento diverso daquele a quem o bem
+ou o serviço de fato se destinar, ou que, de fato, tenha adquirido o bem ou o serviço;
+VI - além das hipóteses previstas nos incisos anteriores, for emitido ou utilizado com dolo, fraude,
+simulação, conluio ou erro inescusável que possibilite, ainda que a terceiro, o não pagamento do imposto ou
+qualquer outra vantagem indevida.
+Parágrafo único. Ato conjunto da RFB e do CGIBS disciplinará as situações em que:
+I - para fins do inciso III do caput deste artigo, poderá ser considerada sanada a irregularidade do
+documento nas hipóteses de regularização da situação cadastral do adquirente ou do destinatário;
+II - o erro será considerado escusável para fins do inciso VI do caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 123",
+    titulo: "Considera-se que a operação está desacobertada por documento fiscal idôneo quando",
+    conteudo: `Art. 123. Considera-se que a operação está desacobertada por documento fiscal idôneo quando:
+I - não for emitido o documento fiscal exigido para a operação; e
+
+54
+
+II - houver a emissão em contingência sem a posterior transmissão, na forma descrita em ato conjunto
+da RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 124",
+    titulo: "Os documentos fiscais serão identificados de maneira única pela sua chave de acesso,\nconforme regra de formação prevista na documentação técnica do respectivo documento fiscal",
+    conteudo: `Art. 124. Os documentos fiscais serão identificados de maneira única pela sua chave de acesso,
+conforme regra de formação prevista na documentação técnica do respectivo documento fiscal.
+§ 1º A chave de acesso deverá conter, no mínimo, as seguintes características:
+I - identificação do CNPJ ou do CPF do emitente;
+II - identificação do documento fiscal, conforme disposto nos arts. 113 e 114;
+III - ano e mês da emissão; e
+IV - número do documento.
+§ 2º A documentação técnica de cada documento fiscal poderá especificar outras características para
+compor a chave de acesso.
+§ 3º É vedada a reutilização de numeração de documento fiscal, ainda que emitido em contingência,
+utilizada anteriormente.
+§ 4º Na hipótese de dois ou mais documentos fiscais, emitidos pelo mesmo contribuinte, terem idênticos
+número e série, serão considerados distintos se possuírem diferentes protocolos de autorização de uso.
+§ 5º O disposto neste artigo não se aplica à DeRE nem a outro documento fiscal que utilize chave única
+de identificação da operação ou de um agrupamento de operações, nos termos da documentação técnica
+respectiva, que deverá assegurar que as operações serão registradas de forma individualizada.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 125",
+    titulo: "Respeitado o sigilo fiscal e a legislação de proteção de dados, a RFB e o CGIBS poderão\ntransmitir o documento fiscal ou suas informações para outros órgãos da administração pública direta ou\nindir...",
+    conteudo: `Art. 125. Respeitado o sigilo fiscal e a legislação de proteção de dados, a RFB e o CGIBS poderão
+transmitir o documento fiscal ou suas informações para outros órgãos da administração pública direta ou
+indireta, desde que estritamente para o desempenho das atividades desses órgãos ou para execução de
+atribuição legal de fiscalização com base em documentos fiscais.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 126",
+    titulo: "Será disponibilizado sítio eletrônico, sem prejuízo de outros mecanismos, para os documentos\nfiscais indicados nos arts",
+    conteudo: `Art. 126. Será disponibilizado sítio eletrônico, sem prejuízo de outros mecanismos, para os documentos
+fiscais indicados nos arts. 113 e 114, que deverá conter, no mínimo:
+I - acesso a consultas de documentos fiscais;
+II - informações atualizadas da disponibilidade de cada serviço oferecido pelos sistemas autorizadores
+ou sistemas de recepção;
+III - legislação específica do documento fiscal, nos termos do art. 151; e
+IV - documentação técnica do documento fiscal, incluindo as notas técnicas e o Manual de Orientação
+do Contribuinte (MOC).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 127",
+    titulo: "A documentação técnica de cada documento fiscal definirá as especificações, os leiautes e\nos critérios técnicos necessários à comunicação e à integração entre os sistemas autorizadores ou sistemas...",
+    conteudo: `Art. 127. A documentação técnica de cada documento fiscal definirá as especificações, os leiautes e
+os critérios técnicos necessários à comunicação e à integração entre os sistemas autorizadores ou sistemas
+de recepção da RFB, do CGNFS-e e do CGIBS e os sistemas de informações dos emissores de documento
+fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 128",
+    titulo: "A transmissão do arquivo digital dos documentos fiscais deverá ser efetuada via internet, por\nmeio de protocolo seguro, que observe a respectiva documentação técnica",
+    conteudo: `Art. 128. A transmissão do arquivo digital dos documentos fiscais deverá ser efetuada via internet, por
+meio de protocolo seguro, que observe a respectiva documentação técnica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 129",
+    titulo: "As mensagens entre o emitente e o sistema autorizador ou sistema de recepção serão\nprocessadas exclusivamente por meio de software que atenda às definições constantes na documentação\ntécnica do res...",
+    conteudo: `Art. 129. As mensagens entre o emitente e o sistema autorizador ou sistema de recepção serão
+processadas exclusivamente por meio de software que atenda às definições constantes na documentação
+técnica do respectivo documento fiscal.
+§ 1º O emissor de documento fiscal poderá utilizar os serviços de um Provedor de Assinatura e
+Autorização de Documentos Fiscais Eletrônicos (PAA), para comunicar-se com os sistemas autorizadores e
+os sistemas de recepção de documentos fiscais providos pela RFB e pelo CGIBS, em nome do emitente, nos
+termos da documentação técnica.
+§ 2º Considera-se PAA a entidade pública ou privada emissora de documento fiscal que, habilitada pela
+RFB e pelo CGIBS, preste os serviços a que se refere o § 1º, em nome do emissor de documento fiscal,
+observado o disposto no art. 127.
+Seção IV - Autorização de Uso`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 130",
+    titulo: "O documento fiscal será considerado válido após a concessão da respectiva autorização de\nuso por meio do sistema autorizador ou do sistema de recepção da RFB, do CGNFS-e ou do CGIBS",
+    conteudo: `Art. 130. O documento fiscal será considerado válido após a concessão da respectiva autorização de
+uso por meio do sistema autorizador ou do sistema de recepção da RFB, do CGNFS-e ou do CGIBS.
+
+55
+
+Art. 131. Considera-se autorização de uso para:
+I - a NFS-e, a recepção da Declaração de Prestação de Serviço pelo sistema emissor, com a
+correspondente geração da NFS-e;
+II - a NFS-e Via e para a DeRE, a recepção do documento fiscal, com a correspondente confirmação
+pelo sistema, na forma da documentação técnica; e
+III - os demais documentos fiscais eletrônicos, o protocolo com a resposta da solicitação de autorização
+pelo sistema.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 132",
+    titulo: "A concessão da autorização de uso pelo sistema autorizador ou sistema de recepção",
+    conteudo: `Art. 132. A concessão da autorização de uso pelo sistema autorizador ou sistema de recepção:
+I - não implica validação das informações contidas no documento fiscal; e
+II - gera efeitos jurídicos plenos quanto à emissão do documento fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 133",
+    titulo: "O sistema autorizador ou sistema de recepção somente concederá autorização de uso se\natendidos os requisitos estabelecidos na documentação técnica do respectivo documento fiscal",
+    conteudo: `Art. 133. O sistema autorizador ou sistema de recepção somente concederá autorização de uso se
+atendidos os requisitos estabelecidos na documentação técnica do respectivo documento fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 134",
+    titulo: "O arquivo digital do documento fiscal deverá ser encaminhado ou disponibilizado",
+    conteudo: `Art. 134. O arquivo digital do documento fiscal deverá ser encaminhado ou disponibilizado:
+I - ao adquirente e ao destinatário da operação, pelo emitente do documento fiscal, imediatamente após
+o recebimento do protocolo de autorização de uso; ou
+II - ao transportador contratado pelo adquirente do serviço antes do início da operação correspondente.
+§ 1º O disposto neste artigo não se aplica à DeRE.
+§ 2º Em relação aos documentos de que trata o inciso III do caput do art. 131, também deverá ser
+encaminhado ou disponibilizado o respectivo protocolo de autorização de uso do documento fiscal às pessoas
+de que tratam os incisos do caput deste artigo.
+§ 3º Em relação à NFS-e Via, também deverá ser encaminhado ou disponibilizado o respectivo Registro
+de Passagem Veicular (RPV) ao usuário do pedágio.
+Seção V - Documentos Auxiliares`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 135",
+    titulo: "Considera-se documento auxiliar a representação gráfica simplificada dos documentos fiscais\nde que tratam os arts",
+    conteudo: `Art. 135. Considera-se documento auxiliar a representação gráfica simplificada dos documentos fiscais
+de que tratam os arts. 113 e 114, cuja finalidade é facilitar a consulta das informações neles contidas, nos
+termos da documentação técnica respectiva.
+§ 1º Ficam recepcionados e instituídos os seguintes documentos auxiliares:
+I - Documento Auxiliar da NF-e - DANFE;
+II - Documento Auxiliar da NFC-e - DANFE-NFC-e;
+III - Documento Auxiliar da NFS-e - DANFSe;
+IV - Documento Auxiliar do CT-e - DACTE;
+V - Documento Auxiliar do CT-e OS - DACTE-OS;
+VI - Documento Auxiliar do BP-e - DABPE;
+VII - Documento Auxiliar do MDF-e - DAMDFE;
+VIII - Documento Auxiliar da NF3e - DANF3E;
+IX - Documento Auxiliar da NFCom - DANFE-COM;
+X - Declaração Auxiliar de Conteúdo eletrônica - DACE;
+XI - Documento Auxiliar da NFS-e Via - DANFSe Via.
+§ 2º Ficam instituídos os seguintes documentos auxiliares:
+I - Documento Auxiliar da Nota Fiscal de Água e Saneamento - DANFAG;
+II - Documento Auxiliar da NFGas - DANFGas; e
+III - Documento Auxiliar da NF-e ABI - DANFE-ABI.
+§ 3º O documento auxiliar somente poderá ser utilizado após a concessão da autorização de uso do
+respectivo documento fiscal, cujo protocolo deverá constar no respectivo documento auxiliar.
+
+56
+
+§ 4º O disposto no § 3º não se aplica às hipóteses de emissão em contingência e de emissão de NFSe, NFS-e Via e DeRE.
+§ 5º Os documentos auxiliares relativos aos documentos fiscais que registram operações com bens
+móveis serão utilizados para acompanhar o trânsito dos bens.
+Seção VI - Da Contingência`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 136",
+    titulo: "Considera-se contingência a situação em que, em decorrência de problemas técnicos, não\nseja possível transmitir o arquivo digital do documento fiscal para o sistema autorizador ou sistema de\nrecepç...",
+    conteudo: `Art. 136. Considera-se contingência a situação em que, em decorrência de problemas técnicos, não
+seja possível transmitir o arquivo digital do documento fiscal para o sistema autorizador ou sistema de
+recepção ou obter resposta à solicitação de autorização de uso.
+Parágrafo único. Na hipótese de problemas técnicos na geração e transmissão da Declaração de
+Prestação de Serviços - DPS que originará a NFS-e, deverá ser fornecido um recibo relativo à prestação de
+serviço nos termos da documentação técnica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 137",
+    titulo: "O procedimento de emissão de documento fiscal em contingência será disciplinado na\nrespectiva documentação técnica",
+    conteudo: `Art. 137. O procedimento de emissão de documento fiscal em contingência será disciplinado na
+respectiva documentação técnica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 138",
+    titulo: "Após a cessação do problema técnico que ensejou a emissão em contingência, o arquivo\ndigital do documento fiscal emitido em contingência deverá ser transmitido ao sistema autorizador ou sistema\nde...",
+    conteudo: `Art. 138. Após a cessação do problema técnico que ensejou a emissão em contingência, o arquivo
+digital do documento fiscal emitido em contingência deverá ser transmitido ao sistema autorizador ou sistema
+de recepção, ressalvadas as hipóteses definidas na documentação técnica.
+Parágrafo único. O disposto no caput deste artigo aplica-se inclusive à NFS-e Via.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 139",
+    titulo: "O disposto nesta Seção não se aplica à DeRE",
+    conteudo: `Art. 139. O disposto nesta Seção não se aplica à DeRE.
+Seção VII - Dos Eventos Fiscais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 140",
+    titulo: "Considera-se evento fiscal o registro em arquivo digital que modifique ou agregue, ainda que\npreviamente, informações em documento fiscal e que produza efeitos no documento fiscal a que se refere,...",
+    conteudo: `Art. 140. Considera-se evento fiscal o registro em arquivo digital que modifique ou agregue, ainda que
+previamente, informações em documento fiscal e que produza efeitos no documento fiscal a que se refere,
+conforme documentação técnica do respectivo documento.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 141",
+    titulo: "Os eventos fiscais podem ser registrados, na forma da documentação técnica",
+    conteudo: `Art. 141. Os eventos fiscais podem ser registrados, na forma da documentação técnica:
+I - por qualquer pessoa envolvida na operação com bens ou serviços acobertada pelo documento fiscal;
+II - pela administração pública direta ou indireta; ou
+III - por outros interessados definidos em documentação técnica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 142",
+    titulo: "O registro dos eventos fiscais será realizado pelo sistema autorizador ou sistema de recepção\nde documento fiscal e encaminhado ao ambiente de dados nacional do documento fiscal, conforme\nestabelec...",
+    conteudo: `Art. 142. O registro dos eventos fiscais será realizado pelo sistema autorizador ou sistema de recepção
+de documento fiscal e encaminhado ao ambiente de dados nacional do documento fiscal, conforme
+estabelecido em documentação técnica.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 143",
+    titulo: "Nas consultas a que se refere o inciso I do caput do art",
+    conteudo: `Art. 143. Nas consultas a que se refere o inciso I do caput do art. 126, somente serão exibidas as
+informações que se revestirem de caráter público.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 144",
+    titulo: "Os eventos fiscais produzirão efeitos no documento fiscal vinculado após seu registro pelo\nsistema autorizador ou pelo sistema de recepção da RFB, do CGNFS-e ou do CGIBS",
+    conteudo: `Art. 144. Os eventos fiscais produzirão efeitos no documento fiscal vinculado após seu registro pelo
+sistema autorizador ou pelo sistema de recepção da RFB, do CGNFS-e ou do CGIBS.
+Parágrafo único. Os prazos de registro e cancelamento dos eventos fiscais deverão ser únicos para
+cada evento.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 145",
+    titulo: "O sistema autorizador ou sistema de recepção do documento fiscal poderá rejeitar o registro\nde evento fiscal que não atender às regras e validações estabelecidas na respectiva documentação técnica,...",
+    conteudo: `Art. 145. O sistema autorizador ou sistema de recepção do documento fiscal poderá rejeitar o registro
+de evento fiscal que não atender às regras e validações estabelecidas na respectiva documentação técnica,
+informando ao solicitante o motivo da rejeição.
+Seção VIII - Das Disposições Finais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 146",
+    titulo: "Ficam a União, os Estados, o Distrito Federal e os Municípios obrigados a",
+    conteudo: `Art. 146. Ficam a União, os Estados, o Distrito Federal e os Municípios obrigados a: (Art. 62, I e II, da
+LC 214/2025)
+I - adaptar os sistemas autorizadores e aplicativos de emissão simplificada de documentos fiscais
+eletrônicos vigentes para utilização de leiaute padronizado, permitindo que os contribuintes forneçam, ao
+CGIBS e à RFB, os dados necessários à apuração do IBS e da CBS; e
+II - compartilhar os documentos fiscais eletrônicos, nos termos de ato conjunto da RFB e do CGIBS,
+após a sua recepção, validação e autorização, com o ambiente de dados nacional de uso comum do CGIBS
+e das administrações tributárias da União, dos Estados, do Distrito Federal e dos Municípios.
+
+57
+
+Parágrafo único. Para fins do inciso II do caput deste artigo, considera-se ambiente de dados nacional
+de uso comum o conjunto de soluções tecnológicas destinadas a viabilizar a integração, a sincronização e o
+compartilhamento tempestivo dos documentos fiscais.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 147",
+    titulo: "O emitente será responsável pela veracidade e exatidão das informações contidas no\ndocumento fiscal",
+    conteudo: `Art. 147. O emitente será responsável pela veracidade e exatidão das informações contidas no
+documento fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 148",
+    titulo: "Os transportadores, inclusive empresa de serviço postal ou entrega expressa, que aceitarem\ndespacho ou que efetuarem o transporte de bens desacobertados dos documentos fiscais próprios sujeitamse a...",
+    conteudo: `Art. 148. Os transportadores, inclusive empresa de serviço postal ou entrega expressa, que aceitarem
+despacho ou que efetuarem o transporte de bens desacobertados dos documentos fiscais próprios sujeitamse ao disposto na alínea "a" do inciso II do caput do art. 23, sem prejuízo das penalidades aplicáveis.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 149",
+    titulo: "O emitente deverá manter em boa ordem e guarda os documentos que originaram as\ninformações constantes dos documentos fiscais, na forma e no prazo estabelecido por ato conjunto da RFB\ne do CGIBS",
+    conteudo: `Art. 149. O emitente deverá manter em boa ordem e guarda os documentos que originaram as
+informações constantes dos documentos fiscais, na forma e no prazo estabelecido por ato conjunto da RFB
+e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 150",
+    titulo: "Ato conjunto da RFB e do CGIBS deverá",
+    conteudo: `Art. 150. Ato conjunto da RFB e do CGIBS deverá:
+I - prever normas complementares para o detalhamento e operacionalização das disposições deste
+Capítulo; e
+II - dispor sobre a emissão de documentos fiscais consolidados, para fins de simplificação.
+Seção IX - Das Disposições Transitórias`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 151",
+    titulo: "Fica autorizada, até 31 de dezembro de 2032, a aplicação, no âmbito do IBS, dos atos\nnormativos e das documentações técnicas publicadas até a data de publicação deste Regulamento,\nreferentes à espe...",
+    conteudo: `Art. 151. Fica autorizada, até 31 de dezembro de 2032, a aplicação, no âmbito do IBS, dos atos
+normativos e das documentações técnicas publicadas até a data de publicação deste Regulamento,
+referentes à especificação de documentos fiscais, inclusive quanto a leiautes, padrões técnicos e campos
+informacionais, editados pelo CGNFS-e, pelo Comitê Gestor do Simples Nacional (CGSN) e pelo Conselho
+Nacional de Política Fazendária (CONFAZ), por meio do Sistema Nacional Integrado de Informações
+Econômico-Fiscais (Sinief), instituído pelo Convênio s/nº, de 15 de dezembro de 1970, publicado no Diário
+Oficial da União de 18 de fevereiro de 1971, e pela RFB, naquilo que não contrarie o disposto neste
+Regulamento.
+§ 1º A regra prevista no caput deste artigo possui caráter estritamente transitório e não implica
+transferência de competência normativa.
+§ 2º A partir da data de publicação deste Regulamento, os atos conjuntos da RFB e do CGIBS referentes
+à especificação de documentos fiscais deverão ser encaminhados para manifestação prévia do CGNFS-e, do
+CGSN ou do CONFAZ, sempre que a alteração proposta possa causar impacto operacional ou informacional
+sobre documentos fiscais relacionados a NFS-e, a optantes pelo Simples Nacional ou ao ICMS,
+respectivamente.
+§ 3º Em relação à exigência de encaminhamento para manifestação prévia de que trata o § 2º, observarse-á o seguinte:
+I - o CGIBS e a RFB aguardarão a manifestação do CGNFS-e, do CGSN ou do CONFAZ sobre o ato
+proposto pelo prazo de 15 (quinze) dias, prorrogável por até igual período, considerando-se tacitamente aceita
+a proposta caso não haja manifestação no referido prazo;
+II - a manifestação terá natureza consultiva, destinando-se à preservação da interoperabilidade e da
+harmonização entre os sistemas de documentos fiscais, não vinculando a deliberação conjunta da RFB com
+o CGIBS quanto às especificações técnicas necessárias à operacionalização da CBS e do IBS;
+III - não se aplica:
+a) à documentação técnica conjunta da RFB e`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 151 (parte 2)",
+    titulo: "do CGIBS relativa a atos submetidos ao rito de que trata\no § 2º; e\nb) a correções ou ajustes de atos publicados, desde que não modifiquem o mérito da medida e sejam\npublicados em até 20 (vinte) dia...",
+    conteudo: `do CGIBS relativa a atos submetidos ao rito de que trata
+o § 2º; e
+b) a correções ou ajustes de atos publicados, desde que não modifiquem o mérito da medida e sejam
+publicados em até 20 (vinte) dias após o início da produção de efeitos da publicação original.
+
+58
+
+TÍTULO III - DOS REGIMES ADUANEIROS ESPECIAIS, DOS REGIMES DE BAGAGEM E DE REMESSAS
+INTERNACIONAIS, DAS ZONAS DE PROCESSAMENTO DE EXPORTAÇÃO E DOS REGIMES DOS
+BENS DE CAPITAL
+CAPÍTULO I - DOS REGIMES ADUANEIROS ESPECIAIS
+Seção I - Do Regime de Trânsito`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 152",
+    titulo: "Fica suspenso o pagamento do IBS incidente na importação enquanto os bens materiais\nestiverem submetidos ao regime aduaneiro especial de trânsito aduaneiro, em qualquer de suas modalidades,\nobserva...",
+    conteudo: `Art. 152. Fica suspenso o pagamento do IBS incidente na importação enquanto os bens materiais
+estiverem submetidos ao regime aduaneiro especial de trânsito aduaneiro, em qualquer de suas modalidades,
+observada a disciplina estabelecida na legislação aduaneira. (Art. 84 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 153",
+    titulo: "O bem material com destino ao exterior poderá ser submetido ao regime aduaneiro especial\nde trânsito aduaneiro sem descaracterizar o tratamento tributário aplicado à exportação, observado o dispost...",
+    conteudo: `Art. 153. O bem material com destino ao exterior poderá ser submetido ao regime aduaneiro especial
+de trânsito aduaneiro sem descaracterizar o tratamento tributário aplicado à exportação, observado o disposto
+na legislação aduaneira e nos arts. 95, 96 e 97.
+Seção II - Dos Regimes de Depósito
+Subseção I - Das Disposições Gerais Relativas a Regimes de Depósito`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 154",
+    titulo: "Fica suspenso o pagamento do IBS incidente na importação enquanto os bens materiais\nestiverem submetidos a regime aduaneiro especial de depósito, observada a disciplina estabelecida na\nlegislação a...",
+    conteudo: `Art. 154. Fica suspenso o pagamento do IBS incidente na importação enquanto os bens materiais
+estiverem submetidos a regime aduaneiro especial de depósito, observada a disciplina estabelecida na
+legislação aduaneira. (Art. 85 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 155",
+    titulo: "O bem material empregado ou consumido no processo produtivo de bens finais a serem\nexportados poderá ser submetido ao regime aduaneiro especial de entreposto aduaneiro com suspensão do\npagamento do...",
+    conteudo: `Art. 155. O bem material empregado ou consumido no processo produtivo de bens finais a serem
+exportados poderá ser submetido ao regime aduaneiro especial de entreposto aduaneiro com suspensão do
+pagamento do IBS, observado o disposto na legislação aduaneira e nos arts. 95, 96 e 97.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 156",
+    titulo: "Para fins da suspensão do pagamento do IBS de que tratam os arts",
+    conteudo: `Art. 156. Para fins da suspensão do pagamento do IBS de que tratam os arts. 154 e 155, são espécies
+de regimes aduaneiros especiais de depósito: (Art. 85, parágrafo único, da LC 214/2025)
+I - entreposto aduaneiro na importação e na exportação;
+II - depósito especial;
+III - depósito afiançado;
+IV - depósito franco;
+V - loja franca, observado o disposto no art. 158; e
+VI - entreposto internacional da Zona Franca de Manaus na importação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, exportacao, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 157",
+    titulo: "Consideram-se exportados para o exterior para todos os efeitos fiscais, creditícios e cambiais,\nos bens admitidos no regime aduaneiro especial de depósito alfandegado certificado, desde que ocorra...",
+    conteudo: `Art. 157. Consideram-se exportados para o exterior para todos os efeitos fiscais, creditícios e cambiais,
+os bens admitidos no regime aduaneiro especial de depósito alfandegado certificado, desde que ocorra o
+efetivo embarque para o exterior ou a transposição da fronteira nacional.
+§ 1º No caso de descumprimento do disposto no caput deste artigo, o beneficiário ficará sujeito ao
+pagamento do IBS incidente na operação de fornecimento dos referidos bens, com os acréscimos legais de
+que trata o § 2º do art. 27, calculados da data de ocorrência do fato gerador, sem prejuízo da aplicação de
+penalidades específicas. (Art. 29, § 2º, da LC 214/2025)
+§ 2º Nas hipóteses referidas nos incisos VI e VII do caput do art. 95 aplica-se o disposto no caput deste
+artigo independentemente da ocorrência do efetivo embarque ou transposição de fronteira.
+§ 3º Para fins de admissão dos bens no regime serão observados os termos e condições estabelecidos
+na legislação aduaneira.
+Subseção II - Do Regime de Lojas Francas`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 158",
+    titulo: "Fica suspenso o pagamento do IBS incidente na importação e na aquisição no mercado\ninterno enquanto os bens materiais estiverem submetidos a regime aduaneiro especial de lojas francas,\nobservada a...",
+    conteudo: `Art. 158. Fica suspenso o pagamento do IBS incidente na importação e na aquisição no mercado
+interno enquanto os bens materiais estiverem submetidos a regime aduaneiro especial de lojas francas,
+observada a disciplina estabelecida na legislação aduaneira. (Art. 87 da LC 214/2025)
+§ 1º Na hipótese de venda dos bens a viajante em viagem internacional por porto e aeroporto
+alfandegado:
+I - na saída do país, consideram-se exportados os bens materiais; e
+II - na entrada no país, será devido o IBS na operação, ressalvado o disposto no art. 430.
+
+59
+
+§ 2º Na hipótese de venda dos bens a viajante em viagem internacional por via terrestre, será devido o
+IBS na operação, ressalvado o disposto no art. 430.
+§ 3º Na hipótese de operação de exportação referida no inciso IV do art. 95, o bem material será
+submetido ao regime com imunidade tributária. (Art. 81, IV, da LC 214/2025)
+Seção III - Dos Regimes de Permanência Temporária`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao, imunidade",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 159",
+    titulo: "São espécies de regimes aduaneiros especiais de permanência temporária",
+    conteudo: `Art. 159. São espécies de regimes aduaneiros especiais de permanência temporária:
+I - admissão temporária; e
+II - exportação temporária.
+§ 1º Fica suspenso o pagamento do IBS incidente na importação enquanto os bens materiais estiverem
+submetidos ao regime aduaneiro especial de que trata o inciso I do caput deste artigo, observada a disciplina
+estabelecida na legislação aduaneira. (Art. 88 da LC 214/2025)
+§ 2º A admissão temporária de que trata o inciso I do caput deste artigo poderá ser aplicada à
+importação de petróleo bruto e seus derivados, nos termos estabelecidos na legislação aduaneira.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 160",
+    titulo: "No caso de bens admitidos em regime aduaneiro especial de admissão temporária para\nutilização econômica, a suspensão do pagamento do IBS será parcial, devendo ser pago o IBS\nproporcionalmente ao te...",
+    conteudo: `Art. 160. No caso de bens admitidos em regime aduaneiro especial de admissão temporária para
+utilização econômica, a suspensão do pagamento do IBS será parcial, devendo ser pago o IBS
+proporcionalmente ao tempo de permanência dos bens no País. (Art. 89 da LC 214/2025)
+§ 1º A proporcionalidade a que se refere o caput deste artigo será obtida pela aplicação do percentual
+de 0,033% (trinta e três milésimos por cento), relativamente a cada dia compreendido no prazo de concessão
+do regime, sobre o montante do IBS originalmente devido.
+§ 2º Na hipótese de pagamento após a data em que seriam devidos, conforme disposto no inciso II do
+caput do art. 78, o IBS será corrigido pela taxa Selic, calculado a partir da referida data, sem prejuízo dos
+demais acréscimos previstos na legislação.
+§ 3º O disposto no caput deste artigo não se aplica:
+I - até 31 de dezembro de 2040:
+a) aos bens destinados às atividades de exploração, de desenvolvimento e de produção de petróleo e
+de gás natural, cuja permanência no País seja de natureza temporária, admitidos no Repetro-Temporário, nos
+termos do art. 164; e
+b) aos bens destinados às atividades de transporte, de movimentação, de transferência, de
+armazenamento ou de regaseificação de gás natural liquefeito admitidos no GNL-Temporário, nos termos do
+art. 164; e
+II - até a data estabelecida pelo art. 92-A do Ato das Disposições Constitucionais Transitórias, aos bens
+importados temporariamente e para utilização econômica por empresas que se enquadrem nas disposições
+do Decreto-Lei nº 288, de 28 de fevereiro de 1967, durante o período de sua permanência na Zona Franca
+de Manaus, os quais serão submetidos ao regime de admissão temporária com suspensão total do
+pagamento dos tributos.
+§ 4º Na hipótese de a importação temporária de aeronaves, seus componentes e motores, ser realizada
+por contribuinte do regime regular do IBS mediante contrato de arrendamento mercantil:
+I - será dispensado o pagamento do IBS na importação do bem; e
+II - haverá a in`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, importacao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 160 (parte 2)",
+    titulo: "cidência do IBS no pagamento das contraprestações pelo arrendamento mercantil de\nacordo com o disposto no regime específico de serviços financeiros para importações",
+    conteudo: `cidência do IBS no pagamento das contraprestações pelo arrendamento mercantil de
+acordo com o disposto no regime específico de serviços financeiros para importações.
+Seção IV - Dos Regimes de Aperfeiçoamento`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, importacao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 161",
+    titulo: "São espécies de regimes aduaneiros especiais de aperfeiçoamento",
+    conteudo: `Art. 161. São espécies de regimes aduaneiros especiais de aperfeiçoamento: (Art. 90, § 1º, da LC
+214/2025)
+I - entreposto industrial sob controle aduaneiro informatizado (Recof);
+II - drawback, na modalidade de suspensão;
+III - admissão temporária para aperfeiçoamento ativo; e
+IV - exportação temporária para aperfeiçoamento passivo.
+
+60
+
+§ 1º Fica suspenso o pagamento do IBS incidente na importação enquanto os bens materiais estiverem
+submetidos aos regimes aduaneiros especiais de aperfeiçoamento de que tratam os incisos I a III do caput
+deste artigo, observada a disciplina estabelecida na legislação aduaneira. (Art. 90 da LC 214/2025)
+§ 2º A suspensão de que trata o § 1º, em relação aos regimes de que tratam os incisos I e II do caput
+deste artigo, alcança bens materiais importados e aqueles adquiridos no mercado interno.
+§ 3º A suspensão do pagamento do IBS de bens materiais referida nos §§ 1º e 2º:
+I - alcança as hipóteses em que o beneficiário:
+a) realiza somente etapas intermediárias do processo de industrialização;
+b) emprega os bens materiais referidos no caput em reparo, criação, cultivo ou atividade extrativista de
+produto a ser exportado; e
+II - não se aplica a energias que tenham valor econômico e a combustíveis na hipótese do regime de
+drawback na modalidade de suspensão.
+§ 4º Para fruição da suspensão do pagamento do IBS no regime de drawback, na modalidade de
+suspensão, a pessoa jurídica interessada deverá ser habilitada em ato conjunto da RFB e do CGIBS e cumprir
+os seguintes requisitos e condições:
+I - possuir certidão conjunta negativa de débitos, ou positiva com efeitos de negativa, relativa a tributos
+federais administrados pela RFB e à Dívida Ativa da União (DAU) administrada pela Procuradoria-Geral da
+Fazenda Nacional (PGFN), nos termos do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 161 (parte 2)",
+    titulo: "18 da Lei nº 12.844, de 19 de julho de 2013;\nII - estar em situação de regularidade fiscal perante as administrações tributárias federal, estadual,\ndistrital ou municipal de todos os entes federati...",
+    conteudo: `18 da Lei nº 12.844, de 19 de julho de 2013;
+II - estar em situação de regularidade fiscal perante as administrações tributárias federal, estadual,
+distrital ou municipal de todos os entes federativos em que estejam localizados seus estabelecimentos;
+III - não ter como sócio majoritário ou administrador pessoa condenada, com trânsito em julgado, por
+ato de improbidade administrativa, nos termos dos incisos I a III do caput do art. 12 da Lei nº 8.429, de 2 de
+junho de 1992;
+IV - não constar no Cadastro Informativo de Créditos não Quitados do Setor Público Federal (Cadin),
+nos termos do inciso II do caput do art. 6º da Lei nº 10.522, de 19 de julho de 2002;
+V - possuir Certificado de Regularidade do FGTS (CRF) válido, emitido pela Caixa Econômica Federal,
+nos termos do art. 27 da Lei nº 8.036, de 11 de maio de 1990;
+VI - não possuir registros ativos no Cadastro Nacional de Empresas Punidas (CNEP) derivados da
+prática de atos lesivos à administração pública, nacional ou estrangeira, nos termos do inciso IV do caput do
+art. 19 da Lei nº 12.846, de 1º de agosto de 2013;
+VII - possuir autorização, licença ou registro para o exercício da atividade, expedida pelo órgão de
+controle ou autoridade competente, quando a natureza das operações ou dos bens materiais assim o exigir;
+VIII - não ter sido submetida ao regime especial de fiscalização de que trata o art. 33 da Lei nº 9.430,
+de 27 de dezembro de 1996, nos últimos 3 (três) anos-calendário;
+IX - não ter sido submetida ao regime especial de fiscalização de que trata a Seção VII do Capítulo II
+do Título XI do Livro II, nos últimos 3 (três) anos-calendário;
+X - estar habilitada pela RFB a operar no comércio exterior em modalidade fixada na legislação
+específica;
+XI - possuir DTE em situação regular, nos termos da legislação específica e do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 161 (parte 3)",
+    titulo: "575, com\nabrangências das administrações tributárias de todos os entes federativos;\nXII - dispor de sistema informatizado de controle de entrada, estoque e saída de mercadorias, de\nregistro e apura...",
+    conteudo: `575, com
+abrangências das administrações tributárias de todos os entes federativos;
+XII - dispor de sistema informatizado de controle de entrada, estoque e saída de mercadorias, de
+registro e apuração de créditos tributários devidos, extintos ou com pagamento suspenso, integrado aos
+sistemas corporativos da empresa no País, que permita livre e permanente acesso pela RFB e pelas
+administrações tributárias dos Estados, Distrito Federal e Municípios;
+XIII - apresentar relatório detalhado de capacidade industrial; e
+XIV - ter realizado operações de exportações por período superior a um ano, na data de solicitação da
+habilitação.
+§ 5º Para fins de cumprimento do disposto no inciso XII do § 4º, a empresa interessada que tenha baixo
+volume de exportações poderá, alternativamente, manter registros eletrônicos de controle de entrada, estoque
+e saída de mercadorias, de registro e apuração de créditos tributários devidos, extintos ou com pagamento
+
+61
+
+suspenso, devendo tais registros serem disponibilizados à RFB, DF, Estados e Municípios, na forma
+estabelecida em ato conjunto da RFB e do CGIBS.
+§ 6º Na hipótese do inciso XIII do § 4º, a autoridade fiscal poderá verificar a exatidão das informações
+mediante diligência in loco, inclusive quanto à coerência entre a capacidade instalada, os bens materiais
+empregados e os produtos resultantes, segundo parâmetros técnicos e operacionais declarados.
+§ 7º São condições para manutenção da habilitação a que se refere o § 4º:
+I - manter os requisitos de elegibilidade e de regularidade fiscal previstos no § 4º;
+II - exportar produtos industrializados, obrigatoriamente resultantes dos processos produtivos
+declarados, que contenham ou não bens materiais admitidos no regime, no valor mínimo anual equivalente a
+50% (cinquenta por cento) do valor total dos bens materiais importados ou adquiridos no mercado interno
+com suspensão do IBS, no mesmo período;
+III - aplicar, anualmente, na produção dos bens que industrializar, pelo menos 70% (seten`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 161 (parte 4)",
+    titulo: "ta por cento)\ndos bens materiais importados ou aquiridos no mercado interno com suspensão do IBS;\nIV - manter o sistema informatizado de controle referido no inciso XII do § 4º ou no § 3º, conforme...",
+    conteudo: `ta por cento)
+dos bens materiais importados ou aquiridos no mercado interno com suspensão do IBS;
+IV - manter o sistema informatizado de controle referido no inciso XII do § 4º ou no § 3º, conforme o
+caso; e
+V - que o montante do IBS e da CBS com pagamento suspenso não ultrapasse o valor de 100 % (cem
+por cento) do patrimônio líquido da empresa.
+§ 8º O cumprimento dos percentuais estabelecidos nos incisos II, III e V do § 7º será apurado
+anualmente, considerando o fluxo global de importações e exportações da empresa habilitada, sem prejuízo
+da obrigatoriedade de comprovação e encerramento individualizado de cada ato concessório.
+§ 9º A inobservância das condições previstas neste artigo sujeitará o beneficiário à suspensão cautelar
+da habilitação, sem prejuízo da exigência do IBS suspenso relativo aos compromissos não cumpridos, com
+os devidos acréscimos legais, e da aplicação das penalidades aduaneiras e tributárias cabíveis.
+§ 10. A empresa habilitada deverá prestar informações periódicas relativas à execução, segregadas
+por ato concessório, incluindo dados de entrada, industrialização e exportação, em periodicidade não superior
+a seis meses, nos termos de ato conjunto da RFB e do CGIBS, devendo ainda apresentar a respectiva
+justificativa nos casos em que não haja exportação.
+§ 11. A empresa habilitada referida no § 4º deverá manter o indicador de Participação do Capital de
+Terceiros (PCT) menor que 1 (um), o indicador de Liquidez Geral (LG) maior que 1 (um) e o indicador de
+Estrutura de Capital da Dívida Líquida/LAJIDA igual ou menor que 2 (dois), a partir do segundo ano de
+operação.
+§ 12. Para a aferição dos indicadores a que se refere o § 11, deverão ser utilizadas as demonstrações
+contábeis correspondentes por ano calendário.
+§ 13.`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 3,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 161 (parte 5)",
+    titulo: "A empresa deverá apresentar às administrações tributárias federal, estadual, distrital ou municipal\nde todos os entes federativos em que estejam localizados seus estabelecimentos, até o último dia...",
+    conteudo: `A empresa deverá apresentar às administrações tributárias federal, estadual, distrital ou municipal
+de todos os entes federativos em que estejam localizados seus estabelecimentos, até o último dia útil de
+março do ano calendário subsequente, os demonstrativos de aferição dos indicadores de que trata o § 11.
+§ 14. Para a aferição dos indicadores a que se refere o § 11, deverão ser observadas as seguintes
+fórmulas:
+PCT = (PC + PNC)/PL;
+LG = (AC + ARLP)/(PC + PNC); e
+Estrutura de Capital = DL/LAJIDA.
+sendo:
+PC = Passivo Circulante
+PNC = Passivo não Circulante
+PL = Patrimônio Líquido
+AC = Ativo Circulante
+ARLP = Ativo Realizável a Longo Prazo
+DL = Dívida Líquida
+LAJIDA = Lucro antes dos Juros, Impostos, Depreciação e Amortização
+
+62
+
+§ 15. Ficam sujeitos ao pagamento do IBS os bens materiais submetidos ao regime aduaneiro especial
+de aperfeiçoamento ativo que, no todo ou em parte, na vigência do referido regime:
+I - deixarem de ser empregados ou consumidos no processo produtivo de bens finais exportados; ou
+II - caso destinados para o mercado interno, no estado em que foram importados ou adquiridos ou,
+ainda, incorporados aos referidos bens finais.
+§ 16. O disposto no § 15 aplicar-se-á inclusive aos bens materiais empregados em desacordo com o
+ato concessório.
+§ 17. Na hipótese prevista no § 15, para o regime aduaneiro especial de drawback, caso a destinação
+para o mercado interno seja realizada após 30 (trinta) dias do prazo fixado para exportação, os valores dos
+tributos devidos serão acrescidos de multa e juros de mora nos termos do § 2º do art. 27.
+§ 18. A suspensão do pagamento do IBS de bens materiais no regime de drawback, na modalidade de
+suspensão, fica condicionada à efetiva exportação, diretamente pelo beneficiário do ato concessório,
+comprovada nos termos do art. 96, do produto resultante da industrialização do bem importado ou adquirido
+no mercado interno, exceto na hipótese da alínea “a” do inciso I do § 3º
+§ 19.`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 4,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 161 (parte 6)",
+    titulo: "Ato conjunto da RFB e do CGIBS:\nI - disciplinará a criação de evento, para registro no documento fiscal referente à aquisição no mercado\ninterno, destinado à operação de drawback, que identifique,...",
+    conteudo: `Ato conjunto da RFB e do CGIBS:
+I - disciplinará a criação de evento, para registro no documento fiscal referente à aquisição no mercado
+interno, destinado à operação de drawback, que identifique, após a emissão, que a empresa beneficiária
+possui ato concessório válido, com estoque disponível e autorizado para concluir a operação; e
+II - estabelecerá os procedimentos relativos à habilitação de que trata o § 4º, à sua dispensa e ao seu
+cancelamento na hipótese de inobservância do disposto no § 7º, bem como outros mecanismos e
+procedimentos de controle das operações.
+§ 20. Na hipótese de cancelamento da habilitação referida no inciso II do § 19, somente poderá ser
+solicitada nova habilitação depois de transcorridos 2 (dois) anos contados da data de ciência do
+cancelamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 5,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 162",
+    titulo: "Não se aplicam ao IBS as modalidades de isenção e de restituição do regime aduaneiro\nespecial de drawback",
+    conteudo: `Art. 162. Não se aplicam ao IBS as modalidades de isenção e de restituição do regime aduaneiro
+especial de drawback. (Art. 91 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, isencao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 163",
+    titulo: "No caso de os bens nacionais ou nacionalizados saírem temporariamente do País para\noperação de transformação, elaboração, beneficiamento ou montagem ou, ainda, para processo de conserto,\nreparo ou...",
+    conteudo: `Art. 163. No caso de os bens nacionais ou nacionalizados saírem temporariamente do País para
+operação de transformação, elaboração, beneficiamento ou montagem ou, ainda, para processo de conserto,
+reparo ou restauração, o IBS devido no retorno dos bens ao País será calculado: (Art. 92 da LC 214/2025)
+I - sobre a diferença entre o valor do IBS incidente sobre o produto da operação de transformação,
+elaboração, beneficiamento ou montagem e o valor do IBS que incidiria, na mesma data, sobre os bens objeto
+da saída, se estes estivessem sendo importados do mesmo país em que se deu a operação de exportação
+temporária; ou
+II - sobre o valor dos bens e serviços empregados no processo de conserto, reparo ou restauração.
+Seção V - Do Regime Aduaneiro Especial Aplicável ao Setor de Petróleo e Gás (Repetro)`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 164",
+    titulo: "Observada a disciplina estabelecida na legislação aduaneira, fica suspenso o pagamento do\nIBS enquanto os bens materiais estiverem submetidos ao Regime Aduaneiro Especial Aplicável ao Setor de\nPetr...",
+    conteudo: `Art. 164. Observada a disciplina estabelecida na legislação aduaneira, fica suspenso o pagamento do
+IBS enquanto os bens materiais estiverem submetidos ao Regime Aduaneiro Especial Aplicável ao Setor de
+Petróleo e Gás (Repetro), nas seguintes operações: (Art. 93 da LC 214/2025)
+I - importação de bens destinados às atividades de exploração, de desenvolvimento e de produção de
+petróleo, de gás natural e de outros hidrocarbonetos fluidos previstas na legislação específica, cuja
+permanência no País seja de natureza temporária (Repetro-Temporário);
+II - importação de bens destinados às atividades de transporte, movimentação, transferência,
+armazenamento ou regaseificação de gás natural liquefeito (GNL-Temporário);
+III - importação de bens cuja permanência no País seja definitiva e que sejam destinados às atividades
+a que se refere o inciso I do caput deste artigo (Repetro-Permanente);
+IV - importação ou aquisição no mercado interno de matérias-primas, produtos intermediários e
+materiais de embalagem para serem utilizados integralmente no processo produtivo de produto final a ser
+fornecido a empresa que o destine às atividades a que se refere o inciso I do caput deste artigo (RepetroIndustrialização);
+V - aquisição de produto final a que se refere o inciso IV do caput deste artigo (Repetro-Nacional);
+
+63
+
+VI - importação ou aquisição no mercado interno de bens para conversão ou construção de outros bens
+no País, contratada por empresa sediada no exterior, cujo produto final deverá ser destinado às atividades a
+que se refere o inciso I do caput deste artigo (Repetro-Entreposto).
+§ 1º Fica também suspenso o pagamento do IBS na importação ou na aquisição de bens no mercado
+interno por empresa denominada fabricante intermediário para a industrialização de produto intermediário a
+ser fornecido a empresa que o utilize no processo produtivo de que trata o inciso IV do caput deste artigo.
+§ 2º Os bens a que se referem as operações descritas nos incisos I, II, III e VI do caput d`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 164 (parte 2)",
+    titulo: "este artigo\nconstam da relação estabelecida no Anexo II",
+    conteudo: `este artigo
+constam da relação estabelecida no Anexo II.
+§ 3º A suspensão de que trata o inciso IV do caput deste artigo aplica-se apenas às operações com
+matérias-primas, produtos intermediários e materiais de embalagem utilizados integralmente no processo
+produtivo de produto final constante da relação estabelecida no Anexo II.
+§ 4º A suspensão de que trata o inciso V do caput deste artigo aplica-se apenas às operações com
+produto final constante da relação estabelecida no Anexo II.
+§ 5º As operações a que se referem os incisos I a III do caput deste artigo incluem a importação de
+partes e peças a serem incorporadas aos bens constantes das relações referidas no § 2º
+§ 6º Podem ser submetidos às operações a que se referem os incisos I a III do caput deste artigo os
+bens sobressalentes daqueles admitidos no respectivo regime, nas quantidades necessárias requeridas para
+manutenção, falhas operacionais, redundância de segurança ou atendimento a regulamentações técnicas e
+de segurança aplicáveis.
+§ 7º As regras para a habilitação e o procedimento de fiscalização e controle, bem como a periodicidade
+de divulgação da relação de empresas habilitadas, serão definidas em ato conjunto da RFB e do CGIBS.
+§ 8º Para usufruir da suspensão do IBS de que trata o caput deste artigo, a empresa deverá estar
+incluída na relação de empresas habilitadas a que se refere o § 7º
+§ 9º Fica vedada a suspensão prevista no inciso III do caput deste artigo para importação de
+embarcações destinadas à navegação de cabotagem e à navegação interior de percurso nacional, bem como
+à navegação de apoio portuário e à navegação de apoio marítimo, nos termos da legislação específica.
+§ 10. A suspensão do pagamento do IBS prevista no inciso III do caput deste artigo converte-se em
+alíquota zero após decorridos 5 (cinco) anos contados da data de registro da declaração de importação.
+§ 11.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 164 (parte 3)",
+    titulo: "O beneficiário que realizar importação com suspensão do pagamento nos termos do inciso III do\ncaput deste artigo e não destinar os bens na forma nele prevista no prazo de 3 (três) anos, contado da...",
+    conteudo: `O beneficiário que realizar importação com suspensão do pagamento nos termos do inciso III do
+caput deste artigo e não destinar os bens na forma nele prevista no prazo de 3 (três) anos, contado da data
+de registro da declaração de importação, fica obrigado a recolher o IBS não pago em decorrência da
+suspensão usufruída, acrescido de multa e juros de mora nos termos do § 2º do art. 27, calculado a partir da
+data de ocorrência do fato gerador.
+§ 12. O beneficiário que realizar a aquisição no mercado interno com suspensão do pagamento nos
+termos do inciso V do caput deste artigo e não destinar o bem às atividades nele previstas no prazo de 3 (três)
+anos, contado da data de aquisição, fica obrigado a recolher o IBS não pago em decorrência da suspensão
+usufruída, acrescido de multa e juros de mora nos termos do § 2º do art. 27, calculado a partir da data de
+ocorrência do respectivo fato gerador.
+§ 13. Efetivado o fornecimento do produto final à empresa habilitada, as suspensões de que tratam o
+inciso IV do caput deste artigo e o § 1º, convertem-se em alíquota zero.
+§ 14. Efetivada a destinação do produto final, a suspensão de que trata o inciso V do caput deste artigo
+converte-se em alíquota zero.
+§ 15. As suspensões do IBS previstas no caput deste artigo somente serão aplicadas aos fatos
+geradores ocorridos até 31 de dezembro de 2040.
+Seção VI - Disposições Comuns aos Regimes Aduaneiros Especiais`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 165",
+    titulo: "A suspensão do pagamento do IBS pela aplicação dos regimes aduaneiros especiais\nobservará o prazo previsto na legislação aduaneira, ressalvadas as disposições específicas previstas neste\nRegulamento",
+    conteudo: `Art. 165. A suspensão do pagamento do IBS pela aplicação dos regimes aduaneiros especiais
+observará o prazo previsto na legislação aduaneira, ressalvadas as disposições específicas previstas neste
+Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 166",
+    titulo: "Poderá ser autorizada a transferência de bem admitido em um regime aduaneiro especial, ou\naplicado em área especial, para outro, observadas as condições e os requisitos estabelecidos na legislação...",
+    conteudo: `Art. 166. Poderá ser autorizada a transferência de bem admitido em um regime aduaneiro especial, ou
+aplicado em área especial, para outro, observadas as condições e os requisitos estabelecidos na legislação
+aduaneira.
+
+64
+
+Art. 167. No caso de descumprimento dos regimes aduaneiros especiais de que trata este Capítulo, o
+beneficiário ficará sujeito ao pagamento do IBS incidente, com acréscimos legais calculados da data da
+liberação da declaração de admissão no regime ou do registro de exportação, sem prejuízo da aplicação de
+penalidades específicas.
+Parágrafo único. O disposto no caput deste artigo aplica-se inclusive nas hipóteses de destruição,
+perecimento, deterioração, furto, roubo ou extravio, ressalvadas as exceções previstas neste Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 168",
+    titulo: "Nos regimes aduaneiros especiais em que a destruição do bem configurar extinção da\naplicação do regime, o resíduo da destruição, se economicamente utilizável, deverá ser despachado para\nconsumo, co...",
+    conteudo: `Art. 168. Nos regimes aduaneiros especiais em que a destruição do bem configurar extinção da
+aplicação do regime, o resíduo da destruição, se economicamente utilizável, deverá ser despachado para
+consumo, como se tivesse sido importado no estado em que se encontra, sujeitando-se ao pagamento do
+IBS correspondente, ou reexportado.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 169",
+    titulo: "A suspensão do pagamento do IBS decorrente da aplicação de regime aduaneiro especial\nconverte-se em alíquota zero na hipótese em que o bem material for destruído, sob controle aduaneiro e às\nexpens...",
+    conteudo: `Art. 169. A suspensão do pagamento do IBS decorrente da aplicação de regime aduaneiro especial
+converte-se em alíquota zero na hipótese em que o bem material for destruído, sob controle aduaneiro e às
+expensas do interessado, como providência para extinção da aplicação do regime. (Art. 98-B da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 170",
+    titulo: "Aplicam-se as disposições gerais constantes do Capítulo IV do Título III deste Livro aos\nregimes aduaneiros especiais",
+    conteudo: `Art. 170. Aplicam-se as disposições gerais constantes do Capítulo IV do Título III deste Livro aos
+regimes aduaneiros especiais.
+CAPÍTULO II - DOS REGIMES DE BAGAGEM E DE REMESSAS INTERNACIONAIS
+Seção I - Das Isenções dos Regimes de Bagagem e de Remessas Internacionais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 171",
+    titulo: "São isentas do pagamento do IBS na importação de bens materiais",
+    conteudo: `Art. 171. São isentas do pagamento do IBS na importação de bens materiais: (Art. 94 da LC 214/2025)
+I - bagagens de viajantes e de tripulantes, acompanhadas ou desacompanhadas; e
+II - remessas internacionais, desde que:
+a) sejam isentas do Imposto sobre a Importação;
+b) o remetente e o destinatário sejam pessoas físicas;
+c) não tenha ocorrido a intermediação de plataforma digital.
+Seção II - Das Disposições Específicas Relativas a Remessas Internacionais`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 172",
+    titulo: "Na remessa internacional em que seja aplicado o RTS, nos termos da legislação aduaneira,\né responsável solidário pelo IBS o fornecedor dos bens materiais de procedência estrangeira, ainda que\nresid...",
+    conteudo: `Art. 172. Na remessa internacional em que seja aplicado o RTS, nos termos da legislação aduaneira,
+é responsável solidário pelo IBS o fornecedor dos bens materiais de procedência estrangeira, ainda que
+residente ou domiciliado no exterior, observadas as disposições sobre o cadastro com identificação única
+previstas no Capítulo I do Título II deste Livro. (Art. 95 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 173",
+    titulo: "A plataforma digital, ainda que domiciliada no exterior, é responsável pelo pagamento do IBS\nrelativo aos bens materiais objeto de remessa internacional cuja operação ou importação tenha sido reali...",
+    conteudo: `Art. 173. A plataforma digital, ainda que domiciliada no exterior, é responsável pelo pagamento do IBS
+relativo aos bens materiais objeto de remessa internacional cuja operação ou importação tenha sido realizada
+por seu intermédio, observado o disposto nos arts. 20 e 21. (Art. 96 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 174",
+    titulo: "Para fins do cumprimento do disposto nos arts",
+    conteudo: `Art. 174. Para fins do cumprimento do disposto nos arts. 172 e 173, ato conjunto da RFB e do CGIBS
+disciplinará:
+I - a operacionalização do pagamento, inclusive por meio de split payment;
+II - o momento e a forma como deverá ser realizada a cobrança do adquirente da remessa internacional
+do valor do IBS devido na importação;
+III - as obrigações acessórias e os procedimentos para apuração do IBS;
+IV - a implementação de regimes diferenciados para a apuração automatizada e de ofício do IBS, no
+âmbito de programas de conformidade;
+V - os procedimentos para o registro de que trata o Capítulo I do Título II deste Livro;
+VI - outras definições e informações necessárias para a apuração do IBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 175",
+    titulo: "O registro da declaração de importação e o recolhimento do IBS será realizado pela empresa\npública prestadora de serviço postal ou por empresa de courier responsável pelo despacho aduaneiro, em\nnom...",
+    conteudo: `Art. 175. O registro da declaração de importação e o recolhimento do IBS será realizado pela empresa
+pública prestadora de serviço postal ou por empresa de courier responsável pelo despacho aduaneiro, em
+nome do destinatário, nas seguintes situações:
+I - enquanto não forem implementadas disposições diversas no ato conjunto referido no art. 174;
+II - na hipótese de remessas internacionais que não tenham intermediação de plataforma digital ou no
+caso de plataforma digital não aderente a programas de conformidade;
+
+65
+
+§ 1º A empresa pública prestadora de serviço postal ou a empresa de courier deverá cobrar do
+destinatário da remessa internacional referida no caput deste artigo o valor do IBS devido na importação,
+ressalvados os casos em que a cobrança ocorrer no momento da compra, no âmbito de programas de
+conformidade.
+§ 2º O IBS devido na importação de remessas internacionais referidas no caput deste artigo deverá ser
+pago até a liberação dos bens pela autoridade aduaneira como condição para a entrega dos bens, observada
+a alínea “d” do inciso VI do art. 23.
+§ 3º O pagamento do IBS ocorrerá nos termos definidos por ato conjunto da RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 176",
+    titulo: "O pagamento do IBS é condição para a entrega dos bens, observados os casos de regimes\ndiferenciados",
+    conteudo: `Art. 176. O pagamento do IBS é condição para a entrega dos bens, observados os casos de regimes
+diferenciados.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 177",
+    titulo: "Ato conjunto da RFB e do CGIBS poderá tratar sobre a possibilidade de restituição dos valores\nde IBS pagos pela nacionalização de remessas internacionais submetidas ao RTS, desde que a devolução\nou...",
+    conteudo: `Art. 177. Ato conjunto da RFB e do CGIBS poderá tratar sobre a possibilidade de restituição dos valores
+de IBS pagos pela nacionalização de remessas internacionais submetidas ao RTS, desde que a devolução
+ou cancelamento da compra ocorra antes da entrega dos bens ao destinatário ou adquirente.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 178",
+    titulo: "Nas hipóteses dos arts. 172 e 173, o destinatário de remessa internacional, ainda que não\nseja o importador, é solidariamente responsável pelo pagamento do IBS relativo aos bens materiais objeto de...",
+    conteudo: `Art. 178. Nas hipóteses dos arts. 172 e 173, o destinatário de remessa internacional, ainda que não
+seja o importador, é solidariamente responsável pelo pagamento do IBS relativo aos bens materiais objeto de
+remessa internacional caso: (Art. 97 da LC 214/2025)
+I - o fornecedor residente ou domiciliado no exterior não esteja inscrito; ou
+II - os tributos não tenham sido pagos pelo fornecedor residente ou domiciliado no exterior, ainda que
+inscrito, ou por plataforma digital.
+CAPÍTULO III - DAS ZONAS DE PROCESSAMENTO DE EXPORTAÇÃO`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 179",
+    titulo: "As importações ou as aquisições no mercado interno de máquinas, de aparelhos, de\ninstrumentos e de equipamentos realizadas por empresa autorizada a operar em zonas de processamento\nde exportação se...",
+    conteudo: `Art. 179. As importações ou as aquisições no mercado interno de máquinas, de aparelhos, de
+instrumentos e de equipamentos realizadas por empresa autorizada a operar em zonas de processamento
+de exportação serão efetuadas com suspensão do pagamento do IBS. (Art. 99 da LC 214/2025)
+§ 1º A suspensão de que trata o caput deste artigo aplica-se apenas aos bens, novos ou usados,
+necessários às atividades da empresa autorizada a operar em zonas de processamento de exportação, para
+incorporação ao seu ativo imobilizado.
+§ 2º Na hipótese de importação de bens usados, a suspensão de que trata o caput deste artigo será
+aplicada quando se tratar de conjunto industrial que seja elemento constitutivo da integralização do capital
+social da empresa.
+§ 3º Na hipótese de utilização dos bens importados ou adquiridos no mercado interno com suspensão
+do pagamento do IBS em desacordo com o disposto nos §§ 1º e 2º, ou de revenda dos bens antes que ocorra
+a conversão da suspensão em alíquota zero, na forma estabelecida no § 4º, a empresa autorizada a operar
+em zonas de processamento de exportação fica obrigada a recolher o IBS que se encontre com o pagamento
+suspenso, acrescido de multa e juros de mora nos termos do § 2º do art. 27, calculados a partir da data de
+ocorrência dos respectivos fatos geradores, na condição de:
+I - contribuinte, em relação às operações de importação; ou
+II - responsável, em relação às aquisições no mercado interno.
+§ 4º Se não ocorrerem as hipóteses previstas no § 3º, a suspensão de que trata o caput deste artigo
+converter-se-á em alíquota zero, decorrido o prazo de 2 (dois) anos, contado da data de ocorrência do fato
+gerador.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, exportacao, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 180",
+    titulo: "As importações ou as aquisições no mercado interno de matérias-primas, de produtos\nintermediários e de materiais de embalagem realizadas por empresa autorizada a operar em zonas de\nprocessamento de...",
+    conteudo: `Art. 180. As importações ou as aquisições no mercado interno de matérias-primas, de produtos
+intermediários e de materiais de embalagem realizadas por empresa autorizada a operar em zonas de
+processamento de exportação serão efetuadas com suspensão do pagamento do IBS. (Art. 100 da LC
+214/2025)
+§ 1º As matérias-primas, os produtos intermediários e os materiais de embalagem de que trata o caput
+deste artigo deverão ser utilizados integralmente no processo produtivo do produto final a ser exportado, sem
+prejuízo do disposto no art. 181.
+§ 2º Observado o disposto no § 4º, a suspensão de que trata o caput deste artigo converter-se-á em
+alíquota zero com:
+I - a exportação do produto final; ou
+II - a prestação de serviços fornecidos ou destinados exclusivamente para o exterior.
+
+66
+
+§ 3º Considera-se matéria-prima para fins do disposto no caput deste artigo a energia elétrica
+proveniente de fontes renováveis de geração utilizada por empresas instaladas em zonas de processamento
+de exportação.
+§ 4º A energia elétrica proveniente de fontes renováveis de geração utilizada por empresas prestadoras
+de serviço instaladas em zonas de processamento de exportação terá tratamento equivalente ao estabelecido
+no caput deste artigo para matérias-primas, produtos intermediários e materiais de embalagem.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, exportacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 181",
+    titulo: "Os produtos industrializados ou adquiridos para industrialização por empresa autorizada a\noperar em zonas de processamento de exportação poderão ser vendidos para o mercado interno, desde que\na pes...",
+    conteudo: `Art. 181. Os produtos industrializados ou adquiridos para industrialização por empresa autorizada a
+operar em zonas de processamento de exportação poderão ser vendidos para o mercado interno, desde que
+a pessoa jurídica efetue o pagamento: (Art. 101 da LC 214/2025)
+I - do IBS, na condição de contribuinte, que se encontre com o pagamento sobre as importações
+suspenso em razão do disposto nos arts. 179 e 180, com os acréscimos legais de que trata o § 2º do art. 27,
+calculados a partir da data de ocorrência do respectivo fato gerador;
+II - do IBS, na condição de responsável, que se encontre com o pagamento relativo a aquisições no
+mercado interno suspenso em razão do disposto nos arts. 179 e 180, com os acréscimos legais de que trata
+o § 2º do art. 27, calculados a partir da data de ocorrência do respectivo fato gerador; e
+III - do IBS incidente na operação de venda.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 182",
+    titulo: "Aplica-se o tratamento estabelecido nos arts",
+    conteudo: `Art. 182. Aplica-se o tratamento estabelecido nos arts. 179 e 180 às aquisições de máquinas, de
+aparelhos, de instrumentos, de equipamentos, de matérias-primas, de produtos intermediários e de materiais
+de embalagem realizadas entre empresas autorizadas a operar em zonas de processamento de exportação.
+(Art. 102 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 183",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS incidentes sobre os serviços de transporte",
+    conteudo: `Art. 183. Ficam reduzidas a zero as alíquotas do IBS incidentes sobre os serviços de transporte: (Art.
+103 da LC 214/2025)
+I - dos bens de que tratam os arts. 179 e 180 até as zonas de processamento de exportação; e
+II - dos bens exportados a partir das zonas de processamento de exportação.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 184",
+    titulo: "O disposto neste Capítulo observará a disciplina estabelecida na legislação aduaneira para\nas zonas de processamento de exportação",
+    conteudo: `Art. 184. O disposto neste Capítulo observará a disciplina estabelecida na legislação aduaneira para
+as zonas de processamento de exportação. (Art. 104 da LC 214/2025)
+§ 1º Ato conjunto da RFB e do CGIBS disciplinará os procedimentos para que as administrações
+tributárias estaduais e municipais tenham acesso para exercer suas atividades de fiscalização nos
+estabelecimentos localizados em zonas de processamento de exportação.
+§ 2º O ato conjunto de que trata o § 1º poderá ainda disciplinar obrigações acessórias para fins de
+controle e fiscalização das operações realizadas por empresa instalada em zonas de processamento de
+exportação, inclusive dispor sobre hipóteses de controle informatizado.
+CAPÍTULO IV - DO COMPARTILHAMENTO DE INFORMAÇÕES RELATIVAS AO COMÉRCIO EXTERIOR`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 185",
+    titulo: "As administrações tributárias garantirão entre si acesso às informações e aos sistemas\ninformatizados referentes às operações de importações e exportações de bens e serviços, inclusive de\nregimes a...",
+    conteudo: `Art. 185. As administrações tributárias garantirão entre si acesso às informações e aos sistemas
+informatizados referentes às operações de importações e exportações de bens e serviços, inclusive de
+regimes aduaneiros especiais, necessárias à apuração, arrecadação e fiscalização do IBS e da CBS, nos
+termos disciplinados em ato conjunto da RFB e do CGIBS.
+§ 1º Para o exercício das atribuições dos agentes públicos da RFB, do CGIBS e das administrações
+tributárias dos Estados, Distrito Federal e Municípios, serão concedidos acessos a perfis específicos de
+sistemas administrados pela RFB ou pelo CGIBS.
+§ 2º A definição da forma de intercâmbio de informações, dos procedimentos de cadastramento e do
+alcance dos perfis de acesso serão disciplinados em ato conjunto da RFB e do CGIBS, respeitando-se as
+políticas de segurança da informação das partes envolvidas.
+§ 3º O disposto no caput abrangerá, inclusive, na forma estabelecida em ato conjunto da RFB e do
+CGIBS, documentos instrutivos do despacho aduaneiro e atos de concessão de regimes aduaneiros.
+§ 4º Para fins de acompanhamento da regularidade da fruição das suspensões de que tratam os arts.
+97 e 99, as administrações tributárias garantirão entre si acesso a informações relativas aos beneficiários das
+referidas suspensões, nos termos disciplinados em ato conjunto da RFB e do CGIBS.
+§ 5º Até que seja editado o ato conjunto a que se refere o § 2º, ficam mantidos os perfis de acesso
+habilitados atualmente.
+
+67
+
+CAPÍTULO V - DOS REGIMES DOS BENS DE CAPITAL
+Seção I - Do Regime Tributário para Incentivo à Modernização e à Ampliação da Estrutura Portuária
+(Reporto)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 186",
+    titulo: "Observada a disciplina estabelecida na legislação específica, serão efetuadas com suspensão\ndo pagamento do IBS as importações e as aquisições no mercado interno de máquinas, equipamentos, peças\nde...",
+    conteudo: `Art. 186. Observada a disciplina estabelecida na legislação específica, serão efetuadas com suspensão
+do pagamento do IBS as importações e as aquisições no mercado interno de máquinas, equipamentos, peças
+de reposição e outros bens realizadas diretamente pelos beneficiários do Regime Tributário para Incentivo à
+Modernização e à Ampliação da Estrutura Portuária (Reporto) e destinadas ao seu ativo imobilizado para
+utilização exclusiva na execução de serviços de: (Art. 105 da LC 214/2025)
+I - carga, descarga, armazenagem e movimentação de mercadorias e produtos, inclusive quando
+realizadas em recinto alfandegado de zona secundária;
+II - sistemas suplementares de apoio operacional;
+III - proteção ambiental;
+IV - sistemas de segurança e de monitoramento de fluxo de pessoas, mercadorias, produtos, veículos
+e embarcações;
+V - dragagens; e
+VI - treinamento e formação de trabalhadores, inclusive na implantação de Centros de Treinamento
+Profissional.
+§ 1º O disposto no caput deste artigo aplica-se também aos bens utilizados na execução de serviços
+de transporte de mercadorias em ferrovias, classificados nas posições 86.01, 86.02 e 86.06 da NCM/SH, e
+aos trilhos e demais elementos de vias férreas, classificados na posição 73.02 da NCM/SH.
+§ 2º A suspensão do pagamento do IBS prevista no caput deste artigo converte-se em alíquota zero
+após decorridos 5 (cinco) anos contados da data de ocorrência dos respectivos fatos geradores.
+§ 3º A transferência, a qualquer título, de propriedade dos bens importados ou adquiridos no mercado
+interno ao amparo do Reporto, no prazo de 5 (cinco) anos, contado da data da ocorrência dos respectivos
+fatos geradores, deverá ser precedida de autorização, na forma estabelecida em ato conjunto da RFB e do
+CGIBS, e recolhimento do IBS com pagamento suspenso, acrescido de multa e juros de mora, nos termos do
+§ 2º do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 186 (parte 2)",
+    titulo: "27.\n§ 4º A transferência a que se refere o § 3º para outro beneficiário do Reporto será efetivada com\nsuspensão do pagamento do IBS desde que o adquirente assuma a responsabilidade, desde o momento...",
+    conteudo: `27.
+§ 4º A transferência a que se refere o § 3º para outro beneficiário do Reporto será efetivada com
+suspensão do pagamento do IBS desde que o adquirente assuma a responsabilidade, desde o momento de
+ocorrência dos respectivos fatos geradores, pelo IBS com pagamento suspenso.
+§ 5º Os bens beneficiados pela suspensão referida nesta Seção estão relacionados no Anexo III.
+§ 6º As peças de reposição referidas no caput deste artigo deverão ter seu valor igual ou superior a
+20% (vinte por cento) do valor da máquina ou equipamento ao qual se destinam, de acordo com a respectiva
+declaração de importação ou documento fiscal.
+§ 7º Os beneficiários do Reporto poderão efetuar importações e aquisições no mercado interno
+amparadas pelo regime até 31 de dezembro de 2028.
+§ 8º As pessoas jurídicas optantes pelo Simples Nacional não poderão aderir ao Reporto.
+Seção II - Do Regime Especial de Incentivos para o Desenvolvimento da Infraestrutura (Reidi)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 187",
+    titulo: "Observada a disciplina estabelecida na legislação específica, serão efetuadas com suspensão\ndo pagamento do IBS as importações e as aquisições no mercado interno de máquinas, aparelhos,\ninstrumento...",
+    conteudo: `Art. 187. Observada a disciplina estabelecida na legislação específica, serão efetuadas com suspensão
+do pagamento do IBS as importações e as aquisições no mercado interno de máquinas, aparelhos,
+instrumentos e equipamentos, novos, e de materiais de construção, realizadas diretamente pelos beneficiários
+do Regime Especial de Incentivos para o Desenvolvimento da Infraestrutura (Reidi) para utilização ou
+incorporação em obras de infraestrutura destinadas ao ativo imobilizado. (Art. 106 da LC 214/2025)
+§ 1º A suspensão do pagamento do IBS prevista no caput deste artigo aplica-se também:
+I - à importação de serviços destinados a obras de infraestrutura para incorporação ao ativo imobilizado;
+II - à aquisição no mercado interno de serviços destinados a obras de infraestrutura para incorporação
+ao ativo imobilizado; e
+III - à locação de máquinas, aparelhos, instrumentos e equipamentos destinados a obras de
+infraestrutura para incorporação ao ativo imobilizado.
+
+68
+
+§ 2º A suspensão do pagamento do IBS prevista no caput deste artigo e no § 1º converte-se em alíquota
+zero após a utilização ou incorporação do bem, material de construção ou serviço na obra de infraestrutura.
+§ 3º O beneficiário do Reidi que não utilizar ou incorporar o bem, material de construção ou serviço na
+obra de infraestrutura fica obrigado a recolher o IBS que se encontre com o pagamento suspenso, acrescido
+de multa e juros de mora nos termos do § 2º do art. 27, calculados a partir da data de ocorrência dos
+respectivos fatos geradores, na condição de:
+I - contribuinte, em relação às operações de importação de bens materiais; ou
+II - responsável, em relação aos serviços, às locações ou às aquisições de bens materiais no mercado
+interno.
+§ 4º Os benefícios previstos neste artigo aplicam-se também na hipótese de, em conformidade com as
+normas contábeis aplicáveis, as receitas das pessoas jurídicas titulares de contratos de concessão de
+serviços públicos reconhecidas durante a execução das obras de infrae`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 187 (parte 2)",
+    titulo: "strutura elegíveis ao Reidi terem como\ncontrapartida ativo de contrato, ativo intangível representativo de direito de exploração ou ativo financeiro\nrepresentativo de direito contratual incondicion...",
+    conteudo: `strutura elegíveis ao Reidi terem como
+contrapartida ativo de contrato, ativo intangível representativo de direito de exploração ou ativo financeiro
+representativo de direito contratual incondicional de receber caixa ou outro ativo financeiro, estendendo-se,
+inclusive, aos projetos em andamento já habilitados perante a RFB.
+§ 5º Os benefícios previstos neste artigo poderão ser usufruídos nas importações e aquisições no
+mercado interno realizadas no período de 5 (cinco) anos, contado da data da habilitação no Reidi da pessoa
+jurídica titular do projeto de infraestrutura.
+§ 6º As pessoas jurídicas optantes pelo Simples Nacional não poderão aderir ao Reidi.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 188",
+    titulo: "O disposto no art. 187 aplica-se também aos beneficiários do Regime Especial de Incentivos\npara a Produção de Hidrogênio de Baixa Emissão de Carbono (Rehidro), instituído pela Lei nº 14.948, de 2\nd...",
+    conteudo: `Art. 188. O disposto no art. 187 aplica-se também aos beneficiários do Regime Especial de Incentivos
+para a Produção de Hidrogênio de Baixa Emissão de Carbono (Rehidro), instituído pela Lei nº 14.948, de 2
+de agosto de 2024, desde que previamente habilitados.
+Seção III - Do Regime Tributário para Incentivo à Atividade Naval (Renaval)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 189",
+    titulo: "O Regime Tributário para Incentivo à Atividade Econômica Naval (Renaval) permite aos\nbeneficiários previamente habilitados, suspensão do pagamento de IBS",
+    conteudo: `Art. 189. O Regime Tributário para Incentivo à Atividade Econômica Naval (Renaval) permite aos
+beneficiários previamente habilitados, suspensão do pagamento de IBS: (Art. 107 da LC 214/2025)
+I - nos fornecimentos de embarcações registradas ou pré-registradas no Registro Especial Brasileiro
+(REB), instituído pelo art. 11 da Lei nº 9.432, de 8 de janeiro de 1997, para incorporação ao ativo imobilizado
+de adquirente sujeito ao regime regular do IBS;
+II - nas importações e nas aquisições no mercado interno de máquinas, equipamentos e veículos
+destinados a utilização nas atividades de que trata o inciso III do caput deste artigo, efetuadas para
+incorporação a seu ativo imobilizado; e
+III - nas importações e nas aquisições no mercado interno de matérias-primas, produtos intermediários,
+partes, peças e componentes para utilização na construção, conservação, modernização e reparo de
+embarcações pré-registradas ou registradas no REB.
+Parágrafo único. No procedimento de habilitação ao Renaval, o solicitante deverá indicar a
+classificação fiscal dos bens a serem adquiridos ou importados ao abrigo da suspensão.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 190",
+    titulo: "Somente contribuintes sujeitos ao regime regular do IBS que exercem precipuamente as\natividades de construção, conservação, modernização e reparo de embarcações poderão ser habilitados\ncomo benefic...",
+    conteudo: `Art. 190. Somente contribuintes sujeitos ao regime regular do IBS que exercem precipuamente as
+atividades de construção, conservação, modernização e reparo de embarcações poderão ser habilitados
+como beneficiários do Renaval. (Art. 107, § 1º, da LC 214/2025)
+§ 1º Para fins do disposto no caput deste artigo, considera-se que exerce precipuamente as atividades
+de construção, conservação, modernização e reparo de embarcações a pessoa jurídica cuja receita bruta
+decorrente dessas atividades, no ano-calendário imediatamente anterior, houver sido igual ou superior a 50%
+(cinquenta por cento) de sua receita bruta total de venda de bens e serviços no mesmo período.
+§ 2º Os percentuais de receita de que trata o § 1º devem ser apurados:
+I - considerando-se a receita bruta de todos os estabelecimentos da pessoa jurídica; e
+II - após excluídos os impostos e contribuições incidentes sobre a venda.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 191",
+    titulo: "Sem prejuízo de outras disposições previstas em lei, a habilitação no Renaval fica\ncondicionada aos seguintes requisitos",
+    conteudo: `Art. 191. Sem prejuízo de outras disposições previstas em lei, a habilitação no Renaval fica
+condicionada aos seguintes requisitos:
+I - possuir DTE em situação regular, na forma da legislação específica;
+II - regularidade do registro e da situação no cadastro com identificação única de que trata o Capítulo I
+do Título II deste Livro; e
+
+69
+
+III - cumprimento das normas relativas aos impedimentos legais, à concessão e à manutenção de
+benefícios fiscais, em especial:
+a) regularidade fiscal quanto aos tributos administrados pela RFB e pelas administrações tributárias
+estadual e municipal dos entes federativos em que localizados seus estabelecimentos, a ser comprovada
+mediante “Certidão de Débitos Tributários Negativa” ou “Positiva com efeitos de Negativa”;
+b) inexistência de:
+1. sentença condenatória decorrente de ação de improbidade administrativa;
+2. registro de créditos não quitados de órgãos e entidades federais, estaduais, distrital e municipais;
+3. sanção penal e administrativa derivadas de condutas e atividades lesivas ao meio ambiente;
+4. débitos com o Fundo de Garantia do Tempo de Serviço (FGTS); e
+5. registro ativo no Cadastro Nacional de Empresas Punidas (CNEP), derivado da prática de atos
+lesivos à administração pública, nacional ou estrangeira.
+§ 1º O disposto no item 1 da alínea “b” do inciso III do caput deste artigo abrange a pessoa jurídica
+requerente e seu sócio majoritário.
+§ 2º O disposto no item 4 da alínea “b” do inciso III do caput deste artigo abrange o estabelecimento
+matriz e todas as filiais da pessoa jurídica requerente.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 192",
+    titulo: "Para fins da aplicação do tratamento tributário decorrente do regime de que trata esta Seção,\na importação deve ser efetuada diretamente pelas empresas beneficiárias do Renaval, para seu uso\nexclusivo",
+    conteudo: `Art. 192. Para fins da aplicação do tratamento tributário decorrente do regime de que trata esta Seção,
+a importação deve ser efetuada diretamente pelas empresas beneficiárias do Renaval, para seu uso
+exclusivo.`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 193",
+    titulo: "A suspensão do pagamento do IBS prevista nesta Seção converte-se em alíquota zero após",
+    conteudo: `Art. 193. A suspensão do pagamento do IBS prevista nesta Seção converte-se em alíquota zero após:
+(Art. 107, § 2º, da LC 214/2025)
+I - 12 (doze) meses de permanência do bem no ativo imobilizado do adquirente, no caso do inciso I do
+caput do art. 189;
+II - 5 (cinco) anos de permanência do bem no ativo imobilizado do adquirente, no caso do inciso II do
+caput do art. 189; e
+III - a incorporação ou consumo nas atividades de que trata o inciso III do caput do art. 189.
+§ 1º O beneficiário do Renaval que não cumprir as condições estabelecidas nos incisos I a III do caput
+do art. 189 fica obrigado a recolher o IBS suspenso, com os acréscimos de que trata o § 2º do art. 27,
+calculados a partir da data de ocorrência do fato gerador, na condição de: (Art. 107, § 3º, da LC 214/2025)
+I - contribuinte, em relação às operações de importação de bens materiais; ou
+II - responsável, em relação às operações no mercado interno.
+§ 2º Aplica-se o disposto no § 1º ao beneficiário que transferir, a qualquer título, a propriedade dos bens
+importados ou adquiridos no mercado interno sob amparo do Renaval antes da conversão em alíquota zero.
+(Art. 107, § 4º, da LC 214/2025)
+§ 3º Para os fins do disposto nesta Seção, também serão considerados como bens e serviços
+incorporados ao ativo imobilizado aqueles com a mesma natureza e que, em decorrência das normas
+contábeis aplicáveis, forem contabilizados por concessionárias de serviços públicos como ativo de contrato,
+intangível ou financeiro. (Art. 107, § 5º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 194",
+    titulo: "Ato conjunto da RFB e do CGIBS disporá sobre o procedimento para habilitação ao Renaval",
+    conteudo: `Art. 194. Ato conjunto da RFB e do CGIBS disporá sobre o procedimento para habilitação ao Renaval.
+§ 1º A lista dos beneficiários do Renaval será divulgada pelo Poder Executivo da União e pelo CGIBS.
+§ 2º A habilitação ao Renaval vigerá pelo período de 3 (três) anos, contados da publicação do ato que
+habilitar o beneficiário ao regime.
+§ 3º O prazo de habilitação ao Renaval poderá ser prorrogado, mediante solicitação fundamentada do
+contribuinte, desde que atendidos os requisitos previstos na legislação aplicável.
+Seção IV - Da Desoneração da Aquisição de Bens de Capital`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 195",
+    titulo: "Fica assegurado o crédito integral e imediato do IBS, na forma do disposto nos arts",
+    conteudo: `Art. 195. Fica assegurado o crédito integral e imediato do IBS, na forma do disposto nos arts. 47 a 61,
+na aquisição de bens de capital. (Art. 108 da LC 214/2025)
+
+70
+
+Art. 196. As importações e aquisições no mercado interno, por contribuinte no regime regular, de bens
+de capital referidos na Tabela I do Anexo IV serão realizadas com suspensão do pagamento do IBS, não se
+aplicando o disposto no art. 195. (Art. 109 da LC 214/2025)
+§ 1º A suspensão do pagamento do IBS prevista no caput deste artigo converte-se em alíquota zero
+após a incorporação do bem ao ativo imobilizado do adquirente.
+§ 2º O beneficiário que não incorporar o bem ao seu ativo imobilizado fica obrigado a recolher o IBS
+que se encontre com o pagamento suspenso, acrescido de multa e juros de mora na forma do § 2º do art. 27,
+calculados a partir da data de ocorrência dos respectivos fatos geradores, na condição de:
+I - contribuinte, em relação às importações; ou
+II - responsável, em relação às aquisições no mercado interno.
+§ 3º O disposto neste artigo aplica-se também às pessoas jurídicas optantes pelo Simples Nacional
+inscritas no regime regular de que trata este Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 197",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS no fornecimento e na importação",
+    conteudo: `Art. 197. Ficam reduzidas a zero as alíquotas do IBS no fornecimento e na importação: (Art. 110 da LC
+214/2025)
+I - de tratores, máquinas e implementos agrícolas, destinados a produtor rural não contribuinte de que
+trata o art. 239; e
+II - de veículos de transporte de carga destinados a transportador autônomo de carga pessoa física não
+contribuinte de que trata o art. 250.
+Parágrafo único. A redução de alíquotas de que trata:
+I - o inciso I do caput deste artigo se aplica aos bens relacionados na Tabela II do Anexo IV;
+II - o inciso II do caput deste artigo se aplica aos bens relacionados na Tabela III do Anexo IV.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 198",
+    titulo: "Para fins desta Seção, também serão considerados bens incorporados ao ativo imobilizado\naqueles com a mesma natureza e que, em decorrência das normas contábeis aplicáveis, forem contabilizados\npor...",
+    conteudo: `Art. 198. Para fins desta Seção, também serão considerados bens incorporados ao ativo imobilizado
+aqueles com a mesma natureza e que, em decorrência das normas contábeis aplicáveis, forem contabilizados
+por concessionárias de serviços públicos como ativo de contrato, intangível ou financeiro. (Art. 111 da LC
+214/2025)
+TÍTULO IV - DA CESTA BÁSICA NACIONAL DE ALIMENTOS`,
+    topicos: "CBS, IBS, Reforma Tributária, cesta_basica",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 199",
+    titulo: "Fica reduzida a zero a alíquota do IBS incidente sobre as vendas de produtos destinados à\nalimentação humana relacionados no Anexo I da Lei Complementar nº 214, de 2025, com a especificação\ndas res...",
+    conteudo: `Art. 199. Fica reduzida a zero a alíquota do IBS incidente sobre as vendas de produtos destinados à
+alimentação humana relacionados no Anexo I da Lei Complementar nº 214, de 2025, com a especificação
+das respectivas classificações da NCM/SH, que compõem a Cesta Básica Nacional de Alimentos, criada nos
+termos do art. 8º da Emenda Constitucional nº 132, de 20 de dezembro de 2023. (Art. 125 da LC 214/2025)
+§ 1º Atendidos os requisitos próprios, a redução de alíquota estabelecida pelo caput deste artigo aplicase à importação dos bens nele previstos.
+§ 2º A alteração das operações com bens beneficiados pela redução de alíquota estabelecida pelo
+caput deste artigo, mediante acréscimo, exclusão ou substituição, somente entrará em vigor após o
+cumprimento do disposto nos §§ 9º e 11 do art. 156-A da Constituição Federal.
+§ 3º Na hipótese de algum produto relacionado no Anexo I da Lei Complementar nº 214, de 2025,
+mantida a sua natureza, ser comercializado em conjunto com outros produtos, não haverá perda do
+tratamento tributário previsto neste Título, desde que especificado o valor de cada item beneficiado pela
+redução de alíquota.
+TÍTULO V - DOS REGIMES DIFERENCIADOS DO IBS
+CAPÍTULO I - DISPOSIÇÕES GERAIS`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, cesta_basica, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 200",
+    titulo: "Ficam disciplinados, nos termos deste Título, os regimes diferenciados do IBS, de maneira\nuniforme em todo o território nacional, com a aplicação de alíquotas reduzidas ou com a concessão de crédit...",
+    conteudo: `Art. 200. Ficam disciplinados, nos termos deste Título, os regimes diferenciados do IBS, de maneira
+uniforme em todo o território nacional, com a aplicação de alíquotas reduzidas ou com a concessão de créditos
+presumidos, assegurados os respectivos ajustes nas alíquotas de referência do IBS, com vistas a reequilibrar
+a arrecadação. (Art. 126 da LC 214/2025)
+§ 1º Atendidos os requisitos próprios, os regimes diferenciados de que trata este Capítulo aplicam-se,
+no que couber, à importação dos bens e serviços nele previstos.
+
+71
+
+§ 2º A alteração das operações com bens ou com serviços beneficiadas pelos regimes diferenciados
+de que trata este Capítulo, mediante acréscimo, exclusão ou substituição, somente entrará em vigor após o
+cumprimento do disposto nos §§ 9º e 11 do art. 156-A da Constituição Federal.
+§ 3º Desde que seus efeitos, considerados conjuntamente a cada período de revisão, não resultem em
+elevação superior a 0,02 (dois centésimos) ponto percentual da alíquota de referência estadual do IBS ou da
+alíquota de referência municipal do IBS, o disposto no § 2º não se aplica às hipóteses de inclusão de:
+I - dispositivos médicos relacionados no Anexo IV ou no Anexo XII da Lei Complementar nº 214, de
+2025;
+II - dispositivos de acessibilidade próprios para pessoas com deficiência relacionados no Anexo V ou
+no Anexo XIII da Lei Complementar nº 214, de 2025;
+III - composições relacionadas no Anexo VI da Lei Complementar nº 214, de 2025;
+IV - insumos agropecuários e aquícolas relacionados no Anexo IX da Lei Complementar nº 214, de
+2025; e
+V - medicamentos relacionados no ato conjunto a que se refere o § 3º do art. 222.
+§ 4º As reduções de alíquotas de que trata este Título serão aplicadas sobre as alíquotas-padrão do
+IBS de cada ente federativo, fixadas na forma do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 200 (parte 2)",
+    titulo: "467.\n§ 5º O disposto no § 1º não se aplica às remessas internacionais sujeitas ao RTS, exceto na hipótese\nde produtos acabados pertencentes a classes de medicamentos importados por pessoa física pa...",
+    conteudo: `467.
+§ 5º O disposto no § 1º não se aplica às remessas internacionais sujeitas ao RTS, exceto na hipótese
+de produtos acabados pertencentes a classes de medicamentos importados por pessoa física para uso
+próprio ou individual.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 201",
+    titulo: "A apropriação dos créditos presumidos previstos neste Título e no Livro II fica condicionada",
+    conteudo: `Art. 201. A apropriação dos créditos presumidos previstos neste Título e no Livro II fica condicionada:
+I - à emissão de documento fiscal pelo adquirente, contendo a identificação do respectivo fornecedor;
+e
+II - ao efetivo pagamento ao fornecedor.
+Parágrafo único. Para fins do inciso II do caput deste artigo, ato conjunto da RFB e do CGIBS
+disciplinará mecanismos de comprovação dos pagamentos não efetuados por meio do Sistema Financeiro
+Nacional.
+CAPÍTULO II - DA REDUÇÃO EM TRINTA POR CENTO DAS ALÍQUOTAS DO IBS`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, reducao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 202",
+    titulo: "Ficam reduzidas em 30% (trinta por cento) as alíquotas do IBS incidentes sobre a prestação\nde serviços pelos seguintes profissionais, que exercerem atividades intelectuais de natureza científica,\nl...",
+    conteudo: `Art. 202. Ficam reduzidas em 30% (trinta por cento) as alíquotas do IBS incidentes sobre a prestação
+de serviços pelos seguintes profissionais, que exercerem atividades intelectuais de natureza científica,
+literária ou artística, submetidas à fiscalização por conselho profissional: (Art. 127 da LC 214/2025)
+I - administradores;
+II - advogados;
+III - arquitetos e urbanistas;
+IV - assistentes sociais;
+V - bibliotecários;
+VI - biólogos;
+VII - contabilistas;
+VIII - economistas;
+IX - economistas domésticos;
+X - profissionais de educação física;
+XI - engenheiros e agrônomos;
+XII - estatísticos;
+XIII - médicos veterinários e zootecnistas;
+XIV - museólogos;
+XV - químicos;
+XVI - profissionais de relações públicas;
+
+72
+
+XVII - técnicos industriais; e
+XVIII - técnicos agrícolas.
+§ 1º A redução de alíquotas prevista no caput deste artigo aplica-se à prestação de serviços realizada
+por:
+I - pessoa física, desde que os serviços prestados estejam vinculados à habilitação dos profissionais;
+e
+II - pessoa jurídica que cumpra, cumulativamente, os seguintes requisitos:
+a) possuam os sócios habilitações profissionais diretamente relacionadas com os objetivos da
+sociedade e estejam submetidos à fiscalização de conselho profissional;
+b) não tenha como sócio pessoa jurídica;
+c) não seja sócia de outra pessoa jurídica;
+d) não exerça atividade diversa das habilitações profissionais dos sócios; e
+e) sejam os serviços relacionados à atividade-fim prestados diretamente pelos sócios, admitido o
+concurso de auxiliares ou colaboradores.
+§ 2º Para fins do disposto no inciso II do § 1º, não impedem a redução de alíquotas de que trata este
+artigo:
+I - a natureza jurídica da sociedade;
+II - a união de diferentes profissionais previstos nos incisos I a XVIII do caput deste artigo, desde que a
+atuação de cada sócio seja na sua habilitação profissional; e
+III - a forma de distribuição de lucros.
+§ 3º Não se aplicam os §§ 1º e 2º à prestação de serviços relacionada aos profissionais de educação
+física e`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 202 (parte 2)",
+    titulo: "fetuada por pessoa jurídica, desde que submetida à fiscalização de conselho profissional",
+    conteudo: `fetuada por pessoa jurídica, desde que submetida à fiscalização de conselho profissional.
+CAPÍTULO III - DA REDUÇÃO EM SESSENTA POR CENTO DAS ALÍQUOTAS DO IBS
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 203",
+    titulo: "Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas\nem 60% (sessenta por cento) as alíquotas do IBS incidentes sobre operações com",
+    conteudo: `Art. 203. Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas
+em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre operações com: (Art. 128 da LC 214/2025)
+I - serviços de educação;
+II - serviços de saúde;
+III - dispositivos médicos;
+IV - dispositivos de acessibilidade próprios para pessoas com deficiência;
+V - medicamentos;
+VI - alimentos destinados ao consumo humano;
+VII - produtos de higiene pessoal e limpeza majoritariamente consumidos por famílias de baixa renda;
+VIII - produtos agropecuários, aquícolas, pesqueiros, florestais e extrativistas vegetais in natura;
+IX - insumos agropecuários e aquícolas;
+X - produções nacionais artísticas, culturais, de eventos, jornalísticas e audiovisuais;
+XI - comunicação institucional;
+XII - atividades desportivas; e
+XIII - bens e serviços relacionados à soberania e à segurança nacional, à segurança da informação e
+à segurança cibernética.
+Seção II - Dos Serviços de Educação`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 204",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos serviços de educação relacionados no Anexo II da Lei Complementar nº 214, de 2025, com\na especifi...",
+    conteudo: `Art. 204. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos serviços de educação relacionados no Anexo II da Lei Complementar nº 214, de 2025, com
+a especificação das respectivas classificações da NBS. (Art. 129 da LC 214/2025)
+
+73
+
+Parágrafo único. A redução de alíquotas prevista no caput deste artigo:
+I - somente se aplica sobre os valores devidos pela contraprestação dos serviços listados no Anexo II
+da Lei Complementar nº 214, de 2025; e
+II - não se aplica a outras operações eventualmente ocorridas no âmbito das escolas, das instituições
+ou dos estabelecimentos do fornecedor de serviços.
+Seção III - Dos Serviços de Saúde`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 205",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos serviços de saúde relacionados no Anexo III da Lei Complementar nº 214, de 2025, com a\nespecifica...",
+    conteudo: `Art. 205. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos serviços de saúde relacionados no Anexo III da Lei Complementar nº 214, de 2025, com a
+especificação das respectivas classificações da NBS. (Art. 130 da LC 214/2025)
+Parágrafo único. Não integram a base de cálculo do IBS dos serviços de saúde de que trata o caput
+deste artigo os valores glosados pela auditoria médica dos planos de assistência à saúde e não pagos.
+Seção IV - Dos Dispositivos Médicos`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 206",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos dispositivos médicos relacionados no Anexo IV da Lei Complementar nº 214, de 2025, com\na especifi...",
+    conteudo: `Art. 206. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos dispositivos médicos relacionados no Anexo IV da Lei Complementar nº 214, de 2025, com
+a especificação das respectivas classificações da NCM/SH. (Art. 131 da LC 214/2025)
+§ 1º A redução de alíquotas prevista no caput deste artigo somente se aplica aos dispositivos médicos
+listados no Anexo IV da Lei Complementar nº 214, de 2025, e regularizados perante a Agência Nacional de
+Vigilância Sanitária (Anvisa).
+§ 2º Sem prejuízo da avaliação quinquenal de que trata o art. 475 da Lei Complementar nº 214, de
+2025, o Ministro de Estado da Fazenda e o CGIBS, ouvido o Ministério da Saúde, revisarão, a cada 120 (cento
+e vinte) dias, por meio de ato conjunto, a lista de que trata o Anexo IV da referida Lei Complementar, tão
+somente para inclusão de dispositivos médicos inexistentes na data de publicação da revisão anterior que
+atendam às mesmas finalidades daqueles já constantes do referido anexo.
+Seção V - Dos Dispositivos de Acessibilidade Próprios para Pessoas com Deficiência`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 207",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência relacionados no Anexo\nV da L...",
+    conteudo: `Art. 207. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência relacionados no Anexo
+V da Lei Complementar nº 214, de 2025, com a especificação das respectivas classificações da NCM/SH.
+(Art. 132 da LC 214/2025)
+§ 1º A redução de alíquotas prevista no caput deste artigo somente se aplica aos dispositivos de
+acessibilidade listados no Anexo V da Lei Complementar nº 214, de 2025, que atendam aos requisitos
+previstos em norma do órgão público competente.
+§ 2º Sem prejuízo da avaliação quinquenal de que trata o art. 475 da Lei Complementar nº 214, de
+2025, o Ministro de Estado da Fazenda e o CGIBS, ouvido o órgão público competente, revisarão, a cada 120
+(cento e vinte) dias, por meio de ato conjunto, a lista de que trata o Anexo V da referida Lei Complementar,
+tão somente para inclusão de dispositivos de acessibilidade inexistentes na data de publicação da revisão
+anterior que atendam às mesmas finalidades daqueles já constantes do referido anexo.
+Seção VI - Dos Medicamentos`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 208",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos medicamentos registrados na Anvisa ou produzidos por farmácias de manipulação,\nressalvados os med...",
+    conteudo: `Art. 208. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos medicamentos registrados na Anvisa ou produzidos por farmácias de manipulação,
+ressalvados os medicamentos sujeitos à alíquota zero de que trata o art. 222. (Art. 133 da LC 214/2025)
+§ 1º A redução de alíquotas prevista no caput deste artigo aplica-se também às operações de
+fornecimento das composições para nutrição enteral e parenteral, composições especiais e fórmulas
+nutricionais destinadas às pessoas com erros inatos do metabolismo relacionadas no Anexo VI da Lei
+Complementar nº 214, de 2025, com a especificação das respectivas classificações da NCM/SH.
+§ 2º Para fins de assegurar a repercussão nos preços da redução da carga tributária, a redução de que
+trata este artigo somente se aplica aos medicamentos industrializados ou importados pelas pessoas jurídicas
+que tenham firmado, com a União e o CGIBS, compromisso de ajustamento de conduta ou cumpram a
+sistemática estabelecida pela Câmara de Regulação do Mercado de Medicamentos (CMED), na forma da lei.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 209",
+    titulo: "Sem prejuízo da avaliação quinquenal de que trata o art",
+    conteudo: `Art. 209. Sem prejuízo da avaliação quinquenal de que trata o art. 475 da Lei Complementar nº 214,
+de 2025, o Ministro de Estado da Fazenda e o CGIBS, ouvido o Ministério da Saúde, revisarão, a cada 120
+
+74
+
+(cento e vinte) dias, por meio de ato conjunto, a lista de que trata o Anexo VI da referida Lei Complementar,
+tão somente para inclusão de composições de que trata o § 2º do art. 222 inexistentes na data de publicação
+da revisão anterior e que sirvam às mesmas finalidades daquelas já contempladas. (Art. 134 da LC 214/2025)
+Seção VII - Dos Alimentos Destinados ao Consumo Humano`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 210",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos alimentos destinados ao consumo humano relacionados no Anexo VII da Lei Complementar\nnº 214, de 2...",
+    conteudo: `Art. 210. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos alimentos destinados ao consumo humano relacionados no Anexo VII da Lei Complementar
+nº 214, de 2025, com a especificação das respectivas classificações da NCM/SH. (Art. 135 da LC 214/2025)
+Seção VIII - Dos Produtos de Higiene Pessoal e Limpeza Majoritariamente Consumidos por Famílias
+de Baixa Renda`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 211",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos produtos de higiene pessoal e limpeza relacionados no Anexo VIII da Lei Complementar nº\n214, de 2...",
+    conteudo: `Art. 211. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos produtos de higiene pessoal e limpeza relacionados no Anexo VIII da Lei Complementar nº
+214, de 2025, com a especificação das respectivas classificações da NCM/SH. (Art. 136 da LC 214/2025)
+Seção IX - Dos Produtos Agropecuários, Aquícolas, Pesqueiros, Florestais e Extrativistas Vegetais in
+Natura`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 212",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento de produtos agropecuários, aquícolas, pesqueiros, florestais e extrativistas vegetais, quando in\nnatura",
+    conteudo: `Art. 212. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento de produtos agropecuários, aquícolas, pesqueiros, florestais e extrativistas vegetais, quando in
+natura. (Art. 137 da LC 214/2025)
+§ 1º Considera-se in natura o produto tal como se encontra na natureza, que não tenha sido submetido
+a nenhum processo de industrialização nem seja acondicionado em embalagem de apresentação, não
+perdendo essa condição o que apenas tiver sido submetido:
+I - a secagem, limpeza, debulha de grãos ou descaroçamento; e
+II - a congelamento, resfriamento ou simples acondicionamento, quando esses procedimentos se
+destinem apenas ao transporte, ao armazenamento ou à exposição para venda.
+§ 2º Não perderão a qualidade de in natura os produtos que tenham mantido suas características físicoquímicas, sensoriais e de composição, originais, e que não tenham sido submetidos a processos que resultem
+em alterações de suas características naturais intrínsecas e extrínsecas.
+§ 3º Para fins do disposto no caput deste artigo, considera-se fornecimento de produto florestal inclusive
+o fornecimento dos serviços ambientais de conservação ou recuperação da vegetação nativa, mesmo que
+fornecidos sob a forma de manejo sustentável de sistemas agrícolas, agroflorestais e agrossilvopastoris, em
+conformidade com as definições e requisitos da legislação específica.
+Seção X - Dos Insumos Agropecuários e Aquícolas`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 213",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos insumos agropecuários e aquícolas relacionados no Anexo IX da Lei Complementar nº 214,\nde 2025, c...",
+    conteudo: `Art. 213. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos insumos agropecuários e aquícolas relacionados no Anexo IX da Lei Complementar nº 214,
+de 2025, com a especificação das respectivas classificações da NCM/SH e da NBS. (Art. 138 da LC 214/2025)
+§ 1º A redução de alíquotas prevista no caput deste artigo somente se aplica aos produtos de que trata
+o Anexo IX da Lei Complementar nº 214, de 2025, que, quando exigido, estejam registrados como insumos
+agropecuários ou aquícolas no Ministério da Agricultura e Pecuária.
+§ 2º Sem prejuízo da avaliação quinquenal de que trata o art. 475 da Lei Complementar nº 214, de
+2025, o Ministro de Estado da Fazenda e o CGIBS, ouvido o Ministério da Agricultura e Pecuária, revisarão,
+a cada 120 (cento e vinte) dias, por meio de ato conjunto, a lista de que trata o Anexo IX da Lei Complementar
+nº 214, de 2025, tão somente para inclusão:
+I - de insumos de que trata o caput deste artigo que sirvam às mesmas finalidades daquelas já
+contempladas; e
+II - de produtos destinados ao uso exclusivo para a fabricação de defensivos agropecuários.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 214",
+    titulo: "Fica diferido o recolhimento do IBS nas seguintes operações com insumos agropecuários e\naquícolas mencionados no art",
+    conteudo: `Art. 214. Fica diferido o recolhimento do IBS nas seguintes operações com insumos agropecuários e
+aquícolas mencionados no art. 213: (Art. 138, § 2º, da LC 214/2025)
+I - fornecimento realizado por contribuinte sujeito ao regime regular do IBS, destinado a:
+a) contribuinte submetido ao regime regular do IBS; ou
+
+75
+
+b) produtor rural não contribuinte do IBS, desde que os insumos sejam utilizados na produção de bens
+vendidos a adquirentes com direito à apropriação dos créditos presumidos previstos no art. 245;
+II - importação efetuada por:
+a) contribuinte submetido ao regime regular do IBS; ou
+b) produtor rural não contribuinte do IBS, desde que os insumos sejam utilizados na produção de bens
+vendidos a adquirentes com direito à apropriação dos créditos presumidos previstos no art. 245.
+§ 1º O valor do imposto diferido nos termos do caput deste artigo deverá ser registrado pelo contribuinte
+em campos próprios do documento fiscal que acobertar a operação.
+§ 2º O diferimento de que tratam a alínea “b” do inciso I e a alínea “b” do inciso II, ambos do caput deste
+artigo, somente será aplicado sobre a parcela de insumos utilizada pelo produtor rural não contribuinte do IBS
+na produção de bem vendido para adquirentes que têm direito à apropriação dos créditos presumidos
+estabelecidos pelo art. 245.
+§ 3º A aplicação do diferimento previsto no § 2º condiciona-se à declaração, nos termos de ato conjunto
+da RFB e do CGIBS, pelo produtor rural não contribuinte, de que os insumos serão utilizados na produção de
+bens destinados a adquirentes com direito ao crédito presumido de que trata o art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, credito_presumido, fato_gerador, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 214 (parte 2)",
+    titulo: "245, respondendo o próprio\nprodutor pelo recolhimento do tributo diferido, acrescido dos encargos legais desde a data de ocorrência do\nfato gerador, caso a destinação seja diversa",
+    conteudo: `245, respondendo o próprio
+produtor pelo recolhimento do tributo diferido, acrescido dos encargos legais desde a data de ocorrência do
+fato gerador, caso a destinação seja diversa.
+§ 4º O diferimento nas operações referidas no caput deste artigo se encerra:
+I - nas hipóteses das alíneas “a” do inciso I e “a” do inciso II, ambas do caput deste artigo, quando a
+operação subsequente com os insumos agropecuários ou aquícolas, ou com os produtos deles resultantes:
+a) não esteja alcançada pelo diferimento; ou
+b) seja isenta, não tributada, inclusive em razão de suspensão do pagamento, ou sujeita à alíquota
+zero; ou
+c) seja realizada sem emissão do documento fiscal;
+II - nas hipóteses das alíneas “b” do inciso I e “b” do inciso II, ambas do caput deste artigo, mediante a
+redução do valor dos créditos presumidos de IBS estabelecidos pelo art. 245, na forma do art. 247.
+§ 5º O recolhimento do IBS relativo ao diferimento será efetuado pelo contribuinte que promover a
+operação que encerrar a fase do diferimento, ainda que não tributada, na forma prevista nos §§ 6º e 7º
+§ 6º Na hipótese a que se refere a alínea “a” do inciso I do § 4º, a incidência do IBS observará as regras
+aplicáveis à operação tributada.
+§ 7º Na hipótese a que se refere a alínea “b” do inciso I do § 4º, o contribuinte responsável pela operação
+que encerrar a fase do diferimento deverá recolher, mediante ajuste na apuração do IBS do período em que
+ocorrer o encerramento, o valor do IBS diferido, calculado com base na alíquota vigente na data da ocorrência
+do fato gerador da operação diferida.
+§ 8º Fica dispensado o recolhimento do IBS a que se refere o § 7º caso seja permitida a apropriação
+de crédito pelo fornecedor, nos termos previstos nos arts. 47 a 61.
+Seção XI - Das Produções Nacionais Artísticas, Culturais, de Eventos, Jornalísticas e Audiovisuais`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, credito_presumido, fato_gerador, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 215",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos bens e serviços listados no Anexo X da Lei Complementar nº 214, de 2025, com a\nespecificação das...",
+    conteudo: `Art. 215. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos bens e serviços listados no Anexo X da Lei Complementar nº 214, de 2025, com a
+especificação das respectivas classificações da NCM/SH e NBS, nos casos relacionados com as seguintes
+produções nacionais artísticas, culturais, de eventos, jornalísticas e audiovisuais: (Art. 139 da LC 214/2025)
+I - espetáculos teatrais, circenses e de dança;
+II - shows musicais;
+III - desfiles carnavalescos ou folclóricos;
+IV - eventos acadêmicos e científicos, como congressos, conferências e simpósios;
+V - feiras de negócios;
+VI - exposições, feiras, galerias e mostras culturais, artísticas e literárias;
+VII - programas de auditório ou jornalísticos, filmes, documentários, séries, novelas, entrevistas e clipes
+musicais; e
+
+76
+
+VIII - obras de arte.
+§ 1º O disposto nos incisos I, II, III e VII do caput deste artigo somente se aplica a produções realizadas
+no País que contenham majoritariamente obras artísticas, musicais, literárias ou jornalísticas de autores
+brasileiros ou interpretadas majoritariamente por artistas brasileiros.
+§ 2º No caso das obras cinematográficas ou videofonográficas de que trata o inciso VII do caput deste
+artigo, considera-se produção nacional aquela que atenda aos requisitos para obras audiovisuais nacionais
+definidos na legislação específica.
+§ 3º O fornecimento de obras de arte de que trata o inciso VIII do caput deste artigo contempla apenas
+aquelas produzidas por artistas brasileiros.
+Seção XII - Da Comunicação Institucional`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 216",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o\nfornecimento dos seguintes serviços de comunicação institucional à administração pública direta, autarquias\ne fund...",
+    conteudo: `Art. 216. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre o
+fornecimento dos seguintes serviços de comunicação institucional à administração pública direta, autarquias
+e fundações públicas: (Art. 140 da LC 214/2025)
+I - serviços direcionados ao planejamento, criação, programação e manutenção de páginas eletrônicas
+da administração pública, ao monitoramento e gestão de suas redes sociais e à otimização de páginas e
+canais digitais para mecanismos de buscas e produção de mensagens, infográficos, painéis interativos e
+conteúdo institucional;
+II - serviços de relações com a imprensa, que reúnem estratégias organizacionais para promover e
+reforçar a comunicação dos órgãos e das entidades contratantes com seus públicos de interesse, por meio
+da interação com profissionais da imprensa; e
+III - serviços de relações públicas, que compreendem o esforço de comunicação planejado, coeso e
+contínuo que tem por objetivo estabelecer adequada percepção da atuação e dos objetivos institucionais, a
+partir do estímulo à compreensão mútua e da manutenção de padrões de relacionamento e fluxos de
+informação entre os órgãos e as entidades contratantes e seus públicos de interesse, no País e no exterior.
+Parágrafo único. Os fornecedores dos serviços de comunicação institucional ficam sujeitos à alíquotapadrão em relação aos serviços fornecidos a adquirentes não mencionados no caput deste artigo.
+Seção XIII - Das Atividades Desportivas`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 217",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre as\nseguintes operações relacionadas a atividades desportivas",
+    conteudo: `Art. 217. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS incidentes sobre as
+seguintes operações relacionadas a atividades desportivas: (Art. 141 da LC 214/2025)
+I - fornecimento de serviço de educação desportiva, classificado no código 1.2205.12.00 da NBS;
+II - gestão e exploração do desporto por associações e clubes esportivos filiados ao órgão estadual ou
+federal responsável pela coordenação dos desportos, inclusive por meio de venda de ingressos para eventos
+desportivos, fornecimento oneroso ou não de bens e serviços, inclusive ingressos, por meio de programas de
+sócio-torcedor, cessão dos direitos desportivos dos atletas e transferência de atletas para outra entidade
+desportiva ou seu retorno à atividade em outra entidade desportiva.
+Seção XIV - Da Soberania e da Segurança Nacional, da Segurança da Informação e da Segurança
+Cibernética`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 218",
+    titulo: "Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS sobre",
+    conteudo: `Art. 218. Ficam reduzidas em 60% (sessenta por cento) as alíquotas do IBS sobre: (Art. 142 da LC
+214/2025)
+I - fornecimento à administração pública direta, autarquias e fundações públicas dos serviços e dos
+bens relativos à soberania e à segurança nacional, à segurança da informação e à segurança cibernética
+relacionados no Anexo XI da Lei Complementar nº 214, de 2025, com a especificação das respectivas
+classificações da NBS e da NCM/SH; e
+II - fornecimento de serviços de segurança da informação e segurança cibernética desenvolvidos por
+sociedade que tenha sócio brasileiro com o mínimo de 20% (vinte por cento) do seu capital social,
+relacionados no Anexo XI da Lei Complementar nº 214, de 2025, com a especificação das respectivas
+classificações da NBS.
+
+77
+
+CAPÍTULO IV - DA REDUÇÃO A ZERO DAS ALÍQUOTAS DO IBS
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 219",
+    titulo: "Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas a\nzero as alíquotas do IBS incidentes sobre operações com os seguintes bens e serviços",
+    conteudo: `Art. 219. Desde que observadas as definições e demais disposições deste Capítulo, ficam reduzidas a
+zero as alíquotas do IBS incidentes sobre operações com os seguintes bens e serviços: (Art. 143 da LC
+214/2025)
+I - dispositivos médicos;
+II - dispositivos de acessibilidade próprios para pessoas com deficiência;
+III - medicamentos;
+IV - produtos de cuidados básicos à saúde menstrual;
+V - produtos hortícolas, frutas e ovos;
+VI - automóveis de passageiros adquiridos por pessoas com deficiência ou com transtorno do espectro
+autista;
+VII - automóveis de passageiros adquiridos por motoristas profissionais que destinem o automóvel à
+utilização na categoria de aluguel (táxi); e
+VIII - serviços prestados por Instituição Científica, Tecnológica e de Inovação (ICT) sem fins lucrativos.
+Seção II - Dos Dispositivos Médicos`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 220",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos dispositivos\nmédicos relacionados",
+    conteudo: `Art. 220. Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos dispositivos
+médicos relacionados: (Art. 144 da LC 214/2025)
+I - no Anexo XII da Lei Complementar nº 214, de 2025, com a especificação das respectivas
+classificações da NCM/SH; e
+II - no Anexo IV da Lei Complementar nº 214, de 2025, com a especificação das respectivas
+classificações da NCM/SH, caso adquiridos por:
+a) órgãos da administração pública direta, autarquias e fundações públicas; e
+b) as entidades de saúde imunes ao IBS que possuam Certificação de Entidade Beneficente de
+Assistência Social (CEBAS) por comprovarem a prestação de serviços ao SUS, nos termos dos arts. 9º a 11
+da Lei Complementar nº 187, de 16 de dezembro de 2021.
+§ 1º A redução de alíquotas prevista no caput deste artigo somente se aplica aos dispositivos listados
+nos Anexos IV e XII da Lei Complementar nº 214, de 2025, que atendam aos requisitos previstos em norma
+da Anvisa.
+§ 2º Aplica-se aos produtos de que trata esta Seção o disposto no § 2º do art. 206.
+§ 3º Em caso de emergência de saúde pública reconhecida pelo Poder Legislativo federal, estadual,
+distrital ou municipal competente, ato conjunto do Ministro de Estado da Fazenda e do CGIBS poderá ser
+editado, a qualquer momento, para incluir dispositivos não listados no Anexo XII da Lei Complementar nº 214,
+de 2025, limitada a vigência do benefício ao período e à localidade da emergência de saúde pública.
+Seção III - Dos Dispositivos de Acessibilidade Próprios para Pessoas com Deficiência`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 221",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos dispositivos\nde acessibilidade próprios para pessoas com deficiência relacionados",
+    conteudo: `Art. 221. Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos dispositivos
+de acessibilidade próprios para pessoas com deficiência relacionados: (Art. 145 da LC 214/2025)
+I - no Anexo XIII da Lei Complementar nº 214, de 2025, com a especificação das respectivas
+classificações da NCM/SH; e
+II - no Anexo V da Lei Complementar nº 214, de 2025, com a especificação das respectivas
+classificações da NCM/SH, quando adquiridos por:
+a) órgãos da administração pública direta, autarquias e fundações públicas; e
+b) as entidades de saúde imunes ao IBS que possuam CEBAS por comprovarem a prestação de
+serviços ao SUS, nos termos dos arts. 9º a 11 da Lei Complementar nº 187, de 16 de dezembro de 2021.
+§ 1º A redução de alíquotas prevista no caput deste artigo somente se aplica aos dispositivos de
+acessibilidade listados nos Anexos V e XIII da Lei Complementar nº 214, de 2025 que atendam aos requisitos
+previstos em norma de órgão público competente.
+
+78
+
+§ 2º Aplica-se aos produtos de que trata esta Seção o disposto no § 2º do art. 207.
+Seção IV - Dos Medicamentos`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 222",
+    titulo: "São reduzidas a zero as alíquotas do IBS sobre o fornecimento dos medicamentos registrados\nna Anvisa, desde que destinados, de acordo com o registro sanitário, a",
+    conteudo: `Art. 222. São reduzidas a zero as alíquotas do IBS sobre o fornecimento dos medicamentos registrados
+na Anvisa, desde que destinados, de acordo com o registro sanitário, a: (Art. 146 da LC 214/2025)
+I - doenças raras;
+II - doenças negligenciadas;
+III - oncologia;
+IV - diabetes;
+V - HIV/aids e outras infecções sexualmente transmissíveis (IST);
+VI - doenças cardiovasculares; e
+VII - Programa Farmácia Popular do Brasil ou equivalente.
+§ 1º São também reduzidas a zero as alíquotas do IBS sobre o fornecimento de medicamentos
+registrados na Anvisa quando:
+I - adquiridos por órgãos da administração pública direta, por autarquias e por fundações públicas;
+II - adquiridos por entidades de saúde imunes ao IBS que possuam CEBAS por comprovarem a
+prestação de serviços ao SUS, nos termos dos arts. 9º a 11 da Lei Complementar nº 187, de 16 de dezembro
+de 2021; ou
+III - classificados como soros ou vacinas, conforme regulamentação sanitária específica.
+§ 2º A redução de alíquotas de que trata o caput deste artigo aplica-se também ao fornecimento de
+composições para nutrição enteral e parenteral, composições especiais e fórmulas nutricionais destinadas às
+pessoas com erros inatos do metabolismo relacionadas no Anexo VI da Lei Complementar nº 214, de 2025,
+com a especificação das respectivas classificações da NCM/SH, quando adquiridas por órgãos e entidades
+mencionados nos incisos I e II do § 1º
+§ 3º Ato conjunto do Ministério da Fazenda e do CGIBS, ouvido o Ministério da Saúde, divulgará, a
+cada 120 (cento e vinte) dias, a lista dos medicamentos que terão direito a alíquota zero do IBS, conforme
+disposto no caput deste artigo e no inciso III do § 1º
+§ 4º Em caso de emergência de saúde pública reconhecida pelo Poder Legislativo federal, estadual,
+distrital ou municipal competente, ato conjunto do Ministro da Fazenda, do Ministério da Saúde e do CGIBS
+poderá ser editado, a qualquer momento, tão somente para incluir medicamentos e linhas de cuidado não
+contemplados na redução de alíquo`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 222 (parte 2)",
+    titulo: "ta a que se refere este artigo, limitada a vigência do benefício ao período\nda respectiva emergência de saúde pública",
+    conteudo: `ta a que se refere este artigo, limitada a vigência do benefício ao período
+da respectiva emergência de saúde pública.
+Seção V - Dos Produtos de Cuidados Básicos à Saúde Menstrual`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 223",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos seguintes\nprodutos de cuidados básicos à saúde menstrual",
+    conteudo: `Art. 223. Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos seguintes
+produtos de cuidados básicos à saúde menstrual: (Art. 147 da LC 214/2025)
+I - tampões higiênicos classificados no código 9619.00.00 da NCM/SH;
+II - absorventes higiênicos internos ou externos, descartáveis ou reutilizáveis, e calcinhas absorventes
+classificados no código 9619.00.00 da NCM/SH; e
+III - coletores menstruais classificados no código 9619.00.00 da NCM/SH.
+Parágrafo único. A redução de alíquotas prevista no caput deste artigo somente se aplica aos produtos
+de cuidados básicos à saúde menstrual que atendam aos requisitos previstos em norma da Anvisa.
+Seção VI - Dos Produtos Hortícolas, Frutas e Ovos`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "21,47,86",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 224",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos produtos\nhortícolas, frutas e ovos relacionados no Anexo XV da Lei Complementar nº 214, de 2025, com a\nespecificação d...",
+    conteudo: `Art. 224. Ficam reduzidas a zero as alíquotas do IBS incidentes sobre o fornecimento dos produtos
+hortícolas, frutas e ovos relacionados no Anexo XV da Lei Complementar nº 214, de 2025, com a
+especificação das respectivas classificações da NCM/SH. (Art. 148 da LC 214/2025)
+Parágrafo único. Os produtos mencionados no caput deste artigo, observadas as regras de
+classificação da NCM/SH, podem apresentar-se inteiros, cortados em fatias ou em pedaços, ralados,
+
+79
+
+torneados, descascados, desfolhados, lavados, higienizados, embalados, frescos, resfriados ou congelados,
+mesmo que misturados entre eles.
+Seção VII - Dos Automóveis de Passageiros Adquiridos por Pessoas com Deficiência ou com
+Transtorno do Espectro Autista e por Motoristas Profissionais que Destinem o Automóvel à
+Utilização na Categoria de Aluguel (Táxi)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 225",
+    titulo: "Ficam reduzidas a zero as alíquotas do IBS incidentes sobre a venda de automóveis de\npassageiros de fabricação nacional de, no mínimo, 4 (quatro) portas, inclusive a de acesso ao bagageiro,\nquando...",
+    conteudo: `Art. 225. Ficam reduzidas a zero as alíquotas do IBS incidentes sobre a venda de automóveis de
+passageiros de fabricação nacional de, no mínimo, 4 (quatro) portas, inclusive a de acesso ao bagageiro,
+quando adquiridos por: (Art. 149 da LC 214/2025)
+I - motoristas profissionais que exerçam, comprovadamente, em automóvel de sua propriedade,
+atividade de condutor autônomo de passageiros, na condição de titular de autorização, permissão ou
+concessão do poder público, e que destinem o automóvel à utilização na categoria de aluguel (táxi);
+II - pessoas com:
+a) deficiência física, visual ou auditiva;
+b) deficiência mental severa ou profunda; ou
+c) transtorno do espectro autista, com prejuízos na comunicação social e em padrões restritos ou
+repetitivos de comportamento de nível moderado ou grave, nos termos da legislação relativa à matéria.
+§ 1º Considera-se pessoa com deficiência aquela com impedimento de longo prazo de natureza física,
+mental, intelectual ou sensorial que, em interação com uma ou mais barreiras, pode obstruir sua participação
+plena e efetiva na sociedade em igualdade de condições com as demais pessoas, observados os critérios
+para reconhecimento da condição de deficiência previstos no art. 226.
+§ 2º As reduções de alíquotas de que trata o caput deste artigo somente se aplicam:
+I - na hipótese do inciso I do caput deste artigo, a automóvel de passageiros elétrico ou equipado com
+motor de cilindrada não superior a 2.000 cm³ (dois mil centímetros cúbicos) e movido a combustível de origem
+renovável, sistema reversível de combustão ou híbrido; e
+II - na hipótese do inciso II do caput deste artigo, a automóvel cujo preço de venda ao consumidor,
+incluídos os tributos incidentes caso não houvesse as reduções, não seja superior a R$ 200.000,00 (duzentos
+mil reais), limitado o benefício ao valor da operação de até R$ 100.000,00 (cem mil reais).
+§ 3º Na hipótese do inciso II do caput deste artigo, os automóveis de passageiros serão adquiridos
+diretamente pelas pesso`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, combustivel",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 225 (parte 2)",
+    titulo: "as que tenham plena capacidade jurídica ou por intermédio de seu representante\nlegal ou mandatário",
+    conteudo: `as que tenham plena capacidade jurídica ou por intermédio de seu representante
+legal ou mandatário.
+§ 4º O representante legal ou mandatário de que trata o § 3º responde solidariamente quanto ao tributo
+que deixar de ser pago em razão das reduções de alíquotas de que trata esta Seção.
+§ 5º Os limites definidos no inciso II do § 2º serão atualizados anualmente, em 1º de janeiro, somente
+para fins de sua ampliação, com base na variação do preço médio dos automóveis novos neles enquadrados
+na Tabela da Fundação Instituto de Pesquisas Econômicas (Tabela Fipe), nos termos de ato conjunto do
+Ministro de Estado da Fazenda e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, combustivel",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 226",
+    titulo: "Para fins de reconhecimento do direito às reduções de alíquotas de que trata esta Seção,\nconsidera-se pessoa com deficiência aquela que se enquadrar em, no mínimo, uma das seguintes categorias",
+    conteudo: `Art. 226. Para fins de reconhecimento do direito às reduções de alíquotas de que trata esta Seção,
+considera-se pessoa com deficiência aquela que se enquadrar em, no mínimo, uma das seguintes categorias:
+(Art. 150 da LC 214/2025)
+I - deficiência física, entendida como a alteração completa ou parcial de um ou mais segmentos do
+corpo humano que acarrete o comprometimento da função física, sob a forma de:
+a) paraplegia;
+b) paraparesia;
+c) monoplegia;
+d) monoparesia;
+e) tetraplegia;
+f) tetraparesia;
+g) triplegia;
+h) triparesia;
+
+80
+
+i) hemiplegia;
+j) hemiparesia;
+k) ostomia;
+l) amputação ou ausência de membro;
+m) paralisia cerebral;
+n) nanismo; ou
+o) membros com deformidade congênita ou adquirida;
+II - deficiência auditiva, entendida como a perda bilateral, parcial ou total, de 41 dB (quarenta e um
+decibéis) ou mais, aferida por audiograma nas frequências de 500 Hz (quinhentos hertz), 1.000 Hz (mil hertz),
+2.000 Hz (dois mil hertz) e 3.000 Hz (três mil hertz), nos termos da legislação aplicável;
+III - deficiência visual:
+a) cegueira, na qual a acuidade visual seja igual ou menor que 0,05 (cinco centésimos) no melhor olho,
+com a melhor correção óptica;
+b) baixa visão, na qual a acuidade visual esteja entre 0,3 (três décimos) e 0,05 (cinco centésimos) no
+melhor olho, com a melhor correção óptica;
+c) casos em que a somatória da medida do campo visual em ambos os olhos seja igual ou menor que
+60 (sessenta) graus;
+d) ocorrência simultânea de quaisquer das condições previstas nas alíneas “a”, “b” e “c” deste inciso;
+ou
+e) visão monocular, na qual a pessoa tem visão igual ou inferior a 20% (vinte por cento) em um dos
+olhos, enquanto no outro mantém visão normal;
+IV - deficiência mental, entendida como o funcionamento intelectual significativamente inferior à média,
+com manifestação antes dos 18 (dezoito) anos de idade e limitações associadas a duas ou mais áreas de
+habilidades adaptativas, tais como:
+a) comunicação;
+b) cuidado pessoal;
+c) habilidades sociais;
+d) utilização do`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 226 (parte 2)",
+    titulo: "s recursos da comunidade;\ne) saúde e segurança;\nf) habilidades acadêmicas;\ng) lazer; e\nh) trabalho",
+    conteudo: `s recursos da comunidade;
+e) saúde e segurança;
+f) habilidades acadêmicas;
+g) lazer; e
+h) trabalho.
+§ 1º O disposto nos incisos I, II e III do caput deste artigo aplica-se às deficiências de grau moderado
+ou grave, assim entendidas aquelas que causem comprometimento parcial ou total das funções dos
+segmentos corpóreos que envolvam a segurança da direção veicular, acarretando o comprometimento da
+função física e a incapacidade total ou parcial para dirigir.
+§ 2º Não se incluem no rol das deficiências físicas as deformidades estéticas e as que não produzam
+dificuldades para o desempenho das funções locomotoras da pessoa.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 227",
+    titulo: "Para fins de concessão das reduções de alíquotas de que trata esta Seção, a comprovação\nda deficiência e da condição de pessoa com transtorno do espectro autista será realizada por meio de laudo\nde...",
+    conteudo: `Art. 227. Para fins de concessão das reduções de alíquotas de que trata esta Seção, a comprovação
+da deficiência e da condição de pessoa com transtorno do espectro autista será realizada por meio de laudo
+de avaliação emitido: (Art. 151 da LC 214/2025)
+I - por fornecedor de serviço público de saúde;
+II - por fornecedor de serviço privado de saúde, contratado ou conveniado, que integre o Sistema Único
+de Saúde (SUS); ou
+III - pelo Departamento de Trânsito (Detran) ou por suas clínicas credenciadas.
+§ 1º O preenchimento do laudo de avaliação, nos termos deste artigo, atenderá ao disposto em ato
+conjunto da RFB e do CGIBS.
+
+81
+
+§ 2º As clínicas credenciadas a que se refere o inciso III do caput deste artigo são solidariamente
+responsáveis pelos tributos que deixarem de ser recolhidos, com os acréscimos legais, caso se comprove a
+emissão fraudulenta de laudo de avaliação por seus agentes.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 228",
+    titulo: "As reduções de alíquotas de que trata o art",
+    conteudo: `Art. 228. As reduções de alíquotas de que trata o art. 225 poderão ser usufruídas: (Art. 152 da LC
+214/2025)
+I - na hipótese do inciso I do caput do art. 225, em intervalos não inferiores a 2 (dois) anos;
+II - na hipótese do inciso II do caput do art. 225, em intervalos não inferiores a 3 (três) anos.
+Parágrafo único. Nas hipóteses de perda total ou desaparecimento por furto ou roubo do automóvel,
+as reduções de alíquotas podem ser usufruídas a qualquer tempo.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 229",
+    titulo: "O direito às reduções de alíquotas de que trata o art",
+    conteudo: `Art. 229. O direito às reduções de alíquotas de que trata o art. 225 será reconhecido pela administração
+tributária estadual ou distrital de domicílio do requerente e pela RFB, nos termos de ato conjunto da RFB e
+do CGIBS, mediante prévia verificação de que o adquirente preenche os requisitos previstos nesta Seção.
+(Art. 153 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 230",
+    titulo: "Os tributos incidirão normalmente sobre quaisquer acessórios opcionais que não sejam\nequipamentos originais do automóvel adquirido",
+    conteudo: `Art. 230. Os tributos incidirão normalmente sobre quaisquer acessórios opcionais que não sejam
+equipamentos originais do automóvel adquirido. (Art. 154 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 231",
+    titulo: "A alienação do automóvel adquirido nos termos desta Seção que ocorrer em intervalos\ninferiores aos definidos no art",
+    conteudo: `Art. 231. A alienação do automóvel adquirido nos termos desta Seção que ocorrer em intervalos
+inferiores aos definidos no art. 228, contados da data de sua aquisição, a pessoas que não tenham o
+reconhecimento do direito de que trata o art. 229 acarretará o pagamento pelo alienante dos tributos
+dispensados, atualizados na forma prevista na legislação tributária. (Art. 155 da LC 214/2025)
+§ 1º A alienação antecipada a que se refere este artigo sujeita ainda o alienante ao pagamento de multa
+e juros moratórios previstos na legislação em vigor.
+§ 2º O disposto no caput deste artigo não se aplica nos casos de:
+I - transmissão do automóvel adquirido:
+a) para a seguradora, nos casos de perda total ou desaparecimento por furto ou roubo;
+b) em virtude do falecimento do beneficiário;
+II - alienação fiduciária do automóvel em garantia.
+Seção VIII - Dos Serviços Prestados por Instituição Científica, Tecnológica e de Inovação (ICT) sem
+Fins Lucrativos`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 232",
+    titulo: "São reduzidas a zero as alíquotas do IBS incidentes sobre a prestação de serviços de\npesquisa e desenvolvimento por Instituição Científica, Tecnológica e de Inovação (ICT) sem fins lucrativos,\nbem...",
+    conteudo: `Art. 232. São reduzidas a zero as alíquotas do IBS incidentes sobre a prestação de serviços de
+pesquisa e desenvolvimento por Instituição Científica, Tecnológica e de Inovação (ICT) sem fins lucrativos,
+bem como por fundações de apoio credenciadas na forma da lei, para: (Art. 156 da LC 214/2025)
+I - a administração pública direta, autarquias e fundações públicas; ou
+II - contribuinte sujeito ao regime regular do IBS e da CBS.
+Parágrafo único. A redução de alíquotas prevista no caput deste artigo aplica-se à ICT sem fins
+lucrativos e à fundação de apoio que, cumulativamente:
+I - inclua em seu objetivo social ou estatutário:
+a) a pesquisa básica ou aplicada de caráter científico ou tecnológico; ou
+b) o desenvolvimento de novos produtos, serviços ou processos;
+II - cumpra as condições para gozo da imunidade prevista no inciso III do caput do art. 10 para as
+operações realizadas por instituições de educação e de assistência social sem fins lucrativos.
+CAPÍTULO V - DO TRANSPORTE PÚBLICO COLETIVO DE PASSAGEIROS RODOVIÁRIO E
+METROVIÁRIO DE CARÁTER URBANO, SEMIURBANO E METROPOLITANO`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, imunidade, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 233",
+    titulo: "Fica isento do IBS o fornecimento de serviços de transporte público coletivo de passageiros\nrodoviário e metroviário de caráter urbano, semiurbano e metropolitano, sob regime de autorização, permis...",
+    conteudo: `Art. 233. Fica isento do IBS o fornecimento de serviços de transporte público coletivo de passageiros
+rodoviário e metroviário de caráter urbano, semiurbano e metropolitano, sob regime de autorização, permissão
+ou concessão pública. (Art. 157 da LC 214/2025)
+Parágrafo único. Para fins do caput deste artigo, consideram-se:
+
+82
+
+I - serviço de transporte público coletivo de passageiros o acessível a toda a população mediante
+cobrança individualizada, com itinerários e preços fixados pelo poder público;
+II - transporte rodoviário o serviço de transporte terrestre realizado sobre vias urbanas e rurais;
+III - transporte metroviário o realizado por meio de ferrovias, abrangendo trens urbanos, metrôs,
+veículos leves sobre trilhos e monotrilhos;
+IV - transporte de passageiros de caráter urbano o serviço de característica urbana prestado no território
+do Município;
+V - transporte de passageiros de caráter semiurbano o serviço de deslocamento intermunicipal,
+interestadual ou internacional entre localidades próximas de característica urbana ou metropolitana; e
+VI - transporte de passageiros de caráter metropolitano o serviço prestado entre Municípios que
+pertencem a uma mesma região metropolitana.
+CAPÍTULO VI - DA REABILITAÇÃO URBANA DE ZONAS HISTÓRICAS E DE ÁREAS CRÍTICAS DE
+RECUPERAÇÃO E RECONVERSÃO URBANÍSTICA`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 234",
+    titulo: "Observado o disposto neste Capítulo, ficam reduzidas em 60% (sessenta por cento) as\nalíquotas do IBS sobre operações relacionadas a projetos de reabilitação urbana de zonas históricas e de\náreas cr...",
+    conteudo: `Art. 234. Observado o disposto neste Capítulo, ficam reduzidas em 60% (sessenta por cento) as
+alíquotas do IBS sobre operações relacionadas a projetos de reabilitação urbana de zonas históricas e de
+áreas críticas de recuperação e reconversão urbanística dos Municípios ou do Distrito Federal, delimitadas
+por lei municipal ou distrital. (Art. 158 da LC 214/2025)
+§ 1º Para fins de aplicação do disposto no caput deste artigo, os projetos devem ser apresentados à
+comissão tripartite prevista no art. 235. (Art. 160 da LC 214/2025)
+§ 2º A reabilitação urbana de zonas históricas e de áreas críticas de recuperação e reconversão
+urbanística dos Municípios tem por objetivo a preservação patrimonial, a qualificação de espaços públicos, a
+recuperação de áreas habitacionais, a restauração de imóveis e melhorias na infraestrutura urbana e de
+mobilidade. (Art. 159 da LC 214/2025)
+§ 3º Na hipótese de locação de imóveis prevista no inciso VI do caput do art. 236, a redução de alíquotas
+de que trata o caput deste artigo será de 80% (oitenta por cento). (Art. 158, parágrafo único, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 235",
+    titulo: "A Comissão Tripartite responsável pela análise dos projetos de que trata o § 1º do art",
+    conteudo: `Art. 235. A Comissão Tripartite responsável pela análise dos projetos de que trata o § 1º do art. 234
+será composta de: (Art. 161 da LC 214/2025)
+I - 2 (dois) representantes do Ministério das Cidades;
+II - 2 (dois) representantes do Ministério da Fazenda;
+III - 4 (quatro) representantes do CGIBS, dos quais 2 (dois) oriundos de representação dos Estados ou
+do Distrito Federal e 2 (dois) oriundos de representação dos Municípios ou do Distrito Federal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 236",
+    titulo: "O benefício de que trata o art. 234 restringir-se-á aos projetos de desenvolvimento econômico\ne social das respectivas áreas de preservação, recuperação, reconversão e reabilitação urbana e das zon...",
+    conteudo: `Art. 236. O benefício de que trata o art. 234 restringir-se-á aos projetos de desenvolvimento econômico
+e social das respectivas áreas de preservação, recuperação, reconversão e reabilitação urbana e das zonas
+históricas, aprovados conforme o art. 237 e alcançará as seguintes operações: (Art. 162 da LC 214/2025)
+I - prestação de serviços de elaboração de projetos arquitetônicos, urbanísticos, paisagísticos,
+ambientais, ecológicos, de engenharia, de infraestruturas e de mitigação de riscos e seus correspondentes
+projetos executivos;
+II - prestação de serviços de execução por administração, gerenciamento, coordenação, empreitada ou
+subempreitada de construção civil, de todas as obras e serviços de edificações e de urbanização, de
+infraestruturas e outras obras semelhantes, inclusive serviços auxiliares ou complementares típicos da
+construção civil;
+III - prestação de serviços de reparação, restauração, conservação e reforma de imóveis;
+IV - prestação de serviços relativos a:
+a) engenharia, topografia, mapeamentos e escaneamentos digitais, modelagens digitais, maquetes,
+sondagem, fundações, geologia, urbanismo, manutenção, performance ambiental, eficiência climática,
+limpeza, meio ambiente e saneamento; e
+b) projetos complementares de instalações elétricas e hidráulicas, de prevenção e combate a incêndio
+e estruturais;
+V - primeira alienação dos imóveis localizados nas zonas reabilitadas feita pelo proprietário no prazo
+de até 5 (cinco) anos, contado da data de expedição do “habite-se”;
+
+83
+
+VI - locação dos imóveis localizados nas zonas reabilitadas, pelo prazo de 5 (cinco) anos, contado da
+data de expedição do “habite-se”.
+§ 1º Os serviços mencionados nos incisos I a IV do caput deste artigo farão jus ao benefício até o prazo
+de conclusão previsto no projeto aprovado.
+§ 2º Deverá ser indicado no documento fiscal o projeto a que a operação estiver relacionada.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 237",
+    titulo: "Lei ordinária federal estabelecerá",
+    conteudo: `Art. 237. Lei ordinária federal estabelecerá: (Art. 163 da LC 214/2025)
+I - os conceitos de preservação, recuperação, reconversão e reabilitação urbana;
+II - a vinculação institucional e as competências da Comissão Tripartite;
+III - os critérios para aprovação dos projetos apresentados à Comissão Tripartite; e
+IV - a governança a ser adotada para recebimento e avaliação dos projetos.
+CAPÍTULO VII - DO PRODUTOR RURAL E DO PRODUTOR RURAL INTEGRADO NÃO CONTRIBUINTE`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 238",
+    titulo: "Para fins deste Regulamento, consideram-se",
+    conteudo: `Art. 238. Para fins deste Regulamento, consideram-se:
+I - produtor rural, a pessoa física ou jurídica que explore, em área própria, arrendada, cedida ou em
+regime de parceria ou integração, exclusivamente as seguintes atividades:
+a) agricultura;
+b) pecuária;
+c) extração e exploração vegetal;
+d) exploração animal;
+e) transformação de produtos decorrentes da atividade rural, sem que sejam alteradas a composição e
+as características do produto in natura, feita pelo próprio agricultor ou pelo criador, com equipamentos e
+utensílios usualmente empregados nas atividades rurais, com uso exclusivo de matéria-prima produzida na
+área rural explorada, tais como a pasteurização e o acondicionamento do leite e o acondicionamento do mel
+e do suco de laranja em embalagem de apresentação; e
+II - produtor rural integrado, o produtor agrossilvipastoril, pessoa física ou jurídica, que, individualmente
+ou de forma associativa, com ou sem a cooperação laboral de empregados, vincula-se ao integrador por meio
+de contrato de integração vertical, recebendo bens ou serviços para a produção e para o fornecimento de
+matéria-prima, bens intermediários ou bens de consumo final. (Art. 164, § 1º, da LC 214/2025)
+Parágrafo único. Inclui-se na alínea “c” do inciso I do caput deste artigo o cultivo de florestas que se
+destinem ao corte para comercialização, consumo ou industrialização.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 239",
+    titulo: "Não são considerados contribuintes do IBS",
+    conteudo: `Art. 239. Não são considerados contribuintes do IBS: (Art. 164 da LC 214/2025)
+I - o produtor rural pessoa física ou jurídica que auferir, no ano-calendário, receita inferior a R$
+3.600.000,00 (três milhões e seiscentos mil reais);
+II - o produtor rural integrado, pessoa física ou jurídica.
+§ 1º A receita referida no inciso I do caput deste artigo:
+I - corresponde ao valor total de vendas derivadas das atividades referidas no inciso I do art. 238 no
+referido período;
+II - não inclui:
+a) as receitas decorrentes de:
+1. contratos de integração;
+2. alienação de bens utilizados na produção;
+3. alienação da terra nua; e
+b) os adiantamentos de recursos financeiros, recebidos em decorrência de contrato de compra e venda
+de produtos rurais para entrega futura, que serão computados como receita no mês da entrega efetiva do
+produto.
+§ 2º Para fins do disposto no inciso I do caput deste artigo, os acréscimos de que trata o inciso I do §
+1º do art. 13 compõem a receita da atividade rural no mês do seu recebimento.
+
+84
+
+§ 3º O valor estabelecido no inciso I do caput deste artigo será atualizado anualmente no mês de
+janeiro, a partir de 2027, com base na variação do IPCA dos últimos doze meses, divulgado por ato conjunto
+da RFB e do CGIBS. (Art. 167 da LC 214/2025)
+§ 4º No caso de início de atividade, o limite a que se refere o inciso I do caput deste artigo, observado
+o disposto no § 3º, será proporcional ao número de meses em que o produtor houver exercido atividade,
+consideradas as frações de meses como um mês inteiro. (Art.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 239 (parte 2)",
+    titulo: "164, § 4º, da LC 214/2025)\n§ 5º O produtor rural integrado será considerado não contribuinte do IBS em relação aos fornecimentos\ndecorrentes do contrato de integração, ainda que realize",
+    conteudo: `164, § 4º, da LC 214/2025)
+§ 5º O produtor rural integrado será considerado não contribuinte do IBS em relação aos fornecimentos
+decorrentes do contrato de integração, ainda que realize:
+I - fornecimentos na condição de produtor rural não contribuinte do IBS; ou
+II - outras operações em relação às quais seja contribuinte do IBS.
+§ 6º Caso o produtor rural, pessoa física ou jurídica, tenha participação societária em outra pessoa
+jurídica que desenvolva atividade agropecuária, o limite previsto no inciso I do caput deste artigo, observado
+o disposto no § 3º, será verificado em relação à soma das receitas auferidas no ano-calendário por todas
+essas pessoas. (Art. 164, § 6º, da LC 214/2025)
+§ 7º O produtor rural e o produtor rural integrado, pessoa jurídica, optantes pelo Simples Nacional
+somente poderão ser considerados não contribuintes do IBS caso: (Arts. 41, § 3º, e 165 da LC 214/2025)
+I - tenham feito a opção de apurar o IBS pelo regime regular na forma do § 3º do art. 41; e
+II - aufiram receita menor do que a referida no inciso I do caput deste artigo, observado o disposto no
+§ 3º, no caso de produtor rural, ou receita decorrente de contrato de integração, no caso de produtor rural
+integrado.
+§ 8º O produtor rural que ultrapassar o limite previsto no inciso I do caput deste artigo, observado o
+disposto no § 3º, será inscrito como contribuinte do IBS: (Art. 164, §§ 2º e 3º, da LC 214/2025)
+I - a partir do segundo mês subsequente ao da ocorrência do excesso, caso este seja superior a 20%
+(vinte por cento) do limite; ou
+II - a partir do primeiro dia do ano-calendário subsequente, caso o excesso seja igual ou inferior a 20%
+(vinte por cento).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 240",
+    titulo: "A associação ou cooperativa de produtores rurais é considerada não contribuinte do IBS,\nobservado o disposto no § 3º do art",
+    conteudo: `Art. 240. A associação ou cooperativa de produtores rurais é considerada não contribuinte do IBS,
+observado o disposto no § 3º do art. 239, quando: (Art. 164, § 5º, da LC 214/2025)
+I - a receita bruta anual for inferior a R$ 3.600.000,00 (três milhões e seiscentos mil reais); e
+II - seja integrada exclusivamente por produtores rurais pessoas físicas cuja receita seja inferior à
+referida no inciso I do caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 241",
+    titulo: "O produtor rural ou o produtor rural integrado poderão, a qualquer tempo, independentemente\nda receita auferida, optar pela inscrição como contribuinte do IBS no regime regular",
+    conteudo: `Art. 241. O produtor rural ou o produtor rural integrado poderão, a qualquer tempo, independentemente
+da receita auferida, optar pela inscrição como contribuinte do IBS no regime regular. (Art. 165 da LC 214/2025)
+§ 1º Os efeitos da opção prevista no caput deste artigo iniciar-se-ão a partir do primeiro dia do mês
+subsequente àquele em que realizada a solicitação. (Art. 165, § 1º, da LC 214/2025)
+§ 2º A opção pela inscrição nos termos do caput deste artigo será irretratável para todo o ano-calendário
+e aplicar-se-á aos anos-calendário subsequentes, observado o disposto no art. 242. (Art. 165, § 2º, da LC
+214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 242",
+    titulo: "O produtor rural ou o produtor rural integrado poderá renunciar à opção de que trata o art",
+    conteudo: `Art. 242. O produtor rural ou o produtor rural integrado poderá renunciar à opção de que trata o art.
+241 com efeitos a partir do primeiro dia do ano-calendário seguinte à renúncia, observado o disposto no art.
+239. (Art. 166, caput e parágrafo único, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 243",
+    titulo: "O produtor rural que tenha auferido receita igual ou superior a R$ 3",
+    conteudo: `Art. 243. O produtor rural que tenha auferido receita igual ou superior a R$ 3.600.000,00 (três milhões
+e seiscentos mil reais) no ano-calendário de 2024 será considerado contribuinte a partir de 1º de janeiro de
+2026, independentemente de qualquer providência. (Art. 165, § 3º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 244",
+    titulo: "O produtor rural e o produtor rural integrado, não contribuintes do IBS, deverão emitir\ndocumento fiscal por ocasião da saída de bens ou da prestação de serviços",
+    conteudo: `Art. 244. O produtor rural e o produtor rural integrado, não contribuintes do IBS, deverão emitir
+documento fiscal por ocasião da saída de bens ou da prestação de serviços.
+§ 1º Para emissão de documento fiscal, as pessoas de que trata o caput deste artigo deverão se
+inscrever no cadastro com identificação única, nos termos do Capítulo I do Título II deste Livro, com indicativo
+da condição de não contribuinte.
+§ 2º Na hipótese de bem ou serviço fornecido por produtor integrado, o valor constante do documento
+fiscal será o valor da remuneração do produtor integrado determinado com base no contrato de integração.
+
+85
+
+Art. 245. O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do
+referido tributo relativos às aquisições de bens e serviços de produtor rural ou de produtor rural integrado, não
+contribuintes, de que trata o art. 239. (Art. 168 da LC 214/2025)
+Parágrafo único. A apropriação de créditos presumidos pelo adquirente de que trata o caput deste
+artigo:
+I - somente é permitida em relação a aquisições acobertadas por documento fiscal nos termos do art.
+244; e
+II - ocorrerá à medida em que forem confirmados os pagamentos ao produtor rural ou ao produtor rural
+integrado relativos às aquisições. (Art. 126, § 5º, II, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 246",
+    titulo: "Para fins de apropriação do crédito presumido, o adquirente deverá emitir documento fiscal\nrelativo à aquisição que discriminará",
+    conteudo: `Art. 246. Para fins de apropriação do crédito presumido, o adquirente deverá emitir documento fiscal
+relativo à aquisição que discriminará: (Art. 168, § 1º, da LC 214/2025)
+I - o valor da operação, que corresponderá ao valor pago ao fornecedor;
+II - o valor do crédito presumido;
+III - o valor líquido para efeitos fiscais, que corresponderá à diferença entre os valores discriminados
+nos incisos I e II do caput deste artigo;
+IV - a indicação do documento fiscal relativo ao fornecimento.
+Parágrafo único. Na hipótese de bem ou serviço fornecido por produtor rural integrado, o valor da
+operação referido no inciso I do caput deste artigo será o valor da remuneração do produtor conforme previsto
+no contrato de integração. (Art. 168, § 2º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 247",
+    titulo: "O valor do crédito presumido referido no inciso II do art",
+    conteudo: `Art. 247. O valor do crédito presumido referido no inciso II do art. 246 será o resultado da aplicação da
+seguinte fórmula: (Art. 168, § 3º, da LC 214/2025)
+CP = [VOxC]/[1+C]
+sendo:
+CP = crédito presumido referido no inciso II do caput do art. 246;
+VO = valor da operação de aquisição referido no inciso I do caput do art. 246;
+C = coeficiente correspondente ao percentual de que trata o § 1º
+§ 1º Os percentuais serão definidos e divulgados anualmente até o mês de setembro, por ato conjunto
+do Ministro de Estado da Fazenda e do CGIBS, e entrarão em vigor a partir de primeiro de janeiro do ano
+subsequente. (Art. 168, § 4º, da LC 214/2025)
+§ 2º A definição dos percentuais de que trata o § 1º: (Art. 168, § 5º, da LC 214/2025)
+I - será realizada com base nas informações fiscais disponíveis;
+II - resultará da aplicação da seguinte fórmula:
+P = [TC/(VO-TC)] X 100
+sendo:
+P = percentual de que trata o § 1º;
+TC = montante de IBS cobrado nos bens e serviços adquiridos pelos produtores rurais não
+contribuintes;
+VO = valor bruto dos bens e serviços fornecidos pelos produtores rurais não contribuintes de que trata
+o inciso I do art. 246;
+III - tomará por base a média dos percentuais anuais relativos às operações realizadas nos 5 (cinco)
+anos-calendário anteriores ao do prazo da divulgação previsto no § 1º; e
+IV - poderá estabelecer diferenciação por categorias em função do bem ou serviço fornecido pelo
+produtor rural ou pelo produtor rural integrado, do nível de receita anual e da tipologia de produtor rural. (Art.
+168, § 6º, da LC 214/2025)
+§ 3º Para efeito do disposto no § 2º, não serão consideradas as aquisições de bens e serviços de uso
+pessoal de que trata o art. 62, nem a aquisição de bens e serviços destinados ao uso e consumo pessoal do
+produtor rural ou de pessoas a ele relacionadas, nos termos do art. 63. (Art. 168, § 7º, da LC 214/2025)
+
+86`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 247 (parte 2)",
+    titulo: "§ 4º Excepcionalmente, de 2027 a 2031, o período de que trata o inciso III do § 2º poderá ser inferior a\n5 (cinco) anos, a depender da disponibilidade de informações",
+    conteudo: `§ 4º Excepcionalmente, de 2027 a 2031, o período de que trata o inciso III do § 2º poderá ser inferior a
+5 (cinco) anos, a depender da disponibilidade de informações. (Art. 168, § 10, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 248",
+    titulo: "Os créditos presumidos do IBS de que trata o art",
+    conteudo: `Art. 248. Os créditos presumidos do IBS de que trata o art. 245 poderão ser utilizados para
+compensação, na forma do inciso I do art. 26, do valor do IBS devido pelo contribuinte, permitido o
+ressarcimento na forma dos arts. 39 e 40. (Art. 168, § 8º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 249",
+    titulo: "O direito à apropriação e à utilização do crédito presumido de que trata o art",
+    conteudo: `Art. 249. O direito à apropriação e à utilização do crédito presumido de que trata o art. 245 aplica-se
+também à sociedade cooperativa, optante ou não pelo regime específico de que trata o art. 391, em relação
+ao recebimento de bens e serviços de seus associados não contribuintes do IBS na forma do art. 239 e não
+optantes pelo Simples Nacional. (Art. 168, § 9º, da LC 214/2025)
+Parágrafo único. O disposto no caput deste artigo não se aplica na hipótese em que o bem seja
+enviado para beneficiamento na cooperativa e retorne ao associado. (Art. 168, § 9º, da LC 214/2025)
+CAPÍTULO VIII - DO TRANSPORTADOR AUTÔNOMO DE CARGA PESSOA FÍSICA NÃO CONTRIBUINTE`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido, regime_especifico",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 250",
+    titulo: "O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do\nreferido tributo relativos às aquisições de serviço de transporte de carga de transportador autônomo pessoa\nf...",
+    conteudo: `Art. 250. O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do
+referido tributo relativos às aquisições de serviço de transporte de carga de transportador autônomo pessoa
+física que não seja contribuinte do referido tributo ou que seja inscrito como MEI. (Art. 169 da LC 214/2025)
+§ 1º Os créditos presumidos de que trata o caput deste artigo:
+I - somente se aplicam ao contribuinte que adquire bens e serviços e suporta a cobrança do valor do
+serviço de transporte de carga;
+II - não se aplicam ao contribuinte que adquire bens e serviços e suporta a cobrança do valor do
+transporte como parte do valor da operação, ainda que especificado em separado nos documentos relativos
+à aquisição.
+§ 2º A apropriação de créditos presumidos pelo adquirente de que trata o caput deste artigo:
+I - somente é permitida em relação a aquisições acobertadas por documento fiscal nos termos do art.
+251; e
+II - ocorrerá à medida que forem confirmados os pagamentos efetuados ao transportador autônomo.
+(Art. 126, § 5º, II, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 251",
+    titulo: "O transportador autônomo de carga pessoa física não contribuinte de IBS ou inscrito como\nMEI deverá emitir documento fiscal em relação aos serviços de transporte de carga prestados",
+    conteudo: `Art. 251. O transportador autônomo de carga pessoa física não contribuinte de IBS ou inscrito como
+MEI deverá emitir documento fiscal em relação aos serviços de transporte de carga prestados.
+Parágrafo único. Para a emissão de documento fiscal, o transportador autônomo de cargas deverá
+inscrever-se no cadastro com identificação única, nos termos do Capítulo I do Título II deste Livro.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 252",
+    titulo: "Para fins de apropriação do crédito presumido, o adquirente de transporte autônomo de carga\ndeverá emitir documento fiscal relativo à aquisição, que discriminará",
+    conteudo: `Art. 252. Para fins de apropriação do crédito presumido, o adquirente de transporte autônomo de carga
+deverá emitir documento fiscal relativo à aquisição, que discriminará: (Art. 169, § 2º, da LC 214/2025)
+I - o valor da operação, que corresponderá ao valor pago ao fornecedor;
+II - o valor do crédito presumido;
+III - o valor líquido para efeitos fiscais, que corresponderá à diferença entre os valores discriminados
+nos incisos I e II do caput deste artigo;
+IV - a identificação do fornecedor;
+V - a data da aquisição do serviço; e
+VI - a indicação do documento fiscal relativo ao fornecimento.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 253",
+    titulo: "O valor do crédito presumido de que trata o inciso II do caput do art",
+    conteudo: `Art. 253. O valor do crédito presumido de que trata o inciso II do caput do art. 252 será o resultado da
+aplicação da seguinte fórmula: (Art. 169, § 3º, da LC 214/2025)
+CP = [VOxC]/[1+C]
+sendo:
+CP = crédito presumido referido no inciso II do caput do art. 252;
+VO = valor da operação de aquisição referido no inciso I do caput do art. 252;
+C = coeficiente correspondente ao percentual de que trata o § 1º
+
+87
+
+§ 1º Os percentuais serão definidos e divulgados anualmente até o mês de setembro, por ato conjunto
+do Ministro de Estado da Fazenda e do CGIBS, e entrarão em vigor a partir de primeiro de janeiro do ano
+subsequente. (Art. 169, § 4º, da LC 214/2025)
+§ 2º A definição dos percentuais de que trata o § 1º: (Art. 169, § 5º, da LC 214/2025)
+I - será realizada com base nas informações fiscais disponíveis;
+II - resultará da aplicação da seguinte fórmula:
+P = [TC/(VO-TC)] X 100
+sendo:
+P = percentual de que trata o § 1º;
+TC = montante de IBS cobrado nas aquisições realizadas pelos transportadores referidos no caput do
+art. 250;
+VO = valor bruto dos serviços fornecidos pelos transportadores de que trata o inciso I do art. 252; e
+III - tomará por base as operações realizadas no ano-calendário anterior ao do prazo da divulgação
+previsto no § 1º
+§ 3º Para efeito do disposto no § 2º, não serão consideradas as aquisições de bens e serviços para
+uso e consumo pessoal, de que trata o art. 62, nem a aquisição de bens e serviços destinados ao uso e
+consumo pessoal do transportador ou de pessoas a ele relacionadas, nos termos do art. 63. (Art. 169, § 6º,
+da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 254",
+    titulo: "Os créditos presumidos do IBS de que trata o art",
+    conteudo: `Art. 254. Os créditos presumidos do IBS de que trata o art. 250 somente poderão ser utilizados para
+compensação, na forma do inciso I do art. 26, do valor do IBS devido pelo contribuinte, vedado o
+ressarcimento. (Art. 169, § 7º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 255",
+    titulo: "O direito à apropriação e à utilização do crédito presumido de que trata o art",
+    conteudo: `Art. 255. O direito à apropriação e à utilização do crédito presumido de que trata o art. 250 aplica-se
+também à sociedade cooperativa, optante ou não pelo regime específico de que trata o art. 391, em relação
+ao recebimento de serviços de transporte de carga de seus associados transportadores autônomos pessoa
+física não contribuintes do IBS. (Art. 169, § 8º, da LC 214/2025)
+CAPÍTULO IX - DOS RESÍDUOS E DEMAIS MATERIAIS DESTINADOS À RECICLAGEM, REUTILIZAÇÃO
+OU LOGÍSTICA REVERSA ADQUIRIDOS DE PESSOA FÍSICA, COOPERATIVA OU OUTRA FORMA DE
+ORGANIZAÇÃO POPULAR`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 256",
+    titulo: "O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do\nreferido tributo relativos às aquisições de resíduos sólidos de coletores incentivados para utilização em\npro...",
+    conteudo: `Art. 256. O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do
+referido tributo relativos às aquisições de resíduos sólidos de coletores incentivados para utilização em
+processo de destinação final ambientalmente adequada. (Art. 170 da LC 214/2025)
+§ 1º Para fins do caput deste artigo, consideram-se:
+I - resíduos sólidos: material, substância, objeto ou bem descartado resultante de atividades humanas
+em sociedade, a cuja destinação final se procede, se propõe proceder ou se está obrigado a proceder, nos
+estados sólido ou semissólido, bem como gases contidos em recipientes e líquidos cujas particularidades
+tornem inviável o seu lançamento na rede pública de esgotos ou em corpos d’água ou exijam para isso
+soluções técnica ou economicamente inviáveis em face da melhor tecnologia disponível;
+II - coletores incentivados:
+a) pessoa física que executa a coleta ou a triagem de resíduos sólidos e a venda para contribuinte do
+IBS que lhes confere destinação final ambientalmente adequada;
+b) associação ou cooperativa de pessoas físicas que executa exclusivamente a atividade mencionada
+na alínea “a” deste inciso; e
+c) associação ou cooperativa que congrega exclusivamente as pessoas de que trata a alínea “b” deste
+inciso;
+III - destinação final ambientalmente adequada: destinação de resíduos sólidos para reutilização,
+reciclagem, compostagem e recuperação, bem como, na forma deste Regulamento, para aproveitamento
+energético e para disposição final.
+§ 2º Os créditos presumidos de que trata este artigo serão calculados pela aplicação dos percentuais
+definidos no Livro II sobre o valor de aquisição registrado no documento fiscal a que se refere o § 5º
+§ 3º Os créditos presumidos de que trata o caput deste artigo não serão concedidos às aquisições de:
+
+88`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 256 (parte 2)",
+    titulo: "I - agrotóxicos, seus resíduos e embalagens;\nII - medicamentos domiciliares, de uso humano, industrializados e manipulados e, observados critérios\nestabelecidos no regulamento, de suas embalagens;...",
+    conteudo: `I - agrotóxicos, seus resíduos e embalagens;
+II - medicamentos domiciliares, de uso humano, industrializados e manipulados e, observados critérios
+estabelecidos no regulamento, de suas embalagens;
+III - pilhas e baterias;
+IV - pneus;
+V - produtos eletroeletrônicos e seus componentes de uso doméstico;
+VI - óleos lubrificantes, seus resíduos e embalagens;
+VII - lâmpadas fluorescentes, de vapor de sódio e mercúrio e de luz mista; e
+VIII - sucata de cobre.
+§ 4º Não se aplica o disposto no inciso VI do § 3º às aquisições de óleo lubrificante usado ou
+contaminado por rerrefinador ou coletor autorizado pela ANP a realizar a coleta, ficando permitida a concessão
+de créditos presumidos de IBS conforme o disposto neste Capítulo.
+§ 5º O adquirente deverá emitir documento fiscal relativo à aquisição, que discriminará:
+I - o valor da operação, que corresponderá ao valor pago ao coletor incentivado;
+II - o valor do crédito presumido;
+III - a identificação do fornecedor;
+IV - a data da aquisição; e
+V - a indicação do documento fiscal relativo ao fornecimento, nos casos das alíneas “b” e “c” do inciso
+II do § 1º
+§ 6º A apropriação de créditos presumidos pelo adquirente de que trata este artigo:
+I - somente é permitida em relação a aquisições acobertadas pelo documento fiscal de que trata o § 5º;
+e
+II - ocorrerá à medida que forem confirmados os pagamentos efetuados ao coletor incentivado.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 257",
+    titulo: "Os créditos presumidos de que trata o art",
+    conteudo: `Art. 257. Os créditos presumidos de que trata o art. 256 somente poderão ser utilizados para
+compensação, na forma do inciso I do art. 26, com débito de IBS devido pelo contribuinte, vedado o
+ressarcimento. (Art. 170, § 2º, da LC 214/2025)
+CAPÍTULO X - DOS BENS MÓVEIS USADOS ADQUIRIDOS DE PESSOA FÍSICA NÃO CONTRIBUINTE
+PARA REVENDA`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, ressarcimento",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 258",
+    titulo: "O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do\nreferido tributo relativos às aquisições, para revenda, de bem móvel usado de pessoa física que não seja\ncont...",
+    conteudo: `Art. 258. O contribuinte de IBS sujeito ao regime regular poderá apropriar créditos presumidos do
+referido tributo relativos às aquisições, para revenda, de bem móvel usado de pessoa física que não seja
+contribuinte do referido tributo ou que seja inscrita como MEI. (Art. 171 da LC 214/2025)
+§ 1º Os créditos presumidos de que trata este artigo serão calculados pela aplicação dos percentuais
+definidos no Livro II sobre o valor da aquisição registrado no documento fiscal a que se refere o § 2º
+§ 2º O adquirente deverá emitir documento fiscal relativo à aquisição, que discriminará:
+I - a identificação do alienante;
+II - o valor da aquisição, que corresponderá ao valor pago à pessoa física;
+III - a descrição detalhada do bem móvel usado adquirido;
+IV - a indicação da natureza da operação;
+V - a declaração de que o alienante não é contribuinte do IBS ou está enquadrado como MEI;
+VI - a data da aquisição; e
+VII - o valor do crédito presumido.
+§ 3º O contribuinte deverá manter à disposição da administração tributária a documentação que
+comprove a veracidade da operação, incluindo contrato, recibo de pagamento, registros contábeis e eventuais
+laudos ou avaliações, se houver.
+
+89
+
+§ 4º Os créditos presumidos de que trata o caput deste artigo somente poderão ser utilizados para
+compensação com débito de IBS devido pelo contribuinte, por ocasião da revenda do bem usado sobre o qual
+tenham sido calculados os respectivos créditos.
+§ 5º A vinculação entre a aquisição e a revenda do bem móvel usado, para fins de apuração e
+apropriação do crédito presumido de que trata o caput deste artigo, será realizada da seguinte forma:
+I - no caso de veículos automotores, a vinculação será feita obrigatoriamente por meio do número do
+Registro Nacional de Veículos Automotores (RENAVAM), que deverá constar nos documentos fiscais
+pertinentes à aquisição e à revenda;
+II - para os demais bens móveis usados, o contribuinte deverá comprovar a vinculação por meio de
+controle individualizado, quando h`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 258 (parte 2)",
+    titulo: "ouver numeração ou sistema de rastreamento fornecido por fabricante,\nórgão público ou entidade reconhecida, que permita identificar o bem de forma inequívoca, devendo tal meio\nde controle individua...",
+    conteudo: `ouver numeração ou sistema de rastreamento fornecido por fabricante,
+órgão público ou entidade reconhecida, que permita identificar o bem de forma inequívoca, devendo tal meio
+de controle individualizado constar nos documentos fiscais pertinentes à aquisição e à revenda.
+§ 6º Na hipótese de inexistência de mecanismo de controle individualizado nos termos do inciso II do §
+5º, considerar-se-á, para fins do crédito presumido de que trata este artigo, que 50% (cinquenta por cento) do
+valor da receita de revenda corresponde à aquisição de bens móveis usados com direito ao crédito, salvo
+comprovação em contrário pelo contribuinte.
+§ 7º Para fins do disposto neste artigo, considera-se bem móvel usado aquele que tenha sido objeto
+de fornecimento para consumo final de pessoa física e tenha voltado à comercialização. (Art. 171, § 4º, da LC
+214/2025)
+§ 8º O crédito presumido de que trata o caput deste artigo não se aplica às operações de desmontagem
+ou reaproveitamento de partes ou peças do bem móvel usado adquirido, sendo admitido exclusivamente nas
+hipóteses de revenda do bem móvel usado em sua integralidade, ainda que com recondicionamento ou
+reparo, desde que mantida a individualização do referido bem móvel.
+TÍTULO VI - DOS REGIMES ESPECÍFICOS DO IBS
+CAPÍTULO I - DOS COMBUSTÍVEIS
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, credito, credito_presumido",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 259",
+    titulo: "O IBS incidirá uma única vez sobre as operações, ainda que iniciadas no exterior, com os\nseguintes combustíveis, qualquer que seja a sua finalidade",
+    conteudo: `Art. 259. O IBS incidirá uma única vez sobre as operações, ainda que iniciadas no exterior, com os
+seguintes combustíveis, qualquer que seja a sua finalidade: (Art. 172 da LC 214/2025)
+I - gasolina e suas correntes;
+II - etanol anidro combustível (EAC);
+III - óleo diesel e suas correntes;
+IV - biodiesel (B100);
+V - gás liquefeito de petróleo (GLP), inclusive o gás liquefeito derivado de gás natural (GLGN);
+VI - etanol hidratado combustível (EHC);
+VII - querosene de aviação (QAV);
+VIII - óleo combustível;
+IX - gás natural processado;
+X - biometano;
+XI - gás natural veicular (GNV); e
+XII - outros combustíveis especificados e autorizados pela ANP, relacionados em ato conjunto do Poder
+Executivo da União e do CGIBS.
+§ 1º A incidência do IBS nas operações realizadas com os combustíveis de que trata o caput deste
+artigo ocorrerá uma única vez, da seguinte forma:
+I - no fornecimento pelos contribuintes do art. 263, no caso de operações realizadas no mercado interno;
+ou
+II - na importação, no caso de operações iniciadas no exterior.
+
+90
+
+§ 2º Para efeitos dos incisos I e III do caput deste artigo, consideram-se correntes os hidrocarbonetos
+líquidos derivados de petróleo e os hidrocarbonetos líquidos derivados de gás natural utilizados em mistura
+mecânica para a produção de gasolinas ou de diesel, em conformidade com as normas estabelecidas pela
+ANP.
+§ 3º Ato conjunto da RFB e do CGIBS preverá hipóteses de suspensão do IBS e da CBS incidentes
+nas operações com hidrocarbonetos líquidos derivados de petróleo não combustíveis ou de gás natural,
+inclusive nafta, desde que:
+I - os adquirentes sejam Centrais Petroquímicas devidamente autorizadas pela ANP;
+II - sejam utilizados como insumo pela indústria petroquímica; e
+III - obedeçam a critérios e condições estabelecidos no referido ato conjunto.
+§ 4º Fica postergada para 1º de janeiro de 2033 a implementação do regime específico dos
+combustíveis de que tratam os incisos IX, X e XI do caput deste artigo.
+Seção II - Da Base de Cál`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, combustivel, importacao, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 259 (parte 2)",
+    titulo: "culo",
+    conteudo: `culo`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, combustivel, importacao, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 260",
+    titulo: "A base de cálculo do IBS será a quantidade de combustível objeto da operação",
+    conteudo: `Art. 260. A base de cálculo do IBS será a quantidade de combustível objeto da operação. (Art. 173 da
+LC 214/2025)
+§ 1º A quantidade de combustível será aferida de acordo com a unidade de medida própria de cada
+combustível.
+§ 2º As operações com combustíveis líquidos comercializados por volume têm como base de cálculo o
+volume do combustível convertido a 20°C (vinte graus Celsius), nos termos de ato conjunto da RFB e do
+CGIBS.
+§ 3º A base de cálculo será expressa considerando as seguintes unidades de medida:
+I - gasolina e suas correntes - Litro (l);
+II - etanol anidro combustível (EAC) - Litro (l);
+III - óleo diesel e suas correntes - Litro (l);
+IV - biodiesel (B100) - Litro (l);
+V - gás liquefeito de petróleo (GLP), inclusive o gás liquefeito derivado de gás natural (GLGN) Quilograma (kg);
+VI - etanol hidratado combustível (EHC) - Litro (l);
+VII - querosene de aviação (QAV) - Litro (l); e
+VIII - óleo combustível - Quilograma (kg);
+IX - gás natural processado - Metro cúbico (m³);
+X - biometano - Metro cúbico (m³); e
+XI - gás natural veicular (GNV) - Metro cúbico (m³).
+§ 4º O ato conjunto de que trata o inciso XII do art. 259 especificará, para fins de expressão da base
+de cálculo do IBS, a unidade de medida aplicável aos combustíveis que relacionar.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, combustivel",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 261",
+    titulo: "O valor do IBS corresponderá à multiplicação da base de cálculo, nos termos desta Seção,\npela alíquota específica aplicável a cada combustível",
+    conteudo: `Art. 261. O valor do IBS corresponderá à multiplicação da base de cálculo, nos termos desta Seção,
+pela alíquota específica aplicável a cada combustível.
+§ 1º No cálculo do IBS, considerar-se-ão os códigos da ANP e da NCM/SH dos combustíveis elencados
+no caput do art. 259.
+§ 2º Os contribuintes e os demais participantes da cadeia econômica que fornecerem combustíveis
+deverão emitir documentos fiscais com as unidades de medida definidas nesta Seção.
+Seção III - Das Alíquotas Específicas`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, combustivel",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 262",
+    titulo: "As alíquotas do IBS aplicáveis aos combustíveis de que trata o art",
+    conteudo: `Art. 262. As alíquotas do IBS aplicáveis aos combustíveis de que trata o art. 259 serão disciplinadas
+no Capítulo V do Título I do Livro II.
+
+91
+
+Seção IV - Da Sujeição Passiva`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, combustivel",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 263",
+    titulo: "São contribuintes do regime específico de IBS de que trata este Capítulo",
+    conteudo: `Art. 263. São contribuintes do regime específico de IBS de que trata este Capítulo: (Art. 176 da LC
+214/2025)
+I - o produtor nacional de biocombustíveis;
+II - a refinaria de petróleo e suas bases;
+III - a central de matéria-prima petroquímica (CPQ);
+IV - a unidade de processamento de gás natural (UPGN) e o estabelecimento produtor e industrial a
+ele equiparado, definido e autorizado por órgão competente;
+V - o formulador de combustíveis;
+VI - o importador; e
+VII - qualquer agente produtor não referido nos incisos I a VI do caput deste artigo, autorizado pela ANP
+e pelo CGIBS.
+§ 1º O disposto neste artigo também se aplica ao distribuidor de combustíveis em suas operações como
+importador.
+§ 2º Equipara-se ao produtor nacional de biocombustíveis a cooperativa de produtores de etanol
+autorizada por órgão competente.`,
+    topicos: "CBS, IBS, Reforma Tributária, biocombustivel, combustivel, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 264",
+    titulo: "Nas operações realizadas diretamente com os contribuintes de que trata o art",
+    conteudo: `Art. 264. Nas operações realizadas diretamente com os contribuintes de que trata o art. 263, o
+adquirente fica solidariamente responsável pelo pagamento do IBS incidente na operação, nos termos
+previstos neste artigo. (Art. 177 da LC 214/2025)
+§ 1º A responsabilidade a que se refere o caput deste artigo:
+I - não se aplica na hipótese em que a transação de pagamento tenha sido liquidada por instrumento
+eletrônico que permita o recolhimento do IBS na liquidação financeira da operação (split payment), nos termos
+dos arts. 28 a 35;
+II - restringe-se ao valor do IBS não extinto pelo contribuinte, na forma dos incisos I e II do caput do art.
+26; e
+III - estende-se aos demais participantes da cadeia econômica, não referidos no caput deste artigo, que
+realizarem operações subsequentes à tributação monofásica de que trata este Capítulo, se houver
+comprovação de que concorreram para o não pagamento do IBS devido pelo contribuinte.
+§ 2º Para fins de definição do valor a que se refere o inciso II do § 1º, será observada, em cada período
+de apuração, a ordem cronológica prevista no § 1º do art. 26.
+Seção V - Das Operações com Etanol Anidro Combustível (EAC)`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel, split_payment",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 265",
+    titulo: "Fica atribuída à refinaria de petróleo ou suas bases, à CPQ, ao formulador de combustíveis e\nao importador, relativamente ao percentual de biocombustível utilizado na mistura, nas operações com\ngas...",
+    conteudo: `Art. 265. Fica atribuída à refinaria de petróleo ou suas bases, à CPQ, ao formulador de combustíveis e
+ao importador, relativamente ao percentual de biocombustível utilizado na mistura, nas operações com
+gasolina A, a responsabilidade pela retenção e pelo recolhimento do IBS incidente nas importações de EAC
+ou sobre as saídas do estabelecimento produtor de EAC. (Art. 178 da LC 214/2025)
+§ 1º O valor do IBS de que trata este artigo deverá ser retido concomitantemente com o IBS devido nas
+operações com Gasolina A e corresponderá, a cada operação, à aplicação da seguinte fórmula:
+VRBM = [QTDA / (1 - IM)] x IM x ALIQ
+considerando-se:
+I - VRBM: valor retido sobre o biocombustível (EAC) a ser adicionado para composição da Gasolina C;
+II - QTDA: quantidade de Gasolina A convertida a 20 °C (vinte graus Celsius) e faturada pelo contribuinte
+sujeito passivo da tributação monofásica na operação tributada;
+III - IM: índice de mistura do EAC na Gasolina C instituído pelo órgão regulamentador; e
+IV - ALIQ: alíquota específica do IBS sobre o EAC.
+§ 2º O IBS retido nos termos deste artigo será recolhido nos mesmos prazos definidos para o
+recolhimento do IBS devido nas operações com Gasolina A.
+
+92
+
+§ 3º O produtor de EAC emitirá documento fiscal por ocasião da saída, fazendo constar no campo
+próprio a expressão “IBS com incidência monofásica com recolhimento realizado por terceiros”.
+§ 4º O contribuinte mencionado no caput deste artigo, quando efetuar operações com gasolina A,
+deverá indicar nos campos próprios o valor do imposto cobrado sujeito a tributação monofásica da sua
+operação com o derivado de petróleo e o valor do imposto retido e recolhido incidente nas importações de
+EAC ou nos fornecimentos do estabelecimento produtor de EAC.
+§ 5º O IBS incidente nas importações de EAC ou sobre os fornecimentos pelo estabelecimento produtor
+de EAC, para fins de mistura com a gasolina A, será recolhido em conjunto com o imposto devido sobre a
+referida gasolina, pela refinaria de petról`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, biocombustivel, combustivel",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 265 (parte 2)",
+    titulo: "eo ou suas bases, pela CPQ, ou pelo formulador de combustíveis",
+    conteudo: `eo ou suas bases, pela CPQ, ou pelo formulador de combustíveis.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, biocombustivel, combustivel",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 266",
+    titulo: "Nas operações com EAC: (Art. 179 da LC 214/2025)\nI - o adquirente de EAC destinado à mistura com gasolina A que realizar a saída do biocombustível com\ndestinação diversa fica obrigado a recolher o...",
+    conteudo: `Art. 266. Nas operações com EAC: (Art. 179 da LC 214/2025)
+I - o adquirente de EAC destinado à mistura com gasolina A que realizar a saída do biocombustível com
+destinação diversa fica obrigado a recolher o IBS incidente sobre o biocombustível, devendo emitir documento
+fiscal de saída com o valor a ser recolhido de acordo com a alíquota vigente no ato da operação; e
+II - a distribuidora de combustíveis que realizar mistura de EAC com gasolina A em percentual:
+a) superior ao obrigatório, fica obrigada a recolher o IBS de que trata o art. 259 em relação ao volume
+de biocombustível correspondente ao que exceder ao percentual obrigatório de mistura; e
+b) inferior ao obrigatório, ouvida a ANP, e que o tributo tenha sido recolhido anteriormente, terá direito
+ao ressarcimento do IBS de que trata o art. 259, nos termos de procedimentos a serem estabelecidos em ato
+conjunto da RFB e do CGIBS, em relação ao volume de biocombustível correspondente ao misturado a menor
+do que o percentual obrigatório de mistura.
+§ 1º A distribuidora recolherá o IBS previsto na alínea “a” do inciso II do caput deste artigo por meio da
+multiplicação do volume de EAC excedido pela respectiva alíquota específica.
+§ 2º Para fins do ressarcimento de que trata a alínea “b” do inciso II do caput deste artigo, a distribuidora
+de combustível deverá protocolar requerimento, que será decidido pelo CGIBS.
+Seção VI - Dos Créditos na Aquisição de Combustíveis Submetidos ao Regime de Tributação
+Monofásica`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, biocombustivel, combustivel, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 267",
+    titulo: "É vedada a apropriação de créditos em relação às aquisições de combustíveis sujeitos à\nincidência única do IBS, quando destinadas à distribuição, à comercialização ou à revenda",
+    conteudo: `Art. 267. É vedada a apropriação de créditos em relação às aquisições de combustíveis sujeitos à
+incidência única do IBS, quando destinadas à distribuição, à comercialização ou à revenda. (Art. 180 da LC
+214/2025)
+§ 1º Excetuadas as hipóteses previstas no caput deste artigo, o contribuinte no regime regular poderá
+apropriar créditos do IBS em relação à aquisição de combustíveis, nos termos do § 4º do art. 47.
+§ 2º Fica assegurado ao exportador de combustíveis o direito à apropriação e à utilização dos créditos
+do IBS relativos às aquisições de que trata esta Seção, na forma do § 4º do art. 47.
+§ 3º Os demais participantes da cadeia econômica de combustíveis deverão emitir documentos fiscais,
+fazendo constar no campo próprio o valor do IBS recolhido antecipadamente, em reais, por unidade de
+medida, dos respectivos combustíveis.
+§ 4º O crédito admitido nos termos do § 1º deverá considerar os valores do IBS registrados nos
+documentos fiscais idôneos, limitado ao resultado da multiplicação da quantidade de cada combustível pela
+respectiva alíquota específica do IBS vigente por ocasião da incidência monofásica na unidade de medida do
+referido combustível.
+Seção VII - Demais Obrigações Acessórias`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, combustivel, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 268",
+    titulo: "Os contribuintes e demais participantes da cadeia econômica de combustíveis deverão se\ninscrever no cadastro com identificação única, nos termos do Capítulo I do Título II deste Livro",
+    conteudo: `Art. 268. Os contribuintes e demais participantes da cadeia econômica de combustíveis deverão se
+inscrever no cadastro com identificação única, nos termos do Capítulo I do Título II deste Livro.
+§ 1º Como pré-requisito à inscrição no cadastro na condição de participante da cadeia econômica de
+combustíveis, exige-se autorização da ANP para participar da referida cadeia econômica.
+§ 2º A inscrição poderá ser suspensa, na forma de ato conjunto da RFB e do CGIBS, se for constatada:
+I - a ocorrência de aquisição, transporte, estocagem, distribuição ou revenda de combustível em
+desconformidade com as especificações estabelecidas pelo órgão regulador competente; ou
+II - a inobservância das normas deste Regulamento e de portaria específica dos órgãos e entidades
+competentes ou da ANP, pelo contribuinte inscrito como fabricante, importador ou distribuidor de combustíveis
+
+93
+
+líquidos ou gasosos, derivados ou não de petróleo, inclusive solventes, nafta ou outro produto apto a produzir
+ou formular combustível, e pelo Transportador Revendedor Retalhista, posto revendedor varejista de
+combustível ou empresa comercializadora de etanol.
+CAPÍTULO II - DOS SERVIÇOS FINANCEIROS
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, combustivel",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 269",
+    titulo: "Os seguintes fornecimentos são considerados serviços financeiros e ficam sujeitos a regime\nespecífico de incidência do IBS de acordo com o disposto neste Capítulo",
+    conteudo: `Art. 269. Os seguintes fornecimentos são considerados serviços financeiros e ficam sujeitos a regime
+específico de incidência do IBS de acordo com o disposto neste Capítulo: (Arts. 181 e 182 da LC 214/2025)
+I - operações de crédito, incluídas as operações de captação e repasse, adiantamento, empréstimo,
+financiamento, desconto de títulos, recuperação de créditos e prestação de garantias, com exceção da
+securitização, faturização e liquidação antecipada de recebíveis de arranjos de pagamento, de que tratam,
+respectivamente, os incisos IV, V e IX do caput deste artigo;
+II - operações de câmbio, inclusive quando cobrado por tarifa ou comissão;
+III - operações com títulos e valores mobiliários, incluídas a aquisição, negociação, liquidação, custódia,
+corretagem, distribuição e outras formas de intermediação, bem como a atividade de assessor de investimento
+e de consultor de valores mobiliários;
+IV - operações de securitização;
+V - operações de faturização (factoring);
+VI - arrendamento mercantil (leasing), operacional ou financeiro, de quaisquer bens, incluídos a cessão
+de direitos e obrigações, substituição de garantia, alteração, cancelamento e registro de contrato e demais
+serviços relacionados ao arrendamento mercantil;
+VII - administração de consórcio;
+VIII - gestão e administração de recursos, inclusive de fundos de investimento;
+IX - arranjos de pagamento, incluídas as operações dos instituidores e das instituições de pagamentos,
+a liquidação antecipada de recebíveis desses arranjos e a administração de programas de fidelização;
+X - atividades de entidades administradoras de mercados organizados, infraestruturas de mercado e
+depositárias centrais;
+XI - operações de seguros, com exceção dos seguros de saúde de que trata o Capítulo III deste Título;
+XII - operações de resseguros;
+XIII - previdência privada, composta de operações de administração e gestão da previdência
+complementar aberta e fechada;
+XIV - operações de capitalização;
+XV - intermediação de consórcios`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 269 (parte 2)",
+    titulo: ", seguros, resseguros, previdência complementar e capitalização;\nXVI - serviços de ativos virtuais; e\nXVII - operações de proteção patrimonial mutualista",
+    conteudo: `, seguros, resseguros, previdência complementar e capitalização;
+XVI - serviços de ativos virtuais; e
+XVII - operações de proteção patrimonial mutualista.
+§ 1º Para os fins deste Capítulo, considera-se:
+I - aferição, o cotejo entre receitas e deduções para o cálculo do débito do IBS em determinado período,
+por meio da DeRE referida no Capítulo II do Título II deste Livro;
+II - apuração, o cotejo entre créditos e débitos de IBS em determinado período, no âmbito da apuração
+a que se referem os art. 44 a 46.
+§ 2º Aplica-se o disposto neste regime específico à totalidade da contraprestação pelos serviços
+financeiros previstos nos incisos I a XVII do caput deste artigo, independentemente da sua nomenclatura.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 270",
+    titulo: "Os serviços financeiros ficam sujeitos ao regime específico deste Capítulo quando forem\nprestados por pessoas físicas e jurídicas supervisionadas pelos órgãos governamentais que compõem o\nSistema F...",
+    conteudo: `Art. 270. Os serviços financeiros ficam sujeitos ao regime específico deste Capítulo quando forem
+prestados por pessoas físicas e jurídicas supervisionadas pelos órgãos governamentais que compõem o
+Sistema Financeiro Nacional e pelos demais fornecedores de que trata este artigo, observado o disposto no
+art. 271. (Art. 183 da LC 214/2025)
+§ 1º As pessoas físicas e jurídicas supervisionadas de que trata o caput deste artigo são as seguintes:
+I - bancos de qualquer espécie;
+
+94
+
+II - caixas econômicas;
+III - cooperativas de crédito;
+IV - corretoras de câmbio;
+V - corretoras de títulos e valores mobiliários;
+VI - distribuidoras de títulos e valores mobiliários;
+VII - administradoras e gestoras de carteiras de valores mobiliários, inclusive de fundos de investimento;
+VIII - assessores de investimento;
+IX - consultores de valores mobiliários;
+X - correspondentes registrados no Banco Central do Brasil;
+XI - administradoras de consórcio;
+XII - corretoras e demais intermediárias de consórcios;
+XIII - sociedades de crédito direto;
+XIV - sociedades de empréstimo entre pessoas;
+XV - agências de fomento;
+XVI - associações de poupança e empréstimo;
+XVII - companhias hipotecárias;
+XVIII - sociedades de crédito, financiamento e investimentos;
+XIX - sociedades de crédito imobiliário;
+XX - sociedades de arrendamento mercantil;
+XXI - sociedades de crédito ao microempreendedor e à empresa de pequeno porte;
+XXII - instituições de pagamento;
+XXIII - entidades administradoras de mercados organizados de valores mobiliários, incluídos os
+mercados de bolsa e de balcão organizado, entidades de liquidação e compensação, depositárias centrais e
+demais entidades de infraestruturas do mercado financeiro;
+XXIV - sociedades seguradoras;
+XXV - resseguradores, incluídos resseguradores locais, resseguradores admitidos e resseguradores
+eventuais;
+XXVI - entidades abertas de previdência complementar e fechadas que não atendam aos requisitos
+mencionados no § 12 do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 270 (parte 2)",
+    titulo: "25;\nXXVII - sociedades de capitalização;\nXXVIII - corretores de seguros, corretores de resseguros e demais intermediários de seguros,\nresseguros, previdência complementar e capitalização; e\nXXIX -...",
+    conteudo: `25;
+XXVII - sociedades de capitalização;
+XXVIII - corretores de seguros, corretores de resseguros e demais intermediários de seguros,
+resseguros, previdência complementar e capitalização; e
+XXIX - prestadores de serviços de ativos virtuais.
+§ 2º Incluem-se também entre os fornecedores de que trata o caput deste artigo, ainda que não
+supervisionados pelos órgãos governamentais que compõem o Sistema Financeiro Nacional:
+I - participantes de arranjos de pagamento e entidades que realizam a administração de programas de
+fidelização que não são instituições de pagamento;
+II - empresas que têm por objeto a securitização de créditos;
+III - empresas de faturização (factoring);
+IV - empresas simples de crédito;
+V - correspondentes registrados no Banco Central do Brasil; e
+VI - demais fornecedores, que prestem serviço financeiro:
+a) no desenvolvimento de atividade econômica;
+b) de modo habitual ou em volume que caracterize atividade econômica; ou
+
+95
+
+c) de forma profissional, ainda que a profissão não seja regulamentada.
+§ 3º Desde que não caracterize intermediação financeira ou fornecimento de outro serviço a terceiros,
+não se enquadram no inciso VI do § 2º as seguintes operações:
+I - aquisição, negociação, liquidação de títulos e valores mobiliários ou de moeda estrangeira; e
+II - realização de mútuo de recursos financeiros.
+§ 4º Para efeitos do § 3º, caracterizam intermediação financeira ou fornecimento de outro serviço a
+terceiros, dentre outros elementos:
+I - a utilização de recursos captados de terceiros para as operações de que tratam os incisos do § 3º;
+II - a realização de atividades habituais de análise de crédito ou de cobrança, mesmo que realizada por
+terceiros, de devedores cuja remuneração do credor esteja, efetivamente, embutida nos juros cobrados; e
+III - exigência de garantia para cobertura do risco.
+§ 5º Aplica-se o disposto neste Capítulo aos fornecedores que:
+I - passarem a ser supervisionados pelos órgãos governamentais de que trata o caput deste artigo`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 270 (parte 3)",
+    titulo: "após\na data de publicação da Lei Complementar nº 214, de 2025; ou\nII - vierem a realizar as operações de que tratam os incisos I a XVII do caput do art",
+    conteudo: `após
+a data de publicação da Lei Complementar nº 214, de 2025; ou
+II - vierem a realizar as operações de que tratam os incisos I a XVII do caput do art. 269, nos termos
+do inciso VI do § 2º, ainda que não supervisionados pelos órgãos governamentais de que trata o caput deste
+artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 271",
+    titulo: "Os serviços que, por disposição regulatória, somente possam ser prestados pelas instituições\nfinanceiras bancárias e sejam remunerados por tarifas e comissões, incluídos os serviços de abertura,\nma...",
+    conteudo: `Art. 271. Os serviços que, por disposição regulatória, somente possam ser prestados pelas instituições
+financeiras bancárias e sejam remunerados por tarifas e comissões, incluídos os serviços de abertura,
+manutenção e encerramento de conta de depósito à vista e conta de poupança, fornecimento de cheques, de
+saque e de transferência de valores, ficam sujeitos às normas gerais de incidência do IBS previstas no Título
+I deste Livro. (Art. 184 da LC 214/2025)
+§ 1º Para fins do disposto no caput deste artigo, consideram-se instituições financeiras bancárias os
+bancos de qualquer espécie e as caixas econômicas, de que tratam os incisos I e II do § 1º do art. 270.
+§ 2º Os serviços de manutenção e encerramento de conta de pagamento pré-paga e pós-paga
+prestados por instituições de pagamento e remunerados por tarifa e comissão também ficam sujeitos às
+normas gerais de incidência do IBS previstas no Título I deste Livro.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 272",
+    titulo: "Também ficam sujeitos às normas gerais de incidência do IBS previstas no Título I deste Livro\ne, se for o caso, aos regimes diferenciados de que trata o Título V deste Livro e não se sujeitam ao di...",
+    conteudo: `Art. 272. Também ficam sujeitos às normas gerais de incidência do IBS previstas no Título I deste Livro
+e, se for o caso, aos regimes diferenciados de que trata o Título V deste Livro e não se sujeitam ao disposto
+no regime específico deste Capítulo, os demais serviços que forem prestados pelos fornecedores de que trata
+o art. 270 e não forem definidos como serviços financeiros no art. 269. (Art. 184, § 3º, da LC 214/2025)
+Seção II - Disposições Comuns aos Serviços Financeiros`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 273",
+    titulo: "A base de cálculo do IBS no regime específico de serviços financeiros será composta pelas\nreceitas das operações sujeitas a esse regime, conforme disposto no art",
+    conteudo: `Art. 273. A base de cálculo do IBS no regime específico de serviços financeiros será composta pelas
+receitas das operações sujeitas a esse regime, conforme disposto no art. 269, observadas as deduções
+previstas neste Capítulo. (Art. 185 da LC 214/2025)
+§ 1º Incluem-se na base de cálculo as receitas: (Art. 186 da LC 214/2025)
+I - de reversão de provisões, desde que a respectiva provisão tenha sido deduzida da base de cálculo;
+e
+II - da recuperação de créditos baixados como prejuízo, desde que a respectiva baixa tenha sido
+deduzida da base de cálculo.
+§ 2º Aplica-se o disposto neste Capítulo aos elementos que compõem a base de cálculo estabelecidos
+em cada Seção relativa aos serviços financeiros previstos nos incisos I a XVII do caput do art. 269,
+independentemente da sua nomenclatura.
+§ 3º As deduções a que se refere o caput deste artigo aplicam-se somente às receitas a que estão
+vinculadas, observado, em relação às despesas financeiras com a captação de recursos, o disposto no art.
+277.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 274",
+    titulo: "O período de aferição da base de cálculo do IBS, para fins de determinação do débito do\nimposto, no regime específico de serviços financeiros será mensal",
+    conteudo: `Art. 274. O período de aferição da base de cálculo do IBS, para fins de determinação do débito do
+imposto, no regime específico de serviços financeiros será mensal. (Art. 300 da LC 214/2025)
+§ 1º Para fins da aferição de que trata este artigo:
+
+96
+
+I - nos fornecimentos em relação aos quais este Regulamento não preveja deduções de base de
+cálculo, aplicar-se-á o disposto no § 2º do art. 13;
+II - nos fornecimentos em relação aos quais este Regulamento preveja deduções de base de cálculo,
+após a redução das deduções expressamente previstas neste Capítulo, o contribuinte deverá deduzir:
+a) o valor do ISS do valor do faturamento bruto de cada operação, mantendo o valor do IBS e da CBS
+destacado nos termos do art. 275; e
+b) o IBS e a CBS da base de cálculo por meio da divisão do valor aferido na forma da alínea “a” deste
+inciso pelo valor correspondente a um inteiro acrescido do percentual correspondente à soma das alíquotas
+do IBS e da CBS previstas para essas operações.
+§ 2º A aferição da base de cálculo do IBS de que trata o inciso II do § 1º corresponderá, no período de
+aferição mensal, à aplicação da seguinte fórmula:
+BC IBS = [(Faturamento bruto – Deduções previstas) – ∑ISSop.] / (1 + alíq IBS + alíq CBS)
+Considerando-se:
+BC IBS: base de Cálculo do IBS de fornecimentos com previsão de dedução;
+Faturamento Bruto: receitas tributáveis no período + IBS + CBS;
+Deduções previstas: deduções do período previstas expressamente neste Regulamento;
+∑ISSop: ISS devido no fornecimento;
+Aliq IBS: alíquota do IBS aplicável ao fornecimento, expressa em percentual; e
+Aliq CBS: alíquota da CBS aplicável ao fornecimento, expressa em percentual.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 275",
+    titulo: "No fornecimento de serviços financeiros previstos no art",
+    conteudo: `Art. 275. No fornecimento de serviços financeiros previstos no art. 269, quando remunerados por
+margem, para efeitos de mensuração individualizada do IBS incidente sobre a operação, serão considerados,
+para fins de cálculo, os valores equivalentes ao crédito a que o adquirente ou o destinatário do regime regular
+teria direito na aquisição dos referidos serviços para fins de:
+I - recolhimento pelo adquirente de que trata o art. 36;
+II - programas de incentivo à cidadania fiscal de que trata o art. 512;
+III - devolução personalizada de que trata o Título VI do Livro II;
+IV - outras hipóteses previstas em ato conjunto da RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 276",
+    titulo: "As deduções da base de cálculo previstas neste Capítulo restringem-se a operações\nautorizadas por órgão governamental de que trata o caput do art",
+    conteudo: `Art. 276. As deduções da base de cálculo previstas neste Capítulo restringem-se a operações
+autorizadas por órgão governamental de que trata o caput do art. 270 desde que realizadas nos limites
+operacionais previstos na legislação pertinente, vedada a dedução de qualquer despesa administrativa. (Art.
+187 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 277",
+    titulo: "As despesas financeiras de captação deverão ser deduzidas das bases de cálculo de que\ntratam a Seção III e a Seção V deste Capítulo, em cada período de aferição, na proporção das receitas\nauferidas...",
+    conteudo: `Art. 277. As despesas financeiras de captação deverão ser deduzidas das bases de cálculo de que
+tratam a Seção III e a Seção V deste Capítulo, em cada período de aferição, na proporção das receitas
+auferidas de cada natureza. (Art. 202 da LC 214/2025)
+Parágrafo único. Para fins do disposto no caput deste artigo, em relação ao arrendamento mercantil
+financeiro, serão consideradas apenas as receitas de que trata o inciso I do caput do art. 297.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 278",
+    titulo: "Caso a base de cálculo do IBS no período de aferição seja negativa, o contribuinte poderá\ndeduzir o valor negativo da base de cálculo, sem qualquer atualização, das bases de cálculo positivas dos\np...",
+    conteudo: `Art. 278. Caso a base de cálculo do IBS no período de aferição seja negativa, o contribuinte poderá
+deduzir o valor negativo da base de cálculo, sem qualquer atualização, das bases de cálculo positivas dos
+períodos de aferição posteriores, observado o disposto no § 3º do art. 273. (Art. 301 da LC 214/2025)
+Parágrafo único. A dedução de que trata o caput poderá ser feita no prazo de até 5 (cinco) anos
+contados do último dia útil do período de apuração.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 279",
+    titulo: "Os contribuintes sujeitos ao regime específico de serviços financeiros poderão apropriar e\nutilizar o crédito de IBS sobre as suas aquisições de bens e serviços, obedecido o disposto nos arts",
+    conteudo: `Art. 279. Os contribuintes sujeitos ao regime específico de serviços financeiros poderão apropriar e
+utilizar o crédito de IBS sobre as suas aquisições de bens e serviços, obedecido o disposto nos arts. 47 a 61,
+salvo quando houver previsão de dedução de base de cálculo relativa ao bem ou serviço adquirido. (Art. 302
+da LC 214/2025)
+Parágrafo único. A apuração do IBS no regime específico de serviços financeiros não implica estorno,
+parcial ou integral, dos créditos relativos às aquisições de bens e serviços.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 280",
+    titulo: "Fica vedada a apropriação de crédito de IBS sobre os valores que forem deduzidos da base\nde cálculo, assim como a dedução em duplicidade de qualquer valor",
+    conteudo: `Art. 280. Fica vedada a apropriação de crédito de IBS sobre os valores que forem deduzidos da base
+de cálculo, assim como a dedução em duplicidade de qualquer valor. (Art. 303 da LC 214/2025)
+
+97
+
+Art. 281. As alíquotas do IBS aplicáveis aos serviços financeiros serão disciplinadas no Livro II.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 282",
+    titulo: "No caso de serviços financeiros adquiridos pela União, Estados, Distrito Federal e Municípios,\nserão aplicadas as mesmas regras previstas no art",
+    conteudo: `Art. 282. No caso de serviços financeiros adquiridos pela União, Estados, Distrito Federal e Municípios,
+serão aplicadas as mesmas regras previstas no art. 439 para as demais aquisições de bens e serviços pela
+administração pública direta, por autarquias e por fundações públicas. (Art. 306 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 283",
+    titulo: "As sociedades cooperativas que fornecerem serviços financeiros e exercerem a opção de que\ntrata o art",
+    conteudo: `Art. 283. As sociedades cooperativas que fornecerem serviços financeiros e exercerem a opção de que
+trata o art. 391: (Art. 188 da LC 214/2025)
+I - não deverão considerar na aferição da base de cálculo as receitas de serviços financeiros
+correspondentes às operações de que tratam o inciso II do caput e o § 1º, ambos do art. 391; e
+II - deverão reverter o efeito das deduções de base de cálculo previstas neste Capítulo
+proporcionalmente ao valor que as receitas de que trata o inciso I do caput deste artigo representarem do
+total de receitas de serviços financeiros da cooperativa.
+Parágrafo único. O disposto no caput deste artigo aplica-se também aos bancos cooperativos que
+exercerem a opção de que trata o art. 391 quando fornecerem serviços financeiros para sociedades
+cooperativas associadas.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 284",
+    titulo: "Não poderão apropriar créditos: (Art",
+    conteudo: `Art. 284. Não poderão apropriar créditos: (Art. 197 da LC 214/2025)
+I - os associados tomadores de operações de crédito com sociedades cooperativas que fornecerem
+serviços financeiros e exercerem a opção de que trata o art. 391;
+II - os tomadores de operações de crédito referenciadas em moeda estrangeira e os emissores de
+títulos de dívida referenciados em moeda estrangeira, observado o disposto no art. 292.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 285",
+    titulo: "Os créditos do IBS na aquisição de serviços financeiros, nas hipóteses previstas neste\nCapítulo, serão apropriados, com base nas informações prestadas na DeRE, referida no Capítulo II do Título\nII...",
+    conteudo: `Art. 285. Os créditos do IBS na aquisição de serviços financeiros, nas hipóteses previstas neste
+Capítulo, serão apropriados, com base nas informações prestadas na DeRE, referida no Capítulo II do Título
+II deste Livro, ao CGIBS e à RFB, e ficarão sujeitos ao disposto nos arts. 47 a 61. (Art. 190 da LC 214/2025)
+Seção III - Das Operações de Crédito, de Câmbio, com Títulos e Valores Mobiliários, de Securitização
+e de Faturização`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 286",
+    titulo: "Nas operações de crédito, de câmbio, e com títulos e valores mobiliários, de que tratam os\nincisos I a III do caput do art",
+    conteudo: `Art. 286. Nas operações de crédito, de câmbio, e com títulos e valores mobiliários, de que tratam os
+incisos I a III do caput do art. 269, para fins de determinação da base de cálculo, serão consideradas as
+receitas dessas operações, com a dedução de: (Art. 192 da LC 214/2025)
+I - despesas financeiras com a captação de recursos;
+II - despesas de câmbio relativas às operações de que trata o inciso II do caput do art. 269;
+III - perdas nas operações com títulos ou valores mobiliários de que trata o inciso III do caput do art.
+269;
+IV - encargos financeiros reconhecidos como despesas, ainda que contabilizados no patrimônio líquido,
+referentes a instrumentos de dívida emitidos pela pessoa jurídica;
+V - perdas incorridas no recebimento de créditos decorrentes das atividades das instituições financeiras
+e das demais instituições autorizadas a funcionar pelo Banco Central do Brasil nas operações com serviços
+financeiros de que tratam os incisos I a III do caput do art. 269 e perdas na cessão desses créditos e na
+concessão de descontos, desde que sejam realizadas a valor de mercado, obedecidas, ainda, em todos os
+casos, as mesmas regras de dedutibilidade da legislação do imposto de renda aplicáveis a essas perdas para
+os períodos de apuração iniciados a partir de 1º de janeiro de 2027; e
+VI - despesas com assessores de investimento, consultores de valores mobiliários e correspondentes
+registrados no Banco Central do Brasil, relativas às operações de que tratam os incisos I a III do caput do art.
+269, desde que esses serviços não tenham sido prestados por empregados ou administradores da empresa,
+comprovadas por documento fiscal idôneo emitido pelo assessor de investimento, pelo consultor de valores
+mobiliários e pelos correspondentes registrados no Banco Central do Brasil.
+§ 1º O conceito de receitas das operações:
+I - não inclui o valor do principal, caso se trate de operações de crédito;
+II - corresponde à diferença entre o valor de alienação do ativo e o seu custo de aqu`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 286 (parte 2)",
+    titulo: "isição, caso se\ntrate de alienação de títulos e valores mobiliários",
+    conteudo: `isição, caso se
+trate de alienação de títulos e valores mobiliários.
+§ 2º As despesas financeiras com captação de recursos não incluem o pagamento do principal.
+
+98
+
+§ 3º Na hipótese de estorno por qualquer razão, em contrapartida à conta de patrimônio líquido a que
+se refere o inciso IV do caput deste artigo, os valores anteriormente deduzidos deverão ser adicionados na
+base de cálculo.
+§ 4º O disposto no inciso IV do caput deste artigo não se aplica aos instrumentos patrimoniais, como
+ações, certificados de depósito de ações e bônus de subscrição.
+§ 5º As receitas e despesas computadas na base de cálculo de que trata o caput deste artigo incluem
+as variações monetárias em função da taxa de câmbio, quando o resultado das operações variar conforme a
+cotação de moeda estrangeira.
+§ 6º As receitas e despesas reconhecidas em contrapartida à avaliação a valor justo, no que exceder
+ao rendimento produzido nas operações de que trata o inciso III do caput do art. 269, devem ser evidenciadas
+em subconta e computadas na base de cálculo no momento da realização do respectivo ativo ou passivo.
+§ 7º As receitas e despesas com instrumentos financeiros derivativos contratados pelas entidades que
+realizam as operações previstas neste artigo também serão computadas na base de cálculo.
+§ 8º Não são consideradas receitas dos serviços de que trata o caput deste artigo, vedada a dedução
+das respectivas despesas financeiras de captação para aferição da base de cálculo, as auferidas em
+operações de crédito realizadas entre a cooperativa e o associado:
+I - com recursos próprios da cooperativa ou dos associados; ou
+II - com recursos públicos, direcionados, equalizados ou de fundos oficiais ou constitucionais.
+§ 9º Considera-se na base de cálculo a receita dos fornecimentos acessórios às operações
+mencionadas no caput deste artigo, nos termos do art. 7º, inclusive as previstas em contrato remunerados
+como tarifas e comissões.
+§ 10.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 286 (parte 3)",
+    titulo: "Para fins do § 9º, não são fornecimentos acessórios aqueles remunerados por tarifas e comissões\nexpressos nos incisos I a III do caput do art",
+    conteudo: `Para fins do § 9º, não são fornecimentos acessórios aqueles remunerados por tarifas e comissões
+expressos nos incisos I a III do caput do art. 269.
+§ 11. Para os serviços remunerados por tarifa ou comissão de que tratam os incisos I a III do caput do
+art. 269, considera-se base de cálculo o valor da remuneração, subtraídas as deduções permitidas nesta
+Seção, desde que comprovada por documento fiscal idôneo emitido pelo assessor de investimento, pelo
+consultor de valores imobiliários e pelos correspondentes registrados no Banco Central do Brasil e quando
+prestado a contribuinte do regime regular, individualizável por operação.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 287",
+    titulo: "Ficam sujeitas à incidência do IBS pela alíquota prevista no art",
+    conteudo: `Art. 287. Ficam sujeitas à incidência do IBS pela alíquota prevista no art. 479 as operações de
+securitização e de faturização (factoring) de que tratam os incisos IV e V do caput do art. 269. (Art. 193 da LC
+214/2025)
+§ 1º A base de cálculo do IBS corresponderá ao desconto aplicado na liquidação antecipada, com a
+dedução de:
+I - despesas financeiras com a captação de recursos;
+II - despesas da securitização, consistindo na emissão, distribuição, custódia, escrituração, registro,
+preparação e formalização de documentos, administração do patrimônio separado e atuação de agentes
+fiduciários, de cobrança e de classificação de risco, desde que esses serviços não tenham sido prestados por
+empregados ou administradores da empresa.
+§ 2º Poderão ser deduzidas da base de cálculo referida no § 1º as perdas incorridas no recebimento
+de créditos e as perdas na cessão desses créditos e na concessão de descontos, desde que sejam realizados
+a valor de mercado, obedecidas, ainda, em todos os casos, as mesmas regras de dedutibilidade da legislação
+do imposto de renda aplicáveis a essas perdas para os períodos de apuração iniciados a partir de 1º de janeiro
+de 2027.
+§ 3º As perdas referidas no § 2º que não puderem ser integralmente deduzidas da base de cálculo de
+um determinado período de apuração, por excederem os valores tributáveis em tal período, poderão ser
+deduzidas nos períodos subsequentes.
+§ 4º O Conselho Monetário Nacional e o Banco Central do Brasil, observadas as respectivas
+competências, regulamentarão as regras de enquadramento e desenquadramento dos requisitos previstos
+neste artigo.
+§ 5º Aplica-se o disposto neste artigo ao Fundo de Investimento em Direitos Creditórios (FIDC) que
+liquide antecipadamente recebíveis comerciais por meio de desconto de duplicatas, notas promissórias,
+cheques e outros títulos mercantis, conforme definidos em regulamentação a ser expedida pelo Conselho
+
+99`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 287 (parte 2)",
+    titulo: "Monetário Nacional, caso não seja classificado como entidade de investimento, de acordo com o disposto no\nart",
+    conteudo: `Monetário Nacional, caso não seja classificado como entidade de investimento, de acordo com o disposto no
+art. 23 da Lei nº 14.754, de 12 de dezembro de 2023, e em sua regulamentação.
+§ 6º Não ficam sujeitos à incidência do IBS os cotistas dos fundos a que se refere o § 5º`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 288",
+    titulo: "Os contribuintes no regime regular que não estejam sujeitos ao regime específico desta Seção\ne sejam tomadores de operações de crédito de que trata o inciso I do caput do art",
+    conteudo: `Art. 288. Os contribuintes no regime regular que não estejam sujeitos ao regime específico desta Seção
+e sejam tomadores de operações de crédito de que trata o inciso I do caput do art. 269 poderão apropriar
+créditos do IBS pela mesma alíquota devida sobre essas operações de crédito, aplicada sobre as despesas
+financeiras relativas a essas operações efetivamente pagas, pelo regime de caixa e calculadas a partir das
+seguintes deduções sobre o valor de cada parcela, após a data de seu pagamento: (Art. 194 da LC 214/2025)
+I - o montante referente ao valor do principal contido em cada parcela, obedecidas as regras de
+amortização previstas no contrato; e
+II - o montante correspondente à aplicação da taxa Selic sobre o principal, calculada com base na taxa
+de juros média praticada nas operações compromissadas com títulos públicos federais com prazo de 1 (um)
+dia útil.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 289",
+    titulo: "Os contribuintes no regime regular que não estejam sujeitos ao regime específico desta Seção\ne emitam títulos de dívida, incluídas as debêntures e notas comerciais, poderão apropriar créditos na fo...",
+    conteudo: `Art. 289. Os contribuintes no regime regular que não estejam sujeitos ao regime específico desta Seção
+e emitam títulos de dívida, incluídas as debêntures e notas comerciais, poderão apropriar créditos na forma
+do art. 288, durante o período em que o título ou valor mobiliário for detido por contribuinte no regime
+específico desta Seção. (Art. 195 da LC 214/2025)
+§ 1º Na hipótese de que trata o caput deste artigo, quando o título de dívida for objeto de oferta pública,
+na forma regulamentada pela Comissão de Valores Mobiliários:
+I - o credor no regime específico de que trata esta Seção excluirá da base de cálculo do IBS o valor
+correspondente à parcela dos juros e dos rendimentos produzidos pelo título de dívida que for superior à taxa
+Selic; e
+II - o devedor não apropriará créditos.
+§ 2º A sistemática de que trata o § 1º também se aplicará ao credor no regime específico de que trata
+esta Seção que detiver os títulos de dívida por meio de fundo de investimento exclusivo, cuja carteira seja
+composta por, no mínimo, 95% (noventa e cinco por cento) desses títulos.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 290",
+    titulo: "O tomador dos serviços de cessão de recebíveis, antecipação, desconto, securitização e\nfaturização (factoring) de que tratam os incisos I, IV e V do caput do art",
+    conteudo: `Art. 290. O tomador dos serviços de cessão de recebíveis, antecipação, desconto, securitização e
+faturização (factoring) de que tratam os incisos I, IV e V do caput do art. 269 que seja contribuinte no regime
+regular e não esteja sujeito ao regime específico desta Seção poderá apropriar créditos nessas operações,
+em relação à parcela do deságio aplicado, no momento da liquidação antecipada do recebível, pelo regime
+de caixa, que for superior à curva de juros futuros da taxa DI, pelo prazo da antecipação. (Art. 196 da LC
+214/2025)
+Parágrafo único. Para a apropriação de créditos prevista no caput deste artigo, será utilizada a taxa
+de juros correspondente ao contrato de DI futuro cujo vencimento seja o mais próximo da data de vencimento
+do recebível, aplicando-se, no caso de haver dois vencimentos equidistantes, a menor taxa de juros dentre
+as duas.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 291",
+    titulo: "Nas hipóteses do creditamento de que tratam os arts",
+    conteudo: `Art. 291. Nas hipóteses do creditamento de que tratam os arts. 288 a 290, quando ocorrer:
+I - a extinção total do débito de IBS devido pelo fornecedor de serviços financeiros, ou caso a base de
+cálculo por ele aferida seja zero ou negativa, o crédito do IBS será integralmente apropriado pelo adquirente,
+sendo devido na mesma data de vencimento se houvesse débito;
+II - a extinção parcial do débito de IBS devido pelo fornecedor de serviços financeiros, o crédito do IBS
+será apropriado pelo adquirente na mesma proporção do IBS extinto em relação ao total do IBS devido;
+III - o inadimplemento total do IBS devido pelo fornecedor de serviços financeiros, o crédito do IBS não
+será apropriado pelo adquirente.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 292",
+    titulo: "Os contribuintes no regime regular que não estejam sujeitos ao regime específico desta Seção\npoderão apropriar créditos do IBS, com base nos valores pagos pelo fornecedor, sobre as tarifas e comiss...",
+    conteudo: `Art. 292. Os contribuintes no regime regular que não estejam sujeitos ao regime específico desta Seção
+poderão apropriar créditos do IBS, com base nos valores pagos pelo fornecedor, sobre as tarifas e comissões
+relativas às operações de que tratam os incisos I a V do caput do art. 269. (Art. 198 da LC 214/2025)
+§ 1º Aplica-se também o disposto no caput deste artigo às aquisições realizadas pelas entidades
+sujeitas ao regime específico desta Seção, desde que a respectiva despesa não seja deduzida da base de
+cálculo.
+§ 2º O disposto neste artigo não se aplica às tarifas e comissões de que trata o § 9º do art. 286, cujo
+direito à apropriação do crédito terá o mesmo tratamento tributário do fornecimento principal disposto nos
+arts. 288 a 290.
+
+100
+
+Art. 293. Fica vedada a apropriação de créditos do IBS na aquisição dos serviços financeiros de que
+tratam os incisos I a V do caput do art. 269 que não estiverem permitidos expressamente nos arts. 288 a 292.
+(Art. 199 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 294",
+    titulo: "Na alienação de bens móveis ou imóveis que tenham sido objeto de garantia constituída em\nfavor de credor sujeito ao regime específico desta Seção, cuja propriedade tenha sido por ele consolidada ou...",
+    conteudo: `Art. 294. Na alienação de bens móveis ou imóveis que tenham sido objeto de garantia constituída em
+favor de credor sujeito ao regime específico desta Seção, cuja propriedade tenha sido por ele consolidada ou
+a ele transmitida em pagamento da dívida, deverá ser observado o seguinte: (Art. 200 da LC 214/2025)
+I - a consolidação da propriedade do bem pelo credor não estará sujeita à incidência do IBS; e
+II - na alienação do bem pelo credor:
+a) não haverá incidência do IBS, se o prestador da garantia não for contribuinte do IBS no regime
+regular; ou
+b) haverá incidência do IBS pelas mesmas regras de apuração que seriam aplicáveis caso a alienação
+fosse realizada diretamente pelo prestador da garantia, se este for contribuinte do IBS no regime regular.
+§ 1º Aplicam-se ao adquirente as mesmas regras relativas ao IBS que seriam aplicáveis caso a
+alienação fosse realizada pelo prestador da garantia.
+§ 2º Para efeitos de eventual devolução pelo credor ao prestador da garantia do valor da alienação em
+excesso ao da dívida, deverá ser considerado o valor de alienação do bem líquido do IBS e da CBS.
+Seção IV - Do Arrendamento Mercantil Operacional`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 295",
+    titulo: "Nas operações de arrendamento mercantil operacional de que trata o inciso VI do caput do\nart",
+    conteudo: `Art. 295. Nas operações de arrendamento mercantil operacional de que trata o inciso VI do caput do
+art. 269, as receitas dessas operações ficarão sujeitas, na medida do recebimento, pelo regime de caixa: (Art.
+201 da LC 214/2025)
+I - em relação às parcelas das contraprestações, incluídas eventuais tarifas ou comissões relacionadas,
+às seguintes alíquotas:
+a) no caso de bem imóvel, à alíquota aplicável à locação do bem, no respectivo regime específico; e
+b) no caso dos demais bens, à alíquota aplicável à locação do bem;
+II - em relação à alienação de bem, incluídas eventuais tarifas ou comissões relacionadas, às seguintes
+alíquotas:
+a) no caso de bem imóvel, à alíquota aplicável à venda do bem, no respectivo regime específico; e
+b) no caso dos demais bens, à alíquota aplicável à venda do bem.
+§ 1º As despesas de arrendamento mercantil operacional, desde que devidamente comprovadas por
+documento fiscal idôneo, serão deduzidas da base de cálculo a que se refere o inciso I do caput deste artigo,
+salvo na hipótese de despesas diretamente relacionadas à alienação do bem, que serão deduzidas da base
+de cálculo a que se refere o inciso II do caput deste artigo.
+§ 2º A dedução prevista no § 1º será permitida na proporção da participação das receitas obtidas em
+operações que não gerarem créditos de IBS para o arrendatário em relação ao total das receitas com as
+operações de arrendamento mercantil operacional.
+§ 3º A dedução das despesas de depreciação do bem arrendado implica vedação à apropriação, pelo
+arrendador, do crédito do IBS relativo à aquisição desse bem.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 296",
+    titulo: "O contratante de arrendamento mercantil operacional que seja contribuinte do IBS sujeito ao\nregime regular e não esteja sujeito ao regime específico desta Seção ou da Seção V deste Capítulo poderá...",
+    conteudo: `Art. 296. O contratante de arrendamento mercantil operacional que seja contribuinte do IBS sujeito ao
+regime regular e não esteja sujeito ao regime específico desta Seção ou da Seção V deste Capítulo poderá
+aproveitar créditos com base no valor das parcelas das contraprestações do arrendamento mercantil e no
+valor de alienação do bem, na medida do efetivo pagamento, pelo regime de caixa, pela mesma alíquota
+aplicável à receita de arrendamento correspondente. (Art. 203 da LC 214/2025)
+Seção V - Do Arrendamento Mercantil Financeiro`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 297",
+    titulo: "Nas operações de arrendamento mercantil financeiro de que trata o inciso VI do caput do art",
+    conteudo: `Art. 297. Nas operações de arrendamento mercantil financeiro de que trata o inciso VI do caput do art.
+269, as receitas ficarão sujeitas, na medida do recebimento, pelo regime de caixa: (Art. 201 da LC 214/2025)
+I - em relação às parcelas das contraprestações, à alíquota prevista no art. 479;
+II - em relação ao valor residual do bem arrendado, incluídos o valor residual garantido, ainda que
+parcelado, pactuado no contrato de arrendamento mercantil financeiro, e o valor residual pago por ocasião
+do efetivo exercício da opção de compra, às seguintes alíquotas:
+
+101
+
+a) no caso de bem imóvel, à alíquota aplicável à venda do bem, no respectivo regime específico; e
+b) no caso dos demais bens, à alíquota aplicável à venda do bem.
+§ 1º As parcelas das contraprestações tributadas nos termos do inciso I do caput deste artigo
+compreenderão:
+I - as receitas financeiras relativas a cada pagamento, que deverão ser mensuradas, considerando os
+efeitos dos ajustes a valor presente do fluxo de pagamento do contrato de arrendamento mercantil pela taxa
+equivalente aos encargos financeiros, devidamente evidenciados em contas contábeis;
+II - eventuais tarifas ou comissões recebidas.
+§ 2º O valor residual do bem arrendado tributado nos termos do inciso II do caput deste artigo:
+I - compreende a totalidade dos valores recebidos pela arrendadora pelo arrendamento mercantil
+financeiro e venda do bem, durante todo o prazo da operação, que não se enquadrem no inciso I do caput
+deste artigo, independentemente da sua denominação contratual;
+II - corresponderá, no mínimo, ao custo de aquisição do bem arrendado, independentemente do
+montante previsto no contrato, aplicando-se a mesma regra se o bem for vendido a terceiros.
+§ 3º Caso o valor residual do bem arrendado, nos termos previstos no contrato de arrendamento, seja
+inferior ao custo de aquisição do bem, a taxa de encargos financeiros deverá ser recalculada, para fins de
+incidência do IBS, de forma que o valor tributado nos termos do inciso`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 297 (parte 2)",
+    titulo: "II do caput deste artigo fique equivalente\nao custo de aquisição do bem arrendado",
+    conteudo: `II do caput deste artigo fique equivalente
+ao custo de aquisição do bem arrendado.
+§ 4º Poderão ser deduzidas da base de cálculo de que trata o inciso I do caput deste artigo as despesas
+financeiras com captação de recursos, observado o disposto no art. 277, na proporção da participação das
+receitas das parcelas das contraprestações obtidas em operações que não gerarem créditos de IBS para o
+arrendatário em relação ao total das receitas das parcelas das contraprestações.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 298",
+    titulo: "O contratante de arrendamento mercantil financeiro que seja contribuinte do IBS sujeito ao\nregime regular e não esteja sujeito ao regime específico desta Seção ou da Seção IV deste Capítulo poderá...",
+    conteudo: `Art. 298. O contratante de arrendamento mercantil financeiro que seja contribuinte do IBS sujeito ao
+regime regular e não esteja sujeito ao regime específico desta Seção ou da Seção IV deste Capítulo poderá
+aproveitar créditos desse tributo com base no valor das parcelas das contraprestações do arrendamento
+mercantil e do valor residual do bem, na medida do efetivo pagamento, pelo regime de caixa, pela mesma
+alíquota aplicável à receita de arrendamento correspondente. (Art. 203 da LC 214/2025)
+Seção VI - Da Administração de Consórcio`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 299",
+    titulo: "Na administração de consórcio de que trata o inciso VII do caput do art",
+    conteudo: `Art. 299. Na administração de consórcio de que trata o inciso VII do caput do art. 269, para fins de
+determinação da base de cálculo, as receitas dos serviços compreendem todas as tarifas, comissões e taxas,
+bem como os respectivos encargos, multas e juros, decorrentes de contrato de participação em grupo de
+consórcio, efetivamente pagas, pelo regime de caixa. (Art. 204 da LC 214/2025)
+§ 1º A administradora do consórcio poderá deduzir da base de cálculo os valores referentes aos serviços
+de intermediação de que trata o inciso XV do caput do art. 269, mediante comprovação por documento fiscal
+idôneo e desde que a dedução seja individualizável por operação.
+§ 2º Nas hipóteses em que o consorciado for contribuinte do regime regular do IBS, a dedução de que
+trata o § 1º fica condicionada à individualização do destinatário na DeRE da administradora de consórcio.
+§ 3º Na impossibilidade de individualização de que trata o § 2º, a administradora de consórcio poderá
+apropriar créditos de IBS e de CBS na proporção da parcela da aquisição de serviço de intermediação não
+deduzida da sua base de cálculo.
+§ 4º As aquisições de bens e de serviços por consorciado com carta de crédito de consórcio ficam
+sujeitas às regras previstas nas normas gerais de incidência de que trata o Título I deste Livro, exceto no caso
+de bem imóvel, que fica sujeito ao respectivo regime específico, e de outros bens ou serviços sujeitos a regime
+diferenciado ou específico, nos termos deste Regulamento, não havendo responsabilidade da administradora
+do consórcio pelo IBS devido.
+§ 5º Na execução de garantia de consorciado, com recebimento dos valores pelo grupo de consórcio,
+deverá ser observado o seguinte:
+I - a consolidação da propriedade do bem pelo grupo de consórcio não estará sujeita à incidência do
+IBS;
+II - na alienação do bem pelo grupo de consórcio:
+a) não haverá incidência do IBS, se o consorciado não for contribuinte do IBS;
+
+102`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 299 (parte 2)",
+    titulo: "b) haverá incidência do IBS pelas mesmas regras que seriam aplicáveis caso a alienação fosse\nrealizada pelo consorciado, se este for contribuinte do IBS;\nIII - aplicam-se ao adquirente as mesmas re...",
+    conteudo: `b) haverá incidência do IBS pelas mesmas regras que seriam aplicáveis caso a alienação fosse
+realizada pelo consorciado, se este for contribuinte do IBS;
+III - aplicam-se ao adquirente as mesmas regras relativas ao IBS que seriam aplicáveis caso a alienação
+fosse realizada pelo consorciado; e
+IV - a administradora do consórcio ficará sujeita à incidência do IBS sobre a remuneração pelo serviço
+prestado e não será responsável pelos tributos devidos pelo consorciado nos termos da alínea “b” do inciso
+II deste parágrafo.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 300",
+    titulo: "O contribuinte do IBS no regime regular que, na condição de consorciado, adquirir serviços\nde administração de consórcio, poderá apropriar créditos do IBS com base nos valores pagos pela\nadministra...",
+    conteudo: `Art. 300. O contribuinte do IBS no regime regular que, na condição de consorciado, adquirir serviços
+de administração de consórcio, poderá apropriar créditos do IBS com base nos valores pagos pela
+administradora sobre esses serviços. (Art. 205 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 301",
+    titulo: "Os serviços de intermediação de consórcio de que trata o inciso XV do caput do art",
+    conteudo: `Art. 301. Os serviços de intermediação de consórcio de que trata o inciso XV do caput do art. 269
+ficarão sujeitos à incidência do IBS sobre o valor da operação, pela mesma alíquota aplicável aos serviços de
+administração de consórcios. (Art. 206 da LC 214/2025)
+§ 1º Os prestadores de serviços de intermediação de consórcios que forem optantes pelo Simples
+Nacional:
+I - permanecerão tributados de acordo com as regras do Simples Nacional, quando não exercerem a
+opção pelo regime regular do IBS; e
+II - ficarão sujeitos às mesmas alíquotas do IBS aplicáveis aos serviços de administração de consórcios,
+quando exercerem a opção pelo regime regular do IBS.
+§ 2º Os créditos das operações de intermediação poderão ser aproveitados pelos consorciados que
+forem contribuintes no regime regular, desde que o fornecedor da intermediação identifique em documento
+fiscal os consorciados e os respectivos valores do IBS pagos pelo intermediário, aplicando-se o disposto nos
+arts. 47 a 61.
+Seção VII - Da Gestão e Administração de Recursos, Inclusive de Fundos de Investimento`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 302",
+    titulo: "A gestão e a administração de recursos de que trata o inciso VIII do caput do art",
+    conteudo: `Art. 302. A gestão e a administração de recursos de que trata o inciso VIII do caput do art. 269 ficam
+sujeitas à incidência do IBS em regime específico, de acordo com o disposto nesta Seção. (Art. 207 da LC
+214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 303",
+    titulo: "A base de cálculo do IBS no regime específico desta Seção é composta pela totalidade das\nreceitas advindas das operações de gestão e administração de recursos, inclusive de fundos de investimento",
+    conteudo: `Art. 303. A base de cálculo do IBS no regime específico desta Seção é composta pela totalidade das
+receitas advindas das operações de gestão e administração de recursos, inclusive de fundos de investimento.
+(Art. 185 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 304",
+    titulo: "As alíquotas do IBS sobre os serviços prestados aos fundos de investimento que não forem\nserviços financeiros de que trata o art",
+    conteudo: `Art. 304. As alíquotas do IBS sobre os serviços prestados aos fundos de investimento que não forem
+serviços financeiros de que trata o art. 269 seguirão o disposto nas normas gerais de incidência do IBS
+previstas no Título I deste Livro e, se for o caso, nos regimes diferenciados de que trata o Título V deste Livro.
+(Art. 208 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 305",
+    titulo: "O fundo de investimento e os seus cotistas não poderão aproveitar créditos do IBS devidos\npelos fornecedores de quaisquer bens ou serviços ao fundo",
+    conteudo: `Art. 305. O fundo de investimento e os seus cotistas não poderão aproveitar créditos do IBS devidos
+pelos fornecedores de quaisquer bens ou serviços ao fundo. (Art. 209 da LC 214/2025)
+Parágrafo único. Na hipótese de o fundo de investimento ser contribuinte do IBS no regime regular, o
+fundo poderá apropriar créditos nas suas aquisições de bens e serviços, observado o disposto nos arts. 47 a
+61.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 306",
+    titulo: "O administrador de fundo de investimento e a distribuidora por conta e ordem de cotas de\nfundo de investimento deverão apresentar informações, mediante entrega da DeRE, referida no Capítulo II\ndo T...",
+    conteudo: `Art. 306. O administrador de fundo de investimento e a distribuidora por conta e ordem de cotas de
+fundo de investimento deverão apresentar informações, mediante entrega da DeRE, referida no Capítulo II
+do Título II deste Livro, sobre o fundo de investimento e cada cotista, ou do distribuidor por conta e ordem, ou
+do depositário central se a cota for negociada em bolsa de valores, e o valor das suas cotas. (Art. 210 da LC
+214/2025)
+Parágrafo único. O CGIBS poderá celebrar convênio com órgãos da administração pública para ter
+acesso às informações previstas no caput deste artigo, podendo, nesse caso, dispensar o administrador e a
+distribuidora da obrigação acessória de que trata o caput deste artigo, na forma prevista em ato conjunto da
+RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 307",
+    titulo: "Os serviços de gestão e de administração de recursos prestados ao investidor e não ao fundo\nde investimento, como na gestão de carteiras administradas, ficam sujeitos ao IBS pela alíquota prevista...",
+    conteudo: `Art. 307. Os serviços de gestão e de administração de recursos prestados ao investidor e não ao fundo
+de investimento, como na gestão de carteiras administradas, ficam sujeitos ao IBS pela alíquota prevista no
+art. 479, vedado o crédito do IBS para o adquirente dos serviços. (Art. 211 da LC 214/2025)
+
+103
+
+Seção VIII - Do Fundo de Garantia do Tempo de Serviço (FGTS) e dos Demais Fundos Garantidores e
+Executores de Políticas Públicas`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 308",
+    titulo: "As operações relacionadas ao Fundo de Garantia do Tempo de Serviço (FGTS) são sujeitas\nà incidência do IBS, por alíquotas nacionalmente uniformes",
+    conteudo: `Art. 308. As operações relacionadas ao Fundo de Garantia do Tempo de Serviço (FGTS) são sujeitas
+à incidência do IBS, por alíquotas nacionalmente uniformes. (Art. 212 da LC 214/2025)
+§ 1º O FGTS não é contribuinte do IBS.
+§ 2º As operações relacionadas ao FGTS são aquelas necessárias à aplicação da Lei nº 8.036, de 11
+de maio de 1990, realizadas:
+I - pelo agente operador do FGTS;
+II - pelos agentes financeiros do FGTS; e
+III - pelos demais estabelecimentos bancários.
+§ 3º As operações a que se refere o § 2º do caput deste artigo ficam sujeitas às regras de tributação
+conforme sua natureza jurídica, inclusive em relação às obrigações acessórias.
+§ 4º Aplicam-se às operações de que tratam os incisos II e III do § 2º, naquilo que não lhes for contrário,
+as disposições da Seção III deste Capítulo.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 309",
+    titulo: "Não ficam sujeitas à incidência do IBS as operações relacionadas aos demais fundos\ngarantidores e executores de políticas públicas, inclusive de habitação e de desenvolvimento regional,\nprevistos e...",
+    conteudo: `Art. 309. Não ficam sujeitas à incidência do IBS as operações relacionadas aos demais fundos
+garantidores e executores de políticas públicas, inclusive de habitação e de desenvolvimento regional,
+previstos em lei. (Art. 213 da LC 214/2025)
+§ 1º As operações relacionadas aos fundos garantidores e executores de que trata o caput deste artigo
+incluem os serviços de administração e operacionalização prestados ao fundo.
+§ 2º Os fundos de que trata o caput deste artigo não são contribuintes do IBS.
+§ 3º Aplica-se também o disposto neste artigo aos fundos de que trata o caput deste artigo que vierem
+a ser constituídos após a data de publicação da Lei Complementar nº 214, de 2025.
+§ 4º Caberá a ato conjunto da RFB e do CGIBS listar os fundos garantidores e executores de políticas
+públicas vigentes e atualizar a lista com os fundos da mesma natureza que vierem a ser constituídos
+posteriormente.
+§ 5º A não incidência a que se refere o caput deste artigo não dispensa o cumprimento das obrigações
+acessórias correspondentes.
+Seção IX - Dos Arranjos de Pagamento`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 310",
+    titulo: "Os serviços de arranjos de pagamento de que trata o inciso IX do caput do art",
+    conteudo: `Art. 310. Os serviços de arranjos de pagamento de que trata o inciso IX do caput do art. 269 ficam
+sujeitos à incidência do IBS em regime específico, de acordo com o disposto nesta Seção. (Art. 214 da LC
+214/2025)
+§ 1º Os serviços de que trata o caput deste artigo compreendem todos aqueles relacionados ao
+credenciamento, captura, processamento e liquidação das transações de pagamento e aos demais bens e
+serviços fornecidos ao credenciado, a outro destinatário do arranjo e entre participantes do arranjo inclusive:
+I - os serviços de arranjo remunerados pelo credenciado mediante taxa de desconto nas transações de
+pagamento;
+II - a locação de terminais eletrônicos e o fornecimento de programas de computador (software) que
+viabilizam o funcionamento dos arranjos de pagamento;
+III - bens e serviços fornecidos pelos instituidores de arranjos de pagamento aos demais participantes
+do arranjo, ainda que a cobrança não esteja vinculada a cada transação de pagamento; e
+IV - bens e serviços importados das bandeiras de cartões pelos instituidores e participantes de arranjos
+de pagamentos.
+§ 2º A relação jurídica entre o emissor e o portador do instrumento de pagamento fica sujeita às regras
+previstas nas normas gerais de incidência, salvo as operações de crédito de que trata o inciso I do caput do
+art. 269, que ficam sujeitas ao respectivo regime específico.
+§ 3º A base de cálculo do IBS devido pelos contribuintes sujeitos ao regime específico desta Seção
+corresponderá ao valor bruto da remuneração efetivamente recebida do credenciado, do instituidor do arranjo
+ou de outros participantes, garantido o direito ao crédito correspondente às parcelas a eles pagas, desde que
+os débitos de IBS tenham sido regularmente extintos.
+
+104`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 310 (parte 2)",
+    titulo: "§ 4º Aplica-se o disposto no § 3º para fins da determinação da base de cálculo dos participantes dos\narranjos de que trata o caput do art",
+    conteudo: `§ 4º Aplica-se o disposto no § 3º para fins da determinação da base de cálculo dos participantes dos
+arranjos de que trata o caput do art. 312.
+§ 5º Integram também a base de cálculo dos serviços de que trata o caput do art. 312 os rendimentos
+auferidos em decorrência da aplicação de recursos disponíveis em contas de pagamento, conforme a
+regulamentação do Banco Central do Brasil e do Conselho Monetário Nacional, deduzidos os valores de
+rendimentos pagos em favor dos titulares dessas contas.
+§ 6º O disposto no § 3º não implica o reconhecimento de existência de relação de contratação ou
+subcontratação entre o instituidor do arranjo e outros participantes, ou inclusão dos valores repassados a
+outros participantes ou ao instituidor na base de cálculo dos tributos que serão extintos conforme previsto na
+Emenda Constitucional nº 132, de 20 de dezembro de 2023.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 311",
+    titulo: "O credenciado será considerado como o tomador dos serviços de arranjos de pagamento\nrelacionados ao credenciamento, captura, processamento e liquidação de transações de pagamento",
+    conteudo: `Art. 311. O credenciado será considerado como o tomador dos serviços de arranjos de pagamento
+relacionados ao credenciamento, captura, processamento e liquidação de transações de pagamento. (Art.
+215 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 312",
+    titulo: "O destinatário do serviço será considerado como o tomador dos serviços no caso dos arranjos\nde pagamento que não estejam previstos no art",
+    conteudo: `Art. 312. O destinatário do serviço será considerado como o tomador dos serviços no caso dos arranjos
+de pagamento que não estejam previstos no art. 311. (Art. 216 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 313",
+    titulo: "O credenciado ou outro destinatário de arranjo que for contribuinte do IBS sujeito ao regime\nregular poderá apropriar créditos do IBS calculados com base nos valores brutos de remuneração devidos à...",
+    conteudo: `Art. 313. O credenciado ou outro destinatário de arranjo que for contribuinte do IBS sujeito ao regime
+regular poderá apropriar créditos do IBS calculados com base nos valores brutos de remuneração devidos à
+credenciadora ou a outro participante do arranjo, pelos mesmos valores do IBS pagos pelos participantes do
+arranjo de pagamentos incidentes sobre as operações. (Art. 218 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 314",
+    titulo: "A liquidação antecipada de recebíveis de arranjos de pagamento será tributada pelo IBS na\nforma deste artigo",
+    conteudo: `Art. 314. A liquidação antecipada de recebíveis de arranjos de pagamento será tributada pelo IBS na
+forma deste artigo. (Art. 219 da LC 214/2025)
+§ 1º A base de cálculo do IBS corresponderá ao desconto aplicado na liquidação antecipada, com a
+dedução de valor correspondente à curva de juros futuros da Taxa DI, pelo prazo da antecipação, nos termos
+do § 2º
+§ 2º Para a dedução prevista no § 1º, será utilizada a taxa de juros correspondente ao contrato de DI
+futuro cujo vencimento seja o mais próximo da data de vencimento do recebível, aplicando-se, no caso de
+haver dois vencimentos equidistantes, a maior taxa de juros dentre as duas.
+§ 3º Poderão ser deduzidas da base de cálculo referida no § 1º as perdas incorridas no recebimento
+de créditos e as perdas na cessão desses créditos e na concessão de descontos, desde que sejam realizados
+a valor de mercado, obedecidas, ainda, em todos os casos, as mesmas regras de dedutibilidade da legislação
+do imposto de renda aplicáveis a essas perdas para os períodos de apuração iniciados a partir de 1º de janeiro
+de 2027.
+§ 4º As perdas referidas no § 3º que não puderem ser integralmente deduzidas da base de cálculo de
+um determinado período de aferição, por excederem os valores tributáveis em tal período, poderão ser
+deduzidas nos períodos subsequentes.
+§ 5º A alíquota do IBS incidente sobre as operações de que trata o caput deste artigo será igual à
+alíquota aplicada aos demais serviços de arranjos de pagamento.
+§ 6º O tomador dos serviços de liquidação antecipada de recebíveis de arranjos de pagamento que for
+contribuinte do IBS sujeito ao regime regular poderá creditar-se do IBS nessas operações, em relação à
+parcela do desconto aplicado, no momento da liquidação antecipada, pelo regime de caixa, que for superior
+à curva de juros futuros da taxa DI, pelo prazo da antecipação.
+§ 7º O disposto neste artigo aplica-se também ao FIDC e aos demais fundos de investimento que
+liquidem antecipadamente recebíveis de arranjos de pagamento,`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 314 (parte 2)",
+    titulo: "que serão considerados contribuintes do\nIBS caso não sejam classificados como entidades de investimento, de acordo com o disposto no art",
+    conteudo: `que serão considerados contribuintes do
+IBS caso não sejam classificados como entidades de investimento, de acordo com o disposto no art. 23 da
+Lei nº 14.754, de 12 de dezembro de 2023, e em sua regulamentação.
+§ 8º Não ficam sujeitos à incidência do IBS os cotistas dos fundos a que se refere o § 7º
+Seção X - Dos Programas de Fidelização`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 315",
+    titulo: "A administração de programas de fidelização será tributada na forma deste artigo, hipótese\nem que",
+    conteudo: `Art. 315. A administração de programas de fidelização será tributada na forma deste artigo, hipótese
+em que: (Art. 219-A da LC 214/2025)
+I - a base de cálculo do IBS corresponderá, a cada período de apuração, ao valor dos pontos emitidos,
+deduzidos os valores pagos no resgate dos pontos e os ressarcidos por pontos não utilizados computados
+como receita;
+
+105
+
+II - o adquirente dos pontos não terá direito ao crédito de IBS.
+§ 1º O regime específico de que trata este artigo aplica-se inclusive aos programas de fidelidade
+próprios em que os pontos sejam utilizados como contraprestação no fornecimento de bens e serviços pelo
+próprio emissor dos pontos, hipótese em que os pontos utilizados como contraprestação serão deduzidos da
+base de cálculo tendo por base o valor considerado na fixação da base de cálculo do IBS na operação, nos
+termos do inciso III do caput do art. 14.
+§ 2º O contribuinte sujeito ao regime específico de que trata este artigo deverá apresentar as
+informações necessárias para a aferição e para a distribuição do produto da arrecadação do IBS, mediante
+entrega da DeRE, referida no Capítulo II do Título II deste Livro, nos termos de disciplina estabelecida por ato
+conjunto da RFB e do CGIBS.
+Seção XI - Das Atividades de Entidades Administradoras de Mercados Organizados, Infraestruturas
+de Mercado e Depositárias Centrais`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 316",
+    titulo: "As atividades das entidades administradoras de mercados organizados, infraestruturas de\nmercado e depositárias centrais de que trata o inciso X do caput do art",
+    conteudo: `Art. 316. As atividades das entidades administradoras de mercados organizados, infraestruturas de
+mercado e depositárias centrais de que trata o inciso X do caput do art. 269 ficam sujeitas à incidência do IBS
+sobre o valor da operação de fornecimento de serviços, pelas alíquotas previstas no art. 479. (Art. 220 da LC
+214/2025)
+Parágrafo único. Nos casos em que as entidades administradoras de mercados organizados,
+infraestruturas de mercado e depositárias centrais realizarem outras atividades previstas em quaisquer dos
+incisos do art. 269, tais serviços ficam sujeitos à incidência do IBS nos termos desta Seção.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 317",
+    titulo: "O contribuinte do IBS sujeito ao regime regular que adquirir serviços de entidades\nadministradoras de mercados organizados, infraestruturas de mercado e depositárias centrais de que trata o\ninciso...",
+    conteudo: `Art. 317. O contribuinte do IBS sujeito ao regime regular que adquirir serviços de entidades
+administradoras de mercados organizados, infraestruturas de mercado e depositárias centrais de que trata o
+inciso X do caput do art. 269 poderá apropriar créditos desses tributos, com base nos valores pagos pelo
+fornecedor. (Art. 221 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 318",
+    titulo: "As entidades administradoras de mercados organizados, infraestruturas de mercado e\ndepositárias centrais deverão apresentar, mediante entrega da DeRE, referida no Capítulo II do Título II deste\nLiv...",
+    conteudo: `Art. 318. As entidades administradoras de mercados organizados, infraestruturas de mercado e
+depositárias centrais deverão apresentar, mediante entrega da DeRE, referida no Capítulo II do Título II deste
+Livro, informações sobre os adquirentes dos serviços e os valores pagos por cada um. (Art. 222 da LC
+214/2025)
+Seção XII - Dos Seguros, Resseguros, Previdência Complementar e Capitalização`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 319",
+    titulo: "Para fins de determinação da base de cálculo, nas operações de seguros de ramos\nelementares e de pessoas sem cobertura por sobrevivência de que trata o inciso XI do caput do art",
+    conteudo: `Art. 319. Para fins de determinação da base de cálculo, nas operações de seguros de ramos
+elementares e de pessoas sem cobertura por sobrevivência de que trata o inciso XI do caput do art. 269: (Art.
+223 da LC 214/2025)
+I - as receitas dos serviços compreendem as seguintes, na medida do efetivo recebimento, pelo regime
+de caixa:
+a) aquelas recebidas com prêmios de seguros e de cosseguros aceito; e
+b) as receitas financeiras recebidas dos ativos financeiros garantidores de provisões técnicas, no
+momento de sua liquidação ou resgate, na proporção das receitas de que trata a alínea “a” deste inciso nas
+operações que não geram créditos de IBS para os adquirentes, e o total das receitas de que trata a alínea “a”
+deste inciso;
+II - serão deduzidas:
+a) as despesas, com indenizações referentes a seguros de ramos elementares e de pessoas sem
+cobertura por sobrevivência, exclusivamente quando forem referentes a segurados pessoas físicas e jurídicas
+que não forem contribuintes do IBS sujeitas ao regime regular, correspondentes aos sinistros, efetivamente
+pagos, ocorridos em operações de seguro, depois de subtraídos os salvados e os demais ressarcimentos;
+b) os valores pagos referentes a restituições de prêmios que houverem sido computados como receitas,
+inclusive por cancelamento;
+c) os valores pagos referentes aos serviços de intermediação de seguros de que trata o inciso XV do
+caput do art. 269, efetivamente comprovados por meio de documento fiscal idôneo emitido pelo intermediário;
+d) os valores pagos referentes ao prêmio das operações de cosseguro cedido; e
+e) as parcelas dos prêmios destinadas à constituição de provisões ou reservas técnicas referentes a
+seguro resgatável.
+
+106`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, ressarcimento",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 319 (parte 2)",
+    titulo: "§ 1º O contribuinte do IBS sujeito ao regime regular que adquirir e for segurado de serviços de seguro\ne resseguro poderá apropriar créditos de IBS sobre o valor dos tributos pagos sobre esses serv...",
+    conteudo: `§ 1º O contribuinte do IBS sujeito ao regime regular que adquirir e for segurado de serviços de seguro
+e resseguro poderá apropriar créditos de IBS sobre o valor dos tributos pagos sobre esses serviços,
+considerando o valor do prêmio recebido, subtraído das deduções previstas no inciso II do caput deste artigo,
+identificáveis ao respectivo contrato de seguro.
+§ 2º O recebimento das indenizações de que trata a alínea “a” do inciso II do caput deste artigo não
+fica sujeito à incidência do IBS e não dá direito a crédito de IBS.
+§ 3º Integra a base de cálculo de que trata a alínea “e” do inciso II do caput deste artigo a parcela da
+reversão das provisões ou reservas técnicas que for retida pela entidade como receita própria.
+§ 4º Para fins do disposto na alínea “b” do inciso I do caput deste artigo, considera-se ativo financeiro
+garantidor aquele cujo valor esteja consignado em conta individualizada, própria para o registro ou depósito
+de ativos garantidores de provisões técnicas, junto ao órgão regulamentador do mercado de seguros,
+responsável por conceder ou cancelar a autorização para livre movimentação dos ativos nele registrados ou
+depositados.
+§ 5º Para efeitos do disposto na alínea “b” do inciso I do caput deste artigo:
+I - o valor total das receitas financeiras relativas aos ativos financeiros garantidores de provisões
+técnicas será integralmente tributado no período de aferição em que houver liquidação ou resgate;
+II - considera-se como resgate parcial do ativo garantidor o recebimento de rendimentos periódicos;
+III - consideram-se somente as receitas financeiras recebidas a partir de 1º de janeiro de 2027, até que
+ocorra a liquidação ou resgate do título.
+§ 6º Para fins do disposto na alínea “a” do inciso II do caput deste artigo:
+I - consideram-se seguros dos ramos elementares, os que visem a garantir perdas e danos, ou
+responsabilidades provenientes de riscos de fogo, transporte, acidentes pessoais e outros eventos que
+possam ocorrer afetando pessoas, coisas`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, ressarcimento",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 319 (parte 3)",
+    titulo: "e bens, responsabilidades, obrigações, garantias e direitos;\nII - somente serão dedutíveis da base de cálculo do IBS os valores correspondentes aos sinistros\nefetivamente pagos no período de aferiç...",
+    conteudo: `e bens, responsabilidades, obrigações, garantias e direitos;
+II - somente serão dedutíveis da base de cálculo do IBS os valores correspondentes aos sinistros
+efetivamente pagos no período de aferição, excluídas as constituições de provisões técnicas ou estimativas
+de indenizações futuras;
+III - as deduções abrangem pagamentos parciais ou integrais de indenizações, desde que vinculados
+a sinistros efetivamente pagos e reconhecidos nos termos da legislação securitária vigente.
+§ 7º Nas hipóteses em que o adquirente do seguro for contribuinte do regime regular do IBS, a dedução
+de que trata a alínea “c” do inciso II do caput deste artigo fica condicionada à individualização do destinatário
+na DeRE da seguradora.
+§ 8º Na impossibilidade de individualização de que trata o § 7º, a seguradora poderá apropriar créditos
+de IBS na proporção da parcela da aquisição de serviço de intermediação não deduzida da sua base de
+cálculo.
+§ 9º Nas operações de cosseguro, os valores recuperados a título de sinistro deverão ser apropriados,
+para fins de aferição da base de cálculo do IBS, exclusivamente na proporção do risco efetivamente assumido
+por cada seguradora, independentemente de sua atuação como líder ou cosseguradora aceita.
+§ 10. A dedução prevista na alínea “e” do inciso II do caput deste artigo será realizada em base
+agregada, considerando o conjunto das provisões e dos prêmios recebidos relativos à carteira de seguros
+resgatáveis da sociedade seguradora.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, ressarcimento",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 320",
+    titulo: "Para fins de determinação da base de cálculo, na previdência complementar, aberta e\nfechada, de que trata o inciso XIII do caput do art",
+    conteudo: `Art. 320. Para fins de determinação da base de cálculo, na previdência complementar, aberta e
+fechada, de que trata o inciso XIII do caput do art. 269 e no seguro de pessoas com cobertura por
+sobrevivência: (Art. 224 da LC 214/2025)
+I - as receitas dos serviços compreendem, na medida do efetivo recebimento, pelo regime de caixa:
+a) as contribuições para planos de previdência complementar;
+b) os prêmios de seguro de pessoas com cobertura de sobrevivência; e
+c) o encargo recebido do fundo decorrente de estruturação, manutenção de planos de previdência e
+seguro de pessoas com cobertura por sobrevivência;
+II - serão deduzidas:
+a) as parcelas das contribuições e dos prêmios destinadas à constituição de provisões ou reservas
+técnicas;
+
+107
+
+b) os valores pagos referentes a restituições de contribuições e prêmios que houverem sido
+computados como receitas, inclusive cancelamentos;
+c) os valores pagos por serviços de intermediação de previdência complementar de que trata o inciso
+XV do caput do art. 269 e de seguro de vida de pessoas com cobertura por sobrevivência, devidamente
+comprovados por meio de documento fiscal idôneo emitido pelo intermediário;
+d) as despesas com indenizações referentes às coberturas de risco, correspondentes aos benefícios
+efetivamente pagos, ocorridos em operações de previdência complementar.
+§ 1º Integra a base de cálculo de que trata este artigo a parcela da reversão das provisões ou reservas
+técnicas retida pela entidade como receita própria.
+§ 2º Não integram a base de cálculo de que trata este artigo os rendimentos recebidos nas aplicações
+de recursos financeiros destinados ao pagamento de benefícios de aposentadoria, pensão, pecúlio e de
+resgates.
+§ 3º O disposto no § 2º aplica-se aos rendimentos:
+I - de aplicações financeiras proporcionados pelos ativos garantidores das provisões técnicas, limitados
+esses ativos ao montante das referidas provisões; e
+II - dos ativos financeiros garantidores das provisões técnicas de empresas de seguros pri`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 320 (parte 2)",
+    titulo: "vados\ndestinadas exclusivamente a planos de benefícios de caráter previdenciário e a seguros de pessoas com\ncobertura por sobrevivência",
+    conteudo: `vados
+destinadas exclusivamente a planos de benefícios de caráter previdenciário e a seguros de pessoas com
+cobertura por sobrevivência.
+§ 4º Também não integram a base de cálculo de que trata este artigo os demais rendimentos de
+aplicações financeiras recebidos pelas entidades não referidos nos §§ 2º e 3º, que prestam as atividades
+previstas no caput deste artigo.
+§ 5º A receita financeira referente ao valor excedente ao limite previsto no inciso I do § 3º integra a base
+de cálculo do IBS no momento em que forem liquidadas ou resgatadas.
+§ 6º A dedução prevista na alínea “a” do inciso II do caput deste artigo será realizada em base agregada,
+considerando o conjunto das provisões e dos prêmios e contribuições recebidos relativos à carteira das
+entidades.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 321",
+    titulo: "Fica vedado o crédito do IBS aos adquirentes de planos de previdência complementar, aberta\ne fechada, e de seguro de pessoas com cobertura por sobrevivência",
+    conteudo: `Art. 321. Fica vedado o crédito do IBS aos adquirentes de planos de previdência complementar, aberta
+e fechada, e de seguro de pessoas com cobertura por sobrevivência. (Art. 226 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 322",
+    titulo: "As operações de resseguro e retrocessão, de que trata o inciso XII do art",
+    conteudo: `Art. 322. As operações de resseguro e retrocessão, de que trata o inciso XII do art. 269, ficam sujeitas
+à alíquota zero, inclusive quando os prêmios de resseguro e retrocessão forem cedidos ao exterior. (Art. 223,
+§ 4º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 323",
+    titulo: "Para fins de determinação da base de cálculo, na capitalização de que trata o inciso XIV do\ncaput do art",
+    conteudo: `Art. 323. Para fins de determinação da base de cálculo, na capitalização de que trata o inciso XIV do
+caput do art. 269: (Art. 225 da LC 214/2025)
+I - as receitas dos serviços compreendem, na medida do efetivo recebimento, pelo regime de caixa:
+a) a arrecadação com os títulos de capitalização; e
+b) as receitas com prescrição e penalidades;
+II - serão deduzidas:
+a) as parcelas das contribuições destinadas à constituição de provisões ou reservas técnicas, inclusive
+provisões de sorteios a pagar;
+b) os valores pagos referentes a cancelamentos e restituições de títulos que houverem sido
+computados como receitas; e
+c) os valores pagos por serviços de intermediação de capitalização de que trata o inciso XV do caput
+do art. 269 devidamente comprovados por documento fiscal idôneo, emitido pelo intermediário.
+§ 1º Integra a base de cálculo de que trata este artigo a parcela da reversão das provisões ou reservas
+técnicas retida pela entidade como receita própria.
+§ 2º Não integram a base de cálculo de que trata este artigo os rendimentos recebidos nas aplicações
+financeiras destinadas ao pagamento de resgate de títulos e sorteios de premiação.
+§ 3º O disposto no § 2º restringe-se aos rendimentos de aplicações financeiras proporcionados pelos
+ativos garantidores das provisões técnicas, limitados esses ativos ao montante das referidas provisões.
+
+108
+
+§ 4º Também não integram a base de cálculo de que trata este artigo os demais rendimentos de
+aplicações financeiras, não referidos nos §§ 2º e 3º, recebidos pelas entidades que prestam as atividades
+previstas no caput deste artigo.
+§ 5º Nas hipóteses em que o adquirente do título de capitalização for contribuinte do regime regular do
+IBS, a dedução de que trata a alínea “c” do inciso II do caput deste artigo fica condicionada à individualização
+do destinatário na DeRE da Sociedade de Capitalização.
+§ 6º Na impossibilidade de individualização de que trata o § 5º, a Sociedade de Capitalização poderá
+apropriar créditos de IBS na pro`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 323 (parte 2)",
+    titulo: "porção da parcela da aquisição de serviço de intermediação não deduzida da\nsua base de cálculo",
+    conteudo: `porção da parcela da aquisição de serviço de intermediação não deduzida da
+sua base de cálculo.
+§ 7º O contribuinte do IBS sujeito ao regime regular que adquira títulos de capitalização poderá apropriar
+créditos de IBS pelo valor dos tributos pagos sobre esse serviço, considerando a seguinte proporção:
+I - serão equivalentes à multiplicação entre os valores dos débitos a que se refere esta Seção do IBS
+extintos pela entidade sujeita ao regime específico de que trata este Capítulo no período de apuração; e
+II - a proporção entre o valor total do prêmio pago pelo adquirente e o total de prêmios arrecadados
+pela entidade, no mesmo período de apuração.
+§ 8º Ato conjunto da RFB e do CGIBS poderá disciplinar a forma de recolhimento, pelo adquirente de
+títulos de capitalização, do IBS incidente na operação.
+§ 9º As receitas de que trata a alínea “b” do inciso I do caput deste artigo serão consideradas no período
+de aferição em que ocorrer:
+I - no caso de penalidades, a efetiva dedução do resgate pago ao subscritor ou titular;
+II - no caso de prescrição, a baixa formal da obrigação e do reconhecimento contábil da receita, após
+o decurso do prazo legal.
+§ 10. Para fins do disposto na alínea “b” do inciso I do caput deste artigo, consideram-se receitas com
+prescrição os valores correspondentes aos títulos de capitalização vencidos e não resgatados.
+§ 11. A receita financeira referente ao valor excedente ao limite previsto no § 3º integrará a base de
+cálculo do IBS, quando for liquidada ou resgatada.
+§ 12. Nas modalidades de capitalização filantropia premiável ou capitalização incentivo, a base de
+cálculo do IBS será apurada conforme as regras previstas neste artigo, independentemente da cessão, total
+ou parcial, do direito ao valor de resgate da quota de capitalização à entidade beneficente ou do direito ao
+valor de sorteio, respectivamente.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 324",
+    titulo: "As sociedades seguradoras, resseguradoras, entidades abertas e fechadas de previdência\ncomplementar e sociedades de capitalização deverão apresentar, mediante entrega da DeRE, referida no\nCapítulo...",
+    conteudo: `Art. 324. As sociedades seguradoras, resseguradoras, entidades abertas e fechadas de previdência
+complementar e sociedades de capitalização deverão apresentar, mediante entrega da DeRE, referida no
+Capítulo II do Título II deste Livro, no mínimo, as seguintes informações: (Art. 227 da LC 214/2025)
+I - as sociedades seguradoras e resseguradoras, a identificação dos segurados ou, caso os segurados
+não sejam identificados na contratação do seguro, os estipulantes e os valores dos prêmios pagos por cada
+um;
+II - as entidades de previdência complementar, a identificação dos participantes e os valores das
+contribuições pagas por cada um; e
+III - as sociedades de capitalização, a identificação dos titulares, subscritores ou distribuidores dos
+títulos e os valores da arrecadação com os títulos.
+§ 1º Nas operações de cosseguro ou de seguros com apólices coletivas, a obrigação de
+individualização do valor do prêmio pago por cada segurado será da seguradora líder ou do estipulante,
+respectivamente;
+§ 2º O disposto neste artigo aplica-se também à entidade de previdência complementar fechada a que
+se refere o inciso IX do art. 25.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 325",
+    titulo: "Os serviços de intermediação de seguros, resseguros, previdência complementar e\ncapitalização de que trata o inciso XV do caput do art",
+    conteudo: `Art. 325. Os serviços de intermediação de seguros, resseguros, previdência complementar e
+capitalização de que trata o inciso XV do caput do art. 269 ficarão sujeitos à incidência do IBS sobre o valor
+da operação, pela mesma alíquota aplicável aos serviços de seguros, resseguros, previdência complementar
+e capitalização. (Art. 228 da LC 214/2025)
+§ 1º Os prestadores de serviços de intermediação de seguros, resseguros, previdência complementar
+e capitalização que forem optantes pelo Simples Nacional:
+
+109
+
+I - permanecerão tributados de acordo com as regras do Simples Nacional, quando não exercerem a
+opção pelo regime regular do IBS; e
+II - ficarão sujeitos à mesma alíquota do IBS aplicável aos serviços de seguros, resseguros, previdência
+complementar e capitalização, quando exercerem a opção pelo regime regular do IBS.
+§ 2º Os créditos das operações de intermediação poderão ser aproveitados pelos segurados
+adquirentes de seguros, resseguros e pelos adquirentes de títulos de capitalização que sejam contribuintes
+do IBS no regime regular, desde que o fornecedor da intermediação identifique os adquirentes e destinatários,
+com base nos valores do IBS pagos pelo intermediário e aplicando-se o disposto nos arts. 47 a 61.
+§ 3º Para fins do disposto no § 2º considera-se destinatário do serviço de intermediação o segurado ou
+o adquirente do título de capitalização.
+§ 4º Não terão direito a crédito de IBS, nos termos dos arts. 62 a 64, o contribuinte que adquirir o serviço
+de intermediação de:
+I - seguros de pessoas, seguros de ramos de elementares e capitalização que forem considerados de
+uso ou consumo pessoal; e
+II - previdência complementar.
+Seção XIII - Dos Serviços de Ativos Virtuais`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 326",
+    titulo: "Os serviços de ativos virtuais de que trata o inciso XVI do caput do art",
+    conteudo: `Art. 326. Os serviços de ativos virtuais de que trata o inciso XVI do caput do art. 269 ficam sujeitos à
+incidência do IBS sobre o valor da prestação do serviço de ativos virtuais. (Art. 229 da LC 214/2025)
+§ 1º Os ativos virtuais de que trata o caput deste artigo são as representações digitais de valor que
+podem ser negociadas ou transferidas por meios eletrônicos e utilizadas para realização de pagamentos ou
+com propósito de investimento, nos termos da Lei nº 14.478, de 21 de dezembro de 2022, não incluindo as
+representações digitais consideradas como valores mobiliários, que ficam sujeitas ao disposto na Seção III
+deste Capítulo.
+§ 2º Consideram-se serviços de ativos virtuais a execução em nome de terceiros dos serviços abaixo
+listados:
+I - troca entre ativos virtuais e moeda nacional ou moeda estrangeira;
+II - troca entre um ou mais ativos virtuais;
+III - transferência de ativos virtuais;
+IV - custódia ou administração de ativos virtuais ou de instrumentos que possibilitem controle sobre
+ativos virtuais;
+V - participação em serviços financeiros e prestação de serviços relacionados à oferta por um emissor
+ou venda de ativos virtuais; e
+VI - outros serviços que venham a ser autorizados pelo órgão regulamentador.
+§ 3º As atividades que caracterizam intermediação financeira ou serviços a terceiros que se enquadrem
+nos incisos I a V do caput do art. 269 realizadas pelas prestadoras de serviços de ativos virtuais ficam sujeitas
+à incidência do IBS nos termos da Seção III deste Capítulo.
+§ 4º Nos casos em que as prestadoras de serviços de ativos virtuais realizem outras atividades previstas
+em qualquer dos incisos do caput do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 326 (parte 2)",
+    titulo: "269, tais fornecimentos ficam sujeitos à incidência do IBS nos termos\nda Seção correspondente deste Capítulo",
+    conteudo: `269, tais fornecimentos ficam sujeitos à incidência do IBS nos termos
+da Seção correspondente deste Capítulo.
+§ 5º As aquisições de bens e de serviços com ativos virtuais ficam sujeitas às regras previstas nas
+normas gerais de incidência de que trata o Título I deste Livro ou ao respectivo regime diferenciado ou
+específico aplicável ao bem ou serviço adquirido, nos termos deste Regulamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 327",
+    titulo: "O contribuinte no regime regular que adquirir serviços de ativos virtuais poderá apropriar\ncréditos do IBS, com base nos valores pagos pelo fornecedor",
+    conteudo: `Art. 327. O contribuinte no regime regular que adquirir serviços de ativos virtuais poderá apropriar
+créditos do IBS, com base nos valores pagos pelo fornecedor. (Art. 230 da LC 214/2025)
+Seção XIV - Da Importação de Serviços Financeiros`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, importacao",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 328",
+    titulo: "Os serviços financeiros de que trata o art",
+    conteudo: `Art. 328. Os serviços financeiros de que trata o art. 269, quando forem considerados importados, nos
+termos da Seção II do Capítulo III do Título I deste Livro, ficam sujeitos à incidência do IBS pela mesma
+alíquota aplicável aos respectivos serviços financeiros adquiridos de fornecedores domiciliados no País. (Art.
+231 da LC 214/2025)
+
+110
+
+§ 1º Na importação de serviços financeiros:
+I - a base de cálculo será o valor correspondente à receita auferida pelo fornecedor em razão da
+operação, com a aplicação de um fator de redução para contemplar uma margem presumida, nas hipóteses
+dos serviços financeiros remunerados por margem, a ser prevista em ato conjunto da RFB e do CGIBS,
+observado o disposto nos §§ 5º e 6º;
+II - nas hipóteses em que o importador dos serviços financeiros seja contribuinte do IBS sujeito ao
+regime regular e tenha direito de apropriação de crédito na aquisição do mesmo serviço financeiro no País,
+de acordo com o disposto neste Capítulo, será aplicada alíquota zero na importação, e não serão apropriados
+créditos do IBS; e
+III - nas hipóteses em que o importador dos serviços financeiros seja contribuinte que realize as
+operações de que tratam os incisos I a V do caput do art. 269, será aplicada alíquota zero na importação, sem
+prejuízo da manutenção do direito de dedução dessas despesas da base de cálculo do IBS, segundo o
+disposto no art. 286.
+§ 2º Aplica-se o disposto no Capítulo III do Título I deste Livro às importações de serviços financeiros,
+naquilo que não conflitar com o disposto neste artigo.
+§ 3º Não se aplica a alíquota zero prevista no inciso III do § 1º na hipótese de importação de serviços
+financeiros de parte relacionada sobre a parcela do valor da operação que exceda os preços e taxas
+usualmente praticados em condições de mercado.
+§ 4º Não se aplica o disposto no inciso II do § 1º deste artigo, na importação de bens ou serviços que
+ensejem ao adquirente, em razão de regime tributário específico, a dedução do valor da aquisição da b`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, exportacao, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 328 (parte 2)",
+    titulo: "ase\nde cálculo do IBS, exceto na hipótese do inciso III do § 1º deste artigo",
+    conteudo: `ase
+de cálculo do IBS, exceto na hipótese do inciso III do § 1º deste artigo.
+§ 5º Os fatores de redução de que trata o inciso I do § 1º deverão ser determinados, para cada espécie
+de serviços financeiros, pela razão entre as deduções e as receitas relativas às operações realizadas no País
+cujo adquirente não seja contribuinte do regime regular ou pessoa jurídica de Direito Público, em período
+pretérito estabelecido em ato conjunto da RFB e do CGIBS, com base nas informações obtidas por meio da
+DeRE, referida no Capítulo II do Título II deste Livro, observado o seguinte:
+I - não serão consideradas as deduções de que tratam:
+a) os incisos III e VI do art. 286;
+b) o inciso II do § 1º do art. 287;
+c) o § 1º do art. 295;
+d) o § 1º do art. 299;
+e) a alínea “c” do inciso II do caput do art. 319;
+f) a alínea “c” do inciso II do caput do art. 320;
+g) a alínea “c” do inciso II do caput do art. 323;
+II - em relação aos serviços financeiros de que tratam as Seção III e Seção V deste Capítulo, as
+deduções não listadas no inciso I deste parágrafo serão consideradas na proporção da participação das
+receitas obtidas em operações cujo adquirente não seja contribuinte do regime regular ou pessoa jurídica de
+Direito Público em relação ao total das receitas relativas às operações realizadas no País.
+§ 6º Na indisponibilidade das informações da DeRE, referida no Capítulo II do Título II deste Livro, os
+fatores de redução de que trata o inciso I do § 1º serão determinados com base em outras informações
+econômicas ou fiscais, podendo inclusive ser consideradas no cálculo valores correspondentes a operações
+cujo adquirente seja contribuinte do regime regular ou pessoa jurídica de Direito Público.
+Seção XV - Da Exportação de Serviços Financeiros`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, exportacao, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 329",
+    titulo: "Os serviços financeiros de que trata o art",
+    conteudo: `Art. 329. Os serviços financeiros de que trata o art. 269, quando forem prestados para residentes ou
+domiciliados no exterior, serão considerados exportados e ficarão imunes à incidência do IBS, para efeitos do
+disposto no Capítulo IV do Título I deste Livro. (Art. 232 da LC 214/2025)
+§ 1º A entidade que prestar serviços financeiros no País e mediante exportação deverá:
+I - nas operações de que tratam os incisos I a V do caput do art. 269:
+a) calcular a proporção da receita das exportações sobre a receita total com esses serviços financeiros;
+
+111
+
+b) reverter o efeito das deduções da base de cálculo permitidas para esses serviços financeiros na
+mesma proporção de que trata este inciso;
+II - nas operações de que trata o inciso XI do caput do art. 269, reverter o efeito das deduções de base
+de cálculo relativas às prestações desses serviços financeiros para residentes ou domiciliados no exterior; e
+III - nas demais operações sujeitas ao regime específico de serviços financeiros, realizar o mesmo
+cálculo previsto no inciso I deste parágrafo, consideradas as receitas de operação de cada natureza, conforme
+o disposto neste Capítulo, e, quando aplicável, a permissão de dedução de despesas da base de cálculo das
+respectivas operações.
+§ 2º Tratando-se de deduções que correspondam à aquisição de bens ou serviços, será apropriado o
+crédito, no período de apuração subsequente ao da aquisição, na proporção das deduções revertidas nos
+termos do § 1º
+§ 3º Serão considerados exportados, devendo ser observadas as disposições deste artigo:
+I - os ganhos nas operações com títulos ou valores mobiliários emitidos por residente ou domiciliado
+no exterior; e
+II - os seguros de cargas e o arrendamento mercantil operacional de contêineres de que tratam as
+alíneas “b” e “n” do inciso II do § 2º do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, exportacao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 329 (parte 2)",
+    titulo: "92.\n§ 4º Nas operações de arrendamento mercantil",
+    conteudo: `92.
+§ 4º Nas operações de arrendamento mercantil:
+I - operacional, consideram-se exportações as situações em que a operação realizada com o bem
+arrendado for considerada exportação de acordo com o disposto nos arts. 92 e 95;
+II - financeiro, em relação às receitas de que trata:
+a) o inciso I do art. 297, consideram-se exportações as situações em que o arrendatário for residente
+ou estiver domiciliado fora do País;
+b) o inciso II do art. 297, consideram-se exportações as situações em que a operação realizada com o
+bem arrendado for considerada exportação de acordo com o disposto nos arts. 92 e 95.
+§ 5º Não são considerados exportados os serviços financeiros prestados a entidades no exterior que
+sejam filiais, controladas ou investidas, preponderantemente, por residentes ou domiciliados no País que não
+sejam contribuintes do IBS no regime regular, individualmente ou em conjunto com partes relacionadas,
+conforme definidas nos §§ 3º a 7º do art. 5º
+§ 6º No caso de operações realizadas nos mercados financeiro e de capitais nos termos da
+regulamentação do Conselho Monetário Nacional, o disposto no § 5º aplicar-se-á, exclusivamente, nos casos
+em que a informação sobre a entidade no exterior ser controlada ou investida, preponderantemente, por
+residentes ou domiciliados no País, seja indicada, pelo representante legal de tal entidade no exterior, no
+cadastro com identificação única de que trata o Capítulo I do Título II deste Livro.
+CAPÍTULO III - DOS PLANOS DE ASSISTÊNCIA À SAÚDE`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, exportacao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 330",
+    titulo: "Os planos de assistência à saúde ficam sujeitos a regime específico de incidência do IBS, de\nacordo com o disposto neste Capítulo, nos casos em que esses serviços sejam prestados por",
+    conteudo: `Art. 330. Os planos de assistência à saúde ficam sujeitos a regime específico de incidência do IBS, de
+acordo com o disposto neste Capítulo, nos casos em que esses serviços sejam prestados por: (Art. 234 da
+LC 214/2025)
+I - seguradoras de saúde;
+II - administradoras de benefícios;
+III - cooperativas operadoras de planos de saúde;
+IV - cooperativas de seguro saúde; e
+V - demais operadoras de planos de assistência à saúde.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 331",
+    titulo: "O período de aferição do IBS no regime específico de planos de assistência à saúde será\nmensal",
+    conteudo: `Art. 331. O período de aferição do IBS no regime específico de planos de assistência à saúde será
+mensal. (Art. 300 da LC 214/2025)
+§ 1º Para fins de aferição de que trata este artigo, após a redução das deduções previstas neste
+Capítulo, o contribuinte deverá:
+I - deduzir do valor do faturamento bruto de cada operação o valor do ISS; e
+
+112
+
+II - deduzir o IBS e a CBS da base de cálculo por meio da divisão do valor aferido na forma do inciso I
+deste parágrafo pelo valor correspondente a um inteiro acrescido do percentual correspondente à soma das
+alíquotas do IBS e da CBS previstas no art. 237 da Lei Complementar nº 214, de 2025.
+§ 2º A aferição da base de cálculo do IBS no regime específico de que trata este Capítulo
+corresponderá, no período de apuração mensal, à aplicação da seguinte fórmula:
+BC IBS = [(Faturamento Bruto - Deduções Previstas) - ISSop] / [1 + (Aliq IBS + Aliq CBS)]
+Considerando-se:
+BC IBS: base de cálculo do IBS;
+Faturamento Bruto: valor total cobrado do adquirente;
+Deduções Previstas: deduções do período previstas no inciso II do art. 332;
+ISSop: ISS devido no fornecimento;
+Aliq IBS: alíquota do IBS prevista no art. 336, expressa em percentual;
+Aliq CBS: alíquota da CBS prevista no art. 237 da Lei Complementar nº 214, de 2025, expressa em
+percentual.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 332",
+    titulo: "A base de cálculo do IBS no regime específico de planos de assistência de saúde será\ncomposta",
+    conteudo: `Art. 332. A base de cálculo do IBS no regime específico de planos de assistência de saúde será
+composta: (Art. 235 da LC 214/2025)
+I - da receita dos serviços, compreendendo, entre outras:
+a) os prêmios e quaisquer outras contraprestações, efetivamente recebidos, pelo regime de caixa,
+inclusive:
+1. coparticipações e valores recebidos por corresponsabilidade assumida; e
+2. taxas de administração e comissões;
+b) as receitas financeiras recebidas relativas aos ativos garantidores das reservas técnicas, observado
+o disposto no § 1º;
+II - com a dedução:
+a) das indenizações correspondentes a eventos ocorridos, nos termos do § 5º, efetivamente pagas,
+pelo regime de caixa;
+b) dos valores referentes a cancelamentos e restituições de prêmios e contraprestações que tenham
+sido efetivamente pagos e computados como receitas;
+c) dos valores pagos por serviços de intermediação de planos de assistência à saúde, devidamente
+comprovados por documento fiscal emitido pelo intermediário; e
+d) dos valores pagos a entidades previstas no art. 330, incluindo a taxa de administração paga às
+administradoras de benefícios.
+§ 1º Para efeitos do disposto na alínea “b” do inciso I do caput deste artigo, o valor total das receitas
+financeiras relativas aos títulos vinculados a reservas técnicas será integralmente tributado no período de
+apuração em que houver, cumulativamente:
+I - a liquidação ou o resgate do respectivo ativo garantidor; e
+II - a redução das provisões técnicas lastreadas por ativo garantidor, nos termos de disciplina expedida
+pela Agência Nacional de Saúde Suplementar (ANS), considerando a diferença entre o valor total de provisões
+técnicas no período de apuração e no período imediatamente anterior.
+§ 2º Considera-se resgate do ativo garantidor, inclusive, o recebimento de rendimentos periódicos.
+§ 3º Para fins do § 1º, serão consideradas as receitas financeiras auferidas a partir de 1º de janeiro de
+2027, até que ocorram as condições previstas no referido parágrafo.
+§ 4º Não inte`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 332 (parte 2)",
+    titulo: "grarão a base de cálculo do IBS as receitas financeiras que não guardem vinculação com\na alocação de recursos oriundos do recebimento de prêmios e contraprestações pagos pelos contratantes\ndos plan...",
+    conteudo: `grarão a base de cálculo do IBS as receitas financeiras que não guardem vinculação com
+a alocação de recursos oriundos do recebimento de prêmios e contraprestações pagos pelos contratantes
+dos planos de assistência à saúde.
+§ 5º Para fins do disposto na alínea “a” do inciso II do caput deste artigo, consideram-se indenizações
+correspondentes a eventos ocorridos o total dos custos assistenciais decorrentes da utilização, pelos
+beneficiários, da cobertura oferecida pelos planos de assistência à saúde, compreendendo:
+
+113
+
+I - bens e serviços adquiridos diretamente pela entidade de pessoas físicas e jurídicas; e
+II - reembolsos aos segurados ou beneficiários por bens e serviços adquiridos por estes de pessoas
+físicas e jurídicas.
+§ 6º Os custos de que trata o § 5º somente serão dedutíveis se devidamente comprovados por
+documento fiscal idôneo.
+§ 7º Os reembolsos aos segurados ou beneficiários de que trata o inciso II do § 5º não são sujeitos à
+incidência do IBS e não dão direito a crédito.
+§ 8º Não serão dedutíveis as indenizações correspondentes a fornecimentos sujeitos a alíquota zero,
+nos termos do art. 391, sem prejuízo da possibilidade de transferência de créditos das operações
+antecedentes de que trata o art. 394.
+§ 9º Os valores pagos a título de corresponsabilidade cedida entre as entidades previstas no art. 330
+também serão considerados custos assistenciais nos termos do § 5º e serão deduzidos da base de cálculo
+para efeitos do disposto no caput deste artigo.
+§ 10. Para fins do disposto no § 9º, entende-se por corresponsabilidade cedida a disponibilização de
+serviços por uma operadora a beneficiários de outra, com a respectiva assunção do risco da prestação.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 333",
+    titulo: "Caso a base de cálculo do IBS no regime específico de planos de assistência à saúde no\nperíodo de apuração seja negativa, o contribuinte poderá deduzir o valor negativo da base de cálculo, sem\nqual...",
+    conteudo: `Art. 333. Caso a base de cálculo do IBS no regime específico de planos de assistência à saúde no
+período de apuração seja negativa, o contribuinte poderá deduzir o valor negativo da base de cálculo, sem
+qualquer atualização, das bases de cálculo positivas dos períodos de apuração posteriores. (Art. 301 da LC
+214/2025)
+Parágrafo único. A dedução de que trata o caput deste artigo poderá ser feita no prazo de até 5 (cinco)
+anos contados do último dia útil do período de apuração.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 334",
+    titulo: "Os contribuintes sujeitos ao regime específico de planos de assistência à saúde poderão\napropriar e utilizar o crédito de IBS sobre as suas aquisições de bens e serviços, obedecido o disposto nos\narts",
+    conteudo: `Art. 334. Os contribuintes sujeitos ao regime específico de planos de assistência à saúde poderão
+apropriar e utilizar o crédito de IBS sobre as suas aquisições de bens e serviços, obedecido o disposto nos
+arts. 47 a 61, salvo quando houver previsão de dedução da base de cálculo relativa ao bem e serviço
+adquirido. (Art. 302 da LC 214/2025)
+Parágrafo único. A apuração do IBS no regime específico de que trata o caput deste artigo não implica
+estorno, parcial ou integral, dos créditos relativos às aquisições de bens e serviços.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 335",
+    titulo: "Fica vedada a apropriação de crédito de IBS sobre os valores que forem deduzidos da base\nde cálculo do IBS no regime específico, assim como a dedução em duplicidade de qualquer valor",
+    conteudo: `Art. 335. Fica vedada a apropriação de crédito de IBS sobre os valores que forem deduzidos da base
+de cálculo do IBS no regime específico, assim como a dedução em duplicidade de qualquer valor. (Art. 303
+da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 336",
+    titulo: "As alíquotas de IBS no regime específico de planos de assistência à saúde são nacionalmente\nuniformes e correspondem às alíquotas de referência de cada esfera federativa, reduzidas em 60% (sessenta...",
+    conteudo: `Art. 336. As alíquotas de IBS no regime específico de planos de assistência à saúde são nacionalmente
+uniformes e correspondem às alíquotas de referência de cada esfera federativa, reduzidas em 60% (sessenta
+por cento). (Art. 237 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 337",
+    titulo: "Fica vedado o crédito de IBS para os adquirentes de planos de assistência à saúde, salvo na\nhipótese do inciso VI do § 1º do art",
+    conteudo: `Art. 337. Fica vedado o crédito de IBS para os adquirentes de planos de assistência à saúde, salvo na
+hipótese do inciso VI do § 1º do art. 63, hipótese em que os créditos do IBS a serem aproveitados: (Art. 238
+da LC 214/2025)
+I - serão equivalentes à multiplicação entre:
+a) os valores dos débitos do IBS pagos pela entidade nos termos do regime específico de que trata
+este Capítulo no período de apuração; e
+b) a proporção entre:
+1. o total de prêmios e contraprestações correspondentes à cobertura dos titulares empregados do
+contratante e de seus dependentes, no período de apuração; e
+2. o total de prêmios e contraprestações arrecadados pela entidade, no mesmo período de apuração;
+II - não alcançam a parcela dos prêmios e as contraprestações cujo ônus financeiro tenha sido
+repassado aos empregados.
+§ 1º Na hipótese em que houver desconto de valores dos empregados, o valor do crédito será
+proporcional ao valor suportado pela empresa adquirente do plano de assistência à saúde em relação ao valor
+total do prêmio ou contraprestação pagos.
+§ 2º Os adquirentes dos planos de assistência à saúde que se enquadrem na exceção prevista no caput
+deste artigo ficarão obrigados a declarar ao CGIBS essa condição, bem como o prazo de vigência do acordo
+ou convenção coletiva de trabalho, nos termos de ato conjunto da RFB e do CGIBS.
+
+114
+
+§ 3º Os valores relativos aos descontos dos empregados, realizados pelos adquirentes de planos, que
+se enquadrem no disposto na exceção prevista no caput deste artigo, serão obtidos no sistema e-Social,
+mediante convênio com o Governo Federal.
+§ 4º Na impossibilidade de obtenção de dados do sistema e-Social, o CGIBS informará ao adquirente
+o valor máximo do crédito a que ele teria direito, com base nas informações prestadas na DeRE, referida no
+Capítulo II do Título II deste Livro, pelo plano de assistência à saúde.
+§ 5º Na hipótese prevista no § 4º, fica o adquirente do plano de assistência à saúde obrigado à emissão
+de documento fiscal, com indivi`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 337 (parte 2)",
+    titulo: "dualização do valor descontado de cada empregado, para apropriação do\ncrédito, observadas as regras previstas no § 1º",
+    conteudo: `dualização do valor descontado de cada empregado, para apropriação do
+crédito, observadas as regras previstas no § 1º`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 338",
+    titulo: "Ato conjunto da RFB e do CGIBS poderá disciplinar a forma de recolhimento, pelo adquirente\nde planos de assistência à saúde, do IBS incidente na operação",
+    conteudo: `Art. 338. Ato conjunto da RFB e do CGIBS poderá disciplinar a forma de recolhimento, pelo adquirente
+de planos de assistência à saúde, do IBS incidente na operação.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 339",
+    titulo: "As entidades de que trata este Capítulo deverão apresentar informações, mediante entrega\nda DeRE, referida no Capítulo II do Título II deste Livro, sobre a identificação das pessoas físicas titular...",
+    conteudo: `Art. 339. As entidades de que trata este Capítulo deverão apresentar informações, mediante entrega
+da DeRE, referida no Capítulo II do Título II deste Livro, sobre a identificação das pessoas físicas titulares dos
+planos de assistência à saúde, bem como sobre os valores dos prêmios e contraprestações, incluindo os
+respectivos dependentes. (Art. 239 da LC 214/2025)
+§ 1º Para fins do disposto no caput deste artigo, considera-se titular do plano de assistência à saúde a
+pessoa física caracterizada como detentora principal do vínculo contratual com a operadora.
+§ 2º Nos planos coletivos em que não houver a individualização do valor dos prêmios e
+contraprestações por pessoa física titular:
+I - a operadora deverá informar, mediante entrega da DeRE, referida no Capítulo II do Título II deste
+Livro, o valor total recebido pelo contrato, a identificação dos titulares e sua respectiva data de nascimento,
+bem como a data de nascimento dos dependentes a eles vinculados; e
+II - a alocação dos valores a cada titular será feita na proporção dos titulares e seus dependentes
+levando-se em consideração a faixa etária de cada pessoa, com os seguintes coeficientes de alocação:
+a) de 0 a 18 anos: 0,17 (dezessete centésimos);
+b) de 19 a 23 anos: 0,21 (vinte e um centésimos);
+c) de 24 a 28 anos: 0,25 (vinte e cinco centésimos);
+d) de 29 a 33 anos: 0,29 (vinte e nove centésimos);
+e) de 34 a 38 anos: 0,33 (trinta e três centésimos);
+f) de 39 a 43 anos: 0,38 (trinta e oito centésimos);
+g) de 44 a 48 anos: 0,42 (quarenta e dois centésimos);
+h) de 49 a 53 anos: 0,50 (cinquenta centésimos);
+i) de 54 a 58 anos: 0,67 (sessenta e sete centésimos); e
+j) 59 anos ou mais: 1 (um inteiro).
+§ 3º Nos planos coletivos por adesão contratados com participação ou intermediação de administradora
+de benefícios, esta ficará responsável pela apresentação das informações previstas neste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 340",
+    titulo: "Os serviços de intermediação de planos de assistência à saúde ficam sujeitos à incidência do\nIBS sobre o valor da operação pela mesma alíquota aplicável ao plano de assistência à saúde",
+    conteudo: `Art. 340. Os serviços de intermediação de planos de assistência à saúde ficam sujeitos à incidência do
+IBS sobre o valor da operação pela mesma alíquota aplicável ao plano de assistência à saúde. (Art. 240 da
+LC 214/2025)
+§ 1º Os prestadores de serviços de intermediação de planos de assistência à saúde que forem optantes
+pelo Simples Nacional:
+I - permanecerão tributados de acordo com as regras do Simples Nacional, na hipótese de não optarem
+pelo regime regular do IBS; e
+II - ficarão sujeitos à mesma alíquota do IBS aplicável aos serviços de planos de assistência à saúde,
+na hipótese de optarem pelo regime regular do IBS.
+§ 2º Os prestadores de serviços de intermediação de planos de assistência à saúde ficarão obrigados
+à emissão de documento fiscal a cada fornecimento.
+
+115
+
+Art. 341. Caso venha a ser permitida a importação de serviços de planos de assistência à saúde, o IBS
+incidirá sobre o valor da operação pela mesma alíquota aplicável às operações realizadas no País. (Art. 241
+da LC 214/2025)
+§ 1º Ato conjunto da RFB e do CGIBS poderá estabelecer fator de redução de base de cálculo para
+contemplar uma margem presumida, que deverá ser determinado pela razão entre as deduções e as receitas
+relativas às operações realizadas no País, em período pretérito estabelecido no referido ato conjunto, com
+base nas informações obtidas por meio de documento fiscal, observado o seguinte:
+I - não serão consideradas as deduções de que tratam as alíneas “c” e “d” do inciso II do art. 332;
+II - poderão ser estabelecidos fatores de redução distintos, conforme o tipo de plano de assistência à
+saúde.
+§ 2º Na indisponibilidade das informações do documento fiscal, o fator de redução de que trata o § 1º
+poderá ser determinado com base em outras informações econômicas ou fiscais.
+§ 3º Aplica-se o disposto no Capítulo III do Título I deste Livro às importações de que trata o caput deste
+artigo, naquilo que não conflitar com o disposto neste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 342",
+    titulo: "Caso venha a ser permitido o fornecimento de serviços de planos de assistência à saúde para\nresidentes ou domiciliados no exterior para utilização no exterior, esse fornecimento será considerado\nex...",
+    conteudo: `Art. 342. Caso venha a ser permitido o fornecimento de serviços de planos de assistência à saúde para
+residentes ou domiciliados no exterior para utilização no exterior, esse fornecimento será considerado
+exportação e ficará imune ao IBS, para efeitos do disposto no Capítulo IV do Título I deste Livro. (Art. 242 da
+LC 214/2025)
+Parágrafo único. As receitas correspondentes aos fornecimentos previstos no caput deste artigo não
+serão tributáveis e as despesas vinculadas ao contrato não serão dedutíveis da base de cálculo do IBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 343",
+    titulo: "As operações, importações e exportações com bens e serviços das entidades de que trata\neste Capítulo não decorrentes das atividades de planos de assistência à saúde devem se submeter às normas\ndo r...",
+    conteudo: `Art. 343. As operações, importações e exportações com bens e serviços das entidades de que trata
+este Capítulo não decorrentes das atividades de planos de assistência à saúde devem se submeter às normas
+do regime geral ou do respectivo regime do IBS a elas aplicável. (Art. 304 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 344",
+    titulo: "Os contribuintes sujeitos ao regime específico de que trata este Capítulo ficam obrigados a\napresentar informações, mediante entrega da DeRE, referida no Capítulo II do Título II deste Livro, para...",
+    conteudo: `Art. 344. Os contribuintes sujeitos ao regime específico de que trata este Capítulo ficam obrigados a
+apresentar informações, mediante entrega da DeRE, referida no Capítulo II do Título II deste Livro, para
+aferição e confissão do valor do débito do IBS e identificação dos titulares beneficiários dos planos de
+assistência à saúde.
+§ 1º O disposto nesse artigo aplica-se também à entidade ou unidade de natureza econômico-contábil,
+sem fins lucrativos, que presta serviços de planos de assistência à saúde sob a modalidade de autogestão a
+que se refere o inciso VIII do caput do art. 25.
+§ 2º Ato da RFB e do CGIBS poderá dispensar, total ou parcialmente, as entidades ou unidades
+previstas no § 1º das obrigações de que trata o caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 345",
+    titulo: "Os planos de assistência funerária ficam sujeitos ao disposto nos arts",
+    conteudo: `Art. 345. Os planos de assistência funerária ficam sujeitos ao disposto nos arts. 330 a 344. (Art. 236
+da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 346",
+    titulo: "Os planos de assistência à saúde de animais domésticos ficam sujeitos ao disposto nos arts",
+    conteudo: `Art. 346. Os planos de assistência à saúde de animais domésticos ficam sujeitos ao disposto nos arts.
+330 a 344, com exceção das alíquotas aplicáveis, que serão nacionalmente uniformes e corresponderão à
+soma das alíquotas de referência de cada esfera federativa, reduzidas em 30% (trinta por cento), vedado o
+crédito ao adquirente. (Art. 243 da LC 214/2025)
+CAPÍTULO IV - DOS CONCURSOS DE PROGNÓSTICOS`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 347",
+    titulo: "Os concursos de prognósticos, em meio físico ou virtual, compreendidas todas as\nmodalidades lotéricas, incluídas as apostas de quota fixa e os sweepstakes, as apostas de turfe e as demais\napostas,...",
+    conteudo: `Art. 347. Os concursos de prognósticos, em meio físico ou virtual, compreendidas todas as
+modalidades lotéricas, incluídas as apostas de quota fixa e os sweepstakes, as apostas de turfe e as demais
+apostas, ficam sujeitos a regime específico de incidência do IBS, de acordo com o disposto neste Capítulo.
+(Art. 244 da LC 214/2025)
+§ 1º Aplica-se o disposto neste Capítulo ao fantasy sport.
+§ 2º Para os fins deste Regulamento, consideram-se:
+I - apostas de quota fixa, aquelas em que o apostador conhece, no momento de sua efetivação, o fator
+de multiplicação do valor apostado que define o valor que será recebido em caso de premiação;
+II - apostas de turfe, as modalidades de jogos efetuadas sobre corridas de cavalos, compreendendose os sweepstakes, concursos, jogos lotéricos, remates ou leilões de apostas;
+III - fantasy sports, os jogos online em que os participantes escalam equipes imaginárias ou virtuais de
+jogadores reais de um esporte profissional, respeitados os seguintes requisitos:
+
+116
+
+a) as equipes virtuais sejam formadas de, no mínimo, 2 (duas) pessoas reais, e o desempenho dessas
+equipes dependa de conhecimento, análise estatística, estratégia e habilidades dos jogadores do fantasy
+sport;
+b) as regras sejam preestabelecidas;
+c) o valor garantido da premiação independa da quantidade de participantes ou do volume arrecadado
+com a cobrança das taxas de inscrição; e
+d) os resultados não decorram da atividade isolada ou do resultado de uma única pessoa em
+competição real;
+IV - apostas, atos por meio dos quais se coloca determinado valor em risco na expectativa de obtenção
+de uma premiação.
+§ 3º O período de aferição da base de cálculo do IBS para fins de determinação do débito do imposto
+no regime específico de concursos de prognósticos será mensal. (Art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 347 (parte 2)",
+    titulo: "300 da LC 214/2025)\n§ 4º Para fins de aferição de que trata o § 3º, após a redução das deduções previstas neste Capítulo,\no contribuinte deverá",
+    conteudo: `300 da LC 214/2025)
+§ 4º Para fins de aferição de que trata o § 3º, após a redução das deduções previstas neste Capítulo,
+o contribuinte deverá:
+I - deduzir do valor do faturamento bruto de cada operação o valor do ISS; e
+II - deduzir o IBS e a CBS da base de cálculo por meio da divisão do valor aferido na forma do inciso I
+deste parágrafo pelo valor correspondente a um inteiro acrescido do percentual correspondente à soma das
+alíquotas do IBS e da CBS previstas no art. 246 da Lei Complementar nº 214, de 2025.
+§ 5º A aferição da base de cálculo do IBS no regime específico de que trata este Capítulo
+corresponderá, no período de apuração mensal, à aplicação da seguinte fórmula:
+BC IBS = [(Faturamento Bruto - Deduções Previstas) - ISSop] / [1 + (Aliq IBS + Aliq CBS)]
+Considerando-se:
+BC IBS: base de cálculo do IBS;
+Faturamento Bruto: valor total cobrado do adquirente;
+Deduções Previstas: deduções previstas nos incisos I e II do art. 348;
+ISSop: ISS devido no fornecimento;
+Aliq IBS: alíquota do IBS prevista no art. 353, expressa em percentual;
+Aliq CBS: alíquota da CBS prevista no art. 246 da Lei Complementar nº 214, de 2025, expressa em
+percentual.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 348",
+    titulo: "A base de cálculo do IBS sobre concursos de prognósticos é a receita própria da entidade\ndecorrente dessa atividade, correspondente ao produto da arrecadação, com a dedução de",
+    conteudo: `Art. 348. A base de cálculo do IBS sobre concursos de prognósticos é a receita própria da entidade
+decorrente dessa atividade, correspondente ao produto da arrecadação, com a dedução de: (Art. 245 da LC
+214/2025)
+I - premiações pagas; e
+II - destinações obrigatórias por lei a órgão ou fundo público e aos demais beneficiários.
+§ 1º Caracteriza-se como receita própria da entidade decorrente da atividade de concursos de
+prognósticos, correspondente ao produto da arrecadação, nos termos do caput deste artigo, o valor das
+apostas efetuadas, incluindo aquele proveniente de recompensas ou vantagens oferecidas pelo fornecedor,
+independentemente do encerramento do evento ao qual as apostas estão vinculadas.
+§ 2º As premiações pagas:
+I - não ficam sujeitas à incidência do IBS;
+II - correspondem ao valor que um apostador recebeu em decorrência do seu prognóstico;
+III - incluem os valores referentes ao encerramento de apostas ocorrido antes do término do evento a
+que estão vinculadas;
+IV - não incluem os valores referentes às recompensas ou vantagens oferecidas pelo fornecedor;
+V - são dedutíveis da base de cálculo do IBS no momento em que ocorrer seu pagamento.
+§ 3º As deduções a que se referem os incisos I e II do caput deste artigo devem ser descontadas na
+proporção do valor das apostas provenientes de operações de exportação, previstas no art. 357, em relação
+ao valor total das apostas.
+
+117
+
+§ 4º O Imposto Seletivo integra a base de cálculo do IBS prevista no caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, exportacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 349",
+    titulo: "Caso a base de cálculo do IBS no período de apuração seja negativa, o contribuinte poderá\ndeduzir o valor negativo da base de cálculo, sem qualquer atualização, das bases de cálculo positivas dos\np...",
+    conteudo: `Art. 349. Caso a base de cálculo do IBS no período de apuração seja negativa, o contribuinte poderá
+deduzir o valor negativo da base de cálculo, sem qualquer atualização, das bases de cálculo positivas dos
+períodos de apuração posteriores. (Art. 301 da LC 214/2025)
+Parágrafo único. A dedução de que trata o caput deste artigo poderá ser feita no prazo de até 5 (cinco)
+anos contados do último dia útil do período de apuração.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 350",
+    titulo: "Fica vedada a apropriação de crédito de IBS sobre os valores que forem deduzidos da base\nde cálculo, assim como a dedução em duplicidade de qualquer valor",
+    conteudo: `Art. 350. Fica vedada a apropriação de crédito de IBS sobre os valores que forem deduzidos da base
+de cálculo, assim como a dedução em duplicidade de qualquer valor. (Art. 303 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 351",
+    titulo: "Os contribuintes sujeitos ao regime específico de concursos de prognósticos poderão\napropriar e utilizar o crédito de IBS sobre as suas aquisições de bens e serviços, obedecido o disposto nos\narts",
+    conteudo: `Art. 351. Os contribuintes sujeitos ao regime específico de concursos de prognósticos poderão
+apropriar e utilizar o crédito de IBS sobre as suas aquisições de bens e serviços, obedecido o disposto nos
+arts. 47 a 61 e no art. 350. (Art. 302 da LC 214/2025)
+Parágrafo único. A apuração do IBS no regime específico de concursos de prognósticos não implica
+estorno, parcial ou integral, dos créditos relativos às aquisições de bens e serviços.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 352",
+    titulo: "As operações, importações e exportações com bens e serviços das entidades de que trata\neste Capítulo não decorrentes das atividades de concursos de prognósticos devem se submeter às normas\ndo regim...",
+    conteudo: `Art. 352. As operações, importações e exportações com bens e serviços das entidades de que trata
+este Capítulo não decorrentes das atividades de concursos de prognósticos devem se submeter às normas
+do regime geral ou do respectivo regime do IBS a elas aplicável. (Art. 304 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 353",
+    titulo: "As alíquotas do IBS sobre concursos de prognósticos são nacionalmente uniformes e\ncorrespondem à soma das alíquotas de referência das esferas federativas",
+    conteudo: `Art. 353. As alíquotas do IBS sobre concursos de prognósticos são nacionalmente uniformes e
+correspondem à soma das alíquotas de referência das esferas federativas. (Art. 246 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 354",
+    titulo: "Fica vedado o crédito de IBS aos apostadores dos concursos de prognósticos",
+    conteudo: `Art. 354. Fica vedado o crédito de IBS aos apostadores dos concursos de prognósticos. (Art. 247 da
+LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 355",
+    titulo: "Os contribuintes sujeitos ao regime específico de que trata este Capítulo ficam obrigados a\napresentar, mediante entrega da DeRE, referida no Capítulo II do Título II deste Livro, no mínimo as\ninfo...",
+    conteudo: `Art. 355. Os contribuintes sujeitos ao regime específico de que trata este Capítulo ficam obrigados a
+apresentar, mediante entrega da DeRE, referida no Capítulo II do Título II deste Livro, no mínimo as
+informações necessárias para a identificação:
+I - do valor do débito do IBS;
+II - dos apostadores;
+III - dos valores das apostas;
+IV - do local onde a aposta é efetuada;
+V - do valor das premiações pagas;
+VI - dos valores das destinações obrigatórias por lei a órgão ou fundo público e aos demais
+beneficiários;
+VII - dos valores de apostas efetuadas e premiações pagas provenientes de operações de exportação.`,
+    topicos: "CBS, IBS, Reforma Tributária, exportacao, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 356",
+    titulo: "Caso venha a ser permitida a importação de serviços de concursos de prognósticos, ficarão\nsujeitas à incidência do IBS pela mesma alíquota prevista para concursos de prognósticos no País as\nentidad...",
+    conteudo: `Art. 356. Caso venha a ser permitida a importação de serviços de concursos de prognósticos, ficarão
+sujeitas à incidência do IBS pela mesma alíquota prevista para concursos de prognósticos no País as
+entidades domiciliadas no exterior que prestarem, por meio virtual, serviços de concursos de prognósticos de
+que trata este Capítulo para apostadores residentes ou domiciliados no País. (Art. 249 da LC 214/2025)
+§ 1º O fornecedor do serviço de que trata o caput deste artigo é o contribuinte do IBS, respondendo
+solidariamente o apostador nas hipóteses previstas no art. 23.
+§ 2º A base de cálculo é a receita auferida pela entidade em razão da operação, com a aplicação de
+um fator de redução, previsto em ato conjunto da RFB e do CGIBS.
+§ 3º O fator de redução de que trata o § 2º deverá ser determinado pela razão entre as deduções e as
+receitas relativas às operações realizadas no País, em período pretérito estabelecido no ato conjunto a que
+se refere o § 2º, com base nas informações obtidas por meio de documento fiscal.
+§ 4º Poderão ser estabelecidos fatores de redução distintos conforme o tipo de concurso de
+prognóstico.
+§ 5º Na indisponibilidade das informações do documento fiscal, o fator de redução de que trata o § 2º
+poderá ser determinado com base em outras informações econômicas ou fiscais.
+§ 6º Aplica-se o disposto no Capítulo III do Título I deste Livro às importações de que trata esta Seção,
+naquilo que não conflitar com o disposto neste artigo.
+
+118
+
+Art. 357. Os serviços de concursos de prognósticos prestados, por meio virtual, a residentes ou
+domiciliados no exterior serão considerados exportados, ficando imunes à incidência do IBS, para efeitos do
+disposto no Capítulo IV do Título I deste Livro. (Art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, exportacao, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 356 (parte 2)",
+    titulo: "250 da LC 214/2025)\n§ 1º Não se consideram exportados os serviços de concursos de prognósticos nas hipóteses em que o\napostador residente ou domiciliado no exterior realizar a aposta enquanto estiv...",
+    conteudo: `250 da LC 214/2025)
+§ 1º Não se consideram exportados os serviços de concursos de prognósticos nas hipóteses em que o
+apostador residente ou domiciliado no exterior realizar a aposta enquanto estiver no território nacional.
+§ 2º Nas aquisições de concursos de prognósticos realizadas em meio virtual, para comprovação da
+exportação, serão exigidos do exportador, cumulativamente, os seguintes requisitos: (Art. 250, § 1º, da LC
+214/2025)
+I - endereço de IP do dispositivo utilizado para a efetivação da aposta no exterior;
+II - geolocalização de onde o apostador efetivou a aposta em território estrangeiro;
+III - declaração do adquirente de que reside ou tem domicílio no exterior.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, exportacao, importacao, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 358",
+    titulo: "Os rendimentos auferidos em decorrência da aplicação de recursos captados de apostadores,\nnão inclusos aqueles referentes a apostas em aberto, ficam sujeitos ao regime específico de serviços\nfinanc...",
+    conteudo: `Art. 358. Os rendimentos auferidos em decorrência da aplicação de recursos captados de apostadores,
+não inclusos aqueles referentes a apostas em aberto, ficam sujeitos ao regime específico de serviços
+financeiros de que trata a Seção III do Capítulo II do Título VI deste Livro.
+CAPÍTULO V - DOS BENS IMÓVEIS
+Seção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 359",
+    titulo: "As operações com bens imóveis realizadas por contribuintes que apurarem o IBS no regime\nregular ficam sujeitas ao regime específico previsto neste Capítulo",
+    conteudo: `Art. 359. As operações com bens imóveis realizadas por contribuintes que apurarem o IBS no regime
+regular ficam sujeitas ao regime específico previsto neste Capítulo. (Art. 251 da LC 214/2025)
+Parágrafo único. Aplicam-se, no que couber, as disposições do Título I deste Livro quanto às demais
+regras não previstas neste Capítulo. (Art. 251, § 7º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 360",
+    titulo: "O IBS incide, nos termos deste Capítulo, sobre as seguintes operações com bens imóveis",
+    conteudo: `Art. 360. O IBS incide, nos termos deste Capítulo, sobre as seguintes operações com bens imóveis:
+(Art. 252 da LC 214/2025)
+I - alienação, inclusive decorrente de incorporação imobiliária e de parcelamento de solo;
+II - cessão e ato translativo ou constitutivo onerosos de direitos reais;
+III - locação, cessão onerosa e arrendamento;
+IV - serviços de administração e intermediação; e
+V - serviços de construção civil.
+§ 1º O IBS também incide sobre as operações não onerosas ou a valor inferior ao de mercado com
+bens imóveis nas hipóteses e condições previstas no art. 5º
+§ 2º Sujeitam-se à tributação pelo IBS pelas mesmas regras da locação, cessão onerosa e
+arrendamento de bens imóveis:
+I - a servidão, a cessão de uso ou de espaço;
+II - a permissão de uso e o direito de passagem.
+§ 3º O IBS não incide nas seguintes hipóteses:
+I - nas operações de permuta entre bens imóveis, exceto sobre a torna, que será tributada nos termos
+deste Capítulo;
+II - na constituição ou transmissão de direitos reais de garantia; e
+III - nas operações previstas neste artigo, quando realizadas por organizações gestoras de fundo
+patrimonial, constituídas nos termos da Lei nº 13.800, de 4 de janeiro de 2019, para fins de investimento do
+fundo patrimonial.
+§ 4º Nas operações de permuta, qualquer contraprestação diferente de imóvel e dinheiro estará sujeita
+à tributação pelo regime regular.
+§ 5º Na hipótese de que trata o inciso I do § 3º, o valor permutado não será considerado no valor da
+operação para o cálculo do redutor de ajuste de que tratam os arts. 369 a 375. (Art. 252, § 3º, da LC 214/2025)
+§ 6º Para fins do disposto neste Capítulo, as operações com bens imóveis de que trata o inciso III do §
+3º não são consideradas operações de contribuinte sujeito ao regime regular do IBS. (Art. 252, § 4º, da LC
+214/2025)
+
+119`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 360 (parte 2)",
+    titulo: "§ 7º Nas permutas entre bens imóveis realizadas entre contribuintes do regime regular do IBS",
+    conteudo: `§ 7º Nas permutas entre bens imóveis realizadas entre contribuintes do regime regular do IBS:
+I - fica mantido o valor do redutor de ajuste do imóvel dado em permuta, que poderá ser utilizado em
+operações futuras com o imóvel recebido em permuta; e
+II - no caso de permuta para entrega de unidades a construir, o redutor de ajuste será aplicado
+proporcionalmente à operação de cada permutante, tomando-se por base a fração ideal das unidades
+permutadas.
+§ 8º Nas permutas entre imóveis realizadas entre contribuinte do regime regular do IBS e não
+contribuinte do regime regular:
+I - não será constituído redutor de ajuste para o imóvel recebido em permuta pelo não contribuinte do
+regime regular; e
+II - o valor do redutor de ajuste do imóvel recebido em permuta pelo contribuinte do regime regular
+corresponderá:
+a) se não houver torna, ao valor do redutor de ajuste do imóvel por ele dado em permuta;
+b) se houver pagamento de torna por parte do contribuinte do regime regular, ao valor do redutor de
+ajuste do imóvel por ele dado em permuta, acrescido do valor da torna; e
+c) se houver pagamento de torna por parte do não contribuinte do regime regular, ao valor do redutor
+de ajuste do imóvel dado em permuta pelo contribuinte do regime regular, com a dedução do valor da torna,
+não podendo o valor do redutor de ajuste ser negativo.
+§ 9º O disposto no inciso I do § 3º e no § 7º também se aplica às operações quitadas de compra e
+venda de imóvel seguidas de confissão de dívida e promessa de dação em pagamento de unidade imobiliária
+construída ou a construir, desde que a alienação do imóvel e o compromisso de dação em pagamento sejam
+levados a efeito na mesma data, mediante instrumento público.
+§ 10. Aplica-se o disposto no § 6º do art. 4º às operações de alienação, locação, cessão onerosa e
+arrendamento de bem imóvel de propriedade de pessoa física sujeita ao regime regular do IBS que não
+estejam relacionadas ao desenvolvimento de sua atividade econômica.
+§ 11.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 360 (parte 3)",
+    titulo: "O disposto no § 10 não se aplica caso a quantidade e o valor das operações com os imóveis nele\nreferidos caracterizem atividade econômica do contribuinte, nos termos do caput e § 1º do art",
+    conteudo: `O disposto no § 10 não se aplica caso a quantidade e o valor das operações com os imóveis nele
+referidos caracterizem atividade econômica do contribuinte, nos termos do caput e § 1º do art. 382.
+§ 12. Na alienação de imóveis que tenham sido objeto de garantia constituída em favor de credor sujeito
+ao regime específico deste Capítulo, cuja propriedade tenha sido por ele consolidada ou a ele transmitida em
+pagamento ou amortização da dívida, deverá ser observado o disposto no art. 294.
+§ 13. Para fins do inciso V do caput deste artigo, considera-se serviço de construção civil a execução,
+por administração, empreitada ou subempreitada, de obras de construção civil, hidráulica ou elétrica, bem
+como a demolição, reparação, conservação, reforma de edifícios, estradas, pontes, portos e congêneres,
+inclusive instalação e montagem de bens que se incorporem a bens imóveis.
+§ 14. Não será considerado serviço de construção civil o fornecimento de bens materiais utilizados na
+obra, sem a prestação conjunta do serviço definido no § 13, ainda que entregues no local da obra.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 361",
+    titulo: "As operações de locação, cessão onerosa ou arrendamento de bem imóvel residencial por\ncontribuinte sujeito ao regime regular do IBS, por período não superior a 90 (noventa) dias ininterruptos, serã...",
+    conteudo: `Art. 361. As operações de locação, cessão onerosa ou arrendamento de bem imóvel residencial por
+contribuinte sujeito ao regime regular do IBS, por período não superior a 90 (noventa) dias ininterruptos, serão
+tributadas nos termos do art. 410 e deverão ser incluídas nos limites de que tratam o inciso I do caput e o
+inciso III do § 1º, ambos do art. 382. (Art. 253 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 362",
+    titulo: "Não se considera operação com bens imóveis a disponibilização de local que constitua\nelemento acessório ou meio para a realização de outro fornecimento, conforme disposto no inciso II do art",
+    conteudo: `Art. 362. Não se considera operação com bens imóveis a disponibilização de local que constitua
+elemento acessório ou meio para a realização de outro fornecimento, conforme disposto no inciso II do art. 7º
+Seção II - Do Momento da Ocorrência do Fato Gerador`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 363",
+    titulo: "Considera-se ocorrido o fato gerador do IBS no momento",
+    conteudo: `Art. 363. Considera-se ocorrido o fato gerador do IBS no momento: (Art. 254 da LC 214/2025)
+I - do ato de alienação, na alienação de bem imóvel;
+II - da celebração do ato, inclusive de quaisquer ajustes posteriores, exceto os de garantia, na cessão
+ou no ato oneroso translativo ou constitutivo de direitos reais sobre bens imóveis;
+III - do pagamento, na locação, cessão onerosa ou arrendamento de bem imóvel;
+IV - do pagamento, no serviço de administração e intermediação de bem imóvel; e
+V - do fornecimento, no serviço de construção civil.
+
+120
+
+§ 1º Para fins do disposto no inciso I do caput deste artigo, considera-se alienação:
+I - a adjudicação;
+II - a celebração, inclusive de quaisquer ajustes posteriores, do contrato de alienação, ainda que
+mediante:
+a) instrumento de promessa;
+b) carta de reserva com princípio de pagamento; ou
+c) qualquer outro documento representativo de compromisso; ou
+III - quando implementada a condição suspensiva a que estiver sujeita a alienação.
+§ 2º Nas hipóteses de que tratam os incisos III e IV do caput deste artigo, o IBS incidente na operação
+será devido em cada pagamento.
+§ 3º Caso os fornecimentos previstos nos incisos III e IV do caput deste artigo ocorram de forma não
+onerosa, nos termos do art. 5º, considera-se ocorrido o fato gerador:
+I - na locação, cessão onerosa ou arrendamento de bem imóvel, no momento do fornecimento; e
+II - no serviço de administração e intermediação de bem imóvel, no término do fornecimento.
+§ 4º Para fins do disposto no inciso V do caput deste artigo, considera-se ocorrido o fato gerador no
+momento previsto no § 3º do art. 11.
+Seção III - Da Base de Cálculo
+Subseção I - Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 364",
+    titulo: "A base de cálculo do IBS é o valor",
+    conteudo: `Art. 364. A base de cálculo do IBS é o valor: (Art. 255 da LC 214/2025)
+I - da operação de alienação do bem imóvel;
+II - da locação, cessão onerosa ou arrendamento do bem imóvel;
+III - da cessão ou do ato oneroso translativo ou constitutivo de direitos reais sobre bens imóveis;
+IV - da operação de administração ou intermediação;
+V - da operação nos serviços de construção civil.
+§ 1º O valor de que trata o caput deste artigo inclui:
+I - o valor dos juros e das variações monetárias, em função da taxa de câmbio ou de índice ou
+coeficiente aplicáveis por disposição legal ou contratual;
+II - a atualização monetária, nas vendas contratadas com cláusula de atualização monetária do saldo
+credor do preço, que venham a integrar os valores efetivamente recebidos pela alienação de bem imóvel;
+III - os valores a que se referem os incisos I a III e VI do § 1º do art. 13.
+§ 2º Não poderá ser deduzido da base de cálculo o valor de benfeitorias, bem como de quaisquer outras
+formas de contraprestação, custeadas pelo locatário.
+§ 3º Não serão computados na base de cálculo do IBS incidente sobre o valor da locação, cessão
+onerosa ou arrendamento de bem imóvel, quando suportados pelo locatário:
+I - o valor dos tributos e dos emolumentos incidentes sobre o bem imóvel;
+II - as despesas de condomínio; e
+III - o valor devido a título de foro anual e taxa de ocupação.
+§ 4º O disposto no § 3º fica condicionado à existência de prova inequívoca do pagamento dos valores
+a que se refere.
+§ 5º Nos serviços de intermediação de bem imóvel, caso o ato ou negócio relativo a bem imóvel se
+conclua com a intermediação de mais de um corretor, pessoa física ou jurídica, será considerada como base
+de cálculo para incidência do IBS a parte da remuneração ajustada com cada corretor pela intermediação,
+excluídos:
+I - os valores pagos diretamente pelos contratantes da intermediação; e
+II - os repassados entre os corretores de imóveis.
+
+121`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 364 (parte 2)",
+    titulo: "§ 6º Na hipótese de que trata o § 5º, o corretor de imóveis é responsável pelo IBS incidente sobre a\nrespectiva parte da remuneração",
+    conteudo: `§ 6º Na hipótese de que trata o § 5º, o corretor de imóveis é responsável pelo IBS incidente sobre a
+respectiva parte da remuneração.
+§ 7º Nas operações não onerosas ou com valor inferior ao de mercado, nos termos do art. 5º, a base
+de cálculo será o valor de mercado do bem ou serviço.
+§ 8º Para fins do disposto no § 7º, a determinação do valor de mercado deverá observar,
+sucessivamente, os seguintes critérios:
+I - na alienação de bem imóvel:
+a) o valor da operação mais recente do próprio fornecedor em operações com partes não relacionadas,
+em imóveis que possuam características e localização semelhantes; ou
+b) o valor de referência do imóvel disponibilizado no Sistema Nacional de Gestão de Informações
+Territoriais (Sinter);
+II - na locação, cessão onerosa ou arrendamento de bem imóvel:
+a) o valor da operação mais recente do próprio fornecedor em operações com partes não relacionadas,
+em imóveis com características e localização semelhantes; ou
+b) o valor calculado mediante a aplicação, sobre o valor de referência do imóvel disponibilizado no
+Sinter, de percentual determinado pela autoridade fiscal, observados limites mínimos e máximos fixados em
+ato conjunto da RFB e do CGIBS, com base em pesquisas ou publicações técnicas especializadas ou em
+metodologia própria prevista no referido ato conjunto;
+III - nas operações com direitos reais sobre bens imóveis:
+a) o valor da operação mais recente do próprio fornecedor em operações com partes não relacionadas,
+com direitos reais sobre bens imóveis que possuam características e localização semelhantes;
+b) o valor calculado mediante a aplicação, sobre o valor de referência do imóvel disponibilizado no
+Sinter, de percentual determinado pela autoridade fiscal, observados os parâmetros fixados em ato conjunto
+da RFB e do CGIBS para cada tipo de direito real, com base em pesquisas ou publicações técnicas
+especializadas ou em metodologia própria prevista no referido ato conjunto.
+§ 9º Os percentuais fixados nos atos referidos na`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 364 (parte 3)",
+    titulo: "alínea “b” do inciso II e na alínea “b” do inciso III,\nambos do § 8º, serão revisados periodicamente pela RFB e pelo CGIBS e poderão ser estabelecidos em\nparâmetros distintos a depender do tipo de...",
+    conteudo: `alínea “b” do inciso II e na alínea “b” do inciso III,
+ambos do § 8º, serão revisados periodicamente pela RFB e pelo CGIBS e poderão ser estabelecidos em
+parâmetros distintos a depender do tipo de imóvel, da região ou de outros critérios.
+§ 10. Na impossibilidade de apuração do valor de mercado nos termos dos §§ 8º e 9º, o valor de
+mercado a ser utilizado como base de cálculo será aquele previsto no § 2º do art. 375.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 365",
+    titulo: "No caso de prestação de serviço de construção civil a não contribuinte do regime regular do\nIBS em que haja fornecimento de materiais de construção, o prestador do serviço só poderá apropriar o cré...",
+    conteudo: `Art. 365. No caso de prestação de serviço de construção civil a não contribuinte do regime regular do
+IBS em que haja fornecimento de materiais de construção, o prestador do serviço só poderá apropriar o crédito
+de IBS relativo à aquisição dos materiais de construção até o valor do débito relativo à prestação do serviço
+de construção civil. (Art. 255, § 5º, da LC 214/2025)
+§ 1º Para fins do disposto no caput deste artigo:
+I - o crédito de IBS somente poderá ser apropriado se o prestador do serviço de construção civil
+mantiver contabilidade de custo por obra ou se o documento fiscal fizer referência à identificação cadastral
+da obra de construção civil no Cadastro Imobiliário Brasileiro (CIB), integrante do Sinter; e
+II - será objeto de estorno o crédito referente aos materiais de construção que exceda o limite previsto
+no caput deste artigo ou que não atenda aos critérios do inciso I, na forma do art. 48.
+§ 2º O disposto no caput deste artigo não se aplica na prestação de serviço de construção civil para a
+administração pública direta, autarquias e fundações públicas.
+Subseção II - Do Valor de Referência do Imóvel`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 366",
+    titulo: "As administrações tributárias poderão apurar o valor de referência dos bens imóveis, com\nvistas à estimativa de seu valor de mercado, com base em metodologia estabelecida em ato conjunto da RFB\ne d...",
+    conteudo: `Art. 366. As administrações tributárias poderão apurar o valor de referência dos bens imóveis, com
+vistas à estimativa de seu valor de mercado, com base em metodologia estabelecida em ato conjunto da RFB
+e do CGIBS considerando, conjunta ou isoladamente, entre outros elementos: (Art. 256 da LC 214/2025)
+I - características do imóvel constantes dos cadastros imobiliários das administrações tributárias;
+II - aplicação de modelos estatísticos, econométricos e preditivos;
+
+122
+
+III - utilização de dados e indicadores relativos ao mercado imobiliário, inclusive com utilização de
+pesquisa de preços praticados, com coleta de amostras representativas de cada área homogênea, baseadas
+em ofertas e transações efetivas;
+IV - análise de tendências econômicas de valoração;
+V - histórico de transações imobiliárias;
+VI - distribuição e comportamento dos valores praticados por região geográfica;
+VII - informações compartilhadas pelas administrações tributárias municipais, em especial aquelas
+relativas ao Imposto Predial e Territorial Urbano (IPTU) e ao Imposto sobre Transmissão de Bens Imóveis
+(ITBI);
+VIII - informações compartilhadas pelas administrações tributárias estaduais, em especial aquelas
+relativas ao Imposto sobre Transmissão Causa Mortis e Doação (ITCMD);
+IX - informações compartilhadas pela RFB, em especial aquelas relativas ao Imposto sobre a
+Propriedade Territorial Rural (ITR);
+X - informações prestadas por instituições financeiras;
+XI - informações prestadas por empresas permissionárias e concessionárias de serviços públicos,
+inclusive de fornecimento de água, esgoto, energia e telefonia;
+XII - informações compartilhadas por outros órgãos e entidades da Administração Pública;
+XIII - informações fornecidas por entidades representativas e operadoras do mercado imobiliário;
+XIV - informações oriundas dos serviços registrais e notariais, relativas às operações e registros de
+imóveis; e
+XV - atributos do imóvel, tais como localização, tipologia, infraestrutura, destinação`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 366 (parte 2)",
+    titulo: ", padrão construtivo,\nárea, fatores urbanísticos e legais, entre outros elementos relevantes para a determinação de seu valor de\nmercado",
+    conteudo: `, padrão construtivo,
+área, fatores urbanísticos e legais, entre outros elementos relevantes para a determinação de seu valor de
+mercado.
+§ 1º O valor de referência poderá ser utilizado como elemento de prova para fins de arbitramento do
+valor da operação, nos termos do art. 16, em conjunto com as demais características da operação.
+§ 2º Para fins de apuração do valor de referência, poderá, conforme disposto em ato conjunto da RFB
+e do CGIBS:
+I - ser considerado o valor de imóvel, constante da base de dados das administrações tributárias
+estaduais ou municipais, para fins de lançamento dos seus respectivos tributos; ou
+II - ser realizada apuração específica por equipe técnica própria ou por entidade externa contratada
+para este fim.
+§ 3º O valor de referência dos bens imóveis de que trata o caput deste artigo deverá ser:
+I - divulgado e disponibilizado no Sinter;
+II - estimado para todos os bens imóveis que integram o CIB a que se refere o inciso III do art. 104;
+III - atualizado pelo IPCA para os bens imóveis em relação aos quais não haja nova estimativa no anocalendário, nos termos de ato conjunto da RFB e do CGIBS; e
+IV - único para o IBS e CBS.
+§ 4º Será publicado edital no Diário Oficial da União informando sobre a disponibilização do valor de
+referência no Sinter.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 367",
+    titulo: "O contribuinte poderá apresentar, mediante procedimento específico, impugnação do valor\nde referência à RFB ou ao CGIBS, conforme disciplinado em ato conjunto",
+    conteudo: `Art. 367. O contribuinte poderá apresentar, mediante procedimento específico, impugnação do valor
+de referência à RFB ou ao CGIBS, conforme disciplinado em ato conjunto. (Art. 256, § 3º, da LC 214/2025)
+§ 1º A impugnação deverá ser apresentada devidamente fundamentada e acompanhada de
+documentos comprobatórios, em especial elementos técnicos, tais como laudos e pareceres de avaliação.
+§ 2º A formação, a tramitação e o julgamento do processo administrativo de impugnação do valor de
+referência serão realizados exclusivamente por meio de sistema eletrônico.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 368",
+    titulo: "Para fins de determinação do valor de referência, os serviços registrais e notariais deverão\ncompartilhar as informações das operações com bens imóveis com as administrações tributárias por meio do...",
+    conteudo: `Art. 368. Para fins de determinação do valor de referência, os serviços registrais e notariais deverão
+compartilhar as informações das operações com bens imóveis com as administrações tributárias por meio do
+Sinter. (Art. 256, § 4º, da LC 214/2025)
+
+123
+
+Subseção III - Do Redutor de Ajuste`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 369",
+    titulo: "A partir de 1º de janeiro de 2027, será vinculado a cada imóvel de propriedade de contribuinte\nsujeito ao regime regular do IBS valor correspondente ao respectivo redutor de ajuste",
+    conteudo: `Art. 369. A partir de 1º de janeiro de 2027, será vinculado a cada imóvel de propriedade de contribuinte
+sujeito ao regime regular do IBS valor correspondente ao respectivo redutor de ajuste. (Art. 257 da LC
+214/2025)
+Parágrafo único. O redutor de ajuste de que trata este artigo será utilizado exclusivamente para reduzir
+a base de cálculo das operações de alienação do bem imóvel realizadas por contribuinte do regime regular
+do IBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 370",
+    titulo: "O valor do redutor de ajuste é composto",
+    conteudo: `Art. 370. O valor do redutor de ajuste é composto: (Art. 257, § 2º, da LC 214/2025)
+I - por seu valor inicial, nos termos do caput do art. 375; e
+II - pelos valores dispostos no § 6º do art. 375.
+Parágrafo único. Os valores de que tratam os incisos I e II do caput deste artigo serão corrigidos pelo
+IPCA ou por outro índice que vier a substituí-lo, da data de sua constituição até a data em que é devido o IBS
+incidente na alienação do bem imóvel.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 371",
+    titulo: "Na alienação do bem imóvel, o redutor de ajuste será",
+    conteudo: `Art. 371. Na alienação do bem imóvel, o redutor de ajuste será: (Art. 257, § 4º, da LC 214/2025)
+I - mantido com o mesmo valor e o mesmo critério de correção, no caso de o imóvel ser adquirido por
+contribuinte sujeito ao regime regular do IBS; ou
+II - extinto nos demais casos.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 372",
+    titulo: "Na fusão, remembramento ou unificação de bens imóveis, o valor do redutor de ajuste do\nimóvel resultante da fusão, remembramento ou unificação corresponderá à soma do valor do redutor de ajuste\ndos...",
+    conteudo: `Art. 372. Na fusão, remembramento ou unificação de bens imóveis, o valor do redutor de ajuste do
+imóvel resultante da fusão, remembramento ou unificação corresponderá à soma do valor do redutor de ajuste
+dos imóveis fundidos ou unificados. (Art. 257, § 5º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 373",
+    titulo: "Na divisão de bens imóveis, inclusive mediante subdivisão, desmembramento ou\nparcelamento, o valor do redutor de ajuste dos imóveis resultantes da divisão deverá ser igual ao valor do\nredutor de aj...",
+    conteudo: `Art. 373. Na divisão de bens imóveis, inclusive mediante subdivisão, desmembramento ou
+parcelamento, o valor do redutor de ajuste dos imóveis resultantes da divisão deverá ser igual ao valor do
+redutor de ajuste do imóvel dividido, observados os seguintes critérios: (Art. 257, § 6º, da LC 214/2025)
+I - o valor do redutor de ajuste será alocado a cada imóvel resultante da divisão na proporção de seu
+valor de mercado, observado o disposto no art. 374; ou
+II - caso não seja possível a identificação do valor de mercado de cada imóvel resultante da divisão, o
+valor do redutor de ajuste será alocado a cada imóvel resultante da divisão na proporção de sua área,
+observada a fração ideal.
+Parágrafo único. Os critérios estabelecidos neste artigo aplicam-se também à incorporação imobiliária,
+considerando-se como imóveis resultantes as unidades autônomas constituídas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 374",
+    titulo: "Na atividade de loteamento realizada por meio de contrato de parceria, o redutor de ajuste\nserá aplicado proporcionalmente à operação de cada parceiro, tomando-se por base os percentuais definidos...",
+    conteudo: `Art. 374. Na atividade de loteamento realizada por meio de contrato de parceria, o redutor de ajuste
+será aplicado proporcionalmente à operação de cada parceiro, tomando-se por base os percentuais definidos
+no contrato de parceria. (Art. 257, § 7º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 375",
+    titulo: "O valor inicial do redutor de ajuste corresponde",
+    conteudo: `Art. 375. O valor inicial do redutor de ajuste corresponde: (Art. 258 da LC 214/2025)
+I - no caso de bens imóveis de propriedade do contribuinte em 31 de dezembro de 2026:
+a) ao valor de aquisição do imóvel atualizado nos termos do § 4º; ou
+b) por opção do contribuinte, ao valor de referência de que trata o art. 366;
+II - no caso de bens imóveis em construção em 31 de dezembro de 2026, à soma:
+a) do valor de aquisição do imóvel sobre o qual está sendo realizada a construção, constante dos
+instrumentos mencionados na forma do § 1º do art. 363, atualizado nos termos do § 4º; e
+b) do valor dos bens e serviços que possam ser contabilizados como custo de produção do bem imóvel
+ou como despesa direta relacionada à produção ou comercialização do bem imóvel adquiridos anteriormente
+a 1º de janeiro de 2027, comprovado com base em documentos fiscais idôneos, atualizado nos termos do §
+4º;
+III - no caso de bens imóveis adquiridos de não contribuinte do regime regular de IBS a partir de 1º de
+janeiro de 2027, ao valor de aquisição do bem imóvel.
+§ 1º A data de constituição do redutor de ajuste é:
+I - no caso dos incisos I e II do caput deste artigo, 31 de dezembro de 2026; e
+II - no caso do inciso III do caput deste artigo, a data da operação.
+
+124
+
+§ 2º Caso o valor de referência do imóvel não esteja disponível em 31 de dezembro de 2026, o
+contribuinte que não optar pela fixação do redutor de ajuste na forma do inciso I do caput deste artigo, poderá
+calculá-lo com base em estimativa de valor de mercado do bem imóvel realizada por meio de procedimento
+específico, nos termos de ato conjunto da RFB e do CGIBS.
+§ 3º Caso o valor de aquisição de que tratam a alínea “a” do inciso I, a alínea “a” do inciso II e o inciso
+III, todos do caput deste artigo, seja baseado em declarações ou documentos que não estejam condizentes
+com o valor de mercado ou que não mereçam fé, poderá a autoridade fiscal instaurar processo administrativo,
+observado o contraditório e a ampla defesa, para determ`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 375 (parte 2)",
+    titulo: "inar o efetivo valor de aquisição, nos termos de ato\nconjunto da RFB e do CGIBS",
+    conteudo: `inar o efetivo valor de aquisição, nos termos de ato
+conjunto da RFB e do CGIBS.
+§ 4º Os valores a que se referem a alínea “a” do inciso I e as alíneas “a” e “b” do inciso II, todas do
+caput deste artigo serão atualizados:
+I - até 31 de dezembro de 1979, pelo Índice de Preços ao Consumidor (IPC) da Fundação Instituto de
+Pesquisas Econômicas (Fipe); e
+II - entre 1º de janeiro de 1980 e 31 de dezembro de 2026 pelo IPCA ou por outro índice que vier a
+substituí-lo.
+§ 5º Na hipótese do inciso III do caput deste artigo, o valor do redutor de ajuste fica limitado ao valor
+de aquisição do bem imóvel pelo alienante, corrigido pelo IPCA ou por outro índice que vier a substituí-lo,
+caso:
+I - a alienação ocorra em prazo inferior a 3 (três) anos, contados da data de aquisição do imóvel;
+II - o imóvel tenha sido adquirido de contribuinte do regime regular do IBS; e
+III - não seja comprovado o recolhimento, pelo alienante:
+a) do Imposto de Renda (IR) sobre ganho de capital em relação à operação; e
+b) do ITBI, em relação à aquisição pelo alienante.
+§ 6º Integram o redutor de ajuste relativo ao bem imóvel, na data do efetivo pagamento:
+I - o valor do ITBI e do laudêmio incidentes na aquisição do imóvel ao qual se refere o redutor de ajuste;
+e
+II - as contrapartidas de ordem urbanística e ambientais pagas ou entregues aos entes públicos em
+decorrência de legislação federal, estadual ou municipal, inclusive, mas não limitadas, aos valores
+despendidos a título de outorga onerosa do direito de construir, de outorga onerosa por alteração de uso, e
+de quaisquer outras contrapartidas devidas a órgãos públicos para a execução do empreendimento
+imobiliário, desde que não tenham sido incluídas no valor inicial do redutor de ajuste de que trata o caput
+deste artigo.
+§ 7º Incluem-se no conceito de contrapartidas municipais:
+I - o valor correspondente ao percentual destinado à doação de áreas públicas nos termos do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 375 (parte 3)",
+    titulo: "22\nda Lei nº 6.766, de 19 de dezembro de 1979, constante do registro do loteamento e de sua matrícula\nimobiliária, aplicado sobre o valor das operações, desde que o respectivo valor já não tenha si...",
+    conteudo: `22
+da Lei nº 6.766, de 19 de dezembro de 1979, constante do registro do loteamento e de sua matrícula
+imobiliária, aplicado sobre o valor das operações, desde que o respectivo valor já não tenha sido considerado
+no redutor de ajuste; e
+II - as contrapartidas estabelecidas no ato de aprovação do empreendimento registradas no cartório de
+registro de imóveis, nos termos do inciso V do caput do art. 18 da Lei nº 6.766, de 19 de dezembro de 1979.
+§ 8º Fica vedada a apropriação de créditos em relação ao IBS incidente sobre os bens e serviços
+adquiridos para a realização das contrapartidas a que se refere o inciso II do § 6º que integrem o redutor de
+ajuste, nos termos do referido parágrafo.
+§ 9º A data de constituição dos valores incluídos ao redutor de ajuste nos termos do § 6º é a data do
+pagamento dos tributos e das contrapartidas ou da transferência ao poder público dos bens cedidos em
+contrapartida.
+§ 10. No caso de bens imóveis adquiridos de contribuinte sujeito ao regime regular do IBS a partir de
+1º de janeiro de 2027, é assegurada a manutenção do valor do redutor de ajuste, nos termos do inciso I do
+art. 371, sem prejuízo do direito ao crédito do IBS incidente na operação.
+§ 11. Deverá ser utilizado valor estimado das contrapartidas para cálculo do redutor de ajuste atribuído
+às unidades resultantes do processo de incorporação ou parcelamento do solo, se, no início das vendas:
+I - houver contrapartidas com previsão de entrega em data futura; ou
+
+125
+
+II - o pagamento ainda não tiver ocorrido.
+§ 12.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 375 (parte 4)",
+    titulo: "Na hipótese prevista no § 11, por ocasião da emissão do “habite-se” ou do termo de verificação\nde obra ou de documento equivalente, o IBS incidente na alienação das unidades resultantes deverá ser...",
+    conteudo: `Na hipótese prevista no § 11, por ocasião da emissão do “habite-se” ou do termo de verificação
+de obra ou de documento equivalente, o IBS incidente na alienação das unidades resultantes deverá ser
+recalculado e:
+I - caso o valor estimado seja superior ao valor real das contrapartidas, deverão ser recolhidas as
+diferenças de imposto com os devidos acréscimos legais; ou
+II - caso o valor estimado seja inferior ao valor real das contrapartidas, o valor recolhido a maior deverá
+ser ressarcido, nos termos de ato conjunto da RFB e do CGIBS.
+Subseção IV - Do Redutor Social`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 3,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 376",
+    titulo: "Na alienação de bem imóvel residencial novo ou de lote residencial realizada por contribuinte\nsujeito ao regime regular do IBS, poderá ser deduzido da base de cálculo do IBS redutor social no valor...",
+    conteudo: `Art. 376. Na alienação de bem imóvel residencial novo ou de lote residencial realizada por contribuinte
+sujeito ao regime regular do IBS, poderá ser deduzido da base de cálculo do IBS redutor social no valor de
+R$ 100.000,00 (cem mil reais) por bem imóvel residencial novo e de R$ 30.000,00 (trinta mil reais) por lote
+residencial, até o limite do valor da base de cálculo, após a dedução do redutor de ajuste. (Art. 259 da LC
+214/2025)
+§ 1º Considera-se:
+I - bem imóvel residencial a unidade construída em zona urbana ou rural para fins residenciais, segundo
+as normas disciplinadoras das edificações da localidade em que se situe e seja destinado à ocupação por
+pessoa como local de residência;
+II - lote residencial a unidade imobiliária resultante de parcelamento do solo urbano nos termos da Lei
+nº 6.766, de 19 de dezembro de 1979, ou objeto de condomínio de lotes, nos termos do art. 1.358-A da Lei nº
+10.406, de 10 de janeiro de 2002 (Código Civil); e
+III - bem imóvel novo aquele que não tenha sido ocupado ou utilizado.
+§ 2º Equipara-se a bem imóvel novo, para fins de aplicação do redutor social, o imóvel resultante de
+reconstrução integral após demolição total da edificação preexistente.
+§ 3º Para cada bem imóvel, o redutor social de que trata este artigo poderá ser utilizado uma única vez.
+§ 4º O valor do redutor social previsto no caput deste artigo será atualizado mensalmente a partir da
+publicação da Lei Complementar nº 214, de 2025, pelo IPCA ou por outro índice que vier a substituí-lo, e
+divulgado nos termos de ato conjunto da RFB e do CGIBS.
+§ 5º Quando a atividade de loteamento for realizada por meio de contrato de parceria, o redutor social
+será aplicado proporcionalmente à operação de cada parceiro, tomando-se por base os percentuais definidos
+no contrato de parceria.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 377",
+    titulo: "Na operação de locação, cessão onerosa ou arrendamento de bem imóvel para uso\nresidencial realizada por contribuinte sujeito ao regime regular do IBS, poderá ser deduzido da base de cálculo\ndo IBS...",
+    conteudo: `Art. 377. Na operação de locação, cessão onerosa ou arrendamento de bem imóvel para uso
+residencial realizada por contribuinte sujeito ao regime regular do IBS, poderá ser deduzido da base de cálculo
+do IBS redutor social no valor de R$ 600,00 (seiscentos reais) por bem imóvel, por mês, até o limite do valor
+da base de cálculo. (Art. 260 da LC 214/2025)
+Parágrafo único. O valor do redutor social a que se refere o caput deste artigo será:
+I - calculado proporcionalmente quando o fornecimento se referir a período distinto do mensal; e
+II - atualizado mensalmente a partir da data de publicação da Lei Complementar nº 214, de 2025, pelo
+IPCA ou por outro índice que vier a substituí-lo, e divulgado nos termos de ato conjunto da RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 378",
+    titulo: "O redutor social será aplicado proporcionalmente à área residencial, quando o imóvel for\nutilizado também para uso não residencial, nos termos da respectiva legislação municipal",
+    conteudo: `Art. 378. O redutor social será aplicado proporcionalmente à área residencial, quando o imóvel for
+utilizado também para uso não residencial, nos termos da respectiva legislação municipal.
+Seção IV - Da Alíquota`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 379",
+    titulo: "A alíquota do IBS relativa às operações de que trata este Capítulo fica reduzida em 50%\n(cinquenta por cento)",
+    conteudo: `Art. 379. A alíquota do IBS relativa às operações de que trata este Capítulo fica reduzida em 50%
+(cinquenta por cento). (Art. 261 da LC 214/2025)
+Parágrafo único. A alíquota do IBS relativa às operações de locação, cessão onerosa e arrendamento
+de bens imóveis fica reduzida em 70% (setenta por cento).
+
+126
+
+Seção V - Da Incorporação Imobiliária e do Parcelamento de Solo`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 380",
+    titulo: "Na incorporação imobiliária e no parcelamento de solo, o IBS incidente na alienação das\nunidades imobiliárias será devido em cada pagamento",
+    conteudo: `Art. 380. Na incorporação imobiliária e no parcelamento de solo, o IBS incidente na alienação das
+unidades imobiliárias será devido em cada pagamento. (Art. 262 da LC 214/2025)
+§ 1º Considera-se unidade imobiliária:
+I - o terreno adquirido para venda, com ou sem construção;
+II - cada lote oriundo de desmembramento de terreno;
+III - cada terreno decorrente de loteamento;
+IV - cada unidade distinta resultante de incorporação imobiliária;
+V - o prédio construído para venda como unidade isolada ou autônoma.
+§ 2º O alienante poderá compensar os créditos apropriados relativos ao IBS extinto na aquisição de
+bens e serviços com os débitos de IBS em cada período de apuração.
+§ 3º Eventual saldo a recuperar poderá ser objeto:
+I - até a conclusão, respectivamente, da incorporação ou do parcelamento do solo, de pedido de
+ressarcimento, nos termos deste Regulamento, desde que o ressarcimento seja realizado diretamente em
+conta corrente vinculada ao patrimônio de afetação, na forma dos arts. 31-A a 31-E da Lei nº 4.591, de 16 de
+dezembro de 1964, e dos arts. 18-A a 18-E da Lei nº 6.766, de 19 de dezembro de 1979; ou
+II - após a conclusão da incorporação ou do parcelamento do solo, de pedido de ressarcimento ou
+compensação, com os valores do IBS relativos a outras operações tributadas do contribuinte.
+§ 4º Na alienação de imóveis de que trata este artigo, o redutor de ajuste de que tratam os arts. 369 a
+375 e, quando cabível, o redutor social de que trata o art. 376 deverão ser deduzidos da base de cálculo
+relativa a cada pagamento, de forma proporcional ao valor total do bem imóvel.
+§ 5º No caso de lotes residenciais e imóveis residenciais novos cujo pagamento tenha sido iniciado
+antes de 1º de janeiro de 2027, a aplicação dos redutores de que trata o § 4º dar-se-á proporcionalmente ao
+valor total do imóvel, inclusive de parcelas pagas anteriormente à referida data.
+§ 6º O redutor de ajuste e, quando cabível, o redutor social aplicável a cada pagamento será calculado
+proporcional`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 380 (parte 2)",
+    titulo: "mente ao valor principal da parcela em relação ao valor total da alienação, aplicando essa\nproporção sobre o redutor total",
+    conteudo: `mente ao valor principal da parcela em relação ao valor total da alienação, aplicando essa
+proporção sobre o redutor total.
+Seção VI - Da Sujeição Passiva`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 381",
+    titulo: "São contribuintes das operações de que trata este Capítulo",
+    conteudo: `Art. 381. São contribuintes das operações de que trata este Capítulo: (Art. 263 da LC 214/2025)
+I - o alienante de bem imóvel, na alienação de bem imóvel ou de direito a ele relativo;
+II - aquele que cede, institui ou transmite direitos reais sobre bens imóveis, na cessão ou no ato oneroso
+instituidor ou translativo de direitos reais sobre bens imóveis, exceto os de garantia;
+III - o locador, o cedente ou o arrendador, na locação, cessão onerosa ou arrendamento de bem imóvel;
+IV - o adquirente, no caso de adjudicação, remição e arrematação em leilão judicial de bem imóvel;
+V - o prestador de serviços de construção; e
+VI - o prestador de serviços de administração e intermediação de bem imóvel.
+§ 1º No caso do inciso IV do caput deste artigo, a operação:
+I - será tributada como alienação realizada por contribuinte do regime regular, se houver redutor de
+ajuste vinculado ao imóvel, aplicando-se o disposto no parágrafo único do art. 369; ou
+II - será tratada como alienação realizada por não contribuinte do regime regular, se não houver redutor
+de ajuste vinculado ao imóvel.
+§ 2º No caso de copropriedade de bem imóvel objeto de condomínio pro indiviso, em que pelo menos
+um dos coproprietários seja contribuinte do IBS:
+I - a apuração do tributo será realizada individualmente para cada contribuinte; e
+II - por opção dos coproprietários, poderá ser emitido um único documento fiscal.
+
+127
+
+§ 3º No caso de copropriedade, o IBS incidirá proporcionalmente sobre a parte do imóvel relativa ao
+coproprietário que se enquadrar na condição de contribuinte, nos termos do caput deste artigo e do art. 382.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 382",
+    titulo: "As pessoas físicas que realizarem operações com bens imóveis serão consideradas\ncontribuintes do regime regular do IBS e sujeitas ao regime de que trata este Capítulo, nas seguintes\nhipóteses",
+    conteudo: `Art. 382. As pessoas físicas que realizarem operações com bens imóveis serão consideradas
+contribuintes do regime regular do IBS e sujeitas ao regime de que trata este Capítulo, nas seguintes
+hipóteses: (Art. 251, § 1º, da LC 214/2025)
+I - operações de locação, cessão onerosa e arrendamento de bem imóvel, quando no ano-calendário
+anterior:
+a) a receita total com essas operações exceda o valor de R$ 240.000,00 (duzentos e quarenta mil
+reais), que será atualizado e divulgado nos termos do § 4º; e
+b) tenham por objeto mais de 3 (três) bens imóveis distintos;
+II - operações de alienação ou cessão de direitos reais sobre bens imóveis, desde que tenham por
+objeto mais de 3 (três) imóveis distintos no ano-calendário anterior;
+III - operações de alienação ou cessão de direitos reais sobre bens imóveis, no ano-calendário anterior,
+de mais de 1 (um) bem imóvel construído pelo próprio alienante nos 5 (cinco) anos anteriores à data da
+alienação.
+§ 1º Também será considerada contribuinte do regime regular do IBS, no próprio ano-calendário, a
+pessoa física de que trata o caput deste artigo, em relação às seguintes operações de: (Art. 251, § 2º, da LC
+214/2025)
+I - alienação ou cessão de direitos reais sobre bens imóveis de que trata o inciso II do caput, no próprio
+ano-calendário, na 4ª (quarta) operação e operações posteriores;
+II - alienação ou cessão de direitos reais sobre bens imóveis de que trata o inciso III do caput, no próprio
+ano-calendário, na 2ª (segunda) operação e operações posteriores; e
+III - locação, cessão onerosa ou arrendamento de bem imóvel em valor que exceda em 20% (vinte por
+cento) o limite previsto na alínea “a” do inciso I do caput deste artigo, observada a quantidade de imóveis
+distintos prevista na alínea “b” do inciso I do caput deste artigo.
+§ 2º Para fins do disposto no inciso II do caput e do inciso I do § 1º, ambos deste artigo, os imóveis
+relativos às operações devem estar no patrimônio do contribuinte há menos de 5 (cinco) anos contados da
+data`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 382 (parte 2)",
+    titulo: "de sua aquisição.\n§ 3º No caso de bem imóvel recebido por meação, doação ou herança, o prazo de que trata o § 2º será\ncontado desde a aquisição pelo cônjuge ou companheiro meeiro, pelo de cujus ou...",
+    conteudo: `de sua aquisição.
+§ 3º No caso de bem imóvel recebido por meação, doação ou herança, o prazo de que trata o § 2º será
+contado desde a aquisição pelo cônjuge ou companheiro meeiro, pelo de cujus ou pelo doador.
+§ 4º O valor previsto na alínea “a” do inciso I do caput deste artigo será atualizado mensalmente a partir
+de janeiro de 2025 pelo IPCA ou por outro índice que vier a substituí-lo e divulgado em ato conjunto da RFB
+e do CGIBS.
+§ 5º Nas hipóteses da alínea “b” do inciso I e dos incisos II e III, todos do caput deste artigo, para fins
+de enquadramento da pessoa física como contribuinte, será considerada a quantidade de imóveis,
+independentemente da quantidade de operações realizadas.
+§ 6º Para fins do disposto no inciso III do caput deste artigo, são consideradas as operações de
+alienação ou cessão de direitos reais sobre bens imóveis construídos pelo próprio alienante, ainda que a
+construção:
+I - abranja apenas parte da edificação; ou
+II - seja realizada em parceria com terceiros.
+§ 7º Para fins do disposto nos incisos I e II do § 1º, as condições dos incisos II e III do caput deste artigo
+são consideradas separadamente, sendo suficiente o atendimento de qualquer uma delas.
+§ 8º As operações com bens imóveis realizadas entre partes relacionadas nos termos previstos no art.
+5º serão consideradas para fins de enquadramento nos limites previstos nos incisos I a III do caput deste
+artigo e no inciso III do § 1º, hipótese em que será considerado o valor de mercado das referidas operações.
+§ 9º A fração ideal de bem comum ou em condomínio será considerada imóvel distinto para fins dos
+incisos I a III do caput deste artigo, hipótese em que o valor da operação será proporcional à respectiva fração
+ideal.
+
+128`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 382 (parte 3)",
+    titulo: "§ 10. Para fins do disposto no § 9º e respectivo cadastramento no CIB, os cartórios registrais e notariais\nsão obrigados a informar a fração ideal de cada coproprietário ou titular de direitos reai...",
+    conteudo: `§ 10. Para fins do disposto no § 9º e respectivo cadastramento no CIB, os cartórios registrais e notariais
+são obrigados a informar a fração ideal de cada coproprietário ou titular de direitos reais sobre bens imóveis,
+nos termos de ato conjunto da RFB e do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 383",
+    titulo: "Para os fins deste Capítulo, consideram-se bens imóveis distintos cada unidade imobiliária\nautônoma, edificada ou não, que permita a ocupação ou utilização privativa, com localização cartográfica\np...",
+    conteudo: `Art. 383. Para os fins deste Capítulo, consideram-se bens imóveis distintos cada unidade imobiliária
+autônoma, edificada ou não, que permita a ocupação ou utilização privativa, com localização cartográfica
+própria, com ou sem designação numérica ou alfabética para efeitos de identificação e discriminação, ainda
+que não registrada em cartório de registro de imóveis.
+Parágrafo único. A unidade imobiliária autônoma poderá ter mais de uma matrícula para um mesmo
+cadastro quando dois ou mais imóveis forem ocupados ou utilizados em conjunto.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 384",
+    titulo: "Nas sociedades em conta de participação, o sócio ostensivo fica obrigado a efetuar o\nrecolhimento do IBS incidente sobre as operações com bens imóveis, vedada a exclusão de valores devidos\na sócios...",
+    conteudo: `Art. 384. Nas sociedades em conta de participação, o sócio ostensivo fica obrigado a efetuar o
+recolhimento do IBS incidente sobre as operações com bens imóveis, vedada a exclusão de valores devidos
+a sócios participantes. (Art. 264 da LC 214/2025)
+Seção VII - Disposições Finais`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 385",
+    titulo: "Os bens imóveis urbanos e rurais de que trata esta Seção deverão ser inscritos no CIB,\nintegrante do Sinter, de que trata o Capítulo I do Título II deste Livro",
+    conteudo: `Art. 385. Os bens imóveis urbanos e rurais de que trata esta Seção deverão ser inscritos no CIB,
+integrante do Sinter, de que trata o Capítulo I do Título II deste Livro. (Art. 265 da LC 214/2025)
+§ 1º O CIB é o inventário dos bens imóveis urbanos e rurais constituído com dados enviados pelos
+cadastros de origem, que deverão atender aos critérios de atribuição do código de inscrição no CIB.
+§ 2º O CIB deverá constar obrigatoriamente de todos os documentos relativos à obra de construção
+civil expedidos pelo Município.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "41,42,43",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 386",
+    titulo: "Ficam estabelecidos os seguintes prazos de inscrição de todos os bens imóveis no CIB,\ncontados a partir de 1º de janeiro de 2025",
+    conteudo: `Art. 386. Ficam estabelecidos os seguintes prazos de inscrição de todos os bens imóveis no CIB,
+contados a partir de 1º de janeiro de 2025: (Art. 266 da LC 214/2025)
+I - 12 (doze) meses para que:
+a) os órgãos da administração federal direta e indireta realizem a adequação dos sistemas para adoção
+do CIB como código de identificação cadastral dos bens imóveis urbanos e rurais;
+b) os serviços notariais e registrais realizem a adequação dos sistemas para adoção do CIB como
+código de identificação cadastral dos bens imóveis;
+c) as capitais dos Estados e o Distrito Federal incluam o código CIB em seus sistemas;
+II - 24 (vinte e quatro) meses para que:
+a) os órgãos da administração estadual direta e indireta realizem a adequação dos sistemas para
+adoção do CIB como código de identificação cadastral dos bens imóveis urbanos e rurais;
+b) os demais Municípios incluam o código CIB em seus sistemas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 387",
+    titulo: "Será emitida certidão negativa de débitos de IBS para bem imóvel urbano e rural, nos termos\nde ato conjunto da RFB e do CGIBS",
+    conteudo: `Art. 387. Será emitida certidão negativa de débitos de IBS para bem imóvel urbano e rural, nos termos
+de ato conjunto da RFB e do CGIBS. (Art. 267 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 388",
+    titulo: "Ato conjunto da RFB e do CGIBS poderá estabelecer obrigações acessórias no interesse da\nfiscalização e da administração tributária, para terceiros relacionados às operações de que trata este Capítu...",
+    conteudo: `Art. 388. Ato conjunto da RFB e do CGIBS poderá estabelecer obrigações acessórias no interesse da
+fiscalização e da administração tributária, para terceiros relacionados às operações de que trata este Capítulo,
+inclusive tabeliães, registradores de imóveis e juntas comerciais. (Art. 268 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 389",
+    titulo: "A obra de construção civil receberá identificação cadastral no cadastro de que trata o art",
+    conteudo: `Art. 389. A obra de construção civil receberá identificação cadastral no cadastro de que trata o art. 385.
+(Art. 269 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "41,42,43",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 390",
+    titulo: "A apuração do IBS será feita para cada empreendimento de construção civil, vinculada a um\nCNPJ ou CPF específico, inclusive incorporação e parcelamento do solo, considerada cada obra de\nconstrução...",
+    conteudo: `Art. 390. A apuração do IBS será feita para cada empreendimento de construção civil, vinculada a um
+CNPJ ou CPF específico, inclusive incorporação e parcelamento do solo, considerada cada obra de
+construção civil, incorporação ou parcelamento do solo como um centro de custo distinto. (Art. 270 da LC
+214/2025)
+Parágrafo único. No caso de apuração do IBS nos termos do caput deste artigo, o documento fiscal
+deverá indicar o número do cadastro da obra nas aquisições de bens e serviços utilizados na obra de
+construção civil a que se destinam.
+CAPÍTULO VI - DAS SOCIEDADES COOPERATIVAS`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 391",
+    titulo: "As sociedades cooperativas poderão optar por regime específico do IBS no qual, nos termos\ndo disposto neste Capítulo, ficam reduzidas a zero as alíquotas do tributo incidente na operação em que",
+    conteudo: `Art. 391. As sociedades cooperativas poderão optar por regime específico do IBS no qual, nos termos
+do disposto neste Capítulo, ficam reduzidas a zero as alíquotas do tributo incidente na operação em que: (Art.
+271 da LC 214/2025)
+
+129
+
+I - o associado fornece bem ou serviço à cooperativa de que participa; e
+II - a cooperativa fornece bem ou serviço a associado sujeito ao regime regular do IBS.
+§ 1º O disposto no inciso II do caput deste artigo aplica-se também ao fornecimento, pelas cooperativas,
+de serviços financeiros a seus associados, inclusive cobrados mediante tarifas e comissões.
+§ 2º O disposto no caput deste artigo aplica-se também:
+I - às operações realizadas entre cooperativas singulares, centrais, federações, confederações, quando
+associadas entre si, e às originárias dos seus respectivos bancos cooperativos de que as cooperativas
+participam; e
+II - à operação de fornecimento de bem material pela cooperativa de produção agropecuária a
+associado não sujeito ao regime regular do IBS, desde que anulados os créditos por ela apropriados
+referentes ao bem fornecido.
+§ 3º O disposto no inciso II do § 2º não se aplica às operações com insumos agropecuários e aquícolas
+contempladas pelo diferimento estabelecido pelo § 2º do art. 214.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 392",
+    titulo: "O regime previsto neste Capítulo não se aplica às operações",
+    conteudo: `Art. 392. O regime previsto neste Capítulo não se aplica às operações:
+I - realizadas com não associados;
+II - realizadas com associados não sujeitos ao regime regular do IBS, exceto na hipótese prevista no
+inciso II do § 2º do art. 391;
+III - não relacionadas à consecução dos objetivos sociais da cooperativa; e
+IV - destinadas a uso ou consumo pessoal.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 393",
+    titulo: "A opção pelo regime previsto neste Capítulo deverá ser formalizada nos termos de ato\nconjunto da RFB e do CGIBS e será irretratável para todo o ano-calendário",
+    conteudo: `Art. 393. A opção pelo regime previsto neste Capítulo deverá ser formalizada nos termos de ato
+conjunto da RFB e do CGIBS e será irretratável para todo o ano-calendário. (Art. 271, § 3º, da LC 214/2025)
+§ 1º A opção de que trata o caput deste artigo será formalizada no período compreendido entre o
+primeiro dia de setembro e o último dia do mês de outubro do ano anterior e produzirá efeitos a partir do
+primeiro dia do ano-calendário seguinte ao da opção, ressalvado o disposto no § 3º
+§ 2º Durante o período de opção de que trata o § 1º do caput deste artigo, a cooperativa poderá:
+I - regularizar pendências impeditivas ao ingresso no regime;
+II - cancelar o pedido da opção, caso ainda não deferido.
+§ 3º No caso de opção pelo regime no início de atividade, a opção de que trata o caput deste artigo
+será simultânea à solicitação de registro no cadastro com identificação única de que trata o Capítulo I do
+Título II deste Livro e produzirá efeitos a partir da data do registro.
+§ 4º Para fins de deferimento da opção pelo regime de que trata o caput deste artigo, será obrigatória
+apresentação de listagem com identificação e data de admissão dos associados inscritos, conforme definido
+em ato conjunto da RFB e do CGIBS.
+§ 5º Alterações na listagem de que trata o § 4º deverão ser comunicadas, observados a forma e prazo
+definidos em ato conjunto da RFB e do CGIBS.
+§ 6º A opção pelo regime abrangerá todas as operações que atendam aos requisitos da legislação,
+vedada sua aplicação parcial.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 394",
+    titulo: "O associado sujeito ao regime regular do IBS, inclusive as cooperativas singulares, que\nrealizar operações com a redução de alíquota de que trata o inciso I do caput do art",
+    conteudo: `Art. 394. O associado sujeito ao regime regular do IBS, inclusive as cooperativas singulares, que
+realizar operações com a redução de alíquota de que trata o inciso I do caput do art. 391 poderá transferir os
+créditos das operações antecedentes às operações em que fornece bens e serviços e os créditos presumidos
+à cooperativa de que participa, não se aplicando o disposto no art. 55. (Art. 272 da LC 214/2025)
+§ 1º A transferência de que trata o caput deste artigo somente ocorrerá após a conclusão da apuração
+do IBS e estará limitada ao montante do saldo credor apurado nos termos do art. 44.
+§ 2º Caso o cooperado seja associado de mais de uma cooperativa optante pelo regime específico de
+que trata este Capítulo, os créditos de que trata o § 1º serão transferidos até a proporção do valor dos
+fornecimentos realizados a cada cooperativa em relação ao valor total dos fornecimentos realizados ao
+conjunto dessas cooperativas no respectivo período de apuração.
+§ 3º Sem prejuízo do disposto no § 1º, o crédito a ser transferido a cada cooperativa ficará limitado à
+multiplicação entre:
+
+130
+
+I - a soma:
+a) do total de créditos do IBS apropriados no período, inclusive créditos presumidos, exceto aqueles
+relativos aos bens destinados ao ativo imobilizado; e
+b) dos créditos relativos às aquisições de bens destinados ao ativo imobilizado correspondente à
+depreciação do bem no período, proporcional ao prazo de vida útil e às taxas de depreciação definidos no
+Anexo I; e
+II - a proporção entre o valor:
+a) dos fornecimentos realizados à cooperativa em questão; e
+b) da totalidade de fornecimentos realizados pelo associado no período, incluídos aqueles não sujeitos
+à redução de alíquota de que trata o inciso I do caput do art. 391. (Art. 271 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, reducao, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 395",
+    titulo: "Para transferência de créditos prevista no art",
+    conteudo: `Art. 395. Para transferência de créditos prevista no art. 394, deverá ser emitido documento fiscal com
+débito do tributo e código de tributação específico, informando no campo de descrição da operação a
+expressão “Transferência de crédito de tributo nos termos do art. 394 do Regulamento do IBS”.
+CAPÍTULO VII - DOS BARES, RESTAURANTES, HOTELARIA, PARQUES DE DIVERSÃO E PARQUES
+TEMÁTICOS, TRANSPORTE COLETIVO DE PASSAGEIROS E AGÊNCIAS DE TURISMO
+Seção I - Dos Bares e Restaurantes`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 396",
+    titulo: "Ficam sujeitas a regime específico de incidência do IBS, de acordo com o disposto nesta\nSeção, as operações de fornecimento de alimentação e de bebidas não alcoólicas preparados e manipulados\nno pr...",
+    conteudo: `Art. 396. Ficam sujeitas a regime específico de incidência do IBS, de acordo com o disposto nesta
+Seção, as operações de fornecimento de alimentação e de bebidas não alcoólicas preparados e manipulados
+no próprio local do estabelecimento por: (Art. 273 da LC 214/2025)
+I - bares e restaurantes, inclusive lanchonetes;
+II - pastelarias;
+III - padarias;
+IV - casas de chá;
+V - casas de sucos;
+VI - casas de doces e salgados;
+VII - cafeterias;
+VIII - sorveterias; e
+IX - estabelecimentos similares aos referidos nos incisos anteriores.
+Parágrafo único. O tratamento de que trata o caput deste artigo não se aplica às bebidas não
+alcoólicas industrializadas, ainda que preparadas ou manipuladas em conjunto com outras dentro do
+estabelecimento.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 397",
+    titulo: "Não está sujeito ao regime específico de que trata o art",
+    conteudo: `Art. 397. Não está sujeito ao regime específico de que trata o art. 396 o fornecimento de: (Art. 273, §
+2º, da LC 214/2025)
+I - alimentação para pessoa jurídica, sob contrato, ainda que não formalizado, classificada nas posições
+1.0301.31.00, 1.0301.32.00 e 1.0301.39.00 da NBS ou por empresa classificada na posição 5620-1/01 da
+CNAE;
+II - produtos alimentícios e bebidas não alcoólicas adquiridos de terceiros e não submetidos a preparo
+no estabelecimento; e
+III - bebidas alcoólicas, ainda que preparadas no estabelecimento.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 398",
+    titulo: "O documento fiscal relativo ao fornecimento deverá ser preenchido com segregação dos\nvalores sujeitos ao regime específico das operações sujeitas ao regime geral, de forma a viabilizar a\nidentifica...",
+    conteudo: `Art. 398. O documento fiscal relativo ao fornecimento deverá ser preenchido com segregação dos
+valores sujeitos ao regime específico das operações sujeitas ao regime geral, de forma a viabilizar a
+identificação do correto enquadramento tributário.
+Parágrafo único. Na falta de segregação, o valor total da operação estará sujeito ao regime geral do
+IBS.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 399",
+    titulo: "A base de cálculo do IBS, para efeitos desta Seção, é o valor da operação de fornecimento\nde alimentação e das bebidas sujeitas ao regime específico de que trata o art",
+    conteudo: `Art. 399. A base de cálculo do IBS, para efeitos desta Seção, é o valor da operação de fornecimento
+de alimentação e das bebidas sujeitas ao regime específico de que trata o art. 396. (Art. 274 da LC 214/2025)
+§ 1º Ficam excluídos da base de cálculo:
+
+131
+
+I - a gorjeta incidente no fornecimento de alimentação sujeita ao regime específico, desde que:
+a) seja repassada integralmente ao empregado, sem prejuízo dos valores da gorjeta que forem retidos
+pelo empregador em virtude de determinação legal; e
+b) seu valor não exceda a 15% (quinze por cento) do valor total do fornecimento de alimentação e de
+bebidas.
+II - os valores não repassados aos bares e restaurantes pelo serviço de entrega e intermediação de
+pedidos de alimentação e de bebidas por plataforma digital.
+§ 2º Para efeito da exclusão da base de cálculo de que trata o § 1º, a gorjeta e os valores da
+intermediação deverão ser segregados no documento fiscal correspondente ao fornecimento.
+§ 3º Para efeitos da exclusão da base de cálculo de que trata o § 1º, o percentual será calculado com
+base na relação entre o valor do fornecimento dos alimentos e das bebidas sujeitos ao regime específico e o
+valor total da operação.
+§ 4º Na hipótese de não segregação dos valores de que trata o § 1º no documento fiscal relativo ao
+fornecimento, a base de cálculo do IBS corresponderá ao valor total da operação referente ao fornecimento
+dos alimentos e bebidas sujeitos ao regime específico de incidência do IBS de que trata o art. 396.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 400",
+    titulo: "As alíquotas do IBS relativas às operações de que trata o art",
+    conteudo: `Art. 400. As alíquotas do IBS relativas às operações de que trata o art. 396 ficam reduzidas em 40%
+(quarenta por cento). (Art. 275 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 401",
+    titulo: "Fica vedada a apropriação de créditos de IBS pelos adquirentes de alimentação e bebidas\ncujos fornecimentos estejam sujeitos ao regime específico de que trata o art",
+    conteudo: `Art. 401. Fica vedada a apropriação de créditos de IBS pelos adquirentes de alimentação e bebidas
+cujos fornecimentos estejam sujeitos ao regime específico de que trata o art. 396. (Art. 276 da LC 214/2025)
+Seção II - Da Hotelaria, Parques de Diversão e Parques Temáticos`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 402",
+    titulo: "Os serviços de hotelaria, parques de diversão e parques temáticos ficam sujeitos a regime\nespecífico de incidência do IBS, de acordo com o disposto nesta Seção",
+    conteudo: `Art. 402. Os serviços de hotelaria, parques de diversão e parques temáticos ficam sujeitos a regime
+específico de incidência do IBS, de acordo com o disposto nesta Seção. (Art. 277 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 403",
+    titulo: "A base de cálculo do IBS, para efeitos desta Seção, é o valor da operação com serviços de\nhotelaria, parques de diversão e parques temáticos sujeitos ao regime específico de que trata o art",
+    conteudo: `Art. 403. A base de cálculo do IBS, para efeitos desta Seção, é o valor da operação com serviços de
+hotelaria, parques de diversão e parques temáticos sujeitos ao regime específico de que trata o art. 402. (Art.
+280 da LC 214/2025)
+Parágrafo único. As operações de fornecimento de alimentação e bebidas pelos estabelecimentos que
+prestam os serviços de que trata esta Seção observarão as regras relativas ao regime específico de bares e
+restaurantes.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 404",
+    titulo: "O documento fiscal relativo às operações com hotéis, parques de diversão e parques\ntemáticos deverá ser preenchido com segregação dos valores por itens de fornecimento de forma a viabilizar\na ident...",
+    conteudo: `Art. 404. O documento fiscal relativo às operações com hotéis, parques de diversão e parques
+temáticos deverá ser preenchido com segregação dos valores por itens de fornecimento de forma a viabilizar
+a identificação do correto enquadramento tributário.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 405",
+    titulo: "As alíquotas do IBS relativas às operações de que trata esta Seção ficam reduzidas em 40%\n(quarenta por cento)",
+    conteudo: `Art. 405. As alíquotas do IBS relativas às operações de que trata esta Seção ficam reduzidas em 40%
+(quarenta por cento). (Art. 281 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 406",
+    titulo: "Ficam permitidas a apropriação e a utilização de créditos de IBS nas aquisições de bens e\nserviços pelos fornecedores de serviços de hotelaria, parques de diversão e parques temáticos, observado o...",
+    conteudo: `Art. 406. Ficam permitidas a apropriação e a utilização de créditos de IBS nas aquisições de bens e
+serviços pelos fornecedores de serviços de hotelaria, parques de diversão e parques temáticos, observado o
+disposto nos arts. 47 a 61. (Art. 282 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 407",
+    titulo: "Fica vedada a apropriação de créditos de IBS pelo adquirente dos serviços de hotelaria,\nparques de diversão e parques temáticos",
+    conteudo: `Art. 407. Fica vedada a apropriação de créditos de IBS pelo adquirente dos serviços de hotelaria,
+parques de diversão e parques temáticos. (Art. 283 da LC 214/2025)
+Subseção I - Dos Serviços de Hotelaria`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 408",
+    titulo: "Para efeitos do disposto neste Regulamento, considera-se serviço de hotelaria o fornecimento\nde alojamento temporário, bem como de outros serviços incluídos no valor cobrado pela hospedagem, em",
+    conteudo: `Art. 408. Para efeitos do disposto neste Regulamento, considera-se serviço de hotelaria o fornecimento
+de alojamento temporário, bem como de outros serviços incluídos no valor cobrado pela hospedagem, em:
+(Art. 278 da LC 214/2025)
+I - unidades de uso exclusivo dos hóspedes, por estabelecimento destinado a essa finalidade; ou
+II - imóvel residencial mobiliado, ainda que de uso não exclusivo dos hóspedes.
+§ 1º Para fins do disposto no inciso I do caput deste artigo, considera-se unidade de uso exclusivo dos
+hóspedes o espaço destinado à utilização temporária por pessoas, inclusive na modalidade day use, tais
+como hotéis, motéis, resorts, pousadas, pensões, hospedarias, casas de cômodos e estabelecimentos
+conhecidos como flat, apart-hotel, suite service, condo-hotel, hotel-residência e albergue.
+§ 2º Não descaracteriza o fornecimento de serviços de hotelaria a divisão do empreendimento em
+unidades hoteleiras, assim entendida a atribuição de natureza jurídica autônoma às unidades habitacionais
+
+132
+
+que o compõem, sob titularidade de diversas pessoas, desde que sua destinação funcional seja
+exclusivamente a de hospedagem.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 409",
+    titulo: "Para fins de sujeição ao regime específico de que trata o art",
+    conteudo: `Art. 409. Para fins de sujeição ao regime específico de que trata o art. 402, inclui-se no valor da
+operação o valor de outros serviços incluídos no valor cobrado pela hospedagem, tais como:
+I - estacionamento;
+II - lavanderia;
+III - limpeza adicional.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 410",
+    titulo: "A locação, cessão onerosa ou arrendamento de bem imóvel residencial, por contribuinte\nsujeito ao regime regular do IBS, por período não superior a 90 (noventa) dias ininterruptos, serão tributados...",
+    conteudo: `Art. 410. A locação, cessão onerosa ou arrendamento de bem imóvel residencial, por contribuinte
+sujeito ao regime regular do IBS, por período não superior a 90 (noventa) dias ininterruptos, serão tributados
+de acordo com as mesmas regras aplicáveis aos serviços de hotelaria. (Art. 253 da LC 214/2025)
+§ 1º Para fins do caput deste artigo consideram-se contribuintes sujeitos ao regime regular do IBS as
+pessoas físicas que atendam ao disposto no art. 382.
+§ 2º Identificada a condição de contribuinte nos termos deste artigo, o fornecedor deverá emitir o
+documento fiscal relativo às operações.
+Subseção II - Dos Parques de Diversão e Parques Temáticos`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 411",
+    titulo: "Para efeitos do disposto neste Regulamento, consideram-se",
+    conteudo: `Art. 411. Para efeitos do disposto neste Regulamento, consideram-se: (Art. 279 da LC 214/2025)
+I - parque de diversão: o estabelecimento ou empreendimento permanente ou itinerante, cuja atividade
+essencial é a disponibilização de atrações destinadas a entreter pessoas e fruídas presencialmente no local
+da disponibilização; e
+II - parque temático: o parque de diversão com inspiração em tema histórico, cultural, etnográfico, lúdico
+ou ambiental.
+Parágrafo único. Para fins do disposto no inciso I do caput deste artigo, consideram-se atrações
+destinadas a entreter pessoas aquelas que proporcionam lazer e experiências recreativas, tais como
+brinquedos, mecânicos ou não, jogos, experiências sensoriais, tobogãs e piscinas de ondas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 412",
+    titulo: "O valor da operação dos serviços de parques de diversão e parques temáticos inclui",
+    conteudo: `Art. 412. O valor da operação dos serviços de parques de diversão e parques temáticos inclui:
+I - o valor do ingresso para acesso ao parque, acrescido de quaisquer valores relacionados à fruição
+das atrações; e
+II - o valor pago à parte para atrações não incluídas no valor do ingresso.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 413",
+    titulo: "Não ficam sujeitas ao regime específico de que trata o art",
+    conteudo: `Art. 413. Não ficam sujeitas ao regime específico de que trata o art. 402 as demais operações com
+bens ou serviços que não estejam incluídas no valor cobrado pelos ingressos, tais como:
+I - fornecimento de alimentação e de bebidas;
+II - serviços de guia;
+III - serviços de fotografia e de vídeo;
+IV - treinamento;
+V - acompanhamento de crianças; e
+VI - serviços de guarda-volumes.
+Seção III - Do Transporte Coletivo de Passageiros Rodoviário Intermunicipal e Interestadual,
+Ferroviário, Hidroviário e Aéreo Regional e do Transporte de Carga Aéreo Regional`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 414",
+    titulo: "As operações de fornecimento de serviço de transporte coletivo de passageiros e de\ntransporte de carga aéreo regional estão sujeitas ao regime específico de incidência do IBS de que trata esta\nSeção",
+    conteudo: `Art. 414. As operações de fornecimento de serviço de transporte coletivo de passageiros e de
+transporte de carga aéreo regional estão sujeitas ao regime específico de incidência do IBS de que trata esta
+Seção. (Art. 284 da LC 214/2025)
+§ 1º Ao fornecimento de serviços de transporte público coletivo de passageiros rodoviário e metroviário
+de caráter urbano, semiurbano e metropolitano, aplicam-se as disposições do art. 233.
+§ 2º Para os efeitos do caput deste artigo, serviço de transporte coletivo de passageiros é o prestado
+nos seguintes modais, conforme o meio pelo qual o deslocamento acontece:
+I - rodoviário, ferroviário, hidroviário de caráter intermunicipal e interestadual;
+
+133
+
+II - ferroviário e hidroviário de caráter urbano, semiurbano e metropolitano; e
+III - aéreo regional.
+§ 3º Para fins deste Regulamento, consideram-se:
+I - transporte coletivo de passageiros o serviço de deslocamento de pessoas acessível a toda a
+população mediante cobrança individualizada;
+II - transporte intermunicipal de passageiros o serviço de deslocamento de pessoas entre Municípios
+circunscritos a um mesmo Estado ou ao Distrito Federal;
+III - transporte interestadual de passageiros o serviço de deslocamento de pessoas entre Municípios
+de Estados distintos ou de Estado e do Distrito Federal;
+IV - transporte rodoviário de passageiros o serviço de transporte terrestre realizado sobre vias urbanas
+e rurais;
+V - transporte ferroviário de passageiros o serviço de deslocamento de pessoas executado por meio
+de locomoção de trens ou comboios sobre trilhos;
+VI - transporte hidroviário de passageiros o serviço de deslocamento de pessoas executado por meio
+de rotas para o tráfego aquático;
+VII - transporte de caráter urbano, semiurbano e metropolitano o definido conforme o disposto nos
+incisos IV a VI do parágrafo único do art.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 414 (parte 2)",
+    titulo: "233, com itinerários e preços fixados pelo poder público;\nVIII - transporte aéreo regional de passageiros a aviação doméstica com voos cuja rota tenha origem\nou destino na Amazônia Legal ou em capi...",
+    conteudo: `233, com itinerários e preços fixados pelo poder público;
+VIII - transporte aéreo regional de passageiros a aviação doméstica com voos cuja rota tenha origem
+ou destino na Amazônia Legal ou em capitais regionais, centros sub-regionais, centros de zona ou centros
+locais, assim definidos pela Fundação Instituto Brasileiro de Geografia e Estatística (IBGE), e na forma
+regulamentada pelo Ministério de Portos e Aeroportos; e
+IX - transporte aéreo regional de carga a aviação doméstica em que a carga é embarcada ou
+desembarcada em aeroportos na Amazônia Legal ou em capitais regionais, centros sub-regionais, centros de
+zona ou centros locais, assim definidos pelo IBGE, e na forma regulamentada pelo Ministério de Portos e
+Aeroportos.
+§ 4º Ato conjunto do Ministro de Estado da Fazenda e do CGIBS, com base em classificação da Agência
+Nacional de Aviação Civil (ANAC), definirá as rotas previstas nos incisos VIII e IX do § 3º, sendo vedada a
+exclusão de rotas em prazo inferior a 2 (dois) anos de sua inclusão.
+§ 5º O regime específico de que tratam os incisos I e II do § 2º aplica-se apenas ao transporte público
+coletivo de passageiros, assim entendido como aquele sob regime de autorização, permissão ou concessão
+pública, observados os limites da respectiva autorização, permissão ou concessão pública.
+§ 6º Ficam permitidas a apropriação e a utilização de créditos de IBS para os adquirentes dos serviços
+de transporte, obedecido o disposto nos arts. 47 a 61.`,
+    topicos: "CBS, IBS, Reforma Tributária, credito, regime_especifico",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 415",
+    titulo: "A base de cálculo do IBS é o valor do fornecimento do serviço de transporte coletivo de\npassageiros",
+    conteudo: `Art. 415. A base de cálculo do IBS é o valor do fornecimento do serviço de transporte coletivo de
+passageiros.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 416",
+    titulo: "As alíquotas do IBS relativas às operações de que trata esta Seção ficam reduzidas na\nseguinte forma",
+    conteudo: `Art. 416. As alíquotas do IBS relativas às operações de que trata esta Seção ficam reduzidas na
+seguinte forma: (Arts. 285 a 287 da LC 214/2025)
+I - em 40% (quarenta por cento) para:
+a) transporte coletivo de passageiros rodoviário, ferroviário e hidroviário intermunicipais e
+interestaduais;
+b) transporte aéreo regional coletivo de passageiros ou cargas;
+II - em 100% (cem por cento) para serviço de transporte público coletivo de passageiros ferroviário e
+hidroviário de caráter urbano, semiurbano e metropolitano.
+§ 1º É permitida a apropriação de crédito nas aquisições de bens e serviços pelo fornecedor de que
+trata o inciso I do caput deste artigo, observado o disposto nos arts. 47 a 61.
+§ 2º Na hipótese do inciso II do caput deste artigo, fica vedada a apropriação de crédito do IBS:
+I - nas aquisições realizadas pelo fornecedor de serviço de transporte;
+II - pelo adquirente dos serviços de transporte.
+
+134
+
+Seção IV - Das Agências de Turismo`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "49,50,51,52",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 417",
+    titulo: "Os serviços de agências de turismo ficam sujeitos a regime específico de incidência do IBS,\nde acordo com o disposto nesta Seção",
+    conteudo: `Art. 417. Os serviços de agências de turismo ficam sujeitos a regime específico de incidência do IBS,
+de acordo com o disposto nesta Seção. (Art. 288 da LC 214/2025)
+§ 1º Para fins do disposto no caput deste artigo, considera-se serviço de agências de turismo a atividade
+econômica de:
+I - intermediação remunerada entre prestadores, consumidores e usuários de serviços turísticos; e
+II - fornecimento direto de serviços turísticos.
+§ 2º A intermediação remunerada de que trata o inciso I do § 1º inclui:
+I - a comercialização e emissão de passagens aéreas, rodoviárias, ferroviárias e hidroviárias;
+II - a reserva para acomodação em hotéis, pousadas ou assemelhados;
+III - o planejamento e organização de roteiros, reserva ou venda de ingressos para atrações turísticas,
+esportivas e congêneres;
+IV - a organização de viagens, peregrinações, excursões, passeios e similares;
+V - seguros de viagem.`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "64,65,66",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 418",
+    titulo: "Nos serviços de agência de turismo, a base de cálculo do IBS corresponde",
+    conteudo: `Art. 418. Nos serviços de agência de turismo, a base de cálculo do IBS corresponde: (Art. 289, I, da
+LC 214/2025)
+I - ao valor da operação deduzidos os valores repassados para os fornecedores intermediados pela
+agência com base no documento que subsidia a operação de agenciamento, na hipótese do inciso I do § 1º
+do art. 417; ou
+II - ao valor da operação, na hipótese do inciso II do § 1º do art. 417.
+§ 1º O valor da operação de que trata o caput deste artigo compreende: (Art. 289, §§ 1º e 2º, da LC
+214/2025)
+I - o valor total cobrado do usuário do serviço da agência, nele incluídos todos os bens e serviços
+prestados e usufruídos com a intermediação da agência ou por esta prestados diretamente, somados à sua
+margem de agregação e outros acréscimos cobrados do usuário; e
+II - os demais valores, comissões e incentivos pagos por terceiros, em virtude da atuação da agência,
+relacionados à operação.
+§ 2º Para fins da dedução prevista no inciso I do caput deste artigo:
+I - deverá haver coincidência entre o valor deduzido pela agência de turismo e o valor declarado em
+documento fiscal dos bens ou serviços intermediados;
+II - o documento fiscal emitido pelos fornecedores intermediados deverá referenciar o documento fiscal
+emitido pela agência de turismo; e
+III - o valor da intermediação de serviços que serão prestados no exterior e expressos em moeda
+estrangeira deverá ser convertido para a moeda nacional pela taxa de câmbio de fechamento, apurada pelo
+Banco Central do Brasil, do dia anterior ao da emissão do documento fiscal.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 419",
+    titulo: "Fica permitida a apropriação, pelo adquirente, dos créditos de IBS relativos ao serviço de\nintermediação prestado pela agência de turismo, observado o disposto nos arts",
+    conteudo: `Art. 419. Fica permitida a apropriação, pelo adquirente, dos créditos de IBS relativos ao serviço de
+intermediação prestado pela agência de turismo, observado o disposto nos arts. 47 a 61. (Art. 290 da LC
+214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 420",
+    titulo: "Ficam permitidas a apropriação e a utilização de créditos de IBS nas aquisições de bens e\nserviços pelas agências de turismo, vedado o crédito dos valores que sejam deduzidos da base de cálculo,\nno...",
+    conteudo: `Art. 420. Ficam permitidas a apropriação e a utilização de créditos de IBS nas aquisições de bens e
+serviços pelas agências de turismo, vedado o crédito dos valores que sejam deduzidos da base de cálculo,
+nos termos do inciso I do art. 418, observado o disposto nos arts. 47 a 61. (Art. 291 da LC 214/2025)
+CAPÍTULO VIII - DA SOCIEDADE ANÔNIMA DO FUTEBOL (SAF)`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo, credito",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 421",
+    titulo: "As operações com bens e com serviços realizadas por Sociedade Anônima do Futebol (SAF),\ninstituída na forma da Lei nº 14",
+    conteudo: `Art. 421. As operações com bens e com serviços realizadas por Sociedade Anônima do Futebol (SAF),
+instituída na forma da Lei nº 14.193, de 6 de agosto de 2021, ficam sujeitas a regime específico do IBS,
+denominado Regime de Tributação Específica do Futebol (TEF), de acordo com o disposto neste Capítulo.
+(Art. 292 e 293 da LC 214/2025)
+Parágrafo único. Considera-se como SAF a companhia cuja atividade principal consista na prática do
+futebol, feminino e masculino, em competição profissional, sujeita às regras previstas na legislação específica.
+
+135
+
+Art. 422. O TEF consiste no recolhimento mensal dos seguintes impostos e contribuições: (Art. 293, §
+1º, da LC 214/2025)
+I - Imposto sobre a Renda das Pessoas Jurídicas (IRPJ);
+II - Contribuição Social sobre o Lucro Líquido (CSLL);
+III - contribuições previstas nos incisos I, II e III do caput e no § 6º, todos do art. 22 da Lei nº 8.212, de
+24 de julho de 1991;
+IV - CBS; e
+V - IBS.
+Parágrafo único. O recolhimento na forma deste Capítulo não exclui a incidência dos demais tributos
+federais, estaduais, distritais ou municipais, devidos na qualidade de contribuinte ou responsável, em relação
+aos quais será observada a legislação correspondente aplicável às demais pessoas jurídicas. (Art. 293, § 2º,
+da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 423",
+    titulo: "A base de cálculo do pagamento mensal e unificado dos tributos referidos no caput do art",
+    conteudo: `Art. 423. A base de cálculo do pagamento mensal e unificado dos tributos referidos no caput do art.
+422 será a totalidade das receitas recebidas no mês, inclusive aquelas referentes a: (Art. 293, § 3º, da LC
+214/2025)
+I - prêmios por participação ou resultado em competições;
+II - bilheteria e programas de sócio-torcedor;
+III - cessão dos direitos desportivos dos atletas;
+IV - cessão de direitos de imagem e de transmissão;
+V - transferência do atleta para outra entidade desportiva ou seu retorno à atividade em outra entidade
+desportiva;
+VI - valores provenientes de transferências de atletas, definitivas ou temporárias, nacionais ou
+internacionais, recebidos pela contribuição do clube à sua formação;
+VII - exploração, sob qualquer forma, dos direitos de propriedade intelectual de sua titularidade ou dos
+quais seja cessionária, incluídos os cedidos pelo clube ou pessoa jurídica original que a constituiu;
+VIII - exploração de direitos de propriedade intelectual de terceiros, relacionados ao futebol;
+IX - exploração econômica de ativos, inclusive imobiliários, sobre os quais detenha direitos;
+X - quaisquer outras atividades conexas ao futebol e ao patrimônio da SAF, incluída a organização de
+espetáculos esportivos, sociais ou culturais;
+XI - troca ou permuta, dação em pagamento e demais espécies de alienação;
+XII - locação;
+XIII - licenciamento, concessão, cessão;
+XIV - mútuo oneroso;
+XV - doação com contraprestação em benefício do doador;
+XVI - instituição onerosa de direitos reais; e
+XVII - receitas financeiras.
+§ 1º Também integrará a base de cálculo do TEF, no período de apuração em que ocorrer o
+fornecimento não oneroso ou a valor inferior ao de mercado de bens e serviços, nas hipóteses previstas neste
+Regulamento.
+§ 2º As receitas de que trata o caput deste artigo serão apuradas com base no regime de caixa.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 423 (parte 2)",
+    titulo: "(Art.\n293, § 1º, da LC 214/2025)\n§ 3º Na hipótese do § 1º, as receitas serão consideradas no momento do fornecimento do bem ou do\nserviço recebido em contraprestação ao fornecimento não oneroso ou...",
+    conteudo: `(Art.
+293, § 1º, da LC 214/2025)
+§ 3º Na hipótese do § 1º, as receitas serão consideradas no momento do fornecimento do bem ou do
+serviço recebido em contraprestação ao fornecimento não oneroso ou a valor inferior ao de mercado.`,
+    topicos: "CBS, IBS, Reforma Tributária, base_calculo",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 424",
+    titulo: "O valor do pagamento relativo ao TEF será calculado mediante aplicação, sobre a base de\ncálculo de que trata o art",
+    conteudo: `Art. 424. O valor do pagamento relativo ao TEF será calculado mediante aplicação, sobre a base de
+cálculo de que trata o art. 423, da alíquota de: (Art. 293, § 4º, e Art. 294 da LC 214/2025)
+I - 4% (quatro por cento) para os tributos federais unificados de que tratam os incisos I a III do caput do
+art. 422;
+
+136
+
+II - 1% (um por cento) para a CBS; e
+III - 1% (um por cento) para o IBS, sendo:
+a) metade desse percentual correspondente à alíquota estadual; e
+b) metade desse percentual correspondente à alíquota municipal.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 425",
+    titulo: "De 1º de janeiro de 2027 a 31 de dezembro de 2032, as alíquotas dos tributos que compõem\no TEF serão",
+    conteudo: `Art. 425. De 1º de janeiro de 2027 a 31 de dezembro de 2032, as alíquotas dos tributos que compõem
+o TEF serão: (Art. 294 da LC 214/2025)
+I - quanto aos tributos federais de que tratam os incisos I a III do art. 422, 4% (quatro por cento);
+II - quanto à CBS:
+a) 0,9% (nove décimos por cento) para os anos-calendário de 2027 e 2028; e
+b) 1% (um por cento) de 2033 em diante;
+III - quanto ao IBS:
+a) 0,1% (um décimo por cento) em 2027 e 2028;
+b) 0,3% (três décimos por cento) em 2029;
+c) 0,6% (seis décimos por cento) em 2030;
+d) 0,9% (nove décimos por cento) em 2031;
+e) 1,2% (um inteiro e dois décimos por cento) em 2032; e
+f) 1% (um por cento) de 2033 em diante.
+§ 1º Para fins de repartição de receita tributária, o valor recolhido na forma do pagamento mensal
+unificado de que trata o inciso I do art. 424 será apropriado aos tributos abaixo especificados, mediante
+aplicação dos seguintes percentuais sobre o valor recolhido: (Art. 293, § 7º, da LC 214/2025)
+I - 43,5% (quarenta e três inteiros e cinco décimos por cento) ao IRPJ;
+II - 18,6% (dezoito inteiros e seis décimos por cento) à CSLL; e
+III - 37,9% (trinta e sete inteiros e nove décimos por cento) às contribuições previstas nos incisos I, II e
+III do caput e no § 6º do art. 22 da Lei nº 8.212, de 24 de julho de 1991, distribuídos conforme disciplinado por
+ato do Ministro de Estado da Fazenda.
+§ 2º A repartição da receita do IBS será feita na proporção de metade para alíquota estadual e metade
+para alíquota municipal. (Art. 293, § 4º, III, da LC 214/2025)
+§ 3º As obrigações acessórias relativas à forma do recolhimento dos tributos devidos nos termos deste
+Capítulo serão estabelecidas em ato conjunto da RFB e do CGIBS. (Art. 293, § 8º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 426",
+    titulo: "A SAF somente poderá apropriar e utilizar créditos do IBS em relação às operações em que\nseja adquirente de direitos desportivos de atletas e desde que registrado em documento fiscal",
+    conteudo: `Art. 426. A SAF somente poderá apropriar e utilizar créditos do IBS em relação às operações em que
+seja adquirente de direitos desportivos de atletas e desde que registrado em documento fiscal. (Art. 293, § 5º,
+da LC 214/2025)
+§ 1º Entende-se por aquisição de direitos desportivos o resultado ou proveito econômico oriundo da
+transferência, temporária ou definitiva, do vínculo esportivo de atleta profissional entre organizações
+esportivas empregadoras, do pagamento de cláusula indenizatória esportiva prevista em contrato especial de
+trabalho esportivo ou de compensação por rescisão de contrato fixada por órgão ou tribunal competente.
+§ 2º O pagamento, pela SAF, de luvas a atleta profissional não gera direito a apropriação e utilização
+de créditos de que trata o caput deste artigo.
+§ 3º Os créditos do IBS referidos no caput deste artigo serão calculados mediante a aplicação, sobre o
+valor da operação, dos percentuais correspondentes às mesmas alíquotas devidas sobre essas operações.
+(Art. 293, § 5º, da LC 214/2025)
+§ 4º A apropriação e utilização dos créditos de que trata o caput deste artigo será feita na forma dos
+arts. 47 a 61.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 427",
+    titulo: "Fica vedada a apropriação de créditos do IBS para os adquirentes de bens e serviços da SAF",
+    conteudo: `Art. 427. Fica vedada a apropriação de créditos do IBS para os adquirentes de bens e serviços da SAF.
+(Art. 293, § 6º, da LC 214/2025)
+§ 1º O disposto no caput deste artigo não se aplica à aquisição de direitos desportivos de atletas.
+
+137
+
+§ 2º Os créditos de IBS correspondentes à operação de que trata o § 1º serão calculados mediante a
+aplicação, sobre o valor da operação, dos percentuais correspondentes às alíquotas devidas sobre essas
+operações.
+§ 3º A apropriação e utilização dos créditos de que trata o § 2º será feita na forma dos arts. 47 a 61.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 428",
+    titulo: "A importação de direitos desportivos de atletas fica sujeita à incidência do IBS pelas mesmas\nalíquotas aplicáveis às operações realizadas no País, aplicando-se as regras das importações de bens\nim...",
+    conteudo: `Art. 428. A importação de direitos desportivos de atletas fica sujeita à incidência do IBS pelas mesmas
+alíquotas aplicáveis às operações realizadas no País, aplicando-se as regras das importações de bens
+imateriais, inclusive direitos, e de serviços previstas no Capítulo III. (Art. 295 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, importacao",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 429",
+    titulo: "A cessão de direitos desportivos de atletas a residente ou domiciliado no exterior para a\nrealização de atividades desportivas predominantemente no exterior será considerada exportação para fins\nda...",
+    conteudo: `Art. 429. A cessão de direitos desportivos de atletas a residente ou domiciliado no exterior para a
+realização de atividades desportivas predominantemente no exterior será considerada exportação para fins
+da imunidade do IBS, excluindo-se os percentuais de que tratam os incisos II e III do caput do art. 424 da
+alíquota aplicável para cálculo do pagamento unificado de que trata o caput do art. 421. (Art. 296 da LC
+214/2025)
+CAPÍTULO IX - DAS MISSÕES DIPLOMÁTICAS, REPARTIÇÕES CONSULARES E OPERAÇÕES
+ALCANÇADAS POR TRATADO INTERNACIONAL
+Seção I - Regime Específico Previsto em Tratado ou Convenção Internacional`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, exportacao, imunidade, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 430",
+    titulo: "As operações com bens e com serviços alcançadas por tratado ou convenção internacional\ncelebrados pela União e referendados pelo Congresso Nacional, nos termos do inciso VIII do caput do art",
+    conteudo: `Art. 430. As operações com bens e com serviços alcançadas por tratado ou convenção internacional
+celebrados pela União e referendados pelo Congresso Nacional, nos termos do inciso VIII do caput do art. 84
+da Constituição Federal, inclusive referentes a missões diplomáticas, repartições consulares, representações
+de organismos internacionais e respectivos funcionários acreditados, ficam sujeitas a regime específico de
+incidência do IBS, de acordo com o disposto nesta Seção. (Art. 297 da LC 214/2025)
+§ 1º A aplicação das normas referentes ao IBS previstas em tratado ou convenção internacional
+internalizado, inclusive os referentes a organismos internacionais dos quais o Brasil seja membro e
+respectivos funcionários acreditados, e os vigentes em 16 de janeiro de 2025, será regulamentada por ato
+conjunto do Ministro de Estado da Fazenda e do CGIBS, ouvido o Ministério das Relações Exteriores (MRE).
+(Art. 299 da LC 214/2025)
+§ 2º A denúncia ou qualquer outra forma de revogação do tratado ou da convenção restabelece
+automaticamente a eficácia das disposições da legislação de regência do IBS.
+§ 3º Para fins de aplicação do regime específico de que trata o caput deste artigo, consideram-se
+funcionários acreditados aqueles a quem o MRE tenha conferido a respectiva certificação, que deverá ser
+confirmada mediante análise do regime específico aplicável ao funcionário, se houver.
+§ 4º Fica assegurado ao CGIBS e à RFB o acesso às informações mantidas pelo MRE referentes aos
+funcionários acreditados e ao regime tributário a eles aplicável, de forma a garantir a correta identificação do
+beneficiário e do tratamento tributário a ele aplicável.
+Seção II - Reembolso dos Valores de IBS Pagos em Operações com Bens ou Serviços Destinados a
+Missões Diplomáticas e Repartições Consulares de Caráter Permanente e aos Respectivos
+Funcionários Acreditados`,
+    topicos: "CBS, IBS, Reforma Tributária, regime_especifico",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 431",
+    titulo: "Os valores de IBS pagos em operações com bens ou serviços destinados a missões\ndiplomáticas e repartições consulares de caráter permanente e aos respectivos funcionários acreditados\npoderão ser ree...",
+    conteudo: `Art. 431. Os valores de IBS pagos em operações com bens ou serviços destinados a missões
+diplomáticas e repartições consulares de caráter permanente e aos respectivos funcionários acreditados
+poderão ser reembolsados, após certificação, pelo MRE, da existência de reciprocidade do regime tributário
+aplicado às representações diplomáticas brasileiras e respectivos funcionários brasileiros naquele país. (Art.
+298 da LC 214/2025)
+§ 1º Após verificação da reciprocidade a que se refere o caput deste artigo, o MRE deverá manter banco
+de dados com a lista dos países que preveem a mencionada reciprocidade, disponível para as autoridades
+fiscais responsáveis pela sua análise.
+§ 2º A aprovação a que se refere o § 1º poderá ser condicionada ao atendimento das condições e limites
+previstos pelo MRE.
+§ 3º O beneficiário do reembolso de que trata o caput deste artigo deverá apresentar requerimento de
+reembolso à autoridade fiscal competente, dentro do prazo de 5 (cinco) anos, contados do recolhimento do
+tributo a ser reembolsado, nos termos de ato conjunto da RFB e do CGIBS.
+§ 4º O requerimento de reembolso deverá vir acompanhado das informações e documentos
+necessários à sua análise, especialmente aqueles que comprovem que as operações com bens e serviços
+
+138
+
+são destinadas às missões diplomáticas, às repartições consulares de caráter permanente ou aos respectivos
+funcionários acreditados.
+§ 5º Os tributos a serem reembolsados devem estar destacados no documento fiscal emitido em nome
+do beneficiário.
+§ 6º Somente serão reembolsados os tributos relativos a operações com bens e serviços:
+I - diretamente relacionadas com as funções das missões diplomáticas e das repartições consulares de
+caráter permanente; ou
+II - que corresponderem a gastos pessoais proporcionais às necessidades dos funcionários acreditados
+das entidades referidas no caput deste artigo e de suas famílias.
+§ 7º O pagamento do reembolso deverá ocorrer em até 30 (trinta) dias contados da ciência do
+beneficiário s`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 431 (parte 2)",
+    titulo: "obre a aprovação do requerimento",
+    conteudo: `obre a aprovação do requerimento.
+§ 8º Ato conjunto da RFB e deste CGIBS disciplinará o recurso cabível contra a decisão que indeferir o
+pedido de reembolso.
+TÍTULO VII - DA ZONA FRANCA DE MANAUS E DAS ÁREAS DE LIVRE COMÉRCIO
+CAPÍTULO I - DA ZONA FRANCA DE MANAUS
+Seção I - Das Disposições Gerais`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM",
+    cnaeGroups: "",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 432",
+    titulo: "Os benefícios relativos à Zona Franca de Manaus estabelecidos no Título X do Livro II\naplicam-se até a data estabelecida pelo art",
+    conteudo: `Art. 432. Os benefícios relativos à Zona Franca de Manaus estabelecidos no Título X do Livro II
+aplicam-se até a data estabelecida pelo art. 92-A do Ato das Disposições Constitucionais Transitórias (ADCT).
+(Art. 439 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 433",
+    titulo: "Para fins deste Capítulo e do Título X do Livro II, considera-se",
+    conteudo: `Art. 433. Para fins deste Capítulo e do Título X do Livro II, considera-se: (Art. 440 da LC 214/2025)
+I - Zona Franca de Manaus: a área definida e demarcada nos termos do art. 2º do Decreto-Lei nº 288,
+de 28 de fevereiro de 1967, regulamentado pelo art. 2º do Decreto nº 61.244, de 28 de agosto de 1967,
+compreendendo parte dos Municípios de Manaus, Rio Preto da Eva e Itacoatiara;
+II - indústria incentivada: a pessoa jurídica contribuinte do IBS e habilitada na forma do inciso II do art.
+435 para fruição de benefícios fiscais na industrialização de bens na Zona Franca de Manaus, exceto aqueles
+de que trata o art. 434;
+III - bem intermediário:
+a) o produto industrializado destinado à incorporação ou ao consumo em processo de industrialização
+de outros bens, desde que o destinatário imediato seja estabelecimento industrial;
+b) o produto destinado à embalagem pelos estabelecimentos industriais;
+IV - bem final: aquele sobre o qual não se agrega mais valor no processo produtivo e que é destinado
+ao consumo.
+Parágrafo único. Para fins deste Capítulo e do Título X do Livro II, em todas as operações entre partes
+relacionadas observar-se-á o disposto no art. 14.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 434",
+    titulo: "Não estão contemplados pelo regime favorecido da Zona Franca de Manaus",
+    conteudo: `Art. 434. Não estão contemplados pelo regime favorecido da Zona Franca de Manaus: (Art. 441 da LC
+214/2025)
+I - armas e munições;
+II - fumo e seus derivados;
+III - bebidas alcoólicas;
+IV - automóveis de passageiros;
+V - petróleo, lubrificantes e combustíveis líquidos e gasosos derivados de petróleo, observado o
+disposto nos §§ 1º a 6º; e
+VI - produtos de perfumaria ou de toucador, preparados e preparações cosméticas, salvo quanto a
+estes, classificados nas posições 33.03 a 33.07 da NCM/SH, se destinados exclusivamente ao consumo
+interno na Zona Franca de Manaus ou se produzidos com utilização de matérias-primas da fauna e da flora
+regionais, em conformidade com processo produtivo básico.
+
+139
+
+§ 1º Excetuam-se da previsão do inciso V do caput deste artigo, exclusivamente, as saídas internas de
+petróleo, lubrificantes e combustíveis líquidos e gasosos derivados de petróleo promovidas por indústria de
+refino de petróleo localizada na Zona Franca de Manaus, desde que cumprido o processo produtivo básico,
+mantida a vedação para todas as demais etapas.
+§ 2º Considera-se saída interna de que trata o § 1º o fornecimento de bem material refinado pela
+indústria de refino de petróleo localizada na Zona Franca de Manaus e destinado exclusivamente ao consumo
+nessa área incentivada.
+§ 3º Para os fins do § 1º, o refino de petróleo consiste na transformação de petróleo e suas frações,
+podendo incluir o processamento de matérias-primas renováveis, para produção de derivados por meio de
+processos físicos e químicos, excluídas as formulações de combustíveis derivados de petróleo realizadas
+exclusivamente por mistura mecânica de correntes de hidrocarbonetos.
+§ 4º A mistura de combustíveis derivados de petróleo com biocombustíveis não se enquadra no conceito
+de refino de petróleo de que trata o § 3º
+§ 5º As operações incentivadas de refino de petróleo de que trata o inciso V do caput deste artigo
+deverão ser registradas em item separado do documento fiscal da operação.
+§ 6º Os produto`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, biocombustivel, combustivel, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 434 (parte 2)",
+    titulo: "s listados no inciso V do caput deste artigo não se beneficiam do regime favorecido da\nZona Franca de Manaus nas operações de entrada na indústria de refino de petróleo ali situada, inclusive na\nim...",
+    conteudo: `s listados no inciso V do caput deste artigo não se beneficiam do regime favorecido da
+Zona Franca de Manaus nas operações de entrada na indústria de refino de petróleo ali situada, inclusive na
+importação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, biocombustivel, combustivel, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 435",
+    titulo: "É condição para habilitação aos incentivos fiscais da Zona Franca de Manaus",
+    conteudo: `Art. 435. É condição para habilitação aos incentivos fiscais da Zona Franca de Manaus: (Art. 442 da
+LC 214/2025)
+I - a inscrição específica em cadastro da Superintendência da Zona Franca de Manaus (Suframa), para
+a pessoa jurídica que desenvolva atividade comercial, de fornecimento de serviços ou industrial não
+alcançada pelo disposto no inciso II deste artigo; e
+II - a inscrição específica em cadastro da Suframa e aprovação de projeto técnico-econômico pelo
+Conselho de Administração da Suframa, com base nos respectivos processos produtivos básicos, para
+pessoa jurídica que desenvolva atividade industrial incentivada.
+§ 1º O contribuinte que optar pela habilitação aos incentivos fiscais da Zona Franca de Manaus de que
+trata o caput deste artigo obriga-se ao cumprimento de obrigações principais e acessórias estabelecidas neste
+Capítulo e no Título X do Livro II.
+§ 2º O processo de análise técnica dos projetos técnico-econômicos a serem submetidos ao Conselho
+de Administração da Suframa deverá ocorrer, na forma a ser estabelecida em resolução deste Conselho, com
+a participação da Suframa e dos órgãos técnicos responsáveis pelas finanças e pela política de
+desenvolvimento do Estado do Amazonas e dos municípios integrantes da Zona Franca de Manaus.
+§ 3º O processo de análise técnica para fixação ou alteração dos processos produtivos básicos, a serem
+submetidos aos titulares dos Ministérios de Desenvolvimento, Indústria, Comércio e Serviços (MDIC) e da
+Ciência, Tecnologia e Inovação (MCTI), deverá ocorrer de forma conjunta entre representantes do MDIC, do
+MCTI, da Suframa e dos órgãos técnicos responsáveis pelas finanças e pela política de desenvolvimento do
+Estado do Amazonas e dos municípios integrantes da Zona Franca de Manaus, na forma a ser estabelecida
+em portaria interministerial.
+§ 4º Os representantes dos órgãos técnicos referidos nos §§ 2º e 3º serão indicados pelos respectivos
+chefes dos Poderes Executivos.
+§ 5º No processo de aprovação dos projetos técnico-ec`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 435 (parte 2)",
+    titulo: "onômicos e dos processos produtivos básicos\nde que trata este artigo deverão ser ouvidos o Estado do Amazonas e o Município de Manaus, mediante\nmanifestação formal dos chefes dos Poderes Executivos...",
+    conteudo: `onômicos e dos processos produtivos básicos
+de que trata este artigo deverão ser ouvidos o Estado do Amazonas e o Município de Manaus, mediante
+manifestação formal dos chefes dos Poderes Executivos estadual e municipal por meio dos órgãos a que se
+refere o § 2º
+§ 6º Permanecem válidos para fins do IBS:
+I - a inscrição específica ativa em cadastro da Suframa;
+II - os projetos técnico-econômicos aprovados e não cancelados pelo Conselho de Administração da
+Suframa, os quais deverão ser por ele convalidados, com as devidas adequações à legislação vigente, nos
+prazos e termos definidos em ato conjunto da RFB, da Suframa e do CGIBS; e
+III - os processos produtivos básicos fixados.
+
+140
+
+§ 7º A Suframa deverá comunicar às administrações tributárias federal, estadual e municipal da
+respectiva área incentivada de ingresso do bem, nos prazos e termos definidos em ato conjunto da RFB, da
+Suframa e do CGIBS, quando:
+I - ocorrer o bloqueio da inscrição específica em seu cadastro, hipótese em que as administrações
+tributárias deverão suspender a aplicação dos incentivos fiscais até a regularização da empresa;
+II - ocorrer a suspensão do pedido de licenciamento de importação de insumos, hipótese em que as
+administrações tributárias deverão suspender os incentivos fiscais concedidos na importação, até que seja
+sanada a inadimplência que a originou;
+III - ocorrer a suspensão dos incentivos fiscais atribuídos ao bem, hipótese em que as administrações
+tributárias deverão suspender a concessão dos incentivos, por igual período, até que haja a regularização da
+situação;
+IV - ocorrer o cancelamento dos incentivos fiscais atribuídos ao bem, hipótese em que as
+administrações tributárias deverão cancelar a aplicação dos incentivos fiscais concedidos;
+V - for detectado que a empresa auferiu indevidamente os incentivos fiscais administrados pela
+autarquia, hipótese em que as autoridades fiscais deverão exigir o tributo que deixou de ser recolhido no
+período correspondente;
+VI - for constatad`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 435 (parte 3)",
+    titulo: "o o descumprimento do processo produtivo básico ou de outros compromissos\nassumidos pelo sujeito passivo por ocasião da aprovação do projeto técnico-econômico e dos investimentos\nem pesquisa, desen...",
+    conteudo: `o o descumprimento do processo produtivo básico ou de outros compromissos
+assumidos pelo sujeito passivo por ocasião da aprovação do projeto técnico-econômico e dos investimentos
+em pesquisa, desenvolvimento e inovação. (Art. 327-A, § 1º, da LC 214/2025)
+§ 8º A Suframa disponibilizará, semestralmente, às administrações tributárias federal, estadual e
+municipal dos bens incentivados os pareceres de acompanhamento dos projetos técnico-econômicos, ou
+documentos com efeito equivalente, elaborados no período.
+CAPÍTULO II - DAS ÁREAS DE LIVRE COMÉRCIO`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 436",
+    titulo: "Os benefícios relativos às Áreas de Livre Comércio estabelecidos neste Capítulo e no Título\nX do Livro II aplicam-se até a data estabelecida pelo art",
+    conteudo: `Art. 436. Os benefícios relativos às Áreas de Livre Comércio estabelecidos neste Capítulo e no Título
+X do Livro II aplicam-se até a data estabelecida pelo art. 92-A do ADCT. (Art. 458 da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 437",
+    titulo: "Para fins do disposto neste Capítulo e no Título X do Livro II, as seguintes Áreas de Livre\nComércio ficam contempladas com regime favorecido",
+    conteudo: `Art. 437. Para fins do disposto neste Capítulo e no Título X do Livro II, as seguintes Áreas de Livre
+Comércio ficam contempladas com regime favorecido: (Art. 459 da LC 214/2025)
+I - Tabatinga, no Amazonas, criada pela Lei nº 7.965, de 22 de dezembro de 1989;
+II - Guajará-Mirim, em Rondônia, criada pela Lei nº 8.210, de 19 de julho de 1991, e regulamentada
+pelo Decreto nº 843, de 23 de junho de 1993;
+III - Boa Vista e Bonfim, em Roraima, criadas pela Lei nº 8.256, de 25 de novembro de 1991, e
+regulamentadas pelo Decreto nº 6.614, de 23 de outubro de 2008;
+IV - Macapá e Santana, no Amapá, criadas pelo art. 11 da Lei nº 8.387, de 30 de dezembro de 1991, e
+regulamentadas pelo Decreto nº 517, de 8 de maio de 1992; e
+V - Brasiléia, com extensão a Epitaciolândia, e Cruzeiro do Sul, no Acre, criadas pela Lei nº 8.857, de
+8 de março de 1994, e regulamentadas pelo Decreto nº 1.357, de 30 de dezembro de 1994.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 438",
+    titulo: "É condição para habilitação aos incentivos fiscais das Áreas de Livre Comércio",
+    conteudo: `Art. 438. É condição para habilitação aos incentivos fiscais das Áreas de Livre Comércio: (Art. 460 da
+LC 214/2025)
+I - a inscrição específica em cadastro da Suframa, para a pessoa jurídica que desenvolva atividade
+comercial, fornecimento de serviços ou industrial não alcançada pelo disposto no inciso II deste artigo; e
+II - a inscrição específica em cadastro da Suframa e aprovação de projeto técnico-econômico pelo
+Conselho de Administração da Suframa para desenvolvimento de atividade de industrialização de produtos
+em cuja composição final haja preponderância de matérias-primas de origem regional, provenientes dos
+segmentos animal, vegetal, mineral, exceto os minérios do Capítulo 26 da NCM/SH, ou agrossilvopastoril,
+nos termos de Resolução do Conselho de Administração da Suframa, observada a legislação ambiental
+pertinente, para pessoa jurídica que desenvolva atividade industrial incentivada.
+§ 1º O contribuinte que optar pela habilitação aos incentivos fiscais das Áreas de Livre Comércio de
+que trata o caput deste artigo obriga-se ao cumprimento de obrigações principais e acessórias estabelecidas
+neste Capítulo e no Título X do Livro II.
+§ 2º O processo de análise técnica dos projetos técnico-econômicos a serem submetidos ao Conselho
+de Administração da Suframa deverá ocorrer, na forma a ser estabelecida em resolução desse Conselho, com
+
+141
+
+a participação da Suframa e dos órgãos técnicos responsáveis pelas finanças e pela política de
+desenvolvimento dos Estados e do Município em que se localiza a respectiva Área de Livre Comércio em que
+o projeto será implantado.
+§ 3º Os representantes dos órgãos técnicos referidos no § 2º serão indicados pelos respectivos chefes
+dos Poderes Executivos.
+§ 4º No processo de aprovação dos projetos técnico-econômicos de que trata este artigo, deverão ser
+ouvidos o Estado e o Município em que se localiza a Área de Livre Comércio, mediante manifestação formal
+dos chefes dos Poderes Executivos estadual e municipal, por meio dos órgão`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 438 (parte 2)",
+    titulo: "s a que se refere o § 2º\n§ 5º A Suframa disciplinará os critérios para caracterização da preponderância de matéria-prima de\norigem regional na composição final do produto de que trata o inciso II d...",
+    conteudo: `s a que se refere o § 2º
+§ 5º A Suframa disciplinará os critérios para caracterização da preponderância de matéria-prima de
+origem regional na composição final do produto de que trata o inciso II do caput deste artigo.
+§ 6º A exigência de produção em conformidade com processo produtivo básico, de que trata o inciso
+VI do caput do art. 434, para os contribuintes habilitados aos incentivos fiscais nas áreas de livre comércio,
+será suprida pela produção em conformidade com o projeto técnico-econômico de que trata o inciso II do
+caput deste artigo.
+§ 7º Permanecem válidos para fins do IBS:
+I - a inscrição específica ativa em cadastro da Suframa; e
+II - os projetos técnico-econômicos aprovados e não cancelados pelo Conselho de Administração da
+Suframa, os quais deverão ser por ele convalidados, com as devidas adequações à legislação vigente, nos
+prazos e termos definidos em ato conjunto da RFB, da Suframa e do CGIBS.
+§ 8º A Suframa deverá comunicar às administrações tributárias federal, estadual e municipal da
+respectiva área incentivada de ingresso do bem, nos prazos e termos definidos em ato conjunto da RFB, da
+Suframa e do CGIBS, quando:
+I - ocorrer o bloqueio da inscrição específica em seu cadastro, hipótese em que as administrações
+tributárias deverão suspender a aplicação dos incentivos fiscais até a regularização da empresa;
+II - ocorrer a suspensão do pedido de licenciamento de importação de insumos, hipótese em que as
+administrações tributárias deverão suspender os incentivos fiscais concedidos na importação, até que seja
+sanada a inadimplência que a originou;
+III - ocorrer a suspensão dos incentivos fiscais atribuídos ao produto, hipótese em que as
+administrações tributárias deverão suspender a concessão dos incentivos, por igual período, até que haja a
+regularização da situação;
+IV - ocorrer o cancelamento dos incentivos fiscais atribuídos ao bem, hipótese em que as
+administrações tributárias deverão cancelar a aplicação dos incentivos fiscais concedidos;
+V -`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 438 (parte 3)",
+    titulo: "for detectado que a empresa auferiu indevidamente os incentivos fiscais administrados pela\nautarquia, hipótese em que as autoridades fiscais deverão exigir o tributo que deixou de ser recolhido no...",
+    conteudo: `for detectado que a empresa auferiu indevidamente os incentivos fiscais administrados pela
+autarquia, hipótese em que as autoridades fiscais deverão exigir o tributo que deixou de ser recolhido no
+período correspondente;
+VI - for constatado o descumprimento do processo produtivo básico ou de outros compromissos
+assumidos pelo sujeito passivo por ocasião da aprovação do projeto técnico-econômico e dos investimentos
+em pesquisa, desenvolvimento e inovação. (Art. 327-A, § 1º, da LC 214/2025)
+§ 9º A Suframa disponibilizará, semestralmente, às administrações tributárias federal, estadual e
+municipal dos bens incentivados os pareceres de acompanhamento dos projetos técnico-econômicos, ou
+documentos com efeito equivalente, elaborados no período.
+TÍTULO VIII - DAS COMPRAS GOVERNAMENTAIS`,
+    topicos: "CBS, IBS, Reforma Tributária, importacao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 439",
+    titulo: "O produto da arrecadação da CBS e do IBS sobre as aquisições de bens e serviços pela\nadministração pública direta, por autarquias e por fundações públicas será integralmente destinado ao ente\nfeder...",
+    conteudo: `Art. 439. O produto da arrecadação da CBS e do IBS sobre as aquisições de bens e serviços pela
+administração pública direta, por autarquias e por fundações públicas será integralmente destinado ao ente
+federativo contratante, mediante redução a zero das alíquotas devidas aos demais entes federativos e
+equivalente elevação da alíquota do tributo devido ao ente contratante. (Art. 473 da LC 214/2025)
+§ 1º Para fins do atendimento ao disposto no caput deste artigo:
+I - nas aquisições pela União:
+a) serão reduzidas a zero as alíquotas do IBS dos demais entes federativos; e
+b) será a alíquota da CBS fixada em montante equivalente à soma das alíquotas do IBS e da CBS
+incidentes sobre a operação, após a redução de que trata o art. 442;
+
+142
+
+II - nas aquisições por Estado:
+a) serão reduzidas a zero a alíquota da CBS e a alíquota municipal do IBS; e
+b) será a alíquota estadual do IBS fixada em montante equivalente à soma das alíquotas do IBS e da
+CBS incidentes sobre a operação, após a redução de que trata o art. 442;
+III - nas aquisições por Município:
+a) serão reduzidas a zero a alíquota da CBS e a alíquota estadual do IBS;
+b) será a alíquota municipal do IBS fixada em montante equivalente à soma das alíquotas do IBS e da
+CBS incidentes sobre a operação, após a redução de que trata o art. 442; e
+IV - nas aquisições pelo Distrito Federal:
+a) será reduzida a zero a alíquota da CBS;
+b) será a alíquota distrital do IBS fixada em montante equivalente à soma das alíquotas do IBS e da
+CBS incidentes sobre a operação, após a redução de que trata o art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 439 (parte 2)",
+    titulo: "442.\n§ 2º Não se aplica o disposto no caput deste artigo e no § 1º às aquisições que, cumulativamente",
+    conteudo: `442.
+§ 2º Não se aplica o disposto no caput deste artigo e no § 1º às aquisições que, cumulativamente:
+I - sejam efetuadas de forma presencial; e
+II - sejam dispensadas de licitação, nos termos da legislação específica.
+§ 3º Nas aquisições realizadas por consórcio público com personalidade jurídica de direito público:
+I - as alíquotas serão fixadas na forma do § 1º, equiparando-se a aquisição à realizada pelo Município
+da sede do consórcio público;
+II - o produto da arrecadação do IBS e da CBS será integralmente destinado aos entes federativos
+integrantes do consórcio público, na proporção de sua participação no financiamento da aquisição realizada;
+e
+III - o documento fiscal será emitido em nome do consórcio público.
+§ 4º Observados os critérios estabelecidos em ato conjunto da RFB e do CGIBS, para fins do disposto
+no inciso II do § 3º, o consórcio público deverá informar ao CGIBS e, quando cabível, à RFB, a proporção da
+participação de cada ente federativo no financiamento da aquisição realizada.
+§ 5º Para fins do disposto neste Título, aplica-se ao CGIBS o tratamento disposto aos consórcios
+públicos.
+§ 6º Nas aquisições de bens e serviços de que trata este artigo, considera-se ocorrido o fato gerador
+no momento em que se realiza o pagamento. (Art. 10, § 2º, da LC 214/2025)`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador, reducao",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 440",
+    titulo: "Aplica-se o disposto no art. 439 às importações efetuadas pela administração pública direta,\npor autarquias e por fundações públicas, assegurada a igualdade de tratamento em relação às aquisições n...",
+    conteudo: `Art. 440. Aplica-se o disposto no art. 439 às importações efetuadas pela administração pública direta,
+por autarquias e por fundações públicas, assegurada a igualdade de tratamento em relação às aquisições no
+País. (Art. 473, § 3º, da LC 214/2025)
+Parágrafo único. As importações referidas no caput deste artigo incluem tanto as efetuadas
+diretamente quanto as efetuadas por conta e ordem da administração pública direta, das autarquias e das
+fundações públicas.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 441",
+    titulo: "O regime de destinação integral do produto da arrecadação do IBS e da CBS ao ente\nfederativo contratante de que tratam os arts",
+    conteudo: `Art. 441. O regime de destinação integral do produto da arrecadação do IBS e da CBS ao ente
+federativo contratante de que tratam os arts. 439 e 440 não se aplica em relação aos fatos geradores ocorridos
+de 1º de janeiro a 31 de dezembro de 2026. (Art. 372 da LC 214/2025)
+§ 1º Não se aplica o regime da destinação integral do produto da arrecadação da CBS nas aquisições
+efetuadas pela administração pública direta de Estados e Municípios, bem como por suas autarquias e
+fundações públicas, em relação aos fatos geradores ocorridos de 1º de janeiro de 2027 a 31 de dezembro de
+2028.
+§ 2º Em relação às aquisições efetuadas pela administração pública direta de Estados e Municípios,
+bem como por suas autarquias e fundações públicas, nos fatos geradores ocorridos nos períodos a seguir
+indicados, a aplicação do regime de que trata o caput deste artigo ocorrerá nas seguintes proporções da CBS:
+I - de 1º de janeiro a 31 de dezembro de 2029, 10% (dez por cento);
+II - de 1º de janeiro a 31 de dezembro de 2030, 20% (vinte por cento);
+III - de 1º de janeiro a 31 de dezembro de 2031, 30% (trinta por cento); e
+
+143
+
+IV - de 1º de janeiro a 31 de dezembro de 2032, 40% (quarenta por cento).`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 442",
+    titulo: "A partir de 1º de janeiro de 2027, nas aquisições de bens e serviços por pessoa jurídica de\ndireito público interno, as alíquotas do IBS serão reduzidas na proporção do redutor de que trata o art",
+    conteudo: `Art. 442. A partir de 1º de janeiro de 2027, nas aquisições de bens e serviços por pessoa jurídica de
+direito público interno, as alíquotas do IBS serão reduzidas na proporção do redutor de que trata o art. 443.
+(Art. 472 da LC 214/2025)
+§ 1º Não se aplica o disposto neste artigo nas seguintes hipóteses:
+I - aquisições que, cumulativamente, sejam efetuadas de forma presencial e sejam dispensadas de
+licitação, nos termos da legislação específica;
+II - aquisições sujeitas às alíquotas nacionalmente uniformes de que tratam os arts. 308, 336, 345, 346,
+353, o inciso III do art. 424, o inciso III do art. 425, o art. 461, o § 1º do art. 462, o § 2º do art. 463, os arts.
+473, 474 e 479; ou
+III - aquisições sujeitas aos regimes do Simples Nacional ou do MEI.
+§ 2º Para fins da formação de preços nos editais de licitação, nas aquisições de bens e serviços, deverá
+ser considerada a aplicação do redutor de que trata o caput deste artigo.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 443",
+    titulo: "Resolução do Senado Federal fixará o redutor a ser aplicado, em cada ano subsequente ao\nde sua fixação, sobre as alíquotas do IBS e da CBS nas operações contratadas pela administração pública\ndiret...",
+    conteudo: `Art. 443. Resolução do Senado Federal fixará o redutor a ser aplicado, em cada ano subsequente ao
+de sua fixação, sobre as alíquotas do IBS e da CBS nas operações contratadas pela administração pública
+direta, por autarquias e por fundações públicas, inclusive suas importações, calculado na forma do art. 610.
+TÍTULO IX - DA CONSULTA SOBRE A APLICAÇÃO DA LEGISLAÇÃO COMUM AO IBS E À CBS`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 444",
+    titulo: "É assegurado ao sujeito passivo de obrigação tributária o direito de formular consulta escrita\nsobre a aplicação da legislação tributária do IBS e da CBS, em relação a fato determinado de seu inter...",
+    conteudo: `Art. 444. É assegurado ao sujeito passivo de obrigação tributária o direito de formular consulta escrita
+sobre a aplicação da legislação tributária do IBS e da CBS, em relação a fato determinado de seu interesse,
+que deverá ser completa e exatamente descrito na petição. (Art. 323-A da LC 214/2025)
+§ 1º Da consulta constará:
+I - a qualificação do consulente;
+II - a matéria de direito objeto da dúvida;
+III - a data do fato gerador da obrigação principal ou acessória, se já ocorrido;
+IV - a declaração de existência ou não de início de procedimento fiscal em relação ao consulente.
+§ 2º Cada consulta deverá referir-se a uma só matéria, admitindo-se a cumulação apenas quando se
+tratar de questões conexas.`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 445",
+    titulo: "Observado o disposto neste artigo, a solução de consulta relativa à interpretação e à aplicação\nda legislação será emitida",
+    conteudo: `Art. 445. Observado o disposto neste artigo, a solução de consulta relativa à interpretação e à aplicação
+da legislação será emitida: (Art. 323-B da LC 214/2025)
+I - em relação ao IBS, pela Diretoria de Tributação do CGIBS;
+II - em relação à CBS, pela RFB, nos termos de seu regimento interno.
+§ 1º Elaborada a proposta de solução de consulta, o órgão consultado disponibilizará em ambiente
+virtual compartilhado a minuta para ser avaliada pelo outro órgão, o qual poderá, no prazo de 30 (trinta) dias
+contado da disponibilização, prorrogável, justificadamente, uma única vez, por igual período:
+I - acolher a minuta e emitir a solução de consulta em conjunto;
+II - encaminhar a proposta para deliberação do Comitê de Harmonização das Administrações
+Tributárias, em caso de divergência; ou
+III - manifestar-se pela inexistência de matéria comum ao IBS e à CBS.
+§ 2º O encaminhamento da proposta de solução para deliberação do Comitê de Harmonização das
+Administrações Tributárias suspenderá a tramitação do procedimento de consulta perante o órgão consultado
+até que seja editada resolução nos termos do § 1º do art. 456. (Art. 321, § 1º, da LC 214/2025)
+§ 3º Transcorrido o prazo de que trata o § 1º sem manifestação do outro órgão, considerar-se-á
+tacitamente aceita a minuta compartilhada e será publicada solução de consulta mediante ato conjunto da
+RFB e do CGIBS, com a informação de aceitação tácita por um dos órgãos.
+§ 4º Ato conjunto da RFB e do CGIBS disciplinará os procedimentos a serem adotados para o
+cumprimento do disposto no § 3º
+§ 5º Em relação às matérias específicas do IBS e da CBS, não se aplica o rito de que tratam os §§ 1º
+a 4º
+
+144`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 445 (parte 2)",
+    titulo: "A consulta produz os seguintes efeitos",
+    conteudo: `Art. 446. A consulta produz os seguintes efeitos: (Art. 323-C da LC 214/2025)
+I - nenhum procedimento fiscal será promovido, em relação à espécie consultada, no período entre a
+protocolização do requerimento de consulta e a ciência da resposta, desde que a referida protocolização
+tenha ocorrido até o vencimento da obrigação a que se refira;
+II - vincula as administrações tributárias e o sujeito passivo consulente, nos limites do fato determinado
+objeto da análise, não alcançando terceiros.
+Parágrafo único. O tributo devido conforme resposta à consulta será pago sem imposição de juros de
+mora e de penalidade, desde que:
+I - seja efetuado o recolhimento dentro do prazo de 15 (quinze) dias contado da data em que o
+consulente tiver ciência da resposta; e
+II - a protocolização da petição de consulta tenha ocorrido até o vencimento da obrigação a que se
+refira.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 447",
+    titulo: "A consulta não suspende o prazo para recolhimento do tributo, antes ou depois de sua\napresentação, nem o prazo para o cumprimento de obrigações acessórias a que esteja sujeito o consulente",
+    conteudo: `Art. 447. A consulta não suspende o prazo para recolhimento do tributo, antes ou depois de sua
+apresentação, nem o prazo para o cumprimento de obrigações acessórias a que esteja sujeito o consulente.
+(Art. 323-D da LC 214/2025)
+Parágrafo único. Não produzirão os efeitos previstos no art. 446 as consultas: (Art. 323-C da LC
+214/2025)
+I - que contenham dados inexatos ou inverídicos;
+II - que não descrevam exata e completamente o fato que lhes deu origem;
+III - que sejam meramente protelatórias, assim entendidas as que versem sobre disposições claramente
+expressas na legislação tributária ou sobre questão de direito já resolvida por decisão definitiva administrativa
+ou judicial;
+IV - que deixem de observar exigência formal que não seja suprida no prazo estabelecido pela
+autoridade tributária;
+V - que versem sobre arguição de inconstitucionalidade ou sobre negativa de aplicação da legislação
+tributária;
+VI - formuladas após o início de procedimento fiscal em relação à matéria consultada.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 448",
+    titulo: "O tributo objeto da matéria consultada não será lançado em relação ao sujeito passivo que\nagir em estrita consonância com a solução de consulta, de que tenha sido intimado, enquanto não revogada,\nt...",
+    conteudo: `Art. 448. O tributo objeto da matéria consultada não será lançado em relação ao sujeito passivo que
+agir em estrita consonância com a solução de consulta, de que tenha sido intimado, enquanto não revogada,
+total ou parcialmente. (Art. 323-E da LC 214/2025)
+§ 1º A reforma de orientação não obriga ao pagamento do tributo considerado devido cujo fato gerador
+tenha ocorrido entre a data da intimação da solução reformada e a da nova orientação.
+§ 2º Na pendência de resposta à consulta formulada, o sujeito passivo é também considerado intimado
+da solução de consulta com a publicação de qualquer ato normativo que verse sobre a mesma matéria.
+§ 3º A superveniência de norma de legislação tributária faz cessar os efeitos da resposta à consulta
+naquilo que aquela conflitar com esta, independentemente de comunicação ao consulente.`,
+    topicos: "CBS, IBS, Reforma Tributária, fato_gerador",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 449",
+    titulo: "Não cabe recurso nem pedido de reconsideração da solução de consulta ou do despacho que\ndeclarar sua ineficácia",
+    conteudo: `Art. 449. Não cabe recurso nem pedido de reconsideração da solução de consulta ou do despacho que
+declarar sua ineficácia. (Art. 323-F da LC 214/2025)
+Parágrafo único. A solução de consulta será definitiva e deverá ser proferida no prazo definido em ato
+conjunto da RFB e do CGIBS, contado da data da sua protocolização.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 450",
+    titulo: "Os procedimentos de consulta sobre a aplicação da legislação específica do IBS serão\ndisciplinados no Livro II",
+    conteudo: `Art. 450. Os procedimentos de consulta sobre a aplicação da legislação específica do IBS serão
+disciplinados no Livro II.
+TÍTULO X - DA HARMONIZAÇÃO DO IBS E DA CBS
+CAPÍTULO I - DISPOSIÇÕES GERAIS`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 451",
+    titulo: "O CGIBS, a RFB e a Procuradoria-Geral da Fazenda Nacional atuarão com vistas a\nharmonizar normas, interpretações, obrigações acessórias e procedimentos relativos ao IBS e à CBS",
+    conteudo: `Art. 451. O CGIBS, a RFB e a Procuradoria-Geral da Fazenda Nacional atuarão com vistas a
+harmonizar normas, interpretações, obrigações acessórias e procedimentos relativos ao IBS e à CBS. (Art.
+318 da LC 214/2025)
+
+145
+
+Parágrafo único. Para fins do disposto no caput deste artigo, os referidos órgãos poderão celebrar
+convênios para fins de prestação de assistência mútua e compartilhamento de informações relativas aos
+respectivos tributos.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 452",
+    titulo: "A harmonização do IBS e da CBS será garantida pelas instâncias a seguir especificadas",
+    conteudo: `Art. 452. A harmonização do IBS e da CBS será garantida pelas instâncias a seguir especificadas: (Art.
+319 da LC 214/2025)
+I - Comitê de Harmonização das Administrações Tributárias; e
+II - Fórum de Harmonização Jurídica das Procuradorias.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 453",
+    titulo: "Os órgãos colegiados de que trata o art",
+    conteudo: `Art. 453. Os órgãos colegiados de que trata o art. 452: (Art. 320 da LC 214/2025)
+I - realizarão reuniões periódicas, observado o quórum de participação mínimo de 3/4 (três quartos)
+dos representantes;
+II - decidirão, na forma de seu regimento, por unanimidade dos presentes;
+III - terão seus membros designados pelo Ministro de Estado da Fazenda, quanto aos representantes
+da União, e pelo Presidente do CGIBS, quanto aos representantes dos Estados, Distrito Federal e Municípios;
+e
+IV - elaborarão os seus regimentos internos mediante resolução.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 454",
+    titulo: "Os regimentos internos dos órgãos colegiados de que trata o art",
+    conteudo: `Art. 454. Os regimentos internos dos órgãos colegiados de que trata o art. 452 serão aprovados por
+unanimidade pelos representantes e assinados pelos respectivos Presidentes.
+CAPÍTULO II - DO COMITÊ DE HARMONIZAÇÃO DAS ADMINISTRAÇÕES TRIBUTÁRIAS`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 455",
+    titulo: "O Comitê de Harmonização das Administrações Tributárias será composto de",
+    conteudo: `Art. 455. O Comitê de Harmonização das Administrações Tributárias será composto de: (Art. 319, I, da
+LC 214/2025)
+I - 4 (quatro) representantes da RFB; e
+II - 4 (quatro) representantes do CGIBS, sendo 2 (dois) dos Estados ou do Distrito Federal e 2 (dois)
+dos Municípios ou do Distrito Federal.
+Parágrafo único. Na forma de seu regimento interno, o Comitê será presidido e coordenado
+alternadamente por representante da RFB e por representante do CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 456",
+    titulo: "Compete ao Comitê de Harmonização das Administrações Tributárias",
+    conteudo: `Art. 456. Compete ao Comitê de Harmonização das Administrações Tributárias: (Art. 321 da LC
+214/2025)
+I - uniformizar a regulamentação e a interpretação da legislação relativa ao IBS e à CBS em relação às
+matérias comuns;
+II - prevenir litígios relativos às normas comuns aplicáveis ao IBS e à CBS;
+III - deliberar sobre obrigações acessórias e procedimentos comuns relativos ao IBS e à CBS; e
+IV - decidir, mediante provocação do consulente ou das administrações tributárias da União, dos
+Estados, do Distrito Federal ou dos Municípios, sobre matéria comum eventualmente constatada em solução
+de consulta qualificada como matéria específica do IBS ou da CBS.
+§ 1º As resoluções aprovadas pelo Comitê de Harmonização das Administrações Tributárias, a partir
+de sua publicação no Diário Oficial da União, vincularão as administrações tributárias da União, dos Estados,
+do Distrito Federal e dos Municípios.
+§ 2º Sem prejuízo do disposto no § 4º, a harmonização da interpretação da legislação do IBS e da CBS
+poderá ser requerida:
+I - pelo Presidente do CGIBS;
+II - pelo Ministro de Estado da Fazenda; e
+III - por qualquer das entidades representativas de categorias econômicas responsáveis pela indicação
+dos representantes dos contribuintes nos órgãos de julgamento administrativo do IBS e da CBS.
+§ 3º O requerimento de harmonização da interpretação da legislação do IBS e da CBS, nos termos do
+§ 2º, será decidido em até 90 (noventa) dias úteis contados da data de apresentação do requerimento.
+§ 4º Os membros titulares do Comitê poderão suscitar discussão sobre matérias de competência do
+órgão, nos termos de seu regimento interno.
+
+146
+
+§ 5º No exercício das competências previstas no caput deste artigo, as decisões do Comitê de
+Harmonização das Administrações Tributárias devem ser fundamentadas. (Art. 321, § 4º, da LC 214/2025)
+CAPÍTULO III - DO FÓRUM DE HARMONIZAÇÃO JURÍDICA DAS PROCURADORIAS`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 457",
+    titulo: "O Fórum de Harmonização Jurídica das Procuradorias será composto de",
+    conteudo: `Art. 457. O Fórum de Harmonização Jurídica das Procuradorias será composto de: (Art. 319, II, da LC
+214/2025)
+I - 4 (quatro) representantes da Procuradoria-Geral da Fazenda Nacional, indicados pela União; e
+II - 4 (quatro) representantes das Procuradorias, indicados pelo Comitê Gestor do IBS, sendo 2 (dois)
+Procuradores de Estado ou do Distrito Federal e 2 (dois) Procuradores de Município ou do Distrito Federal.
+Parágrafo único. Na forma de seu regimento interno, o Fórum será presidido e coordenado
+alternadamente por representante da PGFN e por representante dos procuradores indicados pelo CGIBS.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 458",
+    titulo: "Compete ao Fórum de Harmonização Jurídica das Procuradorias",
+    conteudo: `Art. 458. Compete ao Fórum de Harmonização Jurídica das Procuradorias: (Art. 322 da LC 214/2025)
+I - atuar como órgão consultivo do Comitê de Harmonização das Administrações Tributárias nas
+atividades de uniformização e interpretação das normas comuns relativas ao IBS e à CBS; e
+II - analisar controvérsias jurídicas relativas ao IBS e à CBS suscitadas nos termos do § 1º
+§ 1º O Fórum de Harmonização Jurídica das Procuradorias examinará as questões relacionadas às
+controvérsias jurídicas relativas ao IBS e à CBS suscitadas pelas seguintes autoridades:
+I - o Presidente do CGIBS; e
+II - o Ministro de Estado da Fazenda.
+§ 2º As resoluções aprovadas pelo Fórum de Harmonização Jurídica das Procuradorias, a partir de sua
+publicação no Diário Oficial da União, vincularão a Procuradoria-Geral da Fazenda Nacional e as
+Procuradorias dos Estados, do Distrito Federal e dos Municípios.
+CAPÍTULO IV - DO ATO CONJUNTO DO COMITÊ DE HARMONIZAÇÃO DAS ADMINISTRAÇÕES
+TRIBUTÁRIAS E DO FÓRUM DE HARMONIZAÇÃO JURÍDICA DAS PROCURADORIAS`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 459",
+    titulo: "Ato conjunto do Comitê de Harmonização das Administrações Tributárias e do Fórum de\nHarmonização Jurídica das Procuradorias deverá ser observado, a partir de sua publicação no Diário Oficial\nda Uni...",
+    conteudo: `Art. 459. Ato conjunto do Comitê de Harmonização das Administrações Tributárias e do Fórum de
+Harmonização Jurídica das Procuradorias deverá ser observado, a partir de sua publicação no Diário Oficial
+da União, nos atos administrativos, normativos e decisórios praticados pelas administrações tributárias da
+União, dos Estados, do Distrito Federal e dos Municípios e nos atos da Procuradoria-Geral da Fazenda
+Nacional e das Procuradorias dos Estados, do Distrito Federal e dos Municípios. (Art. 323 da LC 214/2025)
+Parágrafo único. Compete ao Comitê de Harmonização das Administrações Tributárias e ao Fórum
+de Harmonização Jurídica das Procuradorias, no âmbito das suas respectivas competências, propor o ato
+conjunto de que trata o caput deste artigo.
+TÍTULO XI - DA ASSOCIAÇÃO PÚBLICA`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 460",
+    titulo: "É instituída associação pública especial, integrada pela União - representada pela RFB - e\npelo CGIBS, com sede e foro no Distrito Federal, com o objetivo de desenvolver, implementar, gerir e\nopera...",
+    conteudo: `Art. 460. É instituída associação pública especial, integrada pela União - representada pela RFB - e
+pelo CGIBS, com sede e foro no Distrito Federal, com o objetivo de desenvolver, implementar, gerir e
+operacionalizar, de forma compartilhada, módulos, sistemas e componentes relativos à administração do IBS
+e da CBS. (Art. 493-A da LC 214/2025)
+§ 1º A associação de que trata o caput deste artigo qualifica-se como entidade pública de natureza
+especial e submete-se ao regime jurídico de direito público.
+§ 2º A associação tem sua atuação caracterizada pela ausência de vinculação, tutela ou subordinação
+hierárquica a qualquer órgão da administração pública.
+§ 3º A associação tem personalidade jurídica própria, distinta da União, do CGIBS, dos Estados, do
+Distrito Federal e dos Municípios, assegurada autonomia administrativa, patrimonial, técnica e financeira, nos
+limites estabelecidos neste artigo, nos termos de ato conjunto da RFB e do CGIBS.
+§ 4º Ato conjunto da RFB e do CGIBS disporá sobre o regimento interno da associação, especialmente
+sobre:
+I - a delimitação dos objetivos, das competências e das finalidades;
+
+147
+
+II - as regras de estrutura, governança, gestão e funcionamento, assegurando governança
+compartilhada de forma igualitária entre os associados, bem como transparência, eficiência administrativa e
+responsabilidade na gestão;
+III - os mecanismos de controle interno e as normas sobre prestação de contas aos associados; e
+IV - disposições sobre patrimônio, receitas e despesas.
+§ 5º As normas de governança da associação, definidas em ato conjunto da RFB e do CGIBS,
+assegurarão:
+I - a participação paritária dos associados nos órgãos deliberativos;
+II - o princípio da governança compartilhada, com deliberações colegiadas; e
+III - a observância dos princípios da legalidade, impessoalidade, moralidade, publicidade, eficiência,
+economicidade e transparência.
+§ 6º As licitações e as contratações realizadas pela associação serão regidas pelas normas gerais de
+licit`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 460 (parte 2)",
+    titulo: "ação e contratação aplicáveis às administrações públicas diretas, autárquicas e fundacionais da União,\ndos Estados, do Distrito Federal e dos Municípios",
+    conteudo: `ação e contratação aplicáveis às administrações públicas diretas, autárquicas e fundacionais da União,
+dos Estados, do Distrito Federal e dos Municípios.
+§ 7º A associação poderá ser contratada pelas partes associadas, dispensada a licitação.
+§ 8º A associação poderá firmar convênios, acordos de cooperação e outros ajustes com órgãos e
+entidades da administração pública, direta e indireta, bem como com organismos internacionais, observados
+os limites legais e regulamentares.
+§ 9º As dotações necessárias para custear as despesas da associação serão consignadas na proposta
+orçamentária da União e do CGIBS, na forma estabelecida em ato conjunto específico da RFB e do CGIBS.
+§ 10. A União e o CGIBS respondem subsidiariamente pelas obrigações da associação.
+§ 11. A associação está sujeita à fiscalização contábil, operacional e patrimonial pelo Tribunal de Contas
+competente para apreciar as contas do seu representante legal.
+§ 12. Compete ao Tribunal de Contas da União fiscalizar a aplicação dos recursos repassados pela
+União à associação.
+§ 13. A União, os Estados, o Distrito Federal e os Municípios poderão ceder servidores à associação,
+na forma e nas condições da legislação de cada ente federativo.
+§ 14. A associação reger-se-á por este artigo, pelas normas complementares aprovadas em ato
+conjunto da RFB e do CGIBS e, de forma subsidiária, naquilo que não for incompatível com a sua natureza
+especial, pela Lei nº 11.107, de 6 de abril de 2005, e seu regulamento.
+§ 15. O disposto neste artigo não prejudica a celebração de acordos de cooperação técnica entre a
+RFB e o CGIBS para a cessão não onerosa de módulos, sistemas e soluções tecnológicas desenvolvidos por
+qualquer das partes.
+TÍTULO XII - DO PERÍODO DE TRANSIÇÃO DAS OPERAÇÕES COM BENS IMÓVEIS
+CAPÍTULO I - DA INCORPORAÇÃO`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 461",
+    titulo: "O contribuinte que realizar incorporação imobiliária submetida ao patrimônio de afetação, nos\ntermos dos arts",
+    conteudo: `Art. 461. O contribuinte que realizar incorporação imobiliária submetida ao patrimônio de afetação, nos
+termos dos arts. 31-A a 31-E da Lei nº 4.591, de 16 de dezembro de 1964, que tenha realizado o pedido de
+opção pelo regime específico instituído pelo art. 1º e tenha o pedido efetivado nos termos do art. 2º, ambos
+da Lei nº 10.931, de 2 de agosto de 2004, antes de 1º de janeiro de 2029, pode optar, de forma irretratável,
+pelo recolhimento de IBS e de CBS, da seguinte forma: (Art. 485 da LC 214/2025)
+I - a incorporação imobiliária submetida ao regime especial de tributação previsto nos arts. 4º e 8º da
+Lei nº 10.931, de 2 de agosto de 2004, ficará sujeita ao pagamento de IBS e de CBS em montante equivalente
+a 2,08% (dois inteiros e oito centésimos por cento) da receita mensal recebida; e
+II - a incorporação imobiliária submetida ao regime especial de tributação prevista no §§ 6º e 8º do art.
+4º e no parágrafo único do art. 8º, todos da Lei nº 10.931, de 2 de agosto de 2004, ficará sujeita ao pagamento
+de IBS e de CBS em montante equivalente a 0,53% (cinquenta e três centésimos por cento) da receita mensal
+recebida.
+§ 1º A opção pelo regime especial disposto no caput deste artigo afasta qualquer outra forma de
+incidência de IBS sobre a respectiva incorporação, ficando sujeita à incidência desse tributo exclusivamente
+na forma disposta neste artigo.
+
+148
+
+§ 2º Fica vedada a apropriação de créditos do IBS pelo contribuinte submetido ao regime especial de
+que trata o caput deste artigo em relação às aquisições destinadas à incorporação imobiliária submetida ao
+patrimônio de afetação.
+§ 3º A opção pelo regime especial disposto no caput deste artigo impede a dedução dos redutores de
+ajuste previstos no art. 369 e do redutor social previsto no art.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 461 (parte 2)",
+    titulo: "376 na alienação de imóveis decorrente da\nincorporação imobiliária",
+    conteudo: `376 na alienação de imóveis decorrente da
+incorporação imobiliária.
+§ 4º O contribuinte sujeito ao regime regular do IBS que adquirir imóvel decorrente de incorporação
+imobiliária submetida ao regime específico de que trata o caput deste artigo não poderá apropriar créditos de
+IBS relativos à aquisição do bem imóvel.
+§ 5º No caso de aquisição por contribuinte sujeito ao regime regular do IBS, as operações tributadas
+pelo regime opcional de que trata o caput deste artigo constituirão redutor de ajuste equivalente ao que seria
+constituído caso o imóvel fosse adquirido de não contribuinte do regime regular do IBS, nos termos do inciso
+III do caput do art. 375.
+§ 6º Os créditos de IBS decorrentes dos custos e despesas indiretos pagos pela incorporadora e
+apropriados a cada incorporação na forma prevista no § 4º do art. 4º da Lei nº 10.931, de 2 de agosto de
+2004, deverão ser estornados pela incorporadora.
+§ 7º Os custos e despesas indiretos pagos pelo contribuinte no mês serão apropriados a cada
+incorporação na mesma proporção representada pelos custos diretos próprios da incorporação, em relação
+ao custo direto total da incorporadora, assim entendido como a soma de todos os custos diretos de todas as
+atividades exercidas pelo contribuinte.
+§ 8º O contribuinte fica obrigado a manter escrituração contábil segregada para cada incorporação
+submetida ao regime especial de tributação previsto neste artigo.
+§ 9º A inobservância do disposto no § 6º implicará obrigação de estorno de todos os créditos referentes
+aos custos e despesas indiretos do contribuinte, bem como de todos os custos e despesas diretos para os
+quais não se possa identificar a incorporação à qual se referem.
+§ 10. No caso da opção de que trata este artigo, aplica-se a Lei nº 10.931, de 2 de agosto de 2004,
+naquilo que não for contrário ao disposto neste artigo.
+§ 11.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 461 (parte 3)",
+    titulo: "O montante pago nos termos dos incisos I e II do caput deste artigo será distribuído entre a CBS\ne as parcelas estadual, distrital e municipal do IBS na proporção das respectivas alíquotas de refer...",
+    conteudo: `O montante pago nos termos dos incisos I e II do caput deste artigo será distribuído entre a CBS
+e as parcelas estadual, distrital e municipal do IBS na proporção das respectivas alíquotas de referência.
+CAPÍTULO II - DO PARCELAMENTO DO SOLO`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, credito, regime_especifico",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 462",
+    titulo: "O contribuinte que realizar alienação de imóvel decorrente de parcelamento do solo, que\ntenha o pedido de registro do parcelamento, nos termos da Lei nº 6",
+    conteudo: `Art. 462. O contribuinte que realizar alienação de imóvel decorrente de parcelamento do solo, que
+tenha o pedido de registro do parcelamento, nos termos da Lei nº 6.766, de 19 de dezembro de 1979,
+efetivado antes de 1º de janeiro de 2029, pode optar, de forma irretratável, pelo recolhimento de IBS e de
+CBS com base na receita bruta recebida. (Art. 486 da LC 214/2025)
+§ 1º As operações sujeitas ao regime de que trata este artigo estarão sujeitas ao pagamento de IBS e
+de CBS em montante equivalente a 3,65% (três inteiros e sessenta e cinco centésimos por cento) da receita
+bruta recebida.
+§ 2º A opção pelo recolhimento disposta no caput deste artigo afasta qualquer outra forma de incidência
+de IBS sobre o respectivo parcelamento do solo, ficando sujeita à incidência tributária desse tributo
+exclusivamente na forma disposta no caput deste artigo.
+§ 3º Fica vedada a apropriação de créditos de IBS pelo contribuinte que realizar a opção de que trata
+o caput deste artigo.
+§ 4º A opção pelo recolhimento disposta no caput deste artigo impede a dedução dos redutores de
+ajuste previstos no art. 369 e do redutor social previsto no art. 376 na alienação decorrente de parcelamento
+do solo.
+§ 5º O contribuinte sujeito ao regime regular do IBS que adquirir imóvel decorrente de parcelamento do
+solo submetido ao regime de tributação de que trata o caput deste artigo não poderá apropriar crédito de IBS
+relativo à aquisição do bem imóvel.
+§ 6º No caso de aquisição por contribuinte sujeito ao regime regular do IBS, as operações tributadas
+pelo regime opcional de que trata o caput deste artigo constituirão redutor de ajuste equivalente ao que seria
+constituído caso o imóvel fosse adquirido de não contribuinte do regime regular do IBS, nos termos do inciso
+III do caput do art. 375.
+
+149`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 462 (parte 2)",
+    titulo: "§ 7º Considera-se receita bruta a totalidade das receitas auferidas na venda das unidades imobiliárias\nque compõem o parcelamento do solo, bem como as receitas financeiras e variações monetárias de...",
+    conteudo: `§ 7º Considera-se receita bruta a totalidade das receitas auferidas na venda das unidades imobiliárias
+que compõem o parcelamento do solo, bem como as receitas financeiras e variações monetárias decorrentes
+desta operação.
+§ 8º O pagamento de IBS na forma do disposto no caput deste artigo será considerado definitivo, não
+gerando, em qualquer hipótese, direito à restituição ou à compensação, exceto em caso de distrato da
+operação.
+§ 9º As receitas, custos e despesas próprios do parcelamento de solo sujeito à tributação na forma
+deste artigo não deverão ser computados na apuração da base de cálculo do IBS devido pelo contribuinte em
+virtude de suas outras atividades empresariais.
+§ 10. Para fins do disposto no § 7º, os custos e despesas indiretos pagos pelo contribuinte no mês
+serão apropriados a cada parcelamento de solo, na mesma proporção representada pelos custos diretos
+próprios das operações decorrentes do parcelamento de solo, em relação ao custo direto total do contribuinte,
+assim entendido como a soma de todos os custos diretos de todas as atividades exercidas pelo contribuinte.
+§ 11. Os créditos de IBS decorrentes dos custos e despesas indiretos pagos pelo contribuinte e
+apropriados a cada parcelamento do solo na forma prevista no § 10 deverão ser estornados pelo contribuinte.
+§ 12. O contribuinte fica obrigado a manter escrituração contábil segregada para cada parcelamento
+de solo submetido ao regime de tributação previsto neste artigo.
+§ 13. A inobservância do disposto no § 12 implicará obrigação de estorno de todos os créditos referentes
+aos custos e despesas indiretos do contribuinte, bem como de todos os custos e despesas diretos para os
+quais não se possa identificar o parcelamento do solo ao qual se referem.
+§ 14.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 462 (parte 3)",
+    titulo: "O montante pago nos termos do § 1º será distribuído entre a CBS e as parcelas estadual, distrital\ne municipal do IBS na proporção das respectivas alíquotas de referência",
+    conteudo: `O montante pago nos termos do § 1º será distribuído entre a CBS e as parcelas estadual, distrital
+e municipal do IBS na proporção das respectivas alíquotas de referência.
+CAPÍTULO III - DA LOCAÇÃO, DA CESSÃO ONEROSA E DO ARRENDAMENTO DO BEM IMÓVEL`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 463",
+    titulo: "O contribuinte que realizar locação, cessão onerosa ou arrendamento de bem imóvel\ndecorrente de contratos firmados por prazo determinado poderá optar, de forma irretratável, pelo recolhimento\nde IB...",
+    conteudo: `Art. 463. O contribuinte que realizar locação, cessão onerosa ou arrendamento de bem imóvel
+decorrente de contratos firmados por prazo determinado poderá optar, de forma irretratável, pelo recolhimento
+de IBS com base na receita bruta recebida. (Art. 487 da LC 214/2025)
+§ 1º A opção prevista no caput deste artigo será aplicada exclusivamente:
+I - para contrato com finalidade não residencial, pelo prazo original do contrato, desde que este:
+a) seja firmado até 16 de janeiro de 2025, sendo a data comprovada por firma reconhecida ou por meio
+de assinatura eletrônica; e
+b) seja registrado em Cartório de Registro de Imóveis ou em Registro de Títulos e Documentos, até 31
+de dezembro de 2025, ou disponibilizado para a RFB e para o CGIBS, nos seguintes termos:
+1. a opção pelo regime de que trata este artigo será manifestada por meio da emissão do primeiro
+documento fiscal referente à locação, cessão onerosa ou arrendamento de bem imóvel com a tributação
+aplicada nos termos deste artigo;
+2. a opção a que se refere este artigo será irretratável para todo o período do contrato;
+3. o contribuinte que optar pelo regime a que se refere este artigo declara, automaticamente, estar
+ciente de todas as condições para sua fruição e se compromete com a guarda do contrato pelo prazo
+prescricional;
+4. em caso de solicitação pela autoridade tributária, o contribuinte deverá apresentar o contrato de
+locação e em caso de verificação de não atendimento dos requisitos para fruição do regime a que se refere
+este artigo, eventuais diferenças serão lançadas por meio de lançamento de ofício;
+II - para contrato com finalidade residencial, pelo prazo original do contrato ou até 31 de dezembro de
+2028, o que ocorrer primeiro, desde que firmado até 16 de janeiro de 2025, sendo a data comprovada por
+firma reconhecida, por meio de assinatura eletrônica ou pela comprovação de pagamento da locação até o
+último dia do mês subsequente ao do primeiro mês do contrato.
+§ 2º As operações sujeitas ao regime de q`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 463 (parte 2)",
+    titulo: "ue trata este artigo estarão sujeitas ao pagamento de IBS e\nde CBS em montante equivalente a 3,65% (três inteiros e sessenta e cinco centésimos por cento) da receita\nbruta recebida",
+    conteudo: `ue trata este artigo estarão sujeitas ao pagamento de IBS e
+de CBS em montante equivalente a 3,65% (três inteiros e sessenta e cinco centésimos por cento) da receita
+bruta recebida.
+
+150
+
+§ 3º A opção pelo recolhimento disposta no caput deste artigo afasta qualquer outra forma de incidência
+de IBS sobre a respectiva operação, ficando sujeita à incidência desse tributo exclusivamente na forma
+disposta no caput deste artigo.
+§ 4º Fica vedada a apropriação de créditos do IBS pelo contribuinte que realizar a opção de que trata
+o caput deste artigo, em relação às operações relacionadas ao bem imóvel sujeito ao regime opcional de que
+trata este artigo.
+§ 5º A opção pelo recolhimento disposta no caput deste artigo impede a utilização do redutor social
+previsto no art. 377.
+§ 6º Considera-se receita bruta a totalidade das receitas auferidas nas operações de que trata o caput
+deste artigo, bem como as receitas financeiras e variações monetárias decorrentes desta operação.
+§ 7º O pagamento de IBS na forma do disposto no caput deste artigo será considerado definitivo, não
+gerando, em qualquer hipótese, direito à restituição ou à compensação.
+§ 8º As receitas, custos e despesas próprios das operações de que trata o caput deste artigo não
+deverão ser computados na apuração da base de cálculo do IBS devida pelo contribuinte em virtude de suas
+outras atividades empresariais.
+§ 9º Os custos e despesas indiretos pagos pelo contribuinte no mês serão apropriados a cada operação,
+na mesma proporção representada pelas receitas dessas operações, em relação à receita total do
+contribuinte.
+§ 10. Os créditos de IBS decorrentes dos custos e despesas indiretos apropriados pelo contribuinte e
+alocados às operações sujeitas ao regime opcional de que trata este artigo, nos termos do § 9º, deverão ser
+estornados.
+§ 11. O contribuinte fica obrigado a manter escrituração contábil segregada com a identificação das
+operações submetidas ao regime de tributação previsto neste artigo.
+§ 12.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 463 (parte 3)",
+    titulo: "A inobservância do disposto no § 11 implicará obrigação de estorno de todos os créditos referentes\naos custos e despesas indiretos do contribuinte, bem como de todos os custos e despesas diretos pa...",
+    conteudo: `A inobservância do disposto no § 11 implicará obrigação de estorno de todos os créditos referentes
+aos custos e despesas indiretos do contribuinte, bem como de todos os custos e despesas diretos para os
+quais não se possa identificar a operação à qual se referem.
+§ 13. O montante pago nos termos do § 2º será distribuído entre a CBS e as parcelas estadual, distrital
+e municipal do IBS na proporção das respectivas alíquotas de referência.`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, base_calculo, credito",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 464",
+    titulo: "A receita total do IBS recolhida nos termos do art",
+    conteudo: `Art. 464. A receita total do IBS recolhida nos termos do art. 463 será distribuída entre as parcelas
+estadual e municipal do IBS na proporção das respectivas alíquotas de referência do momento de ocorrência
+do fato gerador. (Art. 489 da LC 214/2025)
+TÍTULO XIII - DISPOSIÇÕES FINAIS`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, fato_gerador",
+    cnaeGroups: "",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 465",
+    titulo: "Fica dispensado o recolhimento do IBS relativo aos fatos geradores ocorridos entre 1º de\njaneiro e 31 de dezembro de 2026 em relação aos sujeitos passivos que",
+    conteudo: `Art. 465. Fica dispensado o recolhimento do IBS relativo aos fatos geradores ocorridos entre 1º de
+janeiro e 31 de dezembro de 2026 em relação aos sujeitos passivos que: (Art. 348, § 1º, da LC 214/2025)
+I - cumprirem as obrigações acessórias previstas na legislação do IBS; ou
+II - forem desobrigados do cumprimento de obrigações acessórias previstas na legislação do IBS.
+§ 1º Sem prejuízo do disposto no caput deste artigo, a apuração do IBS no ano de 2026 será realizada
+em caráter meramente informativo, desde que cumpridas as obrigações acessórias previstas na legislação.
+§ 2º O disposto neste artigo não prejudica a exigência dos documentos fiscais relativos aos demais
+tributos vigentes previstos nas legislações próprias.
+§ 3º Durante o período a que se refere o caput deste artigo, caso seja lavrado auto de infração por
+descumprimento das obrigações acessórias relativas ao IBS com a cominação das penalidades previstas no
+art. 591, o sujeito passivo será intimado para, no prazo de 60 (sessenta) dias contado da intimação, suprir a
+omissão apontada pela fiscalização.
+§ 4º O atendimento à intimação a que se refere o § 3º importa extinção da penalidade imposta ao sujeito
+passivo.`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 466",
+    titulo: "O saldo a recuperar em 31 de dezembro de 2026 decorrente da apuração de que trata o art",
+    conteudo: `Art. 466. O saldo a recuperar em 31 de dezembro de 2026 decorrente da apuração de que trata o art.
+44 será desconsiderado para fins da apuração do IBS relativo a fatos geradores que ocorrerem a partir de 1º
+de janeiro de 2027, bem como não será objeto de ressarcimento.
+Parágrafo único. Eventuais saldos a recuperar registrados na apuração durante o exercício de 2026
+não serão objeto de ressarcimento.
+
+151
+
+LIVRO II - DAS NORMAS ESPECÍFICAS DO IBS
+TÍTULO I - DAS ALÍQUOTAS DO IBS
+CAPÍTULO I - DA ALÍQUOTA-PADRÃO DO IBS`,
+    topicos: "CBS, IBS, Reforma Tributária, aliquota, ressarcimento",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
   {
     lei: "resolucao_cgibs_6",
     artigo: "Art. 467",
@@ -4260,5 +16350,8018 @@ CAPÍTULO VI - OUTRAS DISPOSIÇÕES TRANSITÓRIAS`,
     topicos: "CBS, IBS, Reforma Tributária",
     cnaeGroups: "",
     chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 616",
+    titulo: "Sem prejuízo das demais regras estabelecidas neste Regulamento, durante o período de\ntransição para o IBS, observar-se-á o disposto neste artigo",
+    conteudo: `Art. 616. Sem prejuízo das demais regras estabelecidas neste Regulamento, durante o período de
+transição para o IBS, observar-se-á o disposto neste artigo. (Art. 408, § 4º, da LC 214/2025)
+§ 1º Durante o período de 2029 a 2032:
+I - caso a mesma operação configure, em anos-calendários distintos, fatos geradores do ICMS ou do
+ISS e do IBS, prevalecerá a legislação vigente no ano-calendário da primeira ocorrência em relação aos
+referidos impostos; e
+II - caso não tenha se aperfeiçoado, até 31 de dezembro de 2032, o elemento temporal da hipótese de
+incidência do ICMS ou do ISS:
+a) os referidos impostos não incidirão na operação; e
+b) será devido exclusivamente o IBS na operação.
+§ 2º Na hipótese do inciso II do § 1º, o valor remanescente do IBS devido será apurado com base na
+legislação vigente em 1º de janeiro de 2033.
+LIVRO III - DAS DISPOSIÇÕES FINAIS`,
+    topicos: "CBS, IBS, Reforma Tributária",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617",
+    titulo: "Este Regulamento entra em vigor e produz efeitos na data da sua publicação, exceto",
+    conteudo: `Art. 617. Este Regulamento entra em vigor e produz efeitos na data da sua publicação, exceto:
+I - em relação ao Capítulo I do Título II do Livro I e à exigência de emissão de documento fiscal de que
+trata o art. 112, que produzirão efeitos a partir do 1º dia do quarto mês subsequente ao de sua publicação;
+II - em relação aos arts. 245 a 250, 252 a 258, 515, 525 e 526, que produzirão efeitos a partir de 1º de
+janeiro de 2027;
+III - em relação aos arts. 517, 518, 520, 521, 522, 528, 529, 532 a 564 e 615, que produzirão efeitos a
+partir de 1º de janeiro de 2029.
+
+204
+
+ANEXO I - TAXAS ANUAIS DE DEPRECIAÇÃO (ART. 48, § 1º)
+ITEM
+
+REFERÊNCIA
+NCM
+
+1
+2
+3
+4
+5
+6
+7
+8
+
+--------------------------Capítulo 01
+101
+102
+103
+104
+105
+
+9
+10
+11
+12
+13
+14
+
+Capítulo 39
+3923
+3923.10
+3923.30
+3923.90
+3926
+
+15
+16
+17
+18
+
+3926.90
+3926.90
+Capítulo 40
+4010
+
+19
+20
+21
+22
+
+Capítulo 42
+4204
+Capítulo 44
+4415
+
+23
+
+4416
+
+24
+
+Capítulo 57
+
+25
+
+Capítulo 59
+
+26
+
+5910.00
+
+27
+28
+
+Capítulo 63
+6303
+
+29
+30
+
+6305
+6306
+
+31
+
+Capítulo 69
+
+BENS
+
+INSTALAÇÕES
+EDIFICAÇÕES
+ANIMAIS VIVOS
+ANIMAIS VIVOS DAS ESPÉCIES CAVALAR, ASININA E MUAR
+ANIMAIS VIVOS DA ESPÉCIE BOVINA
+ANIMAIS VIVOS DA ESPÉCIE SUÍNA
+ANIMAIS VIVOS DAS ESPÉCIES OVINA E CAPRINA
+GALOS, GALINHAS, PATOS, GANSOS, PERUS, PERUAS E
+GALINHAS-D'ANGOLA (PINTADAS), DAS ESPÉCIES DOMÉSTICAS,
+VIVOS
+OBRAS DE PLÁSTICOS
+ARTIGOS DE TRANSPORTE OU DE EMBALAGEM, DE PLÁSTICOS
+-Caixas, caixotes, engradados e artigos semelhantes
+-Garrafões, garrafas, frascos e artigos semelhantes
+-Outros vasilhames
+OUTRAS OBRAS DE PLÁSTICOS E OBRAS DE OUTRAS MATÉRIAS
+DAS POSIÇÕES 3901 A 3914
+Correias de transmissão e correias transportadoras
+Artigos de laboratório ou de farmácia
+OBRAS DE BORRACHA
+CORREIAS TRANSPORTADORAS OU DE TRANSMISSÃO, DE
+BORRACHA VULCANIZADA
+OBRAS DE COURO
+Correias transportadoras ou correias de transmissão
+OBRAS DE MADEIRA
+CAIXOTES, CAIXAS, ENGRADADOS, BARRICAS E EMBALAGENS
+SEMELHANTES, DE MADEIRA; CARRETÉIS PARA CABOS, DE
+MADEIRA; PALETES SIMPLES, PALETES-CAIXAS E OUTROS
+ESTRA`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 0,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 2)",
+    titulo: "DOS PARA CARGA, DE MADEIRA; TAIPAIS DE PALETES, DE\nMADEIRA\nBARRIS, CUBAS, BALSAS, DORNAS, SELHAS E OUTRAS OBRAS DE\nTANOEIRO\nTAPETES E OUTROS REVESTIMENTOS PARA PAVIMENTOS, DE\nMATÉRIAS TÊXTEIS\nTECID...",
+    conteudo: `DOS PARA CARGA, DE MADEIRA; TAIPAIS DE PALETES, DE
+MADEIRA
+BARRIS, CUBAS, BALSAS, DORNAS, SELHAS E OUTRAS OBRAS DE
+TANOEIRO
+TAPETES E OUTROS REVESTIMENTOS PARA PAVIMENTOS, DE
+MATÉRIAS TÊXTEIS
+TECIDOS IMPREGNADOS, REVESTIDOS, RECOBERTOS OU
+ESTRATIFICADOS; ARTIGOS PARA USOS TÉCNICOS DE MATÉRIAS
+TÊXTEIS
+CORREIAS TRANSPORTADORAS OU DE TRANSMISSÃO, DE
+MATÉRIAS TÊXTEIS, MESMO IMPREGNADAS, REVESTIDAS OU
+RECOBERTAS, DE PLÁSTICO, OU ESTRATIFICADAS COM
+PLÁSTICO OU REFORÇADAS COM METAL OU COM OUTRAS
+MATÉRIAS
+OUTROS ARTEFATOS TÊXTEIS CONFECCIONADOS
+CORTINADOS, CORTINAS E ESTORES; SANEFAS E ARTIGOS
+SEMELHANTES PARA CAMAS PARA USO EM HOTÉIS E
+HOSPITAIS
+SACOS DE QUAISQUER DIMENSÕES, PARA EMBALAGEM
+ENCERADOS E TOLDOS; TENDAS; VELAS PARA EMBARCAÇÕES,
+PARA PRANCHAS À VELA OU PARA CARROS À VELA; ARTIGOS
+PARA ACAMPAMENTO
+PRODUTOS CERÂMICOS
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+25
+
+10%
+4%
+
+5
+5
+5
+5
+2
+
+20%
+20%
+20%
+20%
+50%
+
+5
+5
+5
+
+20%
+20%
+20%
+
+2
+5
+
+50%
+20%
+
+2
+
+50%
+
+2
+
+50%
+
+5
+
+20%
+
+5
+
+20%
+
+5
+
+20%
+
+2
+
+50%
+
+5
+
+20%
+
+5
+4
+
+20%
+25%
+
+205
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+32
+
+6909
+
+33
+34
+
+Capítulo 70
+7010
+
+35
+36
+
+Capítulo 73
+7308
+
+37
+38
+39
+
+7308.10
+7308.20
+7309
+
+40
+
+7311
+
+41
+
+7321
+
+42
+
+7322
+
+43
+44
+45
+
+Capítulo 76
+7610
+7611
+
+46
+
+7613
+
+47
+48
+
+Capítulo 82
+8201
+
+BENS
+
+APARELHOS E ARTEFATOS PARA USOS QUÍMICOS OU PARA
+OUTROS USOS TÉCNICOS, DE CERÂMICA; ALGUIDARES,
+GAMELAS E OUTROS RECIPIENTES SEMELHANTES PARA USOS
+RURAIS, DE CERÂMICA; BILHAS E OUTRAS VASILHAS PRÓPRIAS
+PARA TRANSPORTE OU EMBALAGEM, DE CERÂMICA
+OBRAS DE VIDRO
+GARRAFÕES, GARRAFAS, FRASCOS, BOIÕES, VASOS,
+EMBALAGENS TUBULARES, AMPOLAS E OUTROS RECIPIENTES,
+DE VIDRO, PRÓPRIOS PARA TRANSPORTE OU EMBALAGEM;
+BOIÕES DE VIDRO PARA CONSERVA
+OBRAS DE FERRO FUNDIDO, FERRO OU AÇO
+CONSTRUÇÕES, DE FERRO FUNDIDO, FERRO OU AÇO, EXCETO
+AS CONSTRUÇÕES PRÉ-FABRICADAS DA POSIÇÃO 9406
+-Pontes e elementos de pontes
+-Torres e pórticos
+RESERVATÓRIOS, TONÉIS, CUBAS E RECIPIENTES SEMELHANTES
+PARA QUAISQUER MATÉRIAS (EXCETO GASES COMPRIMIDOS
+OU LIQUEFEITOS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 1,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 3)",
+    titulo: "), DE FERRO FUNDIDO, FERRO OU AÇO, DE\nCAPACIDADE SUPERIOR A 300 LITROS, SEM DISPOSITIVOS\nMECÂNICOS OU TÉRMICOS, MESMO COM REVESTIMENTO\nINTERIOR OU CALORÍFUGO\nRECIPIENTES PARA GASES COMPRIMIDOS OU L...",
+    conteudo: `), DE FERRO FUNDIDO, FERRO OU AÇO, DE
+CAPACIDADE SUPERIOR A 300 LITROS, SEM DISPOSITIVOS
+MECÂNICOS OU TÉRMICOS, MESMO COM REVESTIMENTO
+INTERIOR OU CALORÍFUGO
+RECIPIENTES PARA GASES COMPRIMIDOS OU LIQUEFEITOS, DE
+FERRO FUNDIDO, FERRO OU AÇO
+AQUECEDORES DE AMBIENTES (FOGÕES DE SALA), CALDEIRAS
+DE FORNALHA, FOGÕES DE COZINHA (INCLUÍDOS OS QUE
+POSSAM SER UTILIZADOS ACESSORIAMENTE NO
+AQUECIMENTO CENTRAL), CHURRASQUEIRAS (GRELHADORES),
+BRASEIRAS, FOGAREIROS A GÁS, AQUECEDORES DE PRATOS, E
+APARELHOS NÃO ELÉTRICOS SEMELHANTES, DE USO
+DOMÉSTICO, DE FERRO FUNDIDO, FERRO OU AÇO
+RADIADORES PARA AQUECIMENTO CENTRAL, NÃO ELÉTRICOS,
+DE FERRO FUNDIDO, FERRO OU AÇO; GERADORES E
+DISTRIBUIDORES DE AR QUENTE (INCLUÍDOS OS
+DISTRIBUIDORES QUE POSSAM TAMBÉM FUNCIONAR COMO
+DISTRIBUIDORES DE AR FRIO OU CONDICIONADO), NÃO
+ELÉTRICOS, MUNIDOS DE VENTILADOR OU FOLE COM MOTOR,
+DE FERRO FUNDIDO, FERRO OU AÇO
+OBRAS DE ALUMÍNIO
+CONSTRUÇÕES DE ALUMÍNIO
+RESERVATÓRIOS, TONÉIS, CUBAS E RECIPIENTES SEMELHANTES
+PARA QUAISQUER MATÉRIAS (EXCETO GASES COMPRIMIDOS
+OU LIQUEFEITOS), DE ALUMÍNIO, DE CAPACIDADE SUPERIOR A
+300 LITROS, SEM DISPOSITIVOS MECÂNICOS OU TÉRMICOS,
+MESMO COM REVESTIMENTO INTERIOR OU CALORÍFUGO
+RECIPIENTES PARA GASES COMPRIMIDOS OU LIQUEFEITOS, DE
+ALUMÍNIO
+FERRAMENTAS
+PÁS, ALVIÕES, PICARETAS, ENXADAS, SACHOS, FORCADOS E
+FORQUILHAS, ANCINHOS E RASPADEIRAS; MACHADOS,
+PODÕES E FERRAMENTAS SEMELHANTES COM GUME;
+TESOURAS DE PODAR DE TODOS OS TIPOS; FOICES E
+FOICINHAS, FACAS PARA FENO OU PARA PALHA, TESOURAS
+PARA SEBES, CUNHAS E OUTRAS FERRAMENTAS MANUAIS
+PARA AGRICULTURA, HORTICULTURA OU SILVICULTURA
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+5
+
+20%
+
+5
+
+20%
+
+25
+25
+10
+
+4%
+4%
+10%
+
+5
+
+20%
+
+10
+
+10%
+
+10
+
+10%
+
+25
+10
+
+4%
+10%
+
+5
+
+20%
+
+5
+
+20%
+
+206
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+49
+
+8202
+
+50
+
+8203
+
+51
+
+8203.20
+
+52
+53
+
+8203.30
+8203.40
+
+54
+
+8204
+
+55
+
+8205
+
+56
+
+8206
+
+57
+
+8207
+
+58
+59
+
+8207.30
+8210
+
+60
+61
+62
+
+8214
+Capítulo 83
+8303
+
+63
+
+8304
+
+64
+
+Capítulo 84
+
+65
+
+8401
+
+66
+
+8402
+
+67
+
+8403
+
+BENS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 2,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 4)",
+    titulo: "SERRAS MANUAIS; FOLHAS DE SERRAS DE TODOS OS TIPOS\n(INCLUÍDAS AS FRESAS-SERRAS E AS FOLHAS NÃO DENTADAS\nPARA SERRAR)\nLIMAS, GROSAS, ALICATES (MESMO CORTANTES), TENAZES,\nPINÇAS, CISALHAS PARA METAIS...",
+    conteudo: `SERRAS MANUAIS; FOLHAS DE SERRAS DE TODOS OS TIPOS
+(INCLUÍDAS AS FRESAS-SERRAS E AS FOLHAS NÃO DENTADAS
+PARA SERRAR)
+LIMAS, GROSAS, ALICATES (MESMO CORTANTES), TENAZES,
+PINÇAS, CISALHAS PARA METAIS, CORTA-TUBOS, CORTAPINOS,
+SACA-BOCADOS E FERRAMENTAS SEMELHANTES, MANUAIS
+-Alicates (mesmo cortantes), tenazes, pinças e ferramentas
+semelhantes
+-Cisalhas para metais e ferramentas semelhantes
+-Corta-tubos, corta-pinos, saca-bocados e ferramentas
+semelhantes
+CHAVES DE PORCAS, MANUAIS (INCLUÍDAS AS CHAVES
+DINAMOMÉTRICAS); CHAVES DE CAIXA INTERCAMBIÁVEIS,
+MESMO COM CABOS
+FERRAMENTAS MANUAIS (INCLUÍDOS OS CORTA-VIDROS) NÃO
+ESPECIFICADAS NEM COMPREENDIDAS EM OUTRAS POSIÇÕES,
+LAMPARINAS OU LÂMPADAS DE SOLDAR (MAÇARICOS) E
+SEMELHANTES; TORNOS DE APERTAR, SARGENTOS E
+SEMELHANTES, EXCETO OS ACESSÓRIOS OU PARTES DE
+MÁQUINAS-FERRAMENTAS; BIGORNAS; FORJASPORTÁTEIS;
+MÓS COM ARMAÇÃO, MANUAIS OU DE PEDAL
+FERRAMENTAS DE PELO MENOS DUAS DAS POSIÇÕES 8202 A
+8205
+FERRAMENTAS INTERCAMBIÁVEIS PARA FERRAMENTAS
+MANUAIS, MESMO MECÂNICAS, OU PARA
+MÁQUINASFERRAMENTAS (POR EXEMPLO: DE EMBUTIR,
+ESTAMPAR, PUNCIONAR, ROSCAR, FURAR, MANDRILAR,
+BROCHAR, FRESAR, TORNEAR, APARAFUSAR), INCLUÍDAS AS
+FIEIRAS DE ESTIRAGEM OU DE EXTRUSÃO, PARA METAIS, E AS
+FERRAMENTAS DE PERFURAÇÃO OU DE SONDAGEM
+-Ferramentas de embutir, de estampar ou de puncionar
+APARELHOS MECÂNICOS DE ACIONAMENTO MANUAL,
+PESANDO ATÉ 10kg, UTILIZADOS PARA PREPARAR,
+ACONDICIONAR OU SERVIR ALIMENTOS OU BEBIDAS
+MÁQUINAS DE TOSQUIAR
+OBRAS DIVERSAS DE METAIS COMUNS
+COFRES-FORTES, PORTAS BLINDADAS E COMPARTIMENTOS
+PARA CASAS-FORTES, COFRES E CAIXAS DE SEGURANÇA E
+ARTEFATOS SEMELHANTES, DE METAIS COMUNS
+CLASSIFICADORES, FICHÁRIOS (FICHEIROS*), CAIXAS DE
+CLASSIFICAÇÃO, PORTA-CÓPIAS, PORTA-CANETAS,
+PORTACARIMBOS E ARTEFATOS SEMELHANTES, DE
+ESCRITÓRIO, DE METAIS COMUNS, EXCLUÍDOS OS MÓVEIS DE
+ESCRITÓRIO DA POSIÇÃO 9403
+REATORES NUCLEARES, CALDEIRAS, MÁQUINAS, APARELHOS E
+INSTRUMENTOS MECÂNICOS
+REATORES NUCLEARES; ELEMENTOS COMBUSTÍVEIS
+(CARTUCHOS) NÃ`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 3,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 5)",
+    titulo: "O IRRADIADOS, PARA REATORES NUCLEARES;\nMÁQUINAS E APARELHOS PARA A SEPARAÇÃO DE ISÓTOPOS\nCALDEIRAS DE VAPOR (GERADORES DE VAPOR), EXCLUÍDAS AS\nCALDEIRAS PARA AQUECIMENTO CENTRAL CONCEBIDAS PARA\nPRO...",
+    conteudo: `O IRRADIADOS, PARA REATORES NUCLEARES;
+MÁQUINAS E APARELHOS PARA A SEPARAÇÃO DE ISÓTOPOS
+CALDEIRAS DE VAPOR (GERADORES DE VAPOR), EXCLUÍDAS AS
+CALDEIRAS PARA AQUECIMENTO CENTRAL CONCEBIDAS PARA
+PRODUÇÃO DE ÁGUA QUENTE E VAPOR DE BAIXA PRESSÃO;
+CALDEIRAS DENOMINADAS "DE ÁGUA SUPERAQUECIDA"
+CALDEIRAS PARA AQUECIMENTO CENTRAL, EXCETO AS DA
+POSIÇÃO 8402
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+5
+
+20%
+
+5
+
+20%
+
+5
+5
+
+20%
+20%
+
+5
+
+20%
+
+5
+
+20%
+
+5
+
+20%
+
+5
+10
+
+20%
+10%
+
+5
+
+20%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+207
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+68
+
+8404
+
+69
+
+8405
+
+70
+71
+
+8406
+8407
+
+72
+
+8408
+
+73
+
+8410
+
+74
+
+8411
+
+75
+76
+
+8412
+8413
+
+77
+
+8414
+
+78
+
+8415
+
+79
+
+8416
+
+80
+
+8417
+
+81
+
+8418
+
+82
+
+8419
+
+83
+
+8420
+
+BENS
+
+APARELHOS AUXILIARES PARA CALDEIRAS DAS POSIÇÕES 8402
+OU 8403 (POR EXEMPLO: ECONOMIZADORES,
+SUPERAQUECEDORES, APARELHOS DE LIMPEZA DE TUBOS OU
+DE RECUPERACAO DE GÁS); CONDENSADORES PARA
+MÁQUINAS A VAPOR
+GERADORES DE GÁS DE AR (GÁS POBRE) OU DE GÁS DE ÁGUA,
+COM OU SEM DEPURADORES; GERADORES DE ACETILENO E
+GERADORES SEMELHANTES DE GÁS, OPERADOS A ÁGUA, COM
+OU SEM DEPURADORES
+TURBINAS A VAPOR
+MOTORES DE PISTÃO, ALTERNATIVO OU ROTATIVO, DE
+IGNIÇÃO POR CENTELHA (FAÍSCA) (MOTORES DE EXPLOSÃO)
+MOTORES DE PISTÃO, DE IGNIÇÃO POR COMPRESSÃO
+(MOTORES DIESEL OU SEMI-DIESEL)
+TURBINAS HIDRÁULICAS, RODAS HIDRÁULICAS, E SEUS
+REGULADORES
+TURBORREATORES, TURBOPROPULSORES E OUTRAS TURBINAS
+A GÁS
+OUTROS MOTORES E MÁQUINAS MOTRIZES
+BOMBAS PARA LÍQUIDOS, MESMO COM DISPOSITIVO
+MEDIDOR; ELEVADORES DE LÍQUIDOS
+BOMBAS DE AR OU DE VÁCUO, COMPRESSORES DE AR OU DE
+OUTROS GASES E VENTILADORES; COIFAS ASPIRANTES
+(EXAUSTORES*) PARA EXTRAÇÃO OU RECICLAGEM, COM
+VENTILADOR INCORPORADO, MESMO FILTRANTES
+MÁQUINAS E APARELHOS DE AR-CONDICIONADO CONTENDO
+UM VENTILADOR MOTORIZADO E DISPOSITIVOS PRÓPRIOS
+PARA MODIFICAR A TEMPERATURA E A UMIDADE, INCLUÍDOS
+AS MÁQUINAS E APARELHOS EM QUE A UMIDADE NÃO SEJA
+REGULÁVEL SEPARADAMENTE
+QUEIMADORES PARA ALIMENTAÇÃO DE FORNALHAS DE
+COMBUSTÍVEIS LÍQUIDOS, COMBUS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 4,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 6)",
+    titulo: "TÍVEIS SÓLIDOS\nPULVERIZADOS OU DE GÁS; FORNALHAS AUTOMÁTICAS,\nINCLUÍDAS AS ANTEFORNALHAS, GRELHAS MECÂNICAS,\nDESCARREGADORES MECÂNICOS DE CINZAS E DISPOSITIVOS\nSEMELHANTES\nFORNOS INDUSTRIAIS OU DE...",
+    conteudo: `TÍVEIS SÓLIDOS
+PULVERIZADOS OU DE GÁS; FORNALHAS AUTOMÁTICAS,
+INCLUÍDAS AS ANTEFORNALHAS, GRELHAS MECÂNICAS,
+DESCARREGADORES MECÂNICOS DE CINZAS E DISPOSITIVOS
+SEMELHANTES
+FORNOS INDUSTRIAIS OU DE LABORATÓRIO, INCLUÍDOS OS
+INCINERADORES, NÃO ELÉTRICOS Ver Nota (1)
+REFRIGERADORES, CONGELADORES (FREEZERS) E OUTROS
+MATERIAIS, MÁQUINAS E APARELHOS PARA A PRODUÇÃO DE
+FRIO, COM EQUIPAMENTO ELÉTRICO OU OUTRO; BOMBAS DE
+CALOR, EXCLUÍDAS AS MÁQUINAS E APARELHOS DE ARCONDICIONADO DA POSIÇÃO 8415
+APARELHOS E DISPOSITIVOS, MESMO AQUECIDOS
+ELETRICAMENTE, PARA TRATAMENTO DE MATÉRIAS POR MEIO
+DE OPERAÇÕES QUE IMPLIQUEM MUDANÇA DE
+TEMPERATURA, TAIS COMO AQUECIMENTO, COZIMENTO,
+TORREFAÇÃO, DESTILAÇÃO, RETIFICAÇÃO, ESTERILIZAÇÃO,
+PASTEURIZAÇÃO, ESTUFAGEM, SECAGEM, EVAPORAÇÃO,
+VAPORIZAÇÃO, CONDENSAÇÃO OU ARREFECIMENTO, EXCETO
+OS DE USO DOMÉSTICO; AQUECEDORES DE ÁGUA NÃO
+ELÉTRICOS, DE AQUECIMENTO INSTANTÂNEO OU DE
+ACUMULAÇÃO
+CALANDRAS E LAMINADORES, EXCETO OS DESTINADOS AO
+TRATAMENTO DE METAIS OU VIDRO, E SEUS CILINDROS
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+208
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+84
+
+8421
+
+85
+
+8422
+
+86
+
+8423
+
+87
+
+8424
+
+88
+
+8425
+
+89
+
+8426
+
+90
+
+8427
+
+91
+
+8428
+
+92
+
+8429
+
+93
+
+8430
+
+94
+
+8432
+
+95
+
+8433
+
+96
+
+8434
+
+BENS
+
+CENTRIFUGADORES, INCLUÍDOS OS SECADORES CENTRÍFUGOS;
+APARELHOS PARA FILTRAR OU DEPURAR LÍQUIDOS OU GASES
+MÁQUINAS DE LAVAR LOUÇA; MÁQUINAS E APARELHOS PARA
+LIMPAR OU SECAR GARRAFAS OU OUTROS RECIPIENTES;
+MÁQUINAS E APARELHOS PARA ENCHER, FECHAR, ARROLHAR
+OU ROTULAR GARRAFAS, CAIXAS, LATAS, SACOS OU OUTROS
+RECIPIENTES; MÁQUINAS PARA CAPSULAR GARRAFAS, VASOS,
+TUBOS E RECIPIENTES SEMELHANTES; OUTRAS MÁQUINAS E
+APARELHOS PARA EMPACOTAR OU EMBALAR MERCADORIAS
+(INCLUÍDAS AS MÁQUINAS E APARELHOS PARA EMBALAR COM
+PELÍCULA TERMO-RETRÁTIL); MÁQUINAS E APARELHOS PARA
+GASEIFICAR BEBIDAS
+APARELHOS E INSTRUMENTOS DE PESAGEM, INCLUÍ`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 5,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 7)",
+    titulo: "DAS AS\nBÁSCULAS E BALANÇAS PARA VERIFICAR PEÇAS USINADAS\n(FABRICADAS*), EXCLUÍDAS AS BALANÇAS SENSÍVEIS A PESOS\nNÃO SUPERIORES A 5cg; PESOS PARA QUAISQUER BALANÇAS\nAPARELHOS MECÂNICOS (MESMO MANUAI...",
+    conteudo: `DAS AS
+BÁSCULAS E BALANÇAS PARA VERIFICAR PEÇAS USINADAS
+(FABRICADAS*), EXCLUÍDAS AS BALANÇAS SENSÍVEIS A PESOS
+NÃO SUPERIORES A 5cg; PESOS PARA QUAISQUER BALANÇAS
+APARELHOS MECÂNICOS (MESMO MANUAIS) PARA PROJETAR,
+DISPERSAR OU PULVERIZAR LÍQUIDOS OU PÓS; EXTINTORES,
+MESMO CARREGADOS; PISTOLAS AEROGRÁFICAS E APARELHOS
+SEMELHANTES; MÁQUINAS E APARELHOS DE JATO DE AREIA,
+DE JATO DE VAPOR E APARELHOS DE JATO SEMELHANTES
+TALHAS, CADERNAIS E MOITÕES; GUINCHOS E CABRESTANTES;
+MACACOS
+CÁBREAS; GUINDASTES, INCLUÍDOS OS DE CABO; PONTES
+ROLANTES, PÓRTICOS DE DESCARGA OU DE MOVIMENTAÇÃO,
+PONTES-GUINDASTES, CARROS-PÓRTICOS E CARROSGUINDASTES
+EMPILHADEIRAS; OUTROS VEÍCULOS PARA MOVIMENTAÇÃO
+DE CARGA E SEMELHANTES, EQUIPADOS COM DISPOSITIVOS
+DE ELEVAÇÃO
+OUTRAS MÁQUINAS E APARELHOS DE ELEVAÇÃO, DE CARGA,
+DE DESCARGA OU DE MOVIMENTAÇÃO (POR EXEMPLO:
+ELEVADORES OU ASCENSORES, ESCADAS ROLANTES,
+TRANSPORTADORES, TELEFÉRICOS)
+BULLDOZERS, ANGLEDOZERS, NIVELADORES, RASPOTRANSPORTADORES (SCRAPERS), PÁS MECÂNICAS,
+ESCAVADORES, CARREGADORAS E PÁS CARREGADORAS,
+COMPACTADORES E ROLOS OU CILINDROS COMPRESSORES,
+AUTOPROPULSORES
+OUTRAS MÁQUINAS E APARELHOS DE TERRAPLENAGEM,
+NIVELAMENTO, RASPAGEM, ESCAVAÇÃO, COMPACTAÇÃO,
+EXTRAÇÃO OU PERFURAÇÃO DA TERRA, DE MINERAIS OU
+MINÉRIOS; BATE-ESTACAS E ARRANCA-ESTACAS; LIMPA-NEVES
+MÁQUINAS E APARELHOS DE USO AGRÍCOLA, HORTÍCOLA OU
+FLORESTAL, PARA PREPARAÇÃO OU TRABALHO DO SOLO OU
+PARA CULTURA; ROLOS PARA GRAMADOS (RELVADOS), OU
+PARA CAMPOS DE ESPORTE
+MÁQUINAS E APARELHOS PARA COLHEITA OU DEBULHA DE
+PRODUTOS AGRÍCOLAS, INCLUÍDAS AS ENFARDADORAS DE
+PALHA OU FORRAGEM; CORTADORES DE GRAMA (RELVA) E
+CEIFEIRAS; MÁQUINAS PARA LIMPAR OU SELECIONAR OVOS,
+FRUTAS OU OUTROS PRODUTOS AGRÍCOLAS, EXCETO AS DA
+POSIÇÃO 8437
+MÁQUINAS DE ORDENHAR E MÁQUINAS E APARELHOS PARA A
+INDÚSTRIA DE LATICÍNIOS
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+4
+
+25%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+209`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 6,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 8)",
+    titulo: "ITEM\n\nREFERÊNCIA\nNCM\n\n97\n\n8435\n\n98\n\n8436\n\n99\n\n8437\n\n100 8438\n\n101 8439\n\n102 8440\n\n103 8441\n\n104 8442\n\n105 8443\n\n106 8444\n107 8445\n\n108 8446\n109 8447\n\nBENS\n\nPRENSAS, ESMAGADORES E MÁQUINAS E APARELH...",
+    conteudo: `ITEM
+
+REFERÊNCIA
+NCM
+
+97
+
+8435
+
+98
+
+8436
+
+99
+
+8437
+
+100 8438
+
+101 8439
+
+102 8440
+
+103 8441
+
+104 8442
+
+105 8443
+
+106 8444
+107 8445
+
+108 8446
+109 8447
+
+BENS
+
+PRENSAS, ESMAGADORES E MÁQUINAS E APARELHOS
+SEMELHANTES, PARA FABRICAÇÃO DE VINHO, SIDRA, SUCO DE
+FRUTAS OU BEBIDAS SEMELHANTES
+OUTRAS MÁQUINAS E APARELHOS PARA AGRICULTURA,
+HORTICULTURA, SILVICULTURA, AVICULTURA OU APICULTURA,
+INCLUÍDOS OS GERMINADORES EQUIPADOS COM
+DISPOSITIVOS MECÂNICOS OU TÉRMICOS E AS CHOCADEIRAS E
+CRIADEIRAS PARA AVICULTURA
+MÁQUINAS PARA LIMPEZA, SELEÇÃO OU PENEIRAÇÃO DE
+GRÃOS OU DE PRODUTOS HORTÍCOLAS SECOS; MÁQUINAS E
+APARELHOS PARA A INDÚSTRIA DE MOAGEM OU
+TRATAMENTO DE CEREAIS OU DE PRODUTOS HORTÍCOLAS
+SECOS, EXCETO DOS TIPOS UTILIZADOS EM FAZENDAS
+MÁQUINAS E APARELHOS NÃO ESPECIFICADOS NEM
+COMPREENDIDOS EM OUTRAS POSIÇÕES DO PRESENTE
+CAPÍTULO, PARA PREPARAÇÃO OU FABRICAÇÃO INDUSTRIAIS
+DE ALIMENTOS OU DE BEBIDAS, EXCETO AS MÁQUINAS E
+APARELHOS PARA EXTRAÇÃO OU PREPARAÇÃO DE ÓLEOS OU
+GORDURAS VEGETAIS FIXOS OU DE ÓLEOS OU GORDURAS
+ANIMAIS
+MÁQUINAS E APARELHOS PARA FABRICAÇÃO DE PASTA DE
+MATÉRIAS FIBROSAS CELULÓSICAS OU PARA FABRICAÇÃO OU
+ACABAMENTO DE PAPEL OU CARTÃO
+MÁQUINAS E APARELHOS PARA BROCHURA OU
+ENCADERNAÇÃO, INCLUÍDAS AS MÁQUINAS DE COSTURAR
+CADERNOS
+OUTRAS MÁQUINAS E APARELHOS PARA O TRABALHO DA
+PASTA DE PAPEL, DO PAPEL OU CARTÃO, INCLUÍDAS AS
+CORTADEIRAS DE TODOS OS TIPOS
+MÁQUINAS, APARELHOS E MATERIAL (EXCETO AS
+MÁQUINASFERRAMENTAS DAS POSIÇÕES 8456 A 8465), PARA
+FUNDIR OU COMPOR CARACTERES TIPOGRÁFICOS OU PARA
+PREPARAÇÃO OU FABRICAÇÃO DE CLICHÊS, BLOCOS,
+CILINDROS OU OUTROS ELEMENTOS DE IMPRESSÃO;
+CARACTERES TIPOGRÁFICOS, CLICHÊS, BLOCOS, CILINDROS OU
+OUTROS ELEMENTOS DE IMPRESSÃO; PEDRAS LITOGRÁFICAS,
+BLOCOS, PLACAS E CILINDROS, PREPARADOS PARA IMPRESSÃO
+(POR EXEMPLO: APLAINADOS, GRANULADOS OU POLIDOS)
+MÁQUINAS E APARELHOS DE IMPRESSÃO, INCLUÍDAS AS
+MÁQUINAS DE IMPRESSÃO DE JATO DE TINTA, EXCETO AS DA
+POSIÇÃO 8471; MÁQUINAS AUXILIARES PARA IMPRESSÃO
+MÁQUINAS PARA EXTRUDAR,`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 7,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 9)",
+    titulo: "ESTIRAR, TEXTURIZAR OU\nCORTAR MATÉRIAS TÊXTEIS SINTÉTICAS OU ARTIFICIAIS\nMÁQUINAS PARA PREPARAÇÃO DE MATÉRIAS TÊXTEIS;\nMÁQUINAS PARA FIAÇÃO, DOBRAGEM OU TORÇÃO, DE\nMATÉRIAS TÊXTEIS E OUTRAS MÁQUINA...",
+    conteudo: `ESTIRAR, TEXTURIZAR OU
+CORTAR MATÉRIAS TÊXTEIS SINTÉTICAS OU ARTIFICIAIS
+MÁQUINAS PARA PREPARAÇÃO DE MATÉRIAS TÊXTEIS;
+MÁQUINAS PARA FIAÇÃO, DOBRAGEM OU TORÇÃO, DE
+MATÉRIAS TÊXTEIS E OUTRAS MÁQUINAS E APARELHOS PARA
+FABRICAÇÃO DE FIOS TÊXTEIS; MÁQUINAS DE BOBINAR
+(INCLUÍDAS AS BOBINADEIRAS DE TRAMA) OU DE DOBAR
+MATÉRIAS TÊXTEIS E MÁQUINAS PARA PREPARAÇÃO DE FIOS
+TÊXTEIS PARA SUA UTILIZAÇÃO NAS MÁQUINAS DAS POSIÇÕES
+8446 OU 8447
+TEARES PARA TECIDOS
+TEARES PARA FABRICAR MALHAS, MÁQUINAS DE COSTURA
+POR ENTRELAÇAMENTO (COUTURE-TRICOTAGE), MÁQUINAS
+PARA FABRICAR GUIPURAS, TULES, RENDAS, BORDADOS,
+PASSAMANARIAS, GALÕES OU REDES; MÁQUINAS PARA
+INSERIR TUFOS
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+210
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+110 8448
+
+111 8449
+
+112 8450
+113 8451
+
+114 8452
+
+115 8453
+
+116 8454
+
+117 8455
+118 8456
+
+119 8457
+
+120 8458
+121 8459
+
+122 8460
+
+BENS
+
+MÁQUINAS E APARELHOS AUXILIARES PARA AS MÁQUINAS DAS
+POSIÇÕES 8444, 8445, 8446 OU 8447 (POR EXEMPLO:
+RATIERAS, MECANISMOS JACQUARD, QUEBRA-URDIDURAS E
+QUEBRA-TRAMAS, MECANISMOS TROCA-LANÇADEIRAS)
+MÁQUINAS E APARELHOS PARA FABRICAÇÃO OU
+ACABAMENTO DE FELTRO OU DE FALSOS TECIDOS, EM PEÇA
+OU EM FORMAS DETERMINADAS, INCLUÍDAS AS MÁQUINAS E
+APARELHOS PARA FABRICAÇÃO DE CHAPÉUS DE FELTRO;
+FORMAS PARA CHAPÉUS E PARA ARTEFATOS DE USO
+SEMELHANTE
+MÁQUINAS DE LAVAR ROUPA, MESMO COM DISPOSITIVOS DE
+SECAGEM
+MÁQUINAS E APARELHOS (EXCETO AS MÁQUINAS DA POSIÇÃO
+8450) PARA LAVAR, LIMPAR, ESPREMER, SECAR, PASSAR,
+PRENSAR (INCLUÍDAS AS PRENSAS FIXADORAS), BRANQUEAR,
+TINGIR, PARA APRESTO E ACABAMENTO, PARA REVESTIR OU
+IMPREGNAR FIOS, TECIDOS OU OBRAS DE MATÉRIAS TÊXTEIS E
+MÁQUINAS PARA REVESTIR TECIDOSBASE OU OUTROS
+SUPORTES UTILIZADOS NA FABRICAÇÃO DE REVESTIMENTOS
+PARA PAVIMENTOS, TAIS COMO LINÓLEO; MÁQUINAS PARA
+ENROLAR, DESENROLAR, DOBRAR, CORTAR OU DENTEAR
+TECIDOS
+MÁQUINAS DE COSTURA, EXCETO AS DE COSTURAR CAD`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 8,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 10)",
+    titulo: "ERNOS\nDA POSIÇÃO 8440; MÓVEIS, BASES E TAMPAS, PRÓPRIOS PARA\nMÁQUINAS DE COSTURA; AGULHAS PARA MÁQUINAS DE\nCOSTURA\nMÁQUINAS E APARELHOS PARA PREPARAR, CURTIR OU\nTRABALHAR COUROS OU PELES, OU PARA F...",
+    conteudo: `ERNOS
+DA POSIÇÃO 8440; MÓVEIS, BASES E TAMPAS, PRÓPRIOS PARA
+MÁQUINAS DE COSTURA; AGULHAS PARA MÁQUINAS DE
+COSTURA
+MÁQUINAS E APARELHOS PARA PREPARAR, CURTIR OU
+TRABALHAR COUROS OU PELES, OU PARA FABRICAR OU
+CONSERTAR CALÇADOS E OUTRAS OBRAS DE COURO OU DE
+PELE, EXCETO MÁQUINAS DE COSTURA
+CONVERSORES, CADINHOS OU COLHERES DE FUNDIÇÃO,
+LINGOTEIRAS E MÁQUINAS DE VAZAR (MOLDAR), PARA
+METALURGIA, ACIARIA OU FUNDIÇÃO
+LAMINADORES DE METAIS E SEUS CILINDROS
+MÁQUINAS-FERRAMENTAS QUE TRABALHEM POR ELIMINAÇÃO
+DE QUALQUER MATÉRIA, OPERANDO POR LASER OU POR
+OUTROS FEIXES DE LUZ OU DE FÓTONS, POR ULTRA-SOM,
+ELETRO-EROSÃO, PROCESSOS ELETROQUÍMICOS, FEIXES DE
+ELÉTRONS, FEIXES IÔNICOS OU POR JATO DE PLASMA
+CENTROS DE USINAGEM (CENTROS DE MAQUINAGEM*),
+MÁQUINAS DE SISTEMA MONOSTÁTICO (SINGLE STATION) E
+MÁQUINAS DE ESTAÇÕES MÚLTIPLAS, PARA TRABALHAR
+METAIS
+TORNOS (INCLUÍDOS OS CENTROS DE TORNEAMENTO) PARA
+METAIS.
+MÁQUINAS-FERRAMENTAS (INCLUÍDAS AS UNIDADES COM
+CABEÇA DESLIZANTE) PARA FURAR, MANDRILAR, FRESAR OU
+ROSCAR INTERIOR E EXTERIORMENTE METAIS, POR
+ELIMINAÇÃO DE MATÉRIA, EXCETO OS TORNOS (INCLUÍDOS OS
+CENTROS DE TORNEAMENTO) DA POSIÇÃO 8458
+MÁQUINAS-FERRAMENTAS PARA REBARBAR, AFIAR, AMOLAR,
+RETIFICAR, BRUNIR, POLIR OU REALIZAR OUTRAS OPERAÇÕES
+DE ACABAMENTO EM METAIS OU CERAMAIS (CERMETS) POR
+MEIO DE MÓS, DE ABRASIVOS OU DE PRODUTOS POLIDORES,
+EXCETO AS MÁQUINAS DE CORTAR OU ACABAR ENGRENAGENS
+DA POSIÇÃO 8461
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+211
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+123 8461
+
+124 8462
+
+125 8463
+
+126 8464
+
+127 8465
+
+128 8467
+129 8468
+
+130 8469
+131 8470
+
+132 8470.21
+133
+134
+135
+136
+137
+138
+
+8470.29
+8470.30
+8470.40
+8470.50
+8470.90
+8471
+
+BENS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 9,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 11)",
+    titulo: "MÁQUINAS-FERRAMENTAS PARA APLAINAR,\nPLAINASLIMADORAS, MÁQUINAS-FERRAMENTAS PARA\nESCATELAR, BROCHAR, CORTAR OU ACABAR ENGRENAGENS,\nSERRAR, SECCIONAR E OUTRAS MÁQUINAS-FERRAMENTAS\nQUE TRABALHEM POR E...",
+    conteudo: `MÁQUINAS-FERRAMENTAS PARA APLAINAR,
+PLAINASLIMADORAS, MÁQUINAS-FERRAMENTAS PARA
+ESCATELAR, BROCHAR, CORTAR OU ACABAR ENGRENAGENS,
+SERRAR, SECCIONAR E OUTRAS MÁQUINAS-FERRAMENTAS
+QUE TRABALHEM POR ELIMINAÇÃO DE METAL OU DE
+CERAMAIS (CERMETS), NÃO ESPECIFICADAS NEM
+COMPREENDIDAS EM OUTRAS POSIÇÕES
+MÁQUINAS-FERRAMENTAS (INCLUÍDAS AS PRENSAS) PARA
+FORJAR OU ESTAMPAR, MARTELOS, MARTELOS-PILÕES E
+MARTINETES, PARA TRABALHAR METAIS;
+MÁQUINASFERRAMENTAS (INCLUÍDAS AS PRENSAS) PARA
+ENROLAR, ARQUEAR, DOBRAR, ENDIREITAR, APLANAR,
+CISALHAR, PUNCIONAR OU CHANFRAR METAIS; PRENSAS PARA
+TRABALHAR METAIS OU CARBONETOS METÁLICOS, NÃO
+ESPECIFICADAS ACIMA
+OUTRAS MÁQUINAS-FERRAMENTAS PARA TRABALHAR METAIS
+OU CERAMAIS (CERMETS), QUE TRABALHEM SEM ELIMINAÇÃO
+DE MATÉRIA
+MÁQUINAS-FERRAMENTAS PARA TRABALHAR PEDRA,
+PRODUTOS CERÂMICOS, CONCRETO (BETÃO), FIBROCIMENTO
+OU MATÉRIAS MINERAIS SEMELHANTES, OU PARA O
+TRABALHO A FRIO DO VIDRO
+MÁQUINAS-FERRAMENTAS (INCLUÍDAS AS MÁQUINAS PARA
+PREGAR, GRAMPEAR, COLAR OU REUNIR POR QUALQUER
+OUTRO MODO) PARA TRABALHAR MADEIRA, CORTIÇA, OSSO,
+BORRACHA ENDURECIDA, PLÁSTICOS DUROS OU MATÉRIAS
+DURAS SEMELHANTES
+FERRAMENTAS PNEUMÁTICAS, HIDRÁULICAS OU DE MOTOR,
+NÃO ELÉTRICO, INCORPORADO, DE USO MANUAL
+MÁQUINAS E APARELHOS PARA SOLDAR, MESMO DE CORTE,
+EXCETO OS DA POSIÇÃO 8515; MÁQUINAS E APARELHOS A
+GÁS, PARA TÊMPERA SUPERFICIAL
+MÁQUINAS DE ESCREVER, EXCETO AS IMPRESSORAS DA
+POSIÇÃO 8471; MÁQUINAS DE TRATAMENTO DE TEXTOS
+MÁQUINAS DE CALCULAR QUE PERMITAM GRAVAR,
+REPRODUZIR E VISUALIZAR INFORMAÇÕES, COM FUNÇÃO DE
+CÁLCULO INCORPORADA; MÁQUINAS DE CONTABILIDADE,
+MÁQUINAS DE FRANQUEAR, DE EMITIR BILHETES E MÁQUINAS
+SEMELHANTES, COM DISPOSITIVO DE CÁLCULO
+INCORPORADO; CAIXAS REGISTRADORAS
+--Máquinas eletrônicas de calcular com dispositivo impressor
+incorporado
+--Outras máquinas eletrônicas de calcular, exceto de bolso
+-Outras máquinas de calcular
+-Máquinas de contabilidade
+-Caixas registradoras
+Máquinas de franquear correspondência
+MÁQUINAS AUTOMÁTICAS PARA PROCESSAME`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 10,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 12)",
+    titulo: "NTO DE DADOS\nE SUAS UNIDADES; LEITORES MAGNÉTICOS OU ÓPTICOS,\nMÁQUINAS PARA REGISTRAR DADOS EM SUPORTE SOB FORMA\nCODIFICADA, E MÁQUINAS PARA PROCESSAMENTO DESSES\nDADOS, NÃO ESPECIFICADAS NEM COMPRE...",
+    conteudo: `NTO DE DADOS
+E SUAS UNIDADES; LEITORES MAGNÉTICOS OU ÓPTICOS,
+MÁQUINAS PARA REGISTRAR DADOS EM SUPORTE SOB FORMA
+CODIFICADA, E MÁQUINAS PARA PROCESSAMENTO DESSES
+DADOS, NÃO ESPECIFICADAS NEM COMPREENDIDAS EM
+OUTRAS POSIÇÕES
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+10
+10
+10
+5
+
+10%
+10%
+10%
+10%
+10%
+20%
+
+212
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+139 8472
+
+140 8474
+
+141 8475
+
+142 8476
+
+143 8477
+
+144 8478
+
+145 8479
+
+146 8479.10
+147 8479.20
+148 8479.30
+
+149 8479.40
+150 8479.50
+151 8479.60
+152 8479.8
+153 8479.81
+154 8479.82
+155 8479.89
+156 8480
+
+BENS
+
+OUTRAS MÁQUINAS E APARELHOS DE ESCRITÓRIO [POR
+EXEMPLO: DUPLICADORES HECTOGRÁFICOS OU A ESTÊNCIL,
+MÁQUINAS PARA IMPRIMIR ENDEREÇOS, DISTRIBUIDORES
+AUTOMÁTICOS DE PAPEL-MOEDA, MÁQUINAS PARA
+SELECIONAR, CONTAR OU EMPACOTAR MOEDAS,
+APONTADORES (AFIADORES) MECÂNICOS DE LÁPIS,
+PERFURADORES OU GRAMPEADORES]
+MÁQUINAS E APARELHOS PARA SELECIONAR, PENEIRAR,
+SEPARAR, LAVAR, ESMAGAR, MOER, MISTURAR OU AMASSAR
+TERRAS, PEDRAS, MINÉRIOS OU OUTRAS SUBSTÂNCIAS
+MINERAIS SÓLIDAS (INCLUÍDOS OS PÓS E PASTAS); MÁQUINAS
+PARA AGLOMERAR OU MOLDAR COMBUSTÍVEIS MINERAIS
+SÓLIDOS, PASTAS CERÂMICAS, CIMENTO, GESSO OU OUTRAS
+MATÉRIAS MINERAIS EM PÓ OU EM PASTA; MÁQUINAS PARA
+FAZER MOLDES DE AREIA PARA FUNDIÇÃO
+MÁQUINAS PARA MONTAGEM DE LÂMPADAS, TUBOS OU
+VÁLVULAS, ELÉTRICOS OU ELETRÔNICOS, OU DE LÂMPADAS DE
+LUZ RELÂMPAGO (FLASH), QUE TENHAM INVÓLUCRO DE
+VIDRO; MÁQUINAS PARA FABRICAÇÃO OU TRABALHO A
+QUENTE DO VIDRO OU DAS SUAS OBRAS
+MÁQUINAS AUTOMÁTICAS DE VENDA DE PRODUTOS (POR
+EXEMPLO: SELOS, CIGARROS, ALIMENTOS OU BEBIDAS),
+INCLUÍDAS AS MÁQUINAS DE TROCAR DINHEIRO
+MÁQUINAS E APARELHOS PARA TRABALHAR BORRACHA OU
+PLÁSTICOS OU PARA FABRICAÇÃO DE PRODUTOS DESSAS
+MATÉRIAS, NÃO ESPECIFICADOS NEM COMPREENDIDOS EM
+OUTRAS POSIÇÕES DESTE CAPÍTULO
+MÁQUINAS E APARELHOS PARA PREPARAR OU TRANSFORMAR
+FUMO (TABACO), NÃO ESPECIFICADOS NEM COMPREENDIDOS
+EM OUTRAS POSIÇÕES DESTE CAPÍTULO`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 11,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 13)",
+    titulo: "MÁQUINAS E APARELHOS MECÂNICOS COM FUNÇÃO PRÓPRIA,\nNÃO ESPECIFICADOS NEM COMPREENDIDOS EM OUTRAS\nPOSIÇÕES DESTE CAPÍTULO\n-Máquinas e aparelhos para obras públicas, construção civil ou\ntrabalhos sem...",
+    conteudo: `MÁQUINAS E APARELHOS MECÂNICOS COM FUNÇÃO PRÓPRIA,
+NÃO ESPECIFICADOS NEM COMPREENDIDOS EM OUTRAS
+POSIÇÕES DESTE CAPÍTULO
+-Máquinas e aparelhos para obras públicas, construção civil ou
+trabalhos semelhantes
+-Máquinas e aparelhos para extração ou preparação de óleos
+ou gorduras vegetais fixos ou de óleos ou gorduras animais
+-Prensas para fabricação de painéis de partículas, de fibras de
+madeira ou de outras matérias lenhosas, e outras máquinas e
+aparelhos para tratamento de madeira ou de cortiça
+-Máquinas para fabricação de cordas ou cabos
+-Robôs industriais, não especificados nem compreendidos em
+outras posições
+-Aparelhos de evaporação para arrefecimento do ar
+-Outras máquinas e aparelhos
+--Para tratamento de metais, incluídas as bobinadoras para
+enrolamentos elétricos
+--Para misturar, amassar, esmagar, moer, separar, peneirar,
+homogeneizar, emulsionar ou agitar
+--Outros
+CAIXAS DE FUNDIÇÃO; PLACAS DE FUNDO PARA MOLDES;
+MODELOS PARA MOLDES; MOLDES PARA METAIS (EXCETO
+LINGOTEIRAS), CARBONETOS METÁLICOS, VIDRO, MATÉRIAS
+MINERAIS, BORRACHA OU PLÁSTICOS
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+5
+
+20%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+4
+
+25%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+3
+
+10%
+33,30%
+
+213
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+157 8483
+
+158 8483.40
+159 Capítulo 85
+
+160 8501
+161 8502
+162 8504
+
+163 8508
+164 8510
+165 8514
+
+166 8515
+
+167 8516
+168 8517
+
+169 8520
+170 8521
+
+171 8521.10
+172 8521.90
+173 8524
+174 8524.3
+
+BENS
+
+ÁRVORES (VEIOS) DE TRANSMISSÃO [INCLUÍDAS AS ÁRVORES
+DE EXCÊNTRICOS (CAMES) E VIRABREQUINS (CAMBOTAS)] E
+MANIVELAS; MANCAIS (CHUMACEIRAS) E BRONZES;
+ENGRENAGENS E RODAS DE FRICÇÃO; EIXOS DE ESFERAS OU DE
+ROLETES; REDUTORES, MULTIPLICADORES, CAIXAS DE
+TRANSMISSÃO E VARIADORES DE VELOCIDADE, INCLUÍDOS OS
+CONVERSORES DE TORQUE (BINÁRIOS); VOLANTES E POLIAS,
+INCLUÍDAS AS POLIAS PARA CADERNAIS; EMBREAGENS E
+DISPOSITIVOS DE ACOPLAMENTO, INCLUÍDAS AS JUNTAS DE
+ARTICULAÇÃO
+Caixas de transmissão, redutores, multiplicadore`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 12,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 14)",
+    titulo: "s e variadores\nde velocidade, incluídos os conversores de torque (binários)\nMÁQUINAS, APARELHOS E MATERIAIS ELÉTRICOS, APARELHOS\nDE GRAVAÇÃO OU DE REPRODUÇÃO DE SOM, APARELHOS DE\nGRAVAÇÃO OU DE REP...",
+    conteudo: `s e variadores
+de velocidade, incluídos os conversores de torque (binários)
+MÁQUINAS, APARELHOS E MATERIAIS ELÉTRICOS, APARELHOS
+DE GRAVAÇÃO OU DE REPRODUÇÃO DE SOM, APARELHOS DE
+GRAVAÇÃO OU DE REPRODUÇÃO DE IMAGENS E DE SOM EM
+TELEVISÃO
+MOTORES E GERADORES, ELÉTRICOS, EXCETO OS GRUPOS
+ELETROGÊNEOS
+GRUPOS ELETROGÊNEOS E CONVERSORES ROTATIVOS,
+ELÉTRICOS
+TRANSFORMADORES ELÉTRICOS, CONVERSORES ELÉTRICOS
+ESTÁTICOS (RETIFICADORES, POR EXEMPLO), BOBINAS DE
+REATÂNCIA E DE AUTO-INDUÇÃO
+FERRAMENTAS ELETROMECÂNICAS DE MOTOR ELÉTRICO
+INCORPORADO, DE USO MANUAL
+APARELHOS OU MÁQUINAS DE TOSQUIAR DE MOTOR
+ELÉTRICO INCORPORADO
+FORNOS ELÉTRICOS INDUSTRIAIS OU DE LABORATÓRIO,
+INCLUÍDOS OS QUE FUNCIONAM POR INDUÇÃO OU POR
+PERDAS DIELÉTRICAS; OUTROS APARELHOS INDUSTRIAIS OU DE
+LABORATÓRIO PARA TRATAMENTO TÉRMICO DE MATÉRIAS
+POR INDUÇÃO OU POR PERDAS DIELÉTRICAS
+MÁQUINAS E APARELHOS PARA SOLDAR (MESMO DE CORTE)
+ELÉTRICOS (INCLUÍDOS OS A GÁS AQUECIDO ELETRICAMENTE),
+A LASER OU OUTROS FEIXES DE LUZ OU DE FÓTONS, A ULTRASOM, A FEIXES DE ELÉTRONS, A IMPULSOS MAGNÉTICOS OU A
+JATO DE PLASMA; MÁQUINAS E APARELHOS ELÉTRICOS PARA
+PROJEÇÃO A QUENTE DE METAIS OU DE CERAMAIS (CERMETS)
+APARELHOS ELÉTRICOS PARA AQUECIMENTO DE AMBIENTES,
+DO SOLO OU PARA USOS SEMELHANTES
+APARELHOS ELÉTRICOS PARA TELEFONIA OU TELEGRAFIA, POR
+FIO, INCLUÍDOS OS APARELHOS TELEFÔNICOS POR FIO
+CONJUGADO COM UM APARELHO TELEFÔNICO PORTÁTIL SEM
+FIO E OS APARELHOS DE TELECOMUNICAÇÃO POR CORRENTE
+PORTADORA OU DE TELECOMUNICAÇÃO DIGITAL; VIDEOFONES
+(Retificado no DOU de 13/04/2017, pág. 53)
+GRAVADORES DE DADOS DE VOO
+APARELHOS VIDEOFÔNICOS DE GRAVAÇÃO OU DE
+REPRODUÇÃO, MESMO INCORPORANDO UM RECEPTOR DE
+SINAIS VIDEOFÔNICOS
+Gravador-reprodutor de fita magnética, sem sintonizador
+Gravador-reprodutor e editor de imagem e som, em discos, por
+meio magnético, óptico ou opto-magnético
+DISCOS, FITAS E OUTROS SUPORTES GRAVADOS, COM
+EXCLUSÃO DOS PRODUTOS DO CAPÍTULO 37
+-Discos para sistemas de leitura por raio laser:`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 13,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 15)",
+    titulo: "PRAZO DE VIDA\nÚTIL (ANOS)\n\nTAXA ANUAL DE\nDEPRECIAÇÃO\n\n10\n\n10%\n\n10\n\n10%\n\n10\n\n10%\n\n10\n\n10%\n\n5\n\n20%\n\n5\n\n20%\n\n10\n\n10%\n\n10\n\n10%\n\n10\n\n10%\n\n5\n\n20%\n\n5\n\n20%\n\n5\n5\n\n20%\n20%\n\n3\n\n33,30%\n\n214\n\n\fITEM\n\nREFERÊNCIA...",
+    conteudo: `PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+5
+
+20%
+
+5
+
+20%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+5
+
+20%
+
+5
+
+20%
+
+5
+5
+
+20%
+20%
+
+3
+
+33,30%
+
+214
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+175 8524.40
+176 8524.5
+177 8524.60
+178 8525
+
+179 8526
+
+180 8527
+
+181 8531
+
+182 8531.20
+
+183 8543
+
+184 Capítulo 86
+
+185 8601
+186 8602
+187 8603
+188 8604
+
+189 8605
+
+190 8606
+191 8608
+
+192 8609
+
+BENS
+
+-Fitas magnéticas para reprodução de fenômenos diferentes do
+som e da imagem
+-Outras fitas magnéticas
+-Cartões magnéticos
+APARELHOS TRANSMISSORES (EMISSORES) PARA
+RADIOTELEFONIA, RADIOTELEGRAFIA, RADIODIFUSÃO OU
+TELEVISÃO, MESMO INCORPORANDO UM APARELHO DE
+RECEPÇÃO OU UM APARELHO DE GRAVAÇÃO OU DE
+REPRODUÇÃO DE SOM; CÂMERAS DE TELEVISÃO; CÂMERAS DE
+VÍDEO DE IMAGENS FIXAS E OUTRAS CÂMERAS (CAMCORDERS)
+APARELHOS DE RADIODETECÇÃO E DE RADIOSSONDAGEM
+(RADAR), APARELHOS DE RADIONAVEGAÇÃO E APARELHOS DE
+RADIOTELECOMANDO
+APARELHOS RECEPTORES PARA RADIOTELEFONIA,
+RADIOTELEGRAFIA OU RADIODIFUSÃO, EXCETO DE USO
+DOMÉSTICO
+APARELHOS ELÉTRICOS DE SINALIZAÇÃO ACÚSTICA OU VISUAL
+(POR EXEMPLO: CAMPAINHAS, SIRENAS, QUADROS
+INDICADORES, APARELHOS DE ALARME PARA PROTEÇÃO
+CONTRA ROUBO OU INCÊNDIO), EXCETO OS DAS POSIÇÕES
+8512 OU 8530
+Painéis indicadores com dispositivos de cristais líquidos (LCD)
+ou de diodos emissores de luz (LED), próprios para anúncios
+publicitários
+MÁQUINAS E APARELHOS ELÉTRICOS COM FUNÇÃO PRÓPRIA,
+NÃO ESPECIFICADOS NEM COMPREENDIDOS EM OUTRAS
+POSIÇÕES DESTE CAPÍTULO
+VEÍCULOS E MATERIAL PARA VIAS FÉRREAS OU SEMELHANTES,
+APARELHOS MECÂNICOS (INCLUÍDOS OS ELETROMECÂNICOS)
+DE SINALIZAÇÃO PARA VIAS DE COMUNICAÇÃO
+LOCOMOTIVAS E LOCOTRATORES, DE FONTE EXTERNA DE
+ELETRICIDADE OU DE ACUMULADORES ELÉTRICOS
+OUTRAS LOCOMOTIVAS E LOCOTRATORES; TÊNDERES
+LITORINAS (AUTOMOTORAS), MESMO PARA CIRCULAÇÃO
+URBANA, EXCETO AS DA POSIÇÃO 8604
+VEÍCULOS PARA INSPEÇÃO E MANUTENÇÃO DE VIAS FÉRREAS
+OU SEMELHANTES, MESMO AUTOPROPULSORES (POR
+EXEMPLO: VAGÕES-OFICINAS, VAGÕES-GUINDASTES, VAGÕES
+EQUIPADOS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 14,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 16)",
+    titulo: "COM BATEDORES DE BALASTRO, ALINHADORES DE\nVIAS, VIATURAS PARA TESTES E DRESINAS)\nVAGÕES DE PASSAGEIROS, FURGÕES PARA BAGAGEM,\nVAGÕES-POSTAIS E OUTROS VAGÕES ESPECIAIS, PARA VIAS\nFÉRREAS OU SEMELHAN...",
+    conteudo: `COM BATEDORES DE BALASTRO, ALINHADORES DE
+VIAS, VIATURAS PARA TESTES E DRESINAS)
+VAGÕES DE PASSAGEIROS, FURGÕES PARA BAGAGEM,
+VAGÕES-POSTAIS E OUTROS VAGÕES ESPECIAIS, PARA VIAS
+FÉRREAS OU SEMELHANTES (EXCLUÍDAS AS VIATURAS DA
+POSIÇÃO 8604)
+VAGÕES PARA TRANSPORTE DE MERCADORIAS SOBRE VIAS
+FÉRREAS
+APARELHOS MECÂNICOS (INCLUÍDOS OS ELETROMECÂNICOS)
+DE SINALIZAÇÃO, DE SEGURANÇA, DE CONTROLE OU DE
+COMANDO PARA VIAS FÉRREAS OU SEMELHANTES,
+RODOVIÁRIAS OU FLUVIAIS, PARA ÁREAS OU PARQUES DE
+ESTACIONAMENTO, INSTALAÇÕES PORTUÁRIAS OU PARA
+AERÓDROMOS
+CONTEINERES (CONTENTORES), INCLUÍDOS OS DE TRANSPORTE
+DE FLUIDOS, ESPECIALMENTE CONCEBIDOS E EQUIPADOS PARA
+UM OU VÁRIOS MEIOS DE TRANSPORTE
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+3
+
+33,30%
+
+3
+3
+5
+
+33,30%
+33,30%
+20%
+
+5
+
+20%
+
+5
+
+20%
+
+5
+
+20%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+215
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+193 Capítulo 87
+194 8701
+195 8702
+196 8703
+
+197 8704
+198 8705
+
+199 8709
+
+200 8711
+
+201 8716
+202 Capítulo 88
+203 8801
+
+204 8802
+
+205 8804
+206 8805
+
+207 Capítulo 89
+208 8901
+
+209 8902
+
+210 8903
+211 8903.10
+212 8903.9
+213 8904
+
+BENS
+
+VEÍCULOS AUTOMÓVEIS, TRATORES, CICLOS E OUTROS
+VEÍCULOS TERRESTRES
+TRATORES (EXCETO OS CARROS-TRATORES DA POSIÇÃO 8709)
+VEÍCULOS AUTOMÓVEIS PARA TRANSPORTE DE 10 PESSOAS OU
+MAIS, INCLUINDO O MOTORISTA
+AUTOMÓVEIS DE PASSAGEIROS E OUTROS VEÍCULOS
+AUTOMÓVEIS PRINCIPALMENTE CONCEBIDOS PARA
+TRANSPORTE DE PESSOAS (EXCETO OS DA POSIÇÃO 8702),
+INCLUÍDOS OS VEÍCULOS DE USO MISTO (STATION WAGONS) E
+OS AUTOMÓVEIS DE CORRIDA
+VEÍCULOS AUTOMÓVEIS PARA TRANSPORTE DE MERCADORIAS
+VEÍCULOS AUTOMÓVEIS PARA USOS ESPECIAIS (POR EXEMPLO:
+AUTO-SOCORROS, CAMINHÕES-GUINDASTES, VEÍCULOS DE
+COMBATE A INCÊNDIOS, CAMINHÕESBETONEIRAS, VEÍCULOS
+PARA VARRER, VEÍCULOS PARA ESPALHAR, VEÍCULOSOFICINAS, VEÍCULOS RADIOLÓGICOS), EXCETO OS CONCEBIDOS
+PRINCIPALMENTE PARA TRANSPORTE DE PESSOAS OU DE
+MERCADORIAS
+VEÍCULOS AUTOMÓVEIS SEM DISPOSITIVO DE ELEVAÇÃO, DOS
+TIPOS UTILIZADOS EM FÁB`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 15,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 17)",
+    titulo: "RICAS, ARMAZÉNS, PORTOS OU\nAEROPORTOS, PARA TRANSPORTE DE MERCADORIAS A CURTAS\nDISTÂNCIAS; CARROS-TRATORES DOS TIPOS UTILIZADOS NAS\nESTAÇÕES FERROVIÁRIAS\nMOTOCICLETAS (INCLUÍDOS OS CICLOMOTORES) E...",
+    conteudo: `RICAS, ARMAZÉNS, PORTOS OU
+AEROPORTOS, PARA TRANSPORTE DE MERCADORIAS A CURTAS
+DISTÂNCIAS; CARROS-TRATORES DOS TIPOS UTILIZADOS NAS
+ESTAÇÕES FERROVIÁRIAS
+MOTOCICLETAS (INCLUÍDOS OS CICLOMOTORES) E OUTROS
+CICLOS EQUIPADOS COM MOTOR AUXILIAR, MESMO COM
+CARRO LATERAL; CARROS LATERAIS
+REBOQUES E SEMI-REBOQUES, PARA QUAISQUER VEÍCULOS;
+OUTROS VEÍCULOS NÃO AUTOPROPULSORES
+AERONAVES E APARELHOS ESPACIAIS
+BALÕES E DIRIGÍVEIS; PLANADORES, ASAS VOADORAS E
+OUTROS VEÍCULOS AÉREOS, NÃO CONCEBIDOS PARA
+PROPULSÃO COM MOTOR
+OUTROS VEÍCULOS AÉREOS (POR EXEMPLO: HELICÓPTEROS,
+AVIÕES); VEÍCULOS ESPACIAIS (INCLUÍDOS OS SATÉLITES) E
+SEUS VEÍCULOS DE LANÇAMENTO, E VEÍCULOS SUBORBITAIS
+PÁRA-QUEDAS (INCLUÍDOS OS PÁRA-QUEDAS DIRIGÍVEIS E OS
+PARAPENTES) E OS PÁRA-QUEDAS GIRATÓRIOS
+APARELHOS E DISPOSITIVOS PARA LANÇAMENTO DE VEÍCULOS
+AÉREOS; APARELHOS E DISPOSITIVOS PARA ATERRISSAGEM DE
+VEÍCULOS AÉREOS EM PORTA-AVIÕES E APARELHOS E
+DISPOSITIVOS SEMELHANTES; APARELHOS SIMULADORES DE
+VOO EM TERRA
+EMBARCAÇÕES E ESTRUTURAS FLUTUANTES
+TRANSATLÂNTICOS, BARCOS DE CRUZEIRO, FERRY-BOATS,
+CARGUEIROS, CHATAS E EMBARCAÇÕES SEMELHANTES, PARA
+O TRANSPORTE DE PESSOAS OU DE MERCADORIAS
+BARCOS DE PESCA; NAVIOS-FÁBRICAS E OUTRAS
+EMBARCAÇÕES PARA O TRATAMENTO OU CONSERVAÇÃO DE
+PRODUTOS DA PESCA
+IATES E OUTROS BARCOS E EMBARCAÇÕES DE RECREIO OU DE
+ESPORTE; BARCOS A REMOS E CANOAS
+-Barcos infláveis
+-Outros
+REBOCADORES E BARCOS CONCEBIDOS PARA EMPURRAR
+OUTRAS EMBARCAÇÕES
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+4
+4
+
+25%
+25%
+
+5
+
+20%
+
+4
+4
+
+25%
+25%
+
+10
+
+10%
+
+4
+
+25%
+
+5
+
+20%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+20
+
+5%
+
+20
+
+5%
+
+5
+10
+20
+
+20%
+10%
+5%
+
+216
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+214 8905
+
+215 8906
+216 8907
+
+217 8907.10
+218 8907.90
+219 Capítulo 90
+
+220 9005
+
+221 9006
+
+222 9007
+
+223 9008
+224 9009
+225 9010
+
+226 9011
+
+227 9012
+228 9014
+229 9015
+
+230 9016
+231 9017
+
+BENS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 16,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 18)",
+    titulo: "BARCOS-FARÓIS, BARCOS-BOMBAS, DRAGAS, GUINDASTES\nFLUTUANTES E OUTRAS EMBARCAÇÕES EM QUE A\nNAVEGAÇÃO É ACESSÓRIA DA FUNÇÃO PRINCIPAL; DOCAS OU\nDIQUES FLUTUANTES; PLATAFORMAS DE PERFURAÇÃO OU DE\nEXPL...",
+    conteudo: `BARCOS-FARÓIS, BARCOS-BOMBAS, DRAGAS, GUINDASTES
+FLUTUANTES E OUTRAS EMBARCAÇÕES EM QUE A
+NAVEGAÇÃO É ACESSÓRIA DA FUNÇÃO PRINCIPAL; DOCAS OU
+DIQUES FLUTUANTES; PLATAFORMAS DE PERFURAÇÃO OU DE
+EXPLORAÇÃO, FLUTUANTES OU SUBMERSÍVEIS
+OUTRAS EMBARCAÇÕES, INCLUÍDOS OS NAVIOS DE GUERRA E
+OS BARCOS SALVA-VIDAS, EXCETO OS BARCOS A REMO
+OUTRAS ESTRUTURAS FLUTUANTES (POR EXEMPLO: BALSAS,
+RESERVATÓRIOS, CAIXÕES, BÓIAS DE AMARRAÇÃO, BÓIAS DE
+SINALIZAÇÃO E SEMELHANTES)
+-Balsas infláveis
+-Outras
+INSTRUMENTOS E APARELHOS DE ÓPTICA, FOTOGRAFIA OU
+CINEMATOGRAFIA, MEDIDA, CONTROLE OU DE PRECISÃO;
+INSTRUMENTOS E APARELHOS MÉDICO-CIRÚRGICOS
+BINÓCULOS, LUNETAS, INCLUÍDAS AS ASTRONÔMICAS,
+TELESCÓPIOS ÓPTICOS, E SUAS ARMAÇÕES; OUTROS
+INSTRUMENTOS DE ASTRONOMIA E SUAS ARMAÇÕES, EXCETO
+OS APARELHOS DE RADIOASTRONOMIA
+APARELHOS FOTOGRÁFICOS; APARELHOS E DISPOSITIVOS,
+EXCLUÍDAS AS LÂMPADAS E TUBOS, DE LUZ-RELÂMPAGO
+(FLASH), PARA FOTOGRAFIA
+CÂMERAS E PROJETORES, CINEMATOGRÁFICOS, MESMO COM
+APARELHOS DE GRAVAÇÃO OU DE REPRODUÇÃO DE SOM
+INCORPORADOS
+APARELHOS DE PROJEÇÃO FIXA; APARELHOS FOTOGRÁFICOS,
+DE AMPLIAÇÃO OU DE REDUÇÃO
+APARELHOS DE FOTOCÓPIA, POR SISTEMA ÓPTICO OU POR
+CONTATO, E APARELHOS DE TERMOCÓPIA
+APARELHOS DOS TIPOS USADOS NOS LABORATÓRIOS
+FOTOGRÁFICOS OU CINEMATOGRÁFICOS (INCLUÍDOS OS
+APARELHOS PARA PROJEÇÃO OU EXECUÇÃO DE TRAÇADOS DE
+CIRCUITOS SOBRE SUPERFÍCIES SENSIBILIZADAS DE MATERIAIS
+SEMICONDUTORES); NEGATOSCÓPIOS; TELAS PARA PROJEÇÃO
+MICROSCÓPIOS ÓPTICOS, INCLUÍDOS OS MICROSCÓPIOS PARA
+FOTOMICROGRAFIA, CINEFOTOMICROGRAFIA OU
+MICROPROJEÇÃO
+MICROSCÓPIOS (EXCETO ÓPTICOS) E DIFRATÓGRAFOS
+BÚSSOLAS, INCLUÍDAS AS AGULHAS DE MAREAR, OUTROS
+INSTRUMENTOS E APARELHOS DE NAVEGAÇÃO
+INSTRUMENTOS E APARELHOS DE GEODÉSIA, TOPOGRAFIA,
+AGRIMENSURA, NIVELAMENTO, FOTOGRAMETRIA,
+HIDROGRAFIA, OCEANOGRAFIA, HIDROLOGIA, METEOROLOGIA
+OU DE GEOFÍSICA, EXCETO BÚSSOLAS; TELÊMETROS
+BALANÇAS SENSÍVEIS A PESOS IGUAIS OU INFERIORES A 5cg,
+COM OU SEM PESOS
+INSTRUMENTOS DE DESENHO, DE TRAÇADO OU DE CÁLCULO`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 17,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 19)",
+    titulo: "(POR EXEMPLO: MÁQUINAS DE DESENHAR, PANTÓGRAFOS,\nTRANSFERIDORES, ESTOJOS DE DESENHO, RÉGUAS DE CÁLCULO\nE DISCOS DE CÁLCULO); INSTRUMENTOS DE MEDIDA DE\nDISTÂNCIAS DE USO MANUAL (POR EXEMPLO: METROS,...",
+    conteudo: `(POR EXEMPLO: MÁQUINAS DE DESENHAR, PANTÓGRAFOS,
+TRANSFERIDORES, ESTOJOS DE DESENHO, RÉGUAS DE CÁLCULO
+E DISCOS DE CÁLCULO); INSTRUMENTOS DE MEDIDA DE
+DISTÂNCIAS DE USO MANUAL (POR EXEMPLO: METROS,
+MICRÔMETROS, PAQUÍMETROS E CALIBRES), NÃO
+ESPECIFICADOS NEM COMPREENDIDOS EM OUTRAS POSIÇÕES
+DESTE CAPÍTULO
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+20
+
+%
+
+20
+
+5%
+
+5
+20
+
+20%
+5%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+217
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+232 9018
+
+233 9018.1
+
+234 9018.20
+235 9018.4
+236 9018.41
+237
+238
+239
+240
+
+9018.49
+9018.50
+9018.90
+9019
+
+241 9020
+
+242 9022
+
+243 9024
+
+244 9025
+
+245 9026
+
+246 9027
+
+BENS
+
+INSTRUMENTOS E APARELHOS PARA MEDICINA, CIRURGIA,
+ODONTOLOGIA E VETERINÁRIA, INCLUÍDOS OS APARELHOS
+PARA CINTILOGRAFIA E OUTROS APARELHOS ELETROMÉDICOS,
+BEM COMO OS APARELHOS PARA TESTES VISUAIS
+-Aparelhos de eletrodiagnóstico (incluídos os aparelhos de
+exploração funcional e os de verificação de parâmetros
+fisiológicos)
+-Aparelhos de raios ultravioleta ou infravermelhos
+-Outros instrumentos e aparelhos para odontologia
+--Aparelhos dentários de brocar, mesmo combinados numa
+base comum com outros equipamentos dentários
+--Outros instrumentos e aparelhos para odontologia
+-Outros instrumentos e aparelhos para oftalmologia
+-Outros instrumentos e aparelhos
+APARELHOS DE MECANOTERAPIA; APARELHOS DE MASSAGEM;
+APARELHOS DE PSICOTÉCNICA; APARELHOS DE
+OZONOTERAPIA, DE OXIGENOTERAPIA, DE AEROSSOLTERAPIA,
+APARELHOS RESPIRATÓRIOS DE REANIMAÇÃO E OUTROS
+APARELHOS DE TERAPIA RESPIRATÓRIA
+OUTROS APARELHOS REPIRATÓRIOS E MÁSCARAS CONTRA
+GASES, EXCETO AS MÁSCARAS DE PROTEÇÃO DESPROVIDAS DE
+MECANISMO E DE ELEMENTO FILTRANTE AMOVÍVEL
+APARELHOS DE RAIOS X E APARELHOS QUE UTILIZEM
+RADIAÇÕES ALFA, BETA OU GAMA, MESMO PARA USOS
+MÉDICOS, CIRÚRGICOS, ODONTOLÓGICOS OU VETERINÁRIOS,
+INCLUÍDOS OS APARELHOS DE RADIOFOTOGRAFIA OU DE
+RADIOTERAPIA, OS TUBOS DE RAIOS X E OUTROS DISPOSITIVOS
+GERADORES DE RAIOS X, OS GERAD`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 18,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 20)",
+    titulo: "ORES DE TENSÃO, AS\nMESAS DE COMANDO, AS TELAS DE VISUALIZAÇÃO, AS MESAS,\nPOLTRONAS E SUPORTES SEMELHANTES PARA EXAME OU\nTRATAMENTO\nMÁQUINAS E APARELHOS PARA ENSAIOS DE DUREZA, TRAÇÃO,\nCOMPRESSÃO, E...",
+    conteudo: `ORES DE TENSÃO, AS
+MESAS DE COMANDO, AS TELAS DE VISUALIZAÇÃO, AS MESAS,
+POLTRONAS E SUPORTES SEMELHANTES PARA EXAME OU
+TRATAMENTO
+MÁQUINAS E APARELHOS PARA ENSAIOS DE DUREZA, TRAÇÃO,
+COMPRESSÃO, ELASTICIDADE OU DE OUTRAS PROPRIEDADES
+MECÂNICAS DE MATERIAIS (POR EXEMPLO: METAIS, MADEIRA,
+TÊXTEIS, PAPEL, PLÁSTICOS)
+DENSÍMETROS, AREÔMETROS, PESA-LÍQUIDOS E
+INSTRUMENTOS FLUTUANTES SEMELHANTES, TERMÔMETROS,
+PIRÔMETROS, BARÔMETROS, HIGRÔMETROS E
+PSICRÔMETROS, REGISTRADORES OU NÃO, MESMO
+COMBINADOS ENTRE SI
+INSTRUMENTOS E APARELHOS PARA MEDIDA OU CONTROLE
+DA VAZÃO (CAUDAL), DO NÍVEL, DA PRESSÃO OU DE OUTRAS
+CARACTERÍSTICAS VARIÁVEIS DOS LÍQUIDOS OU GASES [POR
+EXEMPLO: MEDIDORES DE VAZÃO (CAUDAL), INDICADORES DE
+NÍVEL, MANÔMETROS, CONTADORES DE CALOR], EXCETO OS
+INSTRUMENTOS E APARELHOS DAS POSIÇÕES 9014, 9015, 9028
+OU 9032
+INSTRUMENTOS E APARELHOS PARA ANÁLISES FÍSICAS OU
+QUÍMICAS [POR EXEMPLO: POLARÍMETROS, REFRATÔMETROS,
+ESPECTRÔMETROS, ANALISADORES DE GASES OU DE FUMAÇA];
+INSTRUMENTOS E APARELHOS PARA ENSAIOS DE VISCOSIDADE,
+POROSIDADE, DILATAÇÃO, TENSÃO SUPERFICIAL OU
+SEMELHANTES OU PARA MEDIDAS CALORIMÉTRICAS,
+ACÚSTICAS OU FOTOMÉTRICAS (INCLUÍDOS OS INDICADORES
+DE TEMPO DE EXPOSIÇÃO); MICRÓTOMOS
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+10
+10
+10
+
+10%
+10%
+10%
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+218
+
+ITEM
+
+REFERÊNCIA
+NCM
+
+247 9028
+248 9029
+
+249 9030
+
+250 9031
+
+251 9032
+252 Capítulo 94
+253 9402
+
+254
+255
+256
+257
+
+9403
+9406
+Capítulo 95
+9506
+
+258 9508
+
+BENS`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 19,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 21)",
+    titulo: "CONTADORES DE GASES, LÍQUIDOS OU DE ELETRICIDADE,\nINCLUÍDOS OS APARELHOS PARA SUA AFERIÇÃO\nOUTROS CONTADORES (POR EXEMPLO",
+    conteudo: `CONTADORES DE GASES, LÍQUIDOS OU DE ELETRICIDADE,
+INCLUÍDOS OS APARELHOS PARA SUA AFERIÇÃO
+OUTROS CONTADORES (POR EXEMPLO: CONTADORES DE
+VOLTAS, CONTADORES DE PRODUÇÃO, TAXÍMETROS,
+TOTALIZADORES DE CAMINHO PERCORRIDO, PODÔMETROS);
+INDICADORES DE VELOCIDADE E TACÔMETROS, EXCETO OS
+DAS POSIÇÕES 9014 OU 9015; ESTROBOSCÓPIOS
+OSCILOSCÓPIOS, ANALISADORES DE ESPECTRO E OUTROS
+INSTRUMENTOS E APARELHOS PARA MEDIDA OU CONTROLE
+DE GRANDEZAS ELÉTRICAS; INSTRUMENTOS E APARELHOS
+PARA MEDIDA OU DETECÇÃO DE RADIAÇÕES ALFA, BETA,
+GAMA, X, CÓSMICAS OU OUTRAS RADIAÇÕES IONIZANTES
+INSTRUMENTOS, APARELHOS E MÁQUINAS DE MEDIDA OU
+CONTROLE, NÃO ESPECIFICADOS NEM COMPREENDIDOS EM
+OUTRAS POSIÇÕES DESTE CAPÍTULO; PROJETORES DE PERFIS
+INSTRUMENTOS E APARELHOS PARA REGULAÇÃO OU
+CONTROLE, AUTOMÁTICOS
+MÓVEIS; MOBILIÁRIO MÉDICO-CIRÚRGICO; CONSTRUÇÕES
+PRÉ-FABRICADAS
+MOBILIÁRIO PARA MEDICINA, CIRURGIA, ODONTOLOGIA OU
+VETERINÁRIA (POR EXEMPLO: MESAS DE OPERAÇÃO, MESAS DE
+EXAMES, CAMAS DOTADAS DE MECANISMOS PARA USOS
+CLÍNICOS, CADEIRAS DE DENTISTA); CADEIRAS PARA SALÕES DE
+CABELEIREIRO E CADEIRAS SEMELHANTES, COM DISPOSITIVOS
+DE ORIENTAÇÃO E DE ELEVAÇÃO
+OUTROS MÓVEIS PARA ESCRITÓRIO
+CONSTRUÇÕES PRÉ-FABRICADAS
+ARTIGOS PARA DIVERTIMENTO OU PARA ESPORTE
+ARTIGOS E EQUIPAMENTOS PARA CULTURA FÍSICA E
+GINÁSTICA; PISCINAS
+CARROSSÉIS, BALANÇOS, INSTALAÇÕES DE TIRO-AO-ALVO E
+OUTRAS DIVERSÕES DE PARQUES E FEIRAS; CIRCOS, COLEÇÕES
+DE ANIMAIS E TEATROS AMBULANTES
+
+PRAZO DE VIDA
+ÚTIL (ANOS)
+
+TAXA ANUAL DE
+DEPRECIAÇÃO
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+
+10%
+
+10
+25
+
+10%
+4%
+
+10
+
+10%
+
+10
+
+10%`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 20,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 22)",
+    titulo: "Notas:\n(1) Os fornos para a indústria de vidro, classificados na posição 8417, serão depreciados em 3 anos à taxa\nde 33,3%",
+    conteudo: `Notas:
+(1) Os fornos para a indústria de vidro, classificados na posição 8417, serão depreciados em 3 anos à taxa
+de 33,3%.
+(2) As máquinas, equipamentos e instalações industriais constantes deste anexo, utilizadas na indústria
+química, serão depreciadas em 5 anos à taxa de 20%.
+(3) Os acessórios e as partes dos aparelhos, equipamentos e máquinas constantes deste anexo:
+a) Não serão objeto de depreciação enquanto não incorporadas a referidos aparelhos, equipamentos e
+máquinas;
+b) Integrarão a base de cálculo da quota de depreciação dos aparelhos, equipamentos e máquinas, a partir
+da data em que a eles forem incorporados.
+
+219
+
+ANEXO II - REPETRO (ART. 164)
+TABELA I - LISTA DE BENS (REPETRO-TEMPORÁRIO) (ART. 164, INCISO I)
+ITEM
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+
+NCM/SH
+2844
+5607
+7304
+7304
+7304
+7304
+7305
+7306
+7306
+7306
+7307
+7308
+7308
+7309
+7315
+7315
+7316
+8205
+8205
+8405
+8407
+8408
+8411
+8413
+8413
+8413
+8413
+8413
+8414
+8414
+8414
+8416
+8419
+8419
+8421
+8421
+8421
+8421
+8421
+8425
+8425
+8428
+8428
+8428
+8430
+8431
+8431
+8431
+8467
+8467
+
+51
+
+8474
+
+DESCRIÇÃO COMERCIAL
+Fonte radioativa (para medição/marcação).
+Cabo de poliéster (trançado).
+Tubo de lavagem (wash pipe) (sem costura).
+Tubo de perfuração drill pipe (sem costura).
+Tubo de produção (coluna de produção/COP) (sem costura).
+Tubo metálico (sem costura) (serviço de perfuração/intervenção).
+Tubo de perfuração drill pipe (soldado, grande diâmetro).
+Tubo de lavagem (wash pipe) (soldado).
+Tubo de perfuração drill pipe (soldado).
+Tubo de produção (coluna de produção/COP) (soldado).
+Adaptador/acessório tubular de encaixe (para drill pipe riser).
+Base de teste e transporte (estrutura de aço).
+Estrutura de lançamento para jumper elétrico-hidráulico/de potência (aço).
+Recipiente de aço (>300 L) (armazenagem temporária de fluidos/granéis).
+Corrente de amarração (aço) (com/sem malhete).
+Gancho para amarra (peça de corrente).
+Âncora/grapnel`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 21,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 23)",
+    titulo: "(aço).\nCortador manual de tubos (ferramenta de mão).\nFerramenta manual (instalação de Árvore de Natal Molhada).\nUnidade geradora de gás (com purificador).\nMotor de combustão Otto (montado em skid/m...",
+    conteudo: `(aço).
+Cortador manual de tubos (ferramenta de mão).
+Ferramenta manual (instalação de Árvore de Natal Molhada).
+Unidade geradora de gás (com purificador).
+Motor de combustão Otto (montado em skid/móvel).
+Motor de combustão diesel (montado em skid/móvel).
+Turbina a gás.
+Módulo de bombeio submerso (conjunto de bombas).
+Sistema submarino de bombeamento multifásico (BMSHA hélico-axial).
+Unidade de bombeamento de concreto (alta pressão) (cimentação).
+Unidade de bombeamento de fluidos (transferência).
+Unidade de potência hidráulica HPU (conjunto com bombas, reservatório e acionamento).
+Bomba de vácuo (sem óleo) (ferramentas RST).
+Compressor de gás natural.
+Conjunto soprador/resfriador (ar/gás).
+Queimador para efluentes/combustíveis do poço (teste/avaliação).
+Equipamento de tratamento térmico (aquecedor/resfriador).
+Trocador de calor (casco e tubos ou placas).
+Centrífuga (recuperação de fluidos de perfuração).
+Eliminador de névoa (gás).
+Equipamento de secagem/filtração de cascalhos e fluidos.
+Módulo desarenador (fluxo multifásico).
+Partes de centrífugas e equipamentos de filtração (8421).
+Guincho (movimentação/elevação de equipamentos e materiais).
+Turco davit para barco de salvamento (embarcação).
+Aparelho de manuseio/lançamento de jumper (com acionamento).
+Elevador estendido (apoio/tração da coluna) (ex.: 400 t; bucha 6 5/8").
+Equipamento de transporte de cascalhos (contínuo/pneumático).
+Unidade fixa de perfuração/exploração/produção (máquina de perfuração).
+Escareador/estabilizador (perfuração).
+Ferramenta/acessório para perfuração/intervenção (inclui manuseio/elevação de tubos).
+Mesa/base de perfuração (parte de máquina de perfuração).
+Cortador mecânico de tubos (manual).
+Ferramenta hidráulica/pneumática de manuseio, torque, instalação e desconexão (coluna,
+módulos e riser).
+Misturador pressurizado de materiais químicos a granel.
+
+220
+
+ITEM
+52
+53
+54
+55
+56
+57
+58
+59
+60
+
+NCM/SH
+8474
+8474
+8479
+8479
+8481
+8481
+8481
+8481
+8501
+
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 22,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 24)",
+    titulo: "8504\n8517\n8904\n8905\n8905\n8905\n8906\n8906\n8906\n9014\n9015\n9015\n\n73\n74\n75\n76\n77\n78\n79\n80\n81\n82\n83\n84\n85\n86\n\n9015\n9022\n9024\n9026\n9027\n9030\n9031\n9031\n9031\n9031\n9031\n9031\n9032\n9406\n\nDESCRIÇÃO COMERCIAL\nMi...",
+    conteudo: `8504
+8517
+8904
+8905
+8905
+8905
+8906
+8906
+8906
+9014
+9015
+9015
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+
+9015
+9022
+9024
+9026
+9027
+9030
+9031
+9031
+9031
+9031
+9031
+9031
+9032
+9406
+
+DESCRIÇÃO COMERCIAL
+Misturador/reciclador de cimento (CBS).
+Peneira vibratória (shale shaker).
+Equipamento mecânico de função própria (uso em perfuração/intervenção).
+Veículo submarino operado remotamente (ROV).
+BOPW — preventor de erupção para workover.
+SDR — sistema de destravamento rápido (valvulado).
+Válvula de circulação para coluna de drill pipe (PBL).
+Válvula de segurança de fluxo pleno.
+Motor elétrico para acionamento de equipamentos e sistemas (inclui aplicação em guincho de
+âncora).
+Transformador (tipo seco).
+Unidade portátil de teste/aquisição multiplexada PETU (Portable Electrical Terminal Unit).
+Rebocador.
+Estrutura flutuante de apoio com embarcações auxiliares.
+Guindaste flutuante.
+Plataforma de perfuração/exploração (flutuante/semi-submersível).
+Barco salva-vidas.
+Embarcação de apoio às atividades de pesquisa, exploração, perfuração, produção e estocagem.
+Embarcação de pesquisa/aquisição de dados geológicos, geofísicos e geodésicos.
+Inclinômetro (tilt sensor) para sistema de posicionamento.
+Equipamento de aquisição de dados geológicos/geofísicos/geodésicos.
+Partes/acessórios de instrumentos de aquisição de dados (9015) (inclui módulo
+eletrônico/microprocessador).
+Unidade/módulo de controle e aquisição de dados (instrumentos 9015).
+Aparelho de radiação (raios X/gama).
+Equipamento de ensaio mecânico de materiais/partes/tubos.
+Instrumento de medição/controle de vazão/pressão de processo.
+Unidade/sistema de análise físico-química de fluidos e sólidos.
+Instrumento de medição de radiação e grandezas elétricas.
+Base de teste e transporte (parte reconhecível de equipamento de ensaio).
+Caixa de teste para calibração de ferramenta HRLT.
+Equipamento de pré-comissionamento/inspeção de dutos.
+Equipamento de teste de estanqueidade de poço.
+Sistema de transferência de dados do poço para a super`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 23,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 25)",
+    titulo: "fície (instrumentação 9031).\nSistema eletrônico de aquisição de dados estruturais (dutos/equipamentos submarinos).\nSensor/instrumento de monitoramento e controle automático (processo).\nContêiner té...",
+    conteudo: `fície (instrumentação 9031).
+Sistema eletrônico de aquisição de dados estruturais (dutos/equipamentos submarinos).
+Sensor/instrumento de monitoramento e controle automático (processo).
+Contêiner técnico instrumentado (análise/monitoramento/controle).
+
+221
+
+TABELA II - LISTA DE BENS (GNL-TEMPORÁRIO) (ART. 164, INCISO II)
+ITEM
+1
+
+NCM/SH
+3917
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Regaseificação.
+
+2
+
+3917
+
+Transferência.
+
+3
+
+3917
+
+Armazenamento; Regaseificação.
+
+4
+
+3926
+
+Transferência.
+
+5
+6
+
+3926
+3926
+
+7
+
+3926
+
+Movimentação.
+Armazenamento; Regaseificação;
+Transferência.
+Transferência.
+
+8
+
+4009
+
+Transferência.
+
+9
+
+4009
+
+Armazenamento; Regaseificação.
+
+10
+
+4016
+
+Transferência.
+
+11
+12
+
+4016
+4016
+
+13
+
+4016
+
+Movimentação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência.
+
+14
+
+5607
+
+15
+
+6307
+
+16
+17
+
+6909
+7304
+
+18
+
+7305
+
+19
+
+7306
+
+20
+
+7307
+
+21
+
+7307
+
+Armazenamento; Regaseificação.
+
+22
+
+7308
+
+Movimentação; Armazenamento.
+
+23
+
+7308
+
+Transferência; Movimentação;
+Transporte; Regaseificação.
+
+24
+
+7308
+
+25
+
+7308
+
+Transferência; Movimentação;
+Transporte; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Movimentação.
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Movimentação;
+Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Conexões plásticas para tubulações (fittings,
+couplings, portas de serviço) em material plástico
+compatível com serviço criogênico.
+Mangote criogênico composto para GNL, de plástico
+— composite.
+Mangueira de alta pressão composta/plástica para
+lavadora composite.
+Defensas foam-filled com revestimento em
+poliuretano.
+Difusores de ar (plástico) para aeração de tanques.
+Funil (plástico) para reabastecimento técnico —
+funnel.
+Juntas/vedações em material plástico compatível
+com serviço criogênico para braço de carregamento
+(plastic gaskets`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 24,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 26)",
+    titulo: "/seals).\nMangote criogênico para GNL, de borracha\nvulcanizada.\nMangueira de alta pressão de borracha vulcanizada\npara lavadora.\nDefensas pneumáticas para STS, tipo chain-tire net\nou sling type.\nDif...",
+    conteudo: `/seals).
+Mangote criogênico para GNL, de borracha
+vulcanizada.
+Mangueira de alta pressão de borracha vulcanizada
+para lavadora.
+Defensas pneumáticas para STS, tipo chain-tire net
+ou sling type.
+Difusores de ar (borracha vulcanizada/EPDM).
+Juntas e vedadores de borracha (rubber
+gaskets/seals) aplicados à linha de eixo/propulsão.
+Juntas/gaxetas de borracha vulcanizada para braço
+de carregamento (rubber gaskets/O-rings).
+Cordas/cabos têxteis para amarração — mooring
+lines, hawsers.
+Colete salva-vidas e boia circular lifejackets and
+lifebuoys.
+Difusores de ar cerâmicos.
+Tubo de ferro/aço sem costura (seamless), revestido
+ou não.
+Tubo de ferro/aço soldado de grande diâmetro
+(seção circular, D.E. > 406,4 mm), para pipeline.
+Tubo de ferro/aço soldado (welded —
+ERW/SAW/LSAW), revestido ou não.
+Conexões de tubos de ferro/aço (flanges, uniões,
+reduções, tees, bayonet/porta de vácuo), inclusive
+em aço inox.
+Conexões de tubos de ferro/aço para junta soldada
+(flanges, curvas, tees, reduções, uniões).
+Estrutura do convés de helicóptero helideck em
+ferro/aço, fornecida em módulos/partes preparados
+para montagem (vigas, treliças, guarda-corpos,
+grelhas e suportes).
+Estrutura metálica pipe rack/base de ferro ou aço,
+preparada para montagem (vigas, travessas, chapas
+de base).
+Estrutura metálica pipe rack/base de ferro ou aço.
+Estrutura metálica/coluna flare stack.
+
+222
+
+ITEM
+26
+
+NCM/SH
+7308
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+27
+
+7308
+
+28
+
+7309
+
+Transferência; Armazenamento;
+Regaseificação.
+Armazenamento; Regaseificação.
+
+29
+
+7309
+
+Armazenamento.
+
+30
+
+7309
+
+Armazenamento.
+
+31
+
+7309
+
+Armazenamento.
+
+32
+
+7309
+
+Armazenamento; Regaseificação.
+
+33
+
+7309
+
+Armazenamento.
+
+34
+
+7309
+
+Transferência; Armazenamento;
+Regaseificação.
+
+35
+
+7310
+
+Armazenamento; Regaseificação.
+
+36
+
+7311
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+37
+
+7311
+
+38
+
+7311
+
+39
+
+7311`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 25,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 27)",
+    titulo: "Transporte; Movimentação;\nTransferência; Armazenamento",
+    conteudo: `Transporte; Movimentação;
+Transferência; Armazenamento.
+Transporte; Armazenamento;
+Movimentação.
+Transporte; Armazenamento;
+Movimentação.
+
+40
+
+7311
+
+Armazenamento; Regaseificação.
+
+41
+
+7311
+
+Armazenamento; Regaseificação.
+
+42
+
+7311
+
+43
+
+7311
+
+44
+
+7312
+
+45
+
+7314
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Regaseificação.
+
+46
+
+7315
+
+47
+
+7315
+
+48
+
+7316
+
+49
+
+7318
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Estruturas metálicas em ferro/aço para estiva de
+balsas/botes, pré-fabricadas e preparadas para
+montagem (perfuradas/cortadas), com
+bases/longarinas e pontos de fixação permanente ao
+convés/estrutura.
+Passarela de acesso gangway em ferro/aço
+(estrutura metálica), sem sistemas motorizados.
+Tanque metálico fixo para armazenamento de
+refrigerante misto (MR).
+Tanque/decantador metálico (>300 L), sem
+equipamento térmico/mecânico, para espessamento.
+Tanque/digestor metálico (>300 L), sem
+equipamento térmico/mecânico.
+Tanque/vaso metálico (>300 L), sem equipamento
+térmico/mecânico, para clarificador/decantador.
+Tanque/vaso não pressurizado (capacidade elevada),
+sem equipamento térmico/mecânico, usado como
+tambor de sucção/knock-out.
+Tanques metálicos (>300 L), sem equipamento
+térmico/mecânico, para reagentes.
+Vaso separador knockout drum não pressurizado
+(sem equipamento térmico/mecânico) do sistema de
+flare.
+Tanque metálico de pequeno porte para refrigerante
+misto (MR).
+Cilindros/garrafas pressurizadas de ar
+respirável/oxigênio para reposição ou recarga de
+EEBD/SCBA.
+Reservatório criogênico pressurizado (vacuuminsulated tank) para montagem em carreta.
+Reservatório criogênico pressurizado para GNL (vaso
+de pressão, dupla parede a vácuo).
+Reservatório/vaso criogênico pressurizado p`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 26,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 28)",
+    titulo: "ara GNL,\ndupla parede com isolamento a vácuo (vacuuminsulated)",
+    conteudo: `ara GNL,
+dupla parede com isolamento a vácuo (vacuuminsulated).
+Tambor de sucção/vaso acumulador pressurizado de
+GN/GNL (suction drum/accumulator), sem
+serpentinas térmicas.
+Vaso de pressão para refrigerante misto (MR) —
+receiver/accumulator.
+Vaso separador knockout drum pressurizado do
+sistema de flare.
+Vaso/reservatório de ar comprimido — air receiver,
+pressurizado, para sistemas de utilidades.
+Cabos de aço para amarração — steel wire ropes.
+Proteção mecânica em grade/tecido metálico de
+arame (wire mesh, expanded metal) para linhas e
+equipamentos.
+Correntes de ferro/aço para amarração — mooring
+chains.
+Correntes de ferro/aço para amarração naval, tipo
+mooring/anchor chains (stud-link ou sem travessa).
+Âncoras de ferro/aço para amarração naval.
+Acessórios metálicos roscados de amarração e
+conexão (tensores turnbuckles, parafusos-olhais).
+
+223
+
+ITEM
+50
+
+NCM/SH
+7318
+
+TIPO DE ATIVIDADE*
+Transferência.
+
+51
+
+7320
+
+Transferência.
+
+52
+
+7326
+
+Transferência; Armazenamento;
+Regaseificação.
+
+53
+
+7326
+
+54
+
+7326
+
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+55
+
+7326
+
+Armazenamento; Regaseificação.
+
+56
+
+7326
+
+Transferência.
+
+57
+
+7326
+
+58
+
+7326
+
+59
+
+7326
+
+60
+
+7326
+
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Movimentação;
+Transporte; Regaseificação.
+Movimentação; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+61
+
+7412
+
+62
+
+7610
+
+63
+
+7610
+
+64
+
+7610
+
+65
+66
+
+8204
+8205
+
+Transferência; Armazenamento;
+Regaseificação.
+Armazenamento; Regaseificação.
+Armazenamento; Regaseificação.
+
+67
+
+8205
+
+Armazenamento; Regaseificação.
+
+68
+
+8207
+
+Armazenamento; Regaseificação.
+
+69
+
+8207
+
+Armazenamento; Regaseificação.
+
+70
+
+8307
+
+Transferência.
+
+71
+
+8307
+
+Armazenamento; Regaseificação.
+
+72
+
+8311
+
+Armazenamento; Regaseificação.
+
+73
+
+8402
+
+Regaseificação.
+
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Movimentação;
+Transporte; Regaseificação.
+Movimentação; Armazenamento.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 27,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 29)",
+    titulo: "DESCRIÇÃO COMERCIAL\nFixador metálico (pino, parafuso, haste de\ntravamento) aplicado ao mecanismo do loading arm",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Fixador metálico (pino, parafuso, haste de
+travamento) aplicado ao mecanismo do loading arm.
+Mola de aço para mecanismo de garra/junta do
+loading arm.
+Acessórios metálicos de amarração e conexão
+(manilhas, olhais, giratórios swivels, terminais,
+stoppers, fairleads/chocks, ganchos de liberação
+rápida).
+Acessórios metálicos de ferro/aço não reconhecíveis
+como conexão (tampas, caps, clamps, suportes).
+Componentes metálicos simples para passarelas
+(corrimãos, suportes, sapatas), não reconhecíveis
+como estrutura/equipamento completos.
+Gabaritos/berços/suportes metálicos não específicos
+de máquina-ferramenta, para montagem.
+Haste/suporte metálico simples de ferro ou aço,
+aplicada ao conjunto do loading arm.
+Resguardo/guarda metálica em chapa
+perfurada/carenagem para linhas e equipamentos.
+Suporte/bracket metálico simples de ferro ou aço
+(não estruturado).
+Suporte/berço passivo de rolos para tubos (sem
+acionamento).
+Suportes/berços metálicos destacáveis/portáteis
+para balsas/botes (cavaletes, berços modulares,
+clamps/abraçadeiras), sem características de
+estrutura e sem fixação permanente.
+Conexões de cobre/latão para tubulações (uniões,
+tees, portas de serviço).
+Estrutura pipe rack em alumínio, preparada para
+montagem.
+Estrutura do convés de helicóptero helideck em
+alumínio, em módulos/partes preparados para
+montagem (perfis extrudados, painéis, guardacorpos, grelhas e suportes).
+Passarela de acesso gangway em alumínio (estrutura
+metálica), sem sistemas motorizados.
+Chave de torque (torque wrench) e acessórios.
+Ferramenta manual para expansão/rolagem de tubos
+— tube expander/roller.
+Ferramentas manuais para montagem e manutenção
+(chaves, extratores, alinhadores, saca-pinos).
+Ferramentas intercambiáveis (interchangeable tools)
+para ferramentas/máquinas (brocas, fresas, bits,
+mandris).
+Ferramentas intercambiáveis para expansão/rolagem
+— mandrels, rolling heads.
+Mangote criogênico para GNL, corrugado de aço inox
+— corrugated.
+Mangueira de alta pressão cor`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 28,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 30)",
+    titulo: "rugada de aço inox\npara lavadora corrugated",
+    conteudo: `rugada de aço inox
+para lavadora corrugated.
+Material para solda (eletrodos revestidos, varetas,
+arames sólido/tubular welding
+electrodes/rods/wires).
+Caldeira geradora de vapor — steam
+generator/boiler (inclui, quando aplicável, caldeira de
+água superaquecida).
+
+224
+
+ITEM
+74
+
+NCM/SH
+8404
+
+TIPO DE ATIVIDADE*
+Regaseificação.
+
+75
+
+8408
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+76
+
+8409
+
+77
+
+8409
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Armazenamento; Regaseificação.
+
+78
+
+8409
+
+79
+
+8411
+
+Transferência; Armazenamento;
+Regaseificação.
+Regaseificação; Movimentação.
+
+80
+
+8412
+
+Armazenamento; Regaseificação.
+
+81
+
+8412
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+82
+
+8412
+
+83
+
+8412
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+84
+
+8413
+
+85
+
+8413
+
+86
+
+8413
+
+87
+
+8413
+
+88
+
+8413
+
+89
+
+8413
+
+90
+
+8413
+
+91
+92
+
+8413
+8413
+
+Transferência; Movimentação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+93
+
+8413
+
+Transferência.
+
+94
+
+8413
+
+95
+
+8414
+
+96
+
+8414
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação; Transporte.
+Regaseificação; Movimentação.
+
+Transferência; Movimentação;
+Transporte.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Regaseificação; Transferência;
+Movimentação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 29,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 31)",
+    titulo: "DESCRIÇÃO COMERCIAL\nEquipamentos auxiliares de caldeira (economizador,\nsuperaquecedor, recuperador de calor, removedor\nde fuligem, condensador) — economizer,\nsuperheater, air preheater, sootblower,...",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Equipamentos auxiliares de caldeira (economizador,
+superaquecedor, recuperador de calor, removedor
+de fuligem, condensador) — economizer,
+superheater, air preheater, sootblower, condenser.
+Motor de pistão por ignição por compressão (motor
+diesel), fornecido avulso para acoplamento a
+alternador/gerador.
+Peças de motor relativas à injeção (bicos injetores,
+fuel rail, atuadores/solenoids específicos).
+Peças do motor de combustão do grupo gerador
+(generator set) — componentes do motor.
+Peças do motor de combustão do grupo gerador de
+emergência.
+Turboexpansor de gás para serviço criogênico —
+turboexpander module, com ou sem auxiliares
+integrados (lube oil skid, seal gas, control panel,
+brake/generator).
+Atuador hidráulico ou pneumático de válvula
+(actuator).
+Atuador/motor hidráulico para guincho/cabrestante
+de amarração (rotativo ou cilindro linear) — hydraulic
+actuator/motor/cylinder.
+Motor ou atuador hidráulico (hydraulic
+motor/actuator) — rotativo ou cilindro linear.
+Unidade hidráulica de potência — hydraulic power
+unit/HPU com reservatório, manifold/válvulas,
+instrumentação e fornecimento de fluido a
+atuadores/cilindros (podendo incluir bomba
+integrada).
+Bomba criogênica de descarga da carreta (cryogenic
+LNG pump), quando fornecida separadamente.
+Bomba criogênica para GNL, submersa ou de
+superfície — cryogenic LNG pump.
+Bomba de alta pressão para lavadora de limpeza
+industrial.
+Bomba de recirculação do sistema de lavagem de
+gases.
+Bomba dosadora de odorante (dosing pump).
+Bomba para drenagem/recirculação associada ao
+separador do flare.
+Bombas dosadoras para
+hipoclorito/coagulantes/polímeros.
+Bombas para lodo/fluídos viscosos/abrativos.
+Conjunto de bombeamento hidráulico — hydraulic
+power unit/HPU com bomba(s), motor/acionamento,
+reservatório, manifold/válvulas e instrumentação,
+para pressurização e circulação do fluido hidráulico.
+Dispenser de carregamento de GNL com bomba
+integrada (fuel dispenser/pump), pedestal com
+mangueira e bico.
+Unidade de`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 30,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 32)",
+    titulo: "potência hidráulica — hydraulic power\nunit (HPU) (bomba, reservatório, manifold)",
+    conteudo: `potência hidráulica — hydraulic power
+unit (HPU) (bomba, reservatório, manifold).
+Bomba de vácuo para serviços criogênicos (vacuum
+pump).
+Conjunto expander–compressor—compander — para
+serviço criogênico.
+
+225
+
+ITEM
+97
+
+NCM/SH
+8414
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Transporte; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Movimentação; Transferência.
+
+98
+
+8414
+
+99
+
+8414
+
+100
+
+8414
+
+Movimentação; Armazenamento;
+Regaseificação.
+
+101
+
+8414
+
+102
+
+8414
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Armazenamento; Regaseificação.
+
+103
+
+8414
+
+104
+
+8415
+
+105
+
+8416
+
+106
+107
+
+8416
+8416
+
+108
+
+8417
+
+109
+
+8418
+
+110
+
+8418
+
+111
+
+8419
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+112
+
+8419
+
+Armazenamento; Regaseificação;
+Movimentação.
+
+113
+114
+
+8419
+8419
+
+115
+
+8419
+
+Transferência; Movimentação.
+Transferência; Armazenamento;
+Regaseificação.
+Armazenamento; Regaseificação.
+
+116
+
+8419
+
+Transferência; Armazenamento;
+Regaseificação.
+
+117
+
+8419
+
+Armazenamento; Regaseificação.
+
+118
+
+8419
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+119
+120
+
+8421
+8421
+
+Transferência; Movimentação.
+Armazenamento; Regaseificação.
+
+121
+
+8421
+
+Transferência; Armazenamento;
+Regaseificação.
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Armazenamento; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Armazenamento; Regaseificação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 31,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 33)",
+    titulo: "DESCRIÇÃO COMERCIAL\nParte identificável de compressor (base/chassi\nintegrado do skid do compressor), em aço",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Parte identificável de compressor (base/chassi
+integrado do skid do compressor), em aço.
+Partes de ventiladores/exaustores (fan/blower):
+rotores/impelidores, carcaças, volutas, difusores.
+Soprador/compressor de ar para aeração (blower/air
+compressor).
+Ventilador centrífugo/axial para ventilação e
+exaustão de áreas e equipamentos —
+centrifugal/axial fan.
+Ventilador/exaustor do sistema de lavagem de gases
+(fan/blower).
+Ventilador/exaustor para circulação/renovação de ar
+em câmara fria.
+Ventilador/exaustor para ventilação forçada de
+painéis/quadros (fan/blower).
+Unidade de ar-condicionado para painéis/quadros
+elétricos/eletrônicos (panel air conditioner), com
+circuito frigorífico e ventilador.
+Queimador industrial do aquecedor de gás — burner
+(quando fornecido separadamente).
+Queimador industrial para caldeira — burner.
+Sistema de flare para queima controlada de gás
+(ponta/queimador, ignição).
+Incinerador de resíduos a bordo (incinerator) não
+elétrico.
+Módulo de refrigeração termoelétrica para painéis
+(thermoelectric/Peltier cooler).
+Unidade de refrigeração de câmara fria para
+provisões (monobloco ou split, condensing unit +
+evaporator).
+Aquecedor de gás de alívio, tipo inline heater/banho
+térmico (water-bath heater) ou aquecido a
+vapor/água quente.
+Recondensador de vapores de GN/GNL (recondenser)
+com trocador de calor integrado
+(feixe/serpentina/placas).
+Secador térmico de lodo.
+Trocador de calor sem compressor (air-to-air ou airto-water).
+Trocador/air cooler para câmara fria alimentado por
+água gelada/glicol (sem compressor).
+Unidade de geração de nitrogênio por destilação
+fracionada do ar (processo criogênico) — cryogenic
+air separation.
+Unidade de tratamento térmico do refrigerante
+misto (MR) — condenser/evaporator/heat
+exchanger.
+Vaporizador/condicionador de amostra para
+cromatografia de GNL (sample vaporizer/conditioning
+system).
+Centrífuga de desaguamento de lodo.
+Dispositivo de proteção de linha para gás, tipo flame
+arrester e/ou elemento de`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 32,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 34)",
+    titulo: "purificação\n(filtro/coalescente)",
+    conteudo: `purificação
+(filtro/coalescente).
+Dispositivo de proteção de linha tipo flame arrester.
+
+226
+
+ITEM
+122
+
+NCM/SH
+8421
+
+TIPO DE ATIVIDADE*
+Transferência; Armazenamento;
+Regaseificação.
+
+123
+124
+
+8421
+8421
+
+125
+
+8421
+
+Transferência; Movimentação.
+Transferência; Movimentação;
+Regaseificação.
+Transferência; Movimentação.
+
+126
+
+8421
+
+Armazenamento; Regaseificação.
+
+127
+
+8421
+
+Transferência; Movimentação.
+
+128
+
+8421
+
+129
+
+8421
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação.
+
+130
+
+8421
+
+131
+
+8423
+
+132
+
+8423
+
+133
+
+8423
+
+134
+
+8424
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Transporte.
+Transferência; Movimentação;
+Transporte.
+Transferência; Movimentação;
+Transporte.
+Armazenamento; Regaseificação.
+
+135
+
+8424
+
+Armazenamento; Regaseificação.
+
+136
+
+8424
+
+Armazenamento; Regaseificação;
+Transferência.
+
+137
+
+8425
+
+138
+
+8425
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+139
+
+8425
+
+140
+
+8426
+
+141
+
+8428
+
+142
+
+8428
+
+Transferência; Armazenamento;
+Regaseificação.
+
+143
+
+8428
+
+144
+
+8431
+
+Movimentação; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+145
+
+8431
+
+146
+
+8431
+
+Movimentação; Armazenamento;
+Regaseificação.
+Movimentação; Armazenamento;
+Regaseificação.
+Transferência.
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Dispositivo de proteção/purificação de gás da linha
+de flare (coalescente, mist eliminator, flame
+arrester).
+Filtro-prensa/filtro a vácuo/belt filter press.
+Filtro/strainer de linha para fluidos de processo (ex.:
+Y-strainer, basket/duplex strainer).
+Grade/triturador/tela rotativa para remoção de
+sólidos (bar screen, rotary screen).
+Separador gás-líquido com internos de
+coalescência/demister, aplicado como tambor de
+sucção.
+Sistema de desinfecção UV para água (reator,
+lâmpadas e controle).
+Sistema de lavagem/purificação`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 33,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 35)",
+    titulo: "de gases (gas\nscrubber — wet ou dry)",
+    conteudo: `de gases (gas
+scrubber — wet ou dry).
+Unidade de filtração terciária (filtro de areia/mídia,
+UF/MBR).
+Unidade geradora de nitrogênio por PSA (zeólita) ou
+por membrana separadora.
+Balança rodoviária weighbridge para veículos,
+completa (plataforma, células de carga e indicador).
+Células de carga load cells e indicador/terminal de
+pesagem para balança rodoviária.
+Sistema de pesagem em movimento weigh-in-motion
+(WIM).
+Lavadora de alta pressão pressure washer (água
+fria/quente), conjunto completo.
+Partes/acessórios de lavadora de alta pressão
+(pistola, bicos, lança).
+Sistema fixo de extinção por CO₂ (cilindros/coletores,
+válvulas, bicos de descarga/nozzles, tubulação e
+acionamento).
+Guincho/davit de lançamento e recolhimento de
+balsa/bote, com sistema de descida controlada.
+Guincho/cabrestante/tensionador de amarração —
+mooring winch/capstan, com ou sem tensionamento
+automático (constant tension/render & recover).
+Talha elétrica de corrente ou de cabo (electric
+chain/wire-rope hoist).
+Guindaste elétrico tipo overhead/bridge crane ou
+gantry crane, com ponte/viga e trolley.
+Braço de carregamento de GNL (loading arm) com
+juntas/acoplamento.
+Passarela gangway telescópica/autoajustável com
+sistema de elevação/compensação e controle
+(hidráulico/elétrico).
+Rotador/berço de rolos para tubos — pipe
+rotator/roller bed, com acionamento.
+Partes de guinchos/cabrestantes de amarração —
+tambores, redutores, cabeçotes, freios/conjuntos de
+freio, bases e painéis de comando.
+Partes de guinchos/cabrestantes de amarração
+(tambor, redutor, cabeçotes, conjuntos de freio).
+Partes de sistemas de lançamento (cabos, tambores,
+redutores, cabeçotes, suportes).
+
+227
+
+ITEM
+147
+
+NCM/SH
+8431
+
+TIPO DE ATIVIDADE*
+Movimentação; Armazenamento;
+Regaseificação.
+
+148
+
+8431
+
+Movimentação; Armazenamento;
+Regaseificação.
+
+149
+
+8431
+
+Transferência.
+
+150
+
+8466
+
+Armazenamento; Regaseificação.
+
+151
+
+8467
+
+Armazenamento; Regaseificação.
+
+152
+
+8467
+
+Armazenamento; Regaseificação.
+
+153
+
+8468`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 34,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 36)",
+    titulo: "Armazenamento; Regaseificação.\n\n154\n\n8471\n\n155\n\n8471\n\n156\n\n8471\n\n157\n\n8479\n\nTransferência; Movimentação;\nArmazenamento; Regaseificação.\nTransferência; Movimentação;\nArmazenamento; Regaseificação.\nT...",
+    conteudo: `Armazenamento; Regaseificação.
+
+154
+
+8471
+
+155
+
+8471
+
+156
+
+8471
+
+157
+
+8479
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação.
+
+158
+
+8479
+
+Movimentação.
+
+159
+
+8479
+
+Movimentação.
+
+160
+
+8479
+
+Movimentação.
+
+161
+
+8479
+
+Regaseificação; Transferência;
+Movimentação.
+
+162
+
+8481
+
+Armazenamento; Regaseificação.
+
+163
+
+8481
+
+Armazenamento; Regaseificação.
+
+164
+
+8481
+
+Transferência; Armazenamento;
+Regaseificação.
+
+165
+
+8481
+
+166
+
+8481
+
+167
+
+8481
+
+168
+
+8481
+
+169
+
+8482
+
+Armazenamento; Regaseificação;
+Transferência.
+Transferência; Movimentação;
+Transporte.
+Transferência; Armazenamento;
+Regaseificação.
+Regaseificação; Transferência;
+Movimentação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Partes e componentes de guindastes/ponte rolante
+(troles, cabeceiras, rodas, ganchos/moitões,
+longarinas, conjuntos de translação).
+Partes e componentes reconhecíveis de
+equipamentos de elevação e manuseio de materiais
+(ex.: pipe rotators, roller beds, troles/cabeçotes de
+rolagem, módulos de movimentação).
+Peça sobressalente própria de braço de
+carregamento de GNL (loading arm) —
+haste/elemento do mecanismo de garra/junta, em
+aço.
+Acessórios/dispositivos de fixação e alinhamento
+para máquinas-ferramenta (jigs and fixtures, work
+holders, tool holders, dividing heads).
+Ferramenta portátil motorizada para
+expansão/rolagem de tubos — power tube expander.
+Ferramentas portáteis motorizadas (power tools)
+para montagem/manutenção (furadeira,
+parafusadeira, rebitador, grinder).
+Aparelho de soldagem/brazeamento a gás e corte
+(maçaricos, gas welding/brazing set, cutting torch).
+Computador industrial panel PC/industrial PC
+(unidade de processamento com tela).
+Computador/servidor industrial da sala de controle
+(industrial PC, server).
+Unidade de processamento industrial (industrial PC,
+CPU module) para sistemas de co`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 35,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 37)",
+    titulo: "ntrole/automação.\nDesarenador/classificador de areia (grit chamber/grit\nclassifier).\nEspessador/decantador de lodo — mecanismo de\nraspagem/ponte.\nMecanismo de raspadores/ponte de clarificador\n(deca...",
+    conteudo: `ntrole/automação.
+Desarenador/classificador de areia (grit chamber/grit
+classifier).
+Espessador/decantador de lodo — mecanismo de
+raspagem/ponte.
+Mecanismo de raspadores/ponte de clarificador
+(decantador).
+Misturador/agitador para preparo e mistura de
+reagentes/efluentes.
+Skid de odorização de gás natural — unidade de
+dosagem de odorante com tanque, bomba, medição
+e controle (odorization skid).
+Válvula de isolamento para linha de GNL (shut-off),
+com ou sem atuador.
+Válvula de isolamento/bloqueio rápido criogênica
+para linha de GNL (quick-closing/ESD), com ou sem
+atuador.
+Válvula de segurança/alívio de pressão (safety relief
+valve — PSV/SRV), direta ou pilotada, para descarga
+ao sistema de flare.
+Válvula para serviço de refrigerante — refrigerant
+valve para tubulações (on/off ou controle).
+Válvulas criogênicas de bloqueio/controle da carreta
+(cryogenic valves).
+Válvulas de bloqueio rápido/segurança da linha de
+alívio (ESD/SDV).
+Válvulas de bloqueio/controle associadas ao sistema
+de odorização.
+Rolamentos de esferas/roletes para motores e
+ventiladores.
+
+228
+
+ITEM
+170
+
+NCM/SH
+8482
+
+TIPO DE ATIVIDADE*
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+171
+
+8483
+
+172
+
+8483
+
+Movimentação.
+
+173
+
+8483
+
+174
+
+8484
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência.
+
+175
+
+8484
+
+Transferência; Armazenamento;
+Regaseificação.
+
+176
+
+8487
+
+177
+
+8487
+
+Transferência; Armazenamento;
+Regaseificação.
+Movimentação.
+
+178
+
+8501
+
+Movimentação.
+
+179
+180
+
+8501
+8501
+
+181
+
+8501
+
+Transferência; Movimentação.
+Transferência; Armazenamento;
+Regaseificação; Transporte.
+Movimentação; Regaseificação.
+
+182
+
+8501
+
+183
+
+8501
+
+184
+
+8502
+
+185
+
+8503
+
+186
+
+8503
+
+Armazenamento; Regaseificação.
+
+187
+
+8503
+
+188
+
+8503
+
+Transferência; Armazenamento;
+Regaseificação.
+Movimentação; Regaseificação.
+
+189
+
+8504
+
+190
+
+8504
+
+191
+
+8504
+
+192
+
+8504
+
+193
+
+8504
+
+194
+
+8504`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 36,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 38)",
+    titulo: "Movimentação; Armazenamento;\nRegaseificação",
+    conteudo: `Movimentação; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+Movimentação; Armazenamento;
+Regaseificação.
+Movimentação; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação; Transporte.
+Transferência; Movimentação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Rolamentos de esferas/rolos para a linha de
+eixo/propulsão.
+Conjunto de transmissão da linha de eixo (eixo de
+transmissão, acoplamento, caixa de engrenagens,
+mancal liso/bearing housing, embreagem).
+Conjunto de transmissão/rolamentos/eixos do
+propulsor.
+Transmissão mecânica do guincho (redutor,
+engrenagens, acoplamentos, eixos).
+Conjunto/jogo de vedação para braço de
+carregamento de GNL (seal kit/mechanical
+seals/gaskets) em chapas metálicas combinadas com
+outro material ou selos mecânicos.
+Selos mecânicos e juntas de vedação da linha de
+eixo/tubo de popa (mechanical seals, stern-tube
+seals).
+Hélice naval e pás para propulsão de embarcação
+(ship propeller e propeller blades), em metal.
+Hélice/propulsor marítimo para manobra (stern/bow
+thruster), sem motor elétrico.
+Motor elétrico para acionamento de propulsor
+(thruster).
+Motor elétrico para acionamento de bomba de GNL.
+Motor elétrico para acionamento de bomba de
+vácuo.
+Motor elétrico para acionamento de compressor de
+recirculação (recycle compressor), inclusive execução
+para área classificada quando aplicável.
+Motor elétrico para acionamento de guindaste/talha.
+Motor elétrico para guincho/cabrestante de
+amarração.
+Grupo gerador de emergência emergency generator
+set (conforme SOLAS).
+Partes de motor elétrico (estator, rotor,
+tampas/escoramentos, suportes de escovas,
+ventilador de arrefecimento).
+Partes do gerador elétrico/alternador do generator
+set.
+Partes do grupo gerador de emergência (alternador,
+excitador/AVR, reguladore`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 37,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 39)",
+    titulo: "s, subconjuntos elétricos).\nPartes reconhecíveis de motor elétrico (estator,\nrotor, tampa/escoramento, kit de rolamentos).\nInversor de frequência VFD para comando do motor\nde guindaste/talha.\nInver...",
+    conteudo: `s, subconjuntos elétricos).
+Partes reconhecíveis de motor elétrico (estator,
+rotor, tampa/escoramento, kit de rolamentos).
+Inversor de frequência VFD para comando do motor
+de guindaste/talha.
+Inversor de frequência (VFD)/variable frequency drive
+para comando do motor do recycle compressor.
+Inversor de frequência (VFD) para comando do motor
+da bomba de vácuo.
+Inversor de frequência (VFD) para comando/partida
+suave de bomba de GNL.
+Módulo conversor estático (inverter, rectifier, DC-DC
+converter).
+Módulo conversor/regulador de tensão DC-DC
+converter ou power module montado, com controle e
+proteção.
+
+229
+
+ITEM
+195
+
+NCM/SH
+8504
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+196
+
+8504
+
+197
+
+8504
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+
+198
+
+8504
+
+199
+
+8507
+
+200
+
+8513
+
+201
+202
+
+8514
+8515
+
+Armazenamento; Regaseificação.
+Armazenamento; Regaseificação.
+
+203
+
+8516
+
+204
+
+8516
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Transporte; Armazenamento.
+
+205
+
+8516
+
+Transferência; Movimentação;
+Transporte; Armazenamento.
+
+206
+
+8516
+
+Transferência; Movimentação;
+Transporte; Armazenamento.
+
+207
+
+8517
+
+208
+
+8517
+
+209
+
+8518
+
+210
+
+8525
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+211
+
+8525
+
+212
+
+8526
+
+213
+
+8526
+
+214
+
+8526
+
+215
+
+8526
+
+216
+
+8526
+
+217
+
+8526
+
+218
+
+8527
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 38,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 40)",
+    titulo: "Transferência; Movimentação;\nArmazenamento; Regaseificação",
+    conteudo: `Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Módulo de conversão estática — inverter, rectifier,
+DC-DC converter, com controle/placa eletrônica
+integrada.
+Retificador/UPS/conversor estático de potência para
+alimentação de painéis/cargas críticas.
+Retificador/conversor estático para proteção
+catódica por corrente impressa — ICCP power
+supply/rectifier (em gabinete).
+Sistema UPS/retificador–carregador para
+alimentação de emergência.
+Bancos de baterias para sistemas de emergência.
+Partes de lanternas portáteis/recarregáveis
+(flashlights/headlamps): carcaças, lentes/difusores,
+suportes, kits de vedação.
+Incinerador elétrico de resíduos (electric incinerator).
+Máquina/aparelho de solda elétrica para
+montagem/manutenção (arco, TIG, MIG/MAG, corte
+plasma), com ou sem fonte/alimentador/tocha.
+Aquecedor elétrico de passagem para gás — inline
+electric heater.
+Aquecedor elétrico de passagem/imersão para
+componentes criogênicos da carreta de GNL (inline
+electric heater/immersion heater).
+Elemento/cartucho de aquecimento elétrico para
+conjuntos térmicos da carreta (heating
+element/cartridge heater).
+Sistema de aquecimento elétrico (heating
+cable/element) para anticongelamento de
+válvulas/linhas da carreta.
+Equipamentos de rede/comunicação de dados
+(Ethernet switch, router, access point).
+Placa eletrônica de módulo/transceptor de
+comunicação (optical transceiver/line card).
+Sistema de sonorização e anúncio público PA/GA —
+amplificadores de áudio, alto-falantes e microfones.
+Terminal de comunicações por satélite para GMDSS
+(Inmarsat/`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 39,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 41)",
+    titulo: "VSAT), com transceptor e antena\nestabilizada",
+    conteudo: `VSAT), com transceptor e antena
+estabilizada.
+Transceptor VHF/MF/HF com chamada seletiva
+digital DSC para GMDSS.
+Satellite compass/receptor GNSS com saída de rumo
+para integração a piloto automático e sistemas de
+navegação.
+Radar de navegação banda X/S, com antena scanner,
+transceptor e console (marine radar, ARPA).
+Radiobaliza de emergência EPIRB e transponder de
+busca e salvamento SART/AIS-SART.
+Receptor de posicionamento por satélite GNSS/GPS
+para navegação e integração a sistemas de bordo.
+Sistema de controle remoto por rádio (radio remote
+control) para operação de equipamentos de convés
+(ex.: guinchos/winches, guindastes/cranes, portas).
+Transponder de identificação automática AIS classe
+A, com unidade de controle/display.
+Receptor de avisos náuticos e meteorológicos
+NAVTEX.
+
+230
+
+ITEM
+219
+
+NCM/SH
+8528
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+220
+
+8528
+
+221
+
+8529
+
+222
+
+8530
+
+Transferência; Movimentação;
+Transporte.
+
+223
+
+8531
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+224
+
+8531
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+225
+
+8532
+
+226
+
+8533
+
+227
+
+8534
+
+228
+
+8534
+
+229
+
+8535
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+230
+
+8536
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+231
+
+8536
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+232
+
+8536
+
+233
+
+8536
+
+234
+
+8536
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+235
+
+8536`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 40,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 42)",
+    titulo: "Transferência; Movimentação;\nArmazenamento; Regaseificação",
+    conteudo: `Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+236
+
+8536
+
+237
+
+8536
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+238
+
+8537
+
+Movimentação; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Monitor/visor industrial (display) para sistemas de
+automação, sem funções de controle integradas.
+Monitor/visor profissional para sala de controle
+(industrial monitor/display).
+Antenas e módulos/partes de distribuição de RF
+(antennas, splitters, combiners, directional couplers,
+RF filters, LNA), próprios para sistemas de
+comunicação/navegação (inclui antena VSAT
+marítima estabilizada).
+Equipamentos de sinalização e controle de tráfego
+em instalações portuárias — traffic lights, barreiras,
+controladores.
+Aparelhos elétricos de sinalização/alarme sonorovisual — sirenes, buzinas e luzes de advertência
+beacons/stack lights.
+Detectores e acionadores de alarme de incêndio —
+smoke/heat/flame detectors, manual call points,
+sinalizadores sounders/beacons.
+Capacitores para eletrônica de potência/controle
+(DC-link, snubber, correção de fator de potência).
+Resistores industriais e potenciômetros —
+power/braking resistors, shunts, potentiometers.
+Placa de circuito impresso não montada (printed
+circuit board — PCB).
+Placa eletrônica (PCB) de controle/automação —
+módulo de I/O/controle.
+Aparelhagem de comutação/proteção de média/alta
+tensão — disjuntores a vácuo, seccionadores e
+transformadores de instrumento para
+proteção/medição.
+Aparatos de comutação e proteção de baixa tensão
+(contatores, relés, disjuntores modulares, chaves de
+atuação, bornes/conectores).
+Aparelhos completos de comutação/proteção de
+baixa tensão (disjuntores MCCB/ACB, contatores,
+relés de proteção, fusíveis) — até 1000 V.
+Conectores e adaptadores coaxiais de RF (RF
+connectors/adapters).
+Conectores para fibras ópticas (optical fiber
+connectors — LC, SC, ST).
+Conectores/terminações elétricas e tomadas/plugues
+de painel (electrical connectors, indust`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 41,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 43)",
+    titulo: "rial\nplugs/sockets).\nDispositivos de corte e comando de emergência —\nbotões E-stop, chaves de segurança/intertravamento,\ncontatores/disjuntores.\nSoquetes/lamp-holders, conectores e bases de\nlâmpada...",
+    conteudo: `rial
+plugs/sockets).
+Dispositivos de corte e comando de emergência —
+botões E-stop, chaves de segurança/intertravamento,
+contatores/disjuntores.
+Soquetes/lamp-holders, conectores e bases de
+lâmpadas, próprios para luminárias.
+Tomadas e plugues industriais, conectores e tomadas
+de painel (industrial plugs and sockets, panel
+receptacles), inclusive execuções para área
+classificada quando aplicável.
+Conjunto de comando e proteção montado em painel
+para o motor do recycle compressor (partida,
+seccionamento, I/O).
+
+231
+
+ITEM
+239
+
+NCM/SH
+8537
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+240
+
+8537
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+241
+
+8537
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+242
+
+8537
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+243
+
+8537
+
+244
+
+8537
+
+Transferência; Movimentação;
+Armazenamento.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+245
+
+8537
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+246
+
+8537
+
+247
+
+8537
+
+248
+
+8537
+
+249
+
+8537
+
+250
+
+8537
+
+Movimentação; Armazenamento;
+Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Regaseificação; Transferência;
+Movimentação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+251
+
+8537
+
+252
+
+8537
+
+253
+
+8537
+
+254
+
+8537
+
+255
+
+8537
+
+256
+
+8537
+
+257
+
+8537
+
+258
+
+8537
+
+259
+
+8537
+
+260
+
+8537
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Transporte; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 42,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 44)",
+    titulo: "Armazenamento; Regaseificação.\n\nDESCRIÇÃO COMERCIAL\nConjunto de controle montado em painel para\ntestes/pressurização (módulos de medição e\ncomando integrados; inclui quadro/painel de\ncontrole de em...",
+    conteudo: `Armazenamento; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Conjunto de controle montado em painel para
+testes/pressurização (módulos de medição e
+comando integrados; inclui quadro/painel de
+controle de emergência).
+Controlador programável/PLC ou conjunto de
+controle montado em painel (módulos de I/O, fonte,
+relés, contatos).
+Módulo/painel de controle do motor com I/O,
+intertravamentos e interface (engine control
+panel/module).
+Módulos/estações de campo do sistema de alarme
+de incêndio (interfaces de laço, I/O endereçáveis,
+unidades de controle).
+Painéis elétricos/CCM/PLC (quadros de comando e
+automação).
+Painéis/quadros de comando, distribuição e
+automação da Cargo Control Room (CCR), com
+módulos de medição, I/O e supervisão integrados.
+Painel de comando com interface HMI (tela,
+teclas/chaves, módulos de I/O e comunicação)
+montado em quadro/painel.
+Painel de comando e proteção de guindaste/talha.
+Painel de comando e proteção do sistema de alívio
+(integração de sinais, comando e registros).
+Painel de comando e proteção do sistema de
+lavagem de gases.
+Painel de comando e proteção do sistema de
+odorização.
+Painel de comando/interligação do sistema de
+governo (steering control panel), com interfaces de
+segurança e alarmes.
+Painel de comando/supervisão do ICCP (medição,
+alarmes, chaveamento e intertravamentos).
+Painel de controle/indicador de temperatura
+montado em quadro, com módulos de entrada/saída
+e interface HMI.
+Painel de ignição/controle do sistema de flare.
+Painel de proteção/comando de bombas com IHM,
+módulos de I/O e sinalização de alarme.
+Painel/test rig de vácuo com instrumentos de
+medição e comando integrados.
+Painel/central de detecção e alarme — Fire & Gas
+panel/FDAS, com laços, supervisão e saídas de
+comando.
+Painel/controlador do sistema PA/GA — matriz de
+zonas, priorização/override e supervisão.
+Quadro elétrico de emergência emergency
+switchboard e painéis de comando/proteção.
+Quadro/painel de comando, distribuição e
+automação (switchboard, MCC, PLC/SCADA pane`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 43,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 45)",
+    titulo: "l).\nQuadro/painel de distribuição de energia — power\ndistribution board/switchboard/MCC, com\ndisjuntores, seccionamento, barramentos e medição.\n\n232\n\n\fITEM\n261\n\nNCM/SH\n8537\n\nTIPO DE ATIVIDADE*\nTran...",
+    conteudo: `l).
+Quadro/painel de distribuição de energia — power
+distribution board/switchboard/MCC, com
+disjuntores, seccionamento, barramentos e medição.
+
+232
+
+ITEM
+261
+
+NCM/SH
+8537
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+262
+
+8538
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+263
+
+8538
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+264
+
+8538
+
+265
+
+8538
+
+266
+
+8538
+
+267
+
+8539
+
+268
+
+8541
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+269
+
+8542
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+270
+
+8542
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+271
+
+8544
+
+272
+
+8544
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Transporte; Armazenamento.
+
+273
+
+8544
+
+274
+
+8544
+
+275
+
+8544
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+276
+
+8544
+
+277
+
+8544
+
+Transferência; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+278
+
+8606
+
+Transporte; Movimentação.
+
+279
+
+8607
+
+Transporte; Movimentação.
+
+280
+
+8609
+
+Transporte; Movimentação;
+Armazenamento; Transferência.
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 44,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 46)",
+    titulo: "DESCRIÇÃO COMERCIAL\nQuadro/painel de segurança com comando e\nproteção — ESD/Fire & Gas panel, matrizes de\nintertravamento",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Quadro/painel de segurança com comando e
+proteção — ESD/Fire & Gas panel, matrizes de
+intertravamento.
+Módulos de disparo e peças de proteção para
+disjuntores/quadros (trip units, shunt trip,
+undervoltage release, contatos auxiliares, arc chutes,
+kits de polos/intertravamentos), próprios para
+aparelhagem elétrica.
+Partes de quadro/painel de distribuição
+(barramentos, gavetas withdrawable, portas, chassis,
+intertravamentos, prensa-cabos).
+Partes e acessórios de quadros/painéis (barramentos,
+portas, trilhos, bornes, gland/prensa-cabos).
+Partes reconhecíveis de tomadas/plugues industriais
+(corpos/housings, contatos, capas, buchas/gland).
+Placa eletrônica montada (PCBA) de quadro/painel
+de comando/automação.
+Lâmpadas de reposição (LED lamps, discharge lamps)
+para luminárias/lanternas.
+Dispositivo semicondutor de potência em módulo —
+IGBT module, thyristor/SCR, diode/rectifier module ou
+MOSFET, com ou sem base dissipadora.
+Circuito integrado regulador/controlador de tensão
+— voltage regulator IC (ex.: séries 78xx/79xx, LM317,
+controladores buck/boost).
+Circuitos integrados/controladores e reguladores —
+microcontroller, PWM controller, gate driver, voltage
+regulator, ASIC — para placas e módulos de
+automação/controle.
+Patch cords/cordões pré-terminados (elétricos e de
+fibra óptica) com conectores montados.
+Cabo/cinta de aquecimento elétrico para
+anticongelamento de linhas e válvulas da carreta
+(heating cable/tape, autorregulável ou potência
+constante).
+Cabos coaxiais e jumpers de RF (coaxial cables, RF
+jumpers).
+Cabos de cobre/fibra para dados e alimentação da
+sala de controle (structured cabling, fiber optic
+cable).
+Cabos elétricos isolados de potência, comando e
+instrumentação; cabos coaxiais e cabos de fibra
+óptica (power/control/instrumentation cables,
+coaxial, fiber optic cable).
+Cabos/condutores para interligação de anodos,
+eletrodos de referência e retificador do ICCP.
+Cordões/cabos de alimentação com terminação
+(cordsets) e cabos flexíveis para`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 45,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 47)",
+    titulo: "uso com\ntomadas/plugues industriais",
+    conteudo: `uso com
+tomadas/plugues industriais.
+Vagão-tanque ferroviário criogênico para GNL (rail
+tank wagon), casco isolado, dupla parede a vácuo.
+Partes próprias de vagão-tanque ferroviário
+(truques/bogies, engates, sistema de freio,
+rodas/eixos, tampas/válvulas dedicadas do casco).
+Contêiner-tanque criogênico intermodal para GNL —
+ISO tank container, dupla parede a vácuo, apto a
+ferrovia/rodovia/navio.
+
+233
+
+ITEM
+281
+
+NCM/SH
+8708
+
+TIPO DE ATIVIDADE*
+Transporte; Movimentação;
+Armazenamento.
+Transporte; Movimentação;
+Transferência; Armazenamento.
+
+282
+
+8716
+
+283
+
+8716
+
+Transporte; Movimentação;
+Transferência; Armazenamento.
+
+284
+
+8716
+
+285
+
+8901
+
+Transporte; Movimentação;
+Armazenamento.
+Transporte; Transferência;
+Armazenamento.
+
+286
+
+8905
+
+Transferência; Armazenamento;
+Regaseificação.
+
+287
+
+8905
+
+Transferência; Armazenamento.
+
+288
+
+8906
+
+289
+
+8907
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+290
+
+9014
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+291
+
+9020
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+292
+
+9025
+
+293
+
+9025
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+294
+
+9025
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+295
+
+9026
+
+Transferência; Movimentação;
+Transporte.
+
+296
+
+9026
+
+Transferência; Armazenamento;
+Regaseificação.
+
+297
+
+9026
+
+Armazenamento; Regaseificação.
+
+298
+
+9026
+
+Regaseificação; Transferência;
+Movimentação.
+
+299
+
+9026
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+300
+
+9026
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 46,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 48)",
+    titulo: "DESCRIÇÃO COMERCIAL\nTanque de combustível para GNL destinado a\nveículos automotores (fuel tank)",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Tanque de combustível para GNL destinado a
+veículos automotores (fuel tank).
+Carreta/semi-reboque criogênico para GNL, dupla
+parede a vácuo, com válvulas e conexões para
+carregamento/descarga.
+Partes próprias de carreta criogênica (chassi/quadro,
+eixos axles, engate kingpin, sistema de freio, suportes
+e ferragens).
+Reservatório criogênico destinado à integração em
+reboques/semi-reboques (carreta criogênica).
+Navio metaneiro/FSU — LNG carrier/FSU sem
+unidade de regaseificação embarcada (função
+principal: transporte/estocagem flutuante).
+Embarcação do tipo FSRU — Floating Storage
+Regasification Unit, com sistemas de vaporização,
+medição e amarração.
+Unidade de armazenamento flutuante de GNL —
+FSU, com sistemas de amarração e medição.
+Bote salva-vidas/embarcação de resgate lifeboat/fast
+rescue boat — FRB.
+Balsa salva-vidas inflável inflatable liferaft, em
+contêiner rígido, com hydrostatic release unit — HRU
+e kit SOLAS.
+Girobússola gyrocompass ou sistema de piloto
+automático autopilot com sensor de rumo e unidade
+de controle.
+Aparelho respiratório de emergência EEBD e
+aparelho autônomo de respiração SCBA, conjuntos
+completos (cilindro, regulador/redutor,
+máscara/peça facial, válvulas e arnês).
+Higrômetro/analisador de umidade em gás
+(moisture/dew-point analyzer).
+Instrumentos de temperatura de processo: sensores
+RTD/thermocouple, transmissores temperature
+transmitter, termômetros locais bimetal
+thermometer e poços de proteção thermowell.
+Sensores de temperatura e poços de proteção para
+bombas e mancais (temperature
+sensors/thermowells).
+Instrumentação de processo da carreta
+(pressão/nível/temperatura —
+transmitters/switches/gauges).
+Instrumentos de medição/monitoramento de
+pressão do sistema de alívio (transmissores e chaves
+de pressão).
+Instrumentos de processo (pressão, nível, fluxo)
+vinculados ao bloqueio de segurança.
+Instrumentos de processo para a odorização
+(transmissores de vazão/pressão/temperatura do gás
+e do odorante).
+Instrumentos de pro`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 47,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 49)",
+    titulo: "cesso vinculados à segurança —\ntransmissores/sensores/chaves de pressão, nível e\nvazão (pressure transmitters/switches, level\ntransmitters/switches, flowmeters/flow switches)",
+    conteudo: `cesso vinculados à segurança —
+transmissores/sensores/chaves de pressão, nível e
+vazão (pressure transmitters/switches, level
+transmitters/switches, flowmeters/flow switches).
+Instrumentos eletrônicos de pressão para processo e
+testes — pressure transmitter/indicator/switch.
+
+234
+
+ITEM
+301
+
+NCM/SH
+9026
+
+TIPO DE ATIVIDADE*
+Transferência.
+
+302
+
+9026
+
+303
+
+9026
+
+304
+
+9027
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+305
+
+9027
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+306
+
+9027
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+307
+
+9027
+
+308
+
+9029
+
+309
+
+9031
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+310
+
+9031
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+311
+
+9031
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+312
+
+9032
+
+Armazenamento; Regaseificação.
+
+313
+
+9032
+
+314
+
+9032
+
+Transferência; Armazenamento;
+Regaseificação.
+Armazenamento; Regaseificação.
+
+315
+
+9032
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+316
+
+9032
+
+317
+
+9032
+
+318
+
+9032
+
+Regaseificação; Transferência;
+Movimentação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+319
+
+9032
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+320
+
+9032
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+Transferência; Movimentação;
+Transporte; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 48,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 50)",
+    titulo: "DESCRIÇÃO COMERCIAL\nMedidor de vazão para GNL (mass flow meter)\naplicado ao ponto de carregamento/dispenser",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Medidor de vazão para GNL (mass flow meter)
+aplicado ao ponto de carregamento/dispenser.
+Medidor/transmissor de vácuo para gases (vacuum
+gauge/vacuum transmitter) e chaves de vácuo
+(vacuum switch).
+Sensores/transmissores de pressão/nível/fluxo para
+proteção de bombas (pressure/level/flow
+transmitters/switches).
+Analisador de poder calorífico/índice de Wobbe e
+densidade relativa de gás natural (calorific
+value/Wobbe index analyzer).
+Analisadores específicos de contaminantes (enxofre
+total total sulfur, H₂S, mercúrio), e ponto de orvalho
+de hidrocarbonetos.
+Cromatógrafo de gás GC (ex.: FID/TCD/micro-GC)
+para análise de composição de GN/GNL, podendo
+incluir condicionamento e vaporização de amostra.
+Detectores/analisadores de gás fixos ou portáteis —
+gas detectors/analyzers (LEL, O₂, H₂S, CH₄).
+Tacômetros e sensores de velocidade/keyphasor para
+eixos rotativos.
+Sensores de posição/velocidade para referência de
+sincronismo (crank/cam position sensor, speed/phase
+pickup).
+Sensores e transmissores de vibração para máquinas
+rotativas — accelerometers, velocity sensors/pickups,
+proximity probes/eddy-current,
+analisadores/monitores portáteis ou fixos.
+Sistema de monitoramento e proteção de bombas
+(condition monitoring), com módulos/monitores para
+vibração, temperatura e pressão, registro e alarmes.
+Aparelho de regulação/controle automático de
+segurança (ESD/intertravamento, positioner,
+controlador de válvula).
+Controlador automático de potencial do sistema ICCP
+— potential controller/automatic regulator.
+Controlador/posicionador de válvula para bloqueio
+de segurança (positioner, solenoid, ESD controller).
+Controlador/protetor automático (logic
+solver/control unit) para intertravamentos e trip de
+bombas com base em variáveis de
+processo/condição.
+Controlador/regulador automático da dosagem
+(automatic controller, PID).
+Controlador/regulador automático de pressão —
+pressure controller/automatic regulator.
+Controlador/regulador automático de processo
+(automati`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 49,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 51)",
+    titulo: "c controller, PID controller) com medição e\nsaída de controle",
+    conteudo: `c controller, PID controller) com medição e
+saída de controle.
+Controlador/regulador automático de segurança —
+logic solver (ESD/HIPPS), com interface para
+positioner/solenoide de válvula quando aplicável.
+Controlador/regulador automático de temperatura
+(temperature controller/PID), com entradas de
+sensores e saídas de comando.
+
+235
+
+ITEM
+321
+
+NCM/SH
+9032
+
+TIPO DE ATIVIDADE*
+Transferência; Movimentação;
+Transporte; Armazenamento;
+Regaseificação.
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+322
+
+9032
+
+323
+
+9032
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+324
+
+9405
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+325
+
+9406
+
+Transferência; Movimentação;
+Armazenamento; Regaseificação.
+
+DESCRIÇÃO COMERCIAL
+Controlador/regulador automático de vácuo (vacuum
+controller) com atuação em válvulas/venturis.
+Controlador/regulador eletrônico de injeção para
+motores (engine ECU/ECM) — sincronismo de injeção
+e dosagem.
+Sistema de proteção de máquinas (machinery
+protection system) com lógica de alarme e trip —
+módulos/racks de monitoramento de vibração com
+saídas a relé.
+Partes de luminárias fixas (lighting fittings): carcaças,
+difusores/vidros, refletores, braços/suportes,
+abraçadeiras, vedadores e coberturas.
+Abrigo técnico pré-fabricado tipo E-house/shelter
+modular para instalação de painéis elétricos e de
+controle (estrutura com isolamento térmico e
+proteção ambiental).
+
+236
+
+TABELA III - LISTA DE BENS (REPETRO-PERMANENTE) (ART. 164, INCISOS III, IV E V)
+ITEM
+1
+2
+
+NCM/SH
+2844
+3917
+
+3
+4
+
+3926
+4009
+
+5
+6
+7
+8
+9
+10
+
+4009
+4016
+4016
+4016
+5607
+7304
+
+11
+12
+13
+14
+15
+
+7304
+7304
+7304
+7304
+7305
+
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+
+7305
+7306
+7306
+7306
+7306
+7306
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7307
+7308
+7308
+7308
+7308
+
+39
+
+7308
+
+40
+41
+42
+43
+44
+
+7309
+7312
+7315
+7315
+7316`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 50,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 52)",
+    titulo: "DESCRIÇÃO COMERCIAL\nFonte radioativa (para medição/marcação)",
+    conteudo: `DESCRIÇÃO COMERCIAL
+Fonte radioativa (para medição/marcação).
+Tubo plástico flexível para condução de fluidos em sistemas submarinos (linha flexível e
+umbilical para acionamento hidráulico e injeção química).
+Restritor/enrijecedor de curvatura para dutos flexíveis e umbilicais (polímero).
+Linha flexível para transporte de petróleo, gás ou água (borracha reforçada, meio submarino,
+flowline/riser).
+Mangote flutuante submarino de borracha
+Barreira mecânica anular/external casing packer (elemento elastomérico).
+Elemento de vedação para junta de compensação (borracha).
+Restritor/enrijecedor de curvatura para dutos flexíveis e umbilicais (borracha).
+Cabo de poliéster (trançado).
+Tubo de aço sem costura para produção, injeção, revestimento, interligação e riser rígido (poços
+e sistemas submarinos).
+Tubo de lavagem (wash pipe) (sem costura).
+Tubo de perfuração drill pipe (sem costura).
+Tubo de produção (coluna de produção/COP) (sem costura).
+Tubo metálico (sem costura) (serviço de perfuração/intervenção).
+Tubo de aço soldado, grande diâmetro, para oleodutos, gasodutos, produção, injeção e
+interligações.
+Tubo de perfuração drill pipe (soldado, grande diâmetro).
+Tubo de aço soldado com tela/ranhuras para gravel pack.
+Tubo de aço soldado para produção, injeção, coleta e interligações (sem tela/ranhuras).
+Tubo de lavagem (wash pipe) (soldado).
+Tubo de perfuração drill pipe (soldado).
+Tubo de produção (coluna de produção/COP) (soldado).
+PLET — terminação de extremidade de duto com interfaces de acoplamento (de aço).
+Tubing seal receptacle (TSR) (encaixe de tubulação).
+Adaptador/acessório tubular de encaixe (para drill pipe riser).
+Componentes metálicos para coluna (sapatas e colares flutuantes).
+Conector de interligação de dutos (hidráulico) (aço).
+Conector de terminação para dutos flexíveis (de aço).
+Conexões e interfaces metálicas de cabeça de poço (de aço).
+Conexões e mandris para poços e linhas (aço).
+Derivação de dutos ILT/ILY (de aço).
+Elemento de vedação de cabeça de poço`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 51,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 53)",
+    titulo: "(packoff).\nFlange de terminação de extremidades de umbilicais (de aço).\nJunta de compensação (encaixe de tubulação, aço).\nSuspensor de revestimento e conjunto de liner (elementos de conexão).\nBase...",
+    conteudo: `(packoff).
+Flange de terminação de extremidades de umbilicais (de aço).
+Junta de compensação (encaixe de tubulação, aço).
+Suspensor de revestimento e conjunto de liner (elementos de conexão).
+Base de fluxo (estrutura de aço) para sistema de bombeio submerso submarino.
+Base de perfuração (BUT/BAJA) (estrutura de aço).
+Estrutura jacket/caisson (aço).
+Estruturas para suporte, base, transporte, proteção e guia/alinhamento de equipamentos,
+umbilicais e jumpers (estrutura de aço).
+Interconexão/estrutura de apoio para tubos/risers, com desvio angular e base/lançamento de
+umbilicais (estrutura de aço).
+Recipiente de aço (>300 L) (armazenagem temporária de fluidos/granéis).
+Cabos de aço destinados às atividades de pesquisa e produção de petróleo e gás.
+Corrente de amarração (aço) (com/sem malhete).
+Gancho para amarra (peça de corrente).
+Âncora metálica para amarração/ancoragem offshore (inclui grapnel, torpedo, estaca de sucção
+ou grauteada).
+
+237
+
+ITEM
+45
+
+NCM/SH
+7326
+
+46
+47
+48
+49
+50
+
+7326
+7608
+8205
+8205
+8307
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+
+8405
+8407
+8408
+8411
+8413
+8413
+8413
+8413
+8413
+8413
+8413
+8413
+8413
+
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+
+8414
+8414
+8414
+8416
+8419
+8419
+8421
+8421
+8421
+8421
+8421
+8421
+8421
+
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+
+8421
+8425
+8425
+8428
+8428
+8428
+8430
+8431
+8431
+8431
+8467
+8467
+
+89
+90
+91
+92
+93
+
+8474
+8474
+8474
+8479
+8479
+
+DESCRIÇÃO COMERCIAL
+Artigos metálicos para dutos, umbilicais e amarração (aço) — capas metálicas de proteção (ex.:
+tree cap, corrosion cap), elemento de suspensão de topo (dutos flexíveis e umbilicais), colar de
+ancoragem (dutos flexíveis e umbilicais), caixa para emendas de umbilicais, placa triangular para
+amarras, manilha de ancoragem, protetor clamp para cabos.
+Bucha de travamento de cabeça de poço (lock down bushing/lock down sleeve) (aço).
+Riser de alumínio (tubo de alumínio para perfuração e produção).
+Cortador manual de tubos (ferramenta de mão).
+Ferramenta manual (instalação de Árvore de Natal Molhada).
+Tubo flex`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 52,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 54)",
+    titulo: "ível metálico (base metálica) para transporte de fluidos (flowline/riser), quando\nintegralmente metálico",
+    conteudo: `ível metálico (base metálica) para transporte de fluidos (flowline/riser), quando
+integralmente metálico.
+Unidade geradora de gás (com purificador).
+Motor de combustão Otto (montado em skid/móvel).
+Motor de combustão diesel (montado em skid/móvel).
+Turbina a gás.
+Base de fluxo (parte reconhecível, exclusiva de sistema de bombeio).
+Bomba centrífuga submersa (ESP/BCS).
+Bomba centrífuga submersa submarina (ESP/BCSS).
+Módulo de bombeio submerso (conjunto de bombas).
+Sistema submarino de bombeamento multifásico (BMSHA hélico-axial).
+Sistema submarino de injeção de água bruta (RWI) (com unidade de bombeamento).
+Unidade de bombeamento de concreto (alta pressão) (cimentação).
+Unidade de bombeamento de fluidos (transferência).
+Unidade de potência/fluido hidráulico (HPU) (conjunto com bombas, reservatório, filtragem e
+acionamento).
+Bomba de vácuo (sem óleo) (ferramentas RST).
+Compressor de gás natural.
+Conjunto soprador/resfriador (ar/gás).
+Queimador para efluentes/combustíveis do poço (teste/avaliação).
+Equipamento de tratamento térmico (aquecedor/resfriador).
+Trocador de calor (casco e tubos ou placas).
+Centrífuga (recuperação de fluidos de perfuração).
+Eliminador de névoa (gás).
+Equipamento de secagem/filtração de cascalhos e fluidos.
+Módulo de separação/condicionamento (hidrociclones/estágios de tratamento).
+Módulo desarenador (fluxo multifásico).
+Partes de centrífugas e equipamentos de filtração (8421).
+Sistema submarino de injeção de água bruta (RWI) (com estágio predominante de
+filtração/tratamento).
+Sistema submarino de separação água–óleo (SSAO).
+Guincho/macaco/tensionador para içamento e tracionamento de cargas e linhas.
+Turco davit para barco de salvamento (embarcação).
+Aparelho de manuseio/lançamento de jumper (com acionamento).
+Elevador estendido (apoio/tração da coluna) (ex.: 400 t; bucha 6 5/8").
+Equipamento de transporte de cascalhos (contínuo/pneumático).
+Unidade fixa de perfuração/exploração/produção (máquina de perfuração).
+Escareador/estabilizador (perfura`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 53,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 55)",
+    titulo: "ção).\nFerramenta/acessório para perfuração/intervenção (inclui manuseio/elevação de tubos).\nMesa/base de perfuração (parte de máquina de perfuração).\nCortador mecânico de tubos (manual).\nFerramenta...",
+    conteudo: `ção).
+Ferramenta/acessório para perfuração/intervenção (inclui manuseio/elevação de tubos).
+Mesa/base de perfuração (parte de máquina de perfuração).
+Cortador mecânico de tubos (manual).
+Ferramenta hidráulica/pneumática de manuseio, torque, instalação e desconexão (coluna,
+módulos e riser).
+Misturador pressurizado de materiais químicos a granel.
+Misturador/reciclador de cimento (CBS).
+Peneira vibratória (shale shaker).
+Tubing seal receptacle (TSR).
+Barreira mecânica anular/external casing packer (ferramenta de completação).
+
+238
+
+ITEM
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+
+NCM/SH
+8479
+8479
+8479
+8479
+8479
+8479
+8479
+8479
+8479
+8481
+8481
+8481
+8481
+8481
+8481
+8484
+
+110
+
+8501
+
+111
+112
+113
+114
+115
+116
+117
+
+8504
+8504
+8517
+8535
+8536
+8537
+8537
+
+118
+119
+120
+
+8537
+8543
+8544
+
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+
+8544
+8544
+8904
+8905
+8905
+8905
+8905
+8906
+8906
+8906
+8907
+9014
+9015
+9015
+
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+
+9015
+9022
+9024
+9025
+9026
+9026
+9027
+9030
+9031
+9031
+
+DESCRIÇÃO COMERCIAL
+Base de perfuração (BUT/BAJA) (conjunto).
+Colar de estágio (ferramenta de cimentação).
+Equipamento mecânico de função própria (uso em perfuração/intervenção).
+Obturador (ferramenta de completação).
+Sistema de canhoneio de poços de petróleo (equipamento).
+Suspensor de revestimento e conjunto de liner (aço).
+Tensionador de linhas de ancoragem (ferramenta temporária).
+Unidade hidráulica de alta pressão (HPU) (conjunto multifuncional).
+Veículo submarino operado remotamente (ROV).
+BOPW — preventor de erupção para workover.
+SDR — sistema de destravamento rápido (valvulado).
+Conjunto valvulado — árvore/manifold/PLEM.
+Válvula de circulação para coluna de drill pipe (PBL).
+Válvula de segurança de fluxo pleno.
+Válvula e módulos valvulados para bloqueio, segurança e controle de fluxo (poços e linhas).
+Junta de compensação com elementos de vedação (para interligação de segmentos da coluna
+de produção).
+Motor elétrico para acionamento de equipamentos e sistemas (in`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 54,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 56)",
+    titulo: "clui aplicação em guincho de\nâncora)",
+    conteudo: `clui aplicação em guincho de
+âncora).
+Sistema elétrico de potência — conversor/acionamento estático do bombeio.
+Transformador (tipo seco).
+Unidade portátil de teste/aquisição multiplexada PETU (Portable Electrical Terminal Unit).
+Conectividade elétrica de alta tensão (> 1.000 V) — jumpers, conectores e penetradores.
+Conectividade elétrica de baixa tensão (≤ 1.000 V) — jumpers, conectores e penetradores.
+Módulo/painel de controle submarino (SCM) (submarino).
+Painel/quadro elétrico de controle e aquisição de dados (MCS, multiplexado ou equivalente)
+(superfície).
+Sistema elétrico de potência — painel/quadro de comando do bombeio (superfície).
+Módulo de controle submarino (SCM) — equipamento elétrico não especificado.
+Cabo elétrico submarino para alimentação e/ou sinais (com ou sem conectores, qualquer
+tensão).
+Cabo eletro-hidráulico para registrador de pressão de fundo de poço.
+Umbilical/cabo óptico submarino de transferência de dados.
+Rebocador.
+Estrutura flutuante de apoio com embarcações auxiliares.
+Guindaste flutuante.
+Plataforma de perfuração/exploração (flutuante/semi-submersível).
+Plataforma ou unidade flutuante de produção/estocagem de petróleo e gás.
+Barco salva-vidas.
+Embarcação de apoio às atividades de pesquisa, exploração, perfuração, produção e estocagem.
+Embarcação de pesquisa/aquisição de dados geológicos, geofísicos e geodésicos.
+Estrutura de flutuação para dutos e risers (módulo/tanque/bóia).
+Inclinômetro (tilt sensor) para sistema de posicionamento.
+Equipamento de aquisição de dados geológicos/geofísicos/geodésicos.
+Partes/acessórios de instrumentos de aquisição de dados (9015) (inclui módulo
+eletrônico/microprocessador).
+Unidade/módulo de controle e aquisição de dados (instrumentos 9015).
+Aparelho de radiação (raios X/gama).
+Equipamento de ensaio mecânico de materiais/partes/tubos.
+Instrumentação de medição de temperatura (fundo de poço).
+Instrumentação de medição de processo (vazão, pressão diferencial e PDG).
+Instrumento de medição/controle de vaz`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 55,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 57)",
+    titulo: "ão/pressão de processo.\nUnidade/sistema de análise físico-química de fluidos e sólidos.\nInstrumento de medição de radiação e grandezas elétricas.\nBase de teste e transporte (parte reconhecível de e...",
+    conteudo: `ão/pressão de processo.
+Unidade/sistema de análise físico-química de fluidos e sólidos.
+Instrumento de medição de radiação e grandezas elétricas.
+Base de teste e transporte (parte reconhecível de equipamento de ensaio).
+Caixa de teste para calibração de ferramenta HRLT.
+
+239
+
+ITEM
+145
+146
+147
+
+NCM/SH
+9031
+9031
+9031
+
+148
+149
+150
+151
+
+9031
+9032
+9032
+9406
+
+DESCRIÇÃO COMERCIAL
+Equipamento de pré-comissionamento/inspeção de dutos.
+Equipamento de teste de estanqueidade de poço.
+Sistema de aquisição e monitoramento de integridade de poços, linhas, dutos e equipamentos
+submarinos (multivariável).
+Sistema de transferência de dados do poço para a superfície (instrumentação 9031).
+Controlador/regulador de processo (inclui posicionador de válvulas).
+Sensor/instrumento de monitoramento e controle automático (processo).
+Contêiner técnico instrumentado (análise/monitoramento/controle).
+
+240
+
+TABELA IV - LISTA DE BENS (REPETRO-ENTREPOSTO) (ART. 164, INCISO VI)
+ITEM
+1
+
+NCM/SH
+8414
+
+2
+
+8414
+
+3
+
+8414
+
+4
+
+8414
+
+5
+6
+7
+8
+9
+
+8421
+8901
+8901
+8905
+8905
+
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+
+8905
+8905
+8905
+8905
+8905
+8905
+8905
+8905
+8905
+7308
+
+DESCRIÇÃO COMERCIAL
+Sistema modular de compressão de CO₂ (em skid), com oito compressores, oito trocadores tipo
+PCHE e oito vasos separadores de líquido.
+Sistema modular de compressão de gás de exportação (em skid), com seis compressores, seis
+trocadores tipo PCHE e seis vasos separadores de líquido.
+Sistema modular de compressão de gás principal (em skid), com três compressores, três
+trocadores tipo PCHE, seis vasos separadores, unidade VRU, trocador casco e tubo e vaso de
+segurança.
+Sistema modular de compressão de gás de injeção (em skid), com quatro compressores, oito
+trocadores tipo PCHE, dois vasos separadores, tanque de óleo diesel e bomba alternativa.
+Sistema modular de redução de sulfato da água do mar por membranas.
+Navio “aliviador” — petroleiro para transbordo e transporte (com DP).
+Embarcação de apoio offshore para transporte de cargas e supriment`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 56,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 58)",
+    titulo: "os (área de convés ampla).\nUnidade flutuante de produção, armazenamento e transferência FPSO (casco incluído).\nUnidade (plataforma) flutuante de perfuração/produção/exploração (não propelida; casco...",
+    conteudo: `os (área de convés ampla).
+Unidade flutuante de produção, armazenamento e transferência FPSO (casco incluído).
+Unidade (plataforma) flutuante de perfuração/produção/exploração (não propelida; casco
+incluído).
+Navio-sonda (drillship) para perfuração offshore (monocasco).
+Navio lançador de dutos PLSV (lançamento de linhas flexíveis/rigidas).
+Navio de pesquisa sísmica (autopropelido).
+Navio lançador de cabos cable layer (lançamento/reparo submarino).
+Navio de intervenção de poços WIV.
+Navio de suporte de mergulho DSV (com sino e câmaras).
+Navio-guindaste (crane vessel) para içamento de cargas.
+Navio PLSV — apoio a lançamento/instalação de dutos submarinos.
+Unidade flutuante de armazenamento e transferência FSO.
+Estrutura modular de aço tipo jacket (para plataforma fixa).
+
+241
+
+ANEXO III - LISTA DE BENS COM SUSPENSÃO DO PAGAMENTO DO IBS NO REGIME DIFERENCIADO
+DO REPORTO (ART. 186, § 5º)
+ITEM
+1
+
+DESCRIÇÃO
+Trilhos
+
+2
+
+Aparelhos e instrumentos de pesagem
+
+3
+
+Talhas, cadernais e moitões; Guinchos e cabrestantes
+
+4
+
+Cábreas; Guindastes, incluídos os de cabo; Pontes rolantes, pórticos de descarga ou de
+movimentação, pontes-guindastes, carros-pórticos e carros-guindastes
+
+5
+
+Empilhadeiras; Outros veículos para movimentação de carga e semelhantes, equipados
+com dispositivos de elevação
+
+6
+
+Outras máquinas e aparelhos de elevação, de carga, de descarga ou de movimentação
+
+7
+
+Locomotivas e locotratores; Tênderes
+
+8
+
+Vagões para transporte de mercadorias sobre vias férreas
+
+9
+10
+
+Tratores rodoviários para semi-reboques
+Veículos automóveis para transporte de mercadorias
+
+11
+
+Veículos automóveis sem dispositivo de elevação, dos tipos utilizados em fábricas,
+armazéns, portos ou aeroportos, para transporte de mercadorias a curtas distâncias`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 57,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 59)",
+    titulo: "NCM/SH\n7302.10.10\n7302.10.90\n8423.82.00\n8423.89.00\n8425.11.00\n8425.19.90\n8425.31.10\n8425.31.90\n8425.39.10\n8425.39.90\n8426.11.00\n8426.12.00\n8426.19.00\n8426.20.00\n8426.30.00\n8426.41.10\n8426.41.90\n842...",
+    conteudo: `NCM/SH
+7302.10.10
+7302.10.90
+8423.82.00
+8423.89.00
+8425.11.00
+8425.19.90
+8425.31.10
+8425.31.90
+8425.39.10
+8425.39.90
+8426.11.00
+8426.12.00
+8426.19.00
+8426.20.00
+8426.30.00
+8426.41.10
+8426.41.90
+8426.49.00
+8426.91.00
+8426.99.00
+8427.10.11
+8427.10.19
+8427.20.10
+8427.20.90
+8427.90.00
+8428.10.00
+8428.20.10
+8428.20.90
+8428.32.00
+8428.33.00
+8428.39.10
+8428.39.20
+8428.39.90
+8428.90.20
+8428.90.90
+8601.10.00
+8601.20.00
+8602.10.00
+8602.90.00
+8606.10.00
+8606.20.00
+8606.30.00
+8606.91.00
+8606.92.00
+8606.99.00
+8701.20.00
+8704.22.10
+8704.22.90
+8704.23.10
+8704.23.90
+8704.90.00
+8709.11.00
+8709.19.00
+
+242
+
+ITEM
+12
+
+DESCRIÇÃO
+Reboques e semi-reboques, para quaisquer veículos; Outros veículos não
+autopropulsados
+
+13
+
+Aparelhos de raios X
+
+14
+
+Instrumentos e aparelhos para medida ou controle do nível de líquidos
+
+NCM/SH
+8716.39.00
+8716.40.00
+8716.80.00
+9022.19.10
+9022.19.90
+9026.10.29
+
+243
+
+ANEXO IV - BENS DE CAPITAL DESONERADOS (ARTS. 196 E 197)
+TABELA I - BENS DE CAPITAL SUJEITOS À SUSPENSÃO DO PAGAMENTO DO IBS (ART. 196)
+ITEM
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+13
+14
+15
+16
+17
+
+DESCRIÇÃO
+Motores para aviação
+Turborreatores de empuxo (impulso*) não superior a 25 kN
+Turborreatores de empuxo (impulso*) superior a 25 kN
+Turbopropulsores de potência não superior a 1.100 kW
+Turbopropulsores de potência superior a 1.100 kW
+Turbinas a gás de potência não superior a 5.000 kW
+Turbinas a gás de potência superior a 5.000 kW
+Propulsores a reação, excluindo os turborreatores
+Aceleradores de partículas
+Máquinas e aparelhos de eletrólise, com células de membrana
+Veículos espaciais (incluindo os satélites) e seus veículos de lançamento, e veículos
+suborbitais
+Aparelhos e dispositivos para lançamento de veículos aéreos, e suas partes; aparelhos e
+dispositivos para aterrissagem (aterragem) de veículos aéreos em porta-aviões e aparelhos e
+dispositivos semelhantes, e suas partes
+Simuladores de combate aéreo e suas partes
+Navios de guerra
+Microscópios eletrônicos
+Cromatógrafo de fase gasosa
+Cromatógrafo de fase`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 58,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 60)",
+    titulo: "líquida\n\nNCM/SH\n8407.10.00\n8411.11.00\n8411.12.00\n8411.21.00\n8411.22.00\n8411.81.00\n8411.82.00\n8412.10.00\n8543.10.00\n8543.30.10\n8802.60.00\n8805.10.00\n\n8805.21.00\n8906.10.00\n9012.10.10\n9027.20.11\n9027...",
+    conteudo: `líquida
+
+NCM/SH
+8407.10.00
+8411.11.00
+8411.12.00
+8411.21.00
+8411.22.00
+8411.81.00
+8411.82.00
+8412.10.00
+8543.10.00
+8543.30.10
+8802.60.00
+8805.10.00
+
+8805.21.00
+8906.10.00
+9012.10.10
+9027.20.11
+9027.20.12
+
+244
+
+TABELA II - TRATORES, MÁQUINAS E IMPLEMENTOS AGRÍCOLAS, DESTINADOS A PRODUTOR
+RURAL NÃO CONTRIBUINTE (ART. 197, INCISO I)
+ITEM
+1
+2
+3
+4
+5
+6
+7
+
+8
+
+9
+10
+11
+
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+
+DESCRIÇÃO
+Pulverizadores portáteis para agricultura ou horticultura
+Outros pulverizadores para agricultura ou horticultura
+Lagartas (esteiras) de potência no volante inferior a 387,76 kW (520 HP)
+Niveladores, exceto motoniveladores articulados com potência no volante igual ou superior a
+205,07 kW (275 HP)
+Raspo-transportadores (scrapers), de uso agrícola
+Compactadores e rolos ou cilindros compressores
+Carregadores e pás carregadoras, de carregamento frontal, de potência no volante inferior ou
+igual a 43,99 kW (59 HP), exceto os carregadores-transportadores e as infraestruturas
+motoras próprias para receber equipamentos do item 8430.69.1
+Carregadores e pás carregadoras, de carregamento frontal, de potência no volante superior a
+43,99 kW (59 HP) e inferior a 297,5 kW (399 HP), exceto os carregadores-transportadores e as
+infraestruturas motoras próprias para receber equipamentos do item 8430.69.1
+Escavadores de potência no volante inferior ou igual a 40,3 kW (54 HP)
+Escavadores de potência no volante superior a 40,3 kW (54 HP) e inferior a 484,7 kW (650 HP)
+Pás mecânicas, escavadores, carregadores e pás carregadoras, exceto carregadores e pás
+carregadoras, de carregamento frontal, e máquinas cuja superestrutura é capaz de efetuar
+uma rotação de 360°
+Arados e charruas
+Grades de discos
+Semeadores-adubadores, de plantio direto
+Outros semeadores, plantadores e transplantadores, de plantio direto
+Semeadores-adubadores, exceto de plantio direto
+Outros semeadores, plantadores e transplantadores, exceto de plantio direto
+Espalhadores d`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 59,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 61)",
+    titulo: "e estrume\nDistribuidores de adubos (fertilizantes)\nOutras máquinas e aparelhos de uso agrícola, hortícola ou florestal, para preparação ou\ntrabalho do solo ou para cultura\nCeifeiras, incluindo as b...",
+    conteudo: `e estrume
+Distribuidores de adubos (fertilizantes)
+Outras máquinas e aparelhos de uso agrícola, hortícola ou florestal, para preparação ou
+trabalho do solo ou para cultura
+Ceifeiras, incluindo as barras de corte para montagem em tratores, com dispositivo de
+acondicionamento em fileiras constituído por rotor de dedos e pente
+Outras ceifeiras, incluindo as barras de corte para montagem em tratores, exceto com
+dispositivo de acondicionamento em fileiras constituído por rotor de dedos e pente
+Outras máquinas e aparelhos para colher e dispor o feno
+Enfardadeiras de palha ou de forragem, incluindo as enfardadeiras-apanhadeiras
+Colheitadeiras combinadas com debulhadoras (ceifeiras-debulhadoras)
+Outras máquinas e aparelhos para debulha
+Máquinas para colheita de raízes ou tubérculos
+Com capacidade para trabalhar até dois sulcos de colheita e potência no volante inferior ou
+igual a 59,7 kW (80 HP)
+Outras máquinas e aparelhos para colheita
+Selecionadores de fruta
+Máquinas para limpar ou selecionar ovos, com capacidade superior a 250.000 ovos por hora
+Outras máquinas para limpar ou selecionar ovos, com capacidade inferior ou igual a 250.000
+ovos por hora
+Outras máquinas para limpar frutas ou para limpar ou selecionar outros produtos agrícolas
+Máquinas de ordenhar
+Máquinas e aparelhos para fabricação de vinho, sidra, sucos (sumos) de fruta ou bebidas
+semelhantes
+Máquinas e aparelhos para preparação de alimentos ou rações para animais
+Chocadeiras e criadeiras
+Partes de máquinas ou aparelhos para avicultura
+Partes de máquinas e aparelhos para agricultura, horticultura, silvicultura ou apicultura,
+incluindo as partes de germinadores equipados com dispositivos mecânicos ou térmicos
+
+NCM/SH
+8424.41.00
+8424.49.00
+8429.11.90
+8429.20.90
+8429.30.00
+8429.40.00
+8429.51.92
+
+8429.51.99
+
+8429.52.12
+8429.52.19
+8429.59.00`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 60,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 62)",
+    titulo: "8432.10.00\n8432.21.00\n8432.31.10\n8432.31.90\n8432.39.10\n8432.39.90\n8432.41.00\n8432.42.00\n8432.80.00\n8433.20.10\n8433.20.90\n8433.30.00\n8433.40.00\n8433.51.00\n8433.52.00\n8433.53.00\n8433.59.11\n8433.59.90...",
+    conteudo: `8432.10.00
+8432.21.00
+8432.31.10
+8432.31.90
+8432.39.10
+8432.39.90
+8432.41.00
+8432.42.00
+8432.80.00
+8433.20.10
+8433.20.90
+8433.30.00
+8433.40.00
+8433.51.00
+8433.52.00
+8433.53.00
+8433.59.11
+8433.59.90
+8433.60.10
+8433.60.21
+8433.60.29
+8433.60.90
+8434.10.00
+8435.10.00
+8436.10.00
+8436.21.00
+8436.91.00
+8436.99.00
+
+245
+
+ITEM
+40
+41
+42
+
+43
+44
+45
+46
+
+47
+
+48
+
+49
+
+50
+
+DESCRIÇÃO
+Máquinas para limpeza, seleção ou peneiração de grãos ou de produtos hortícolas secos
+Máquinas e parelhos para trituração ou moagem de grãos
+Partes de máquinas para limpeza, seleção ou peneiração de grãos ou de produtos hortícolas
+secos; partes de máquinas e aparelhos para a indústria de moagem ou tratamento de cereais
+ou de produtos hortícolas secos, exceto do tipo utilizado em fazendas
+Tratores de eixo único, incluindo motocultores
+Tratores de lagartas (esteiras)
+Outros tratores com uma potência de motor não superior a 18 kW, exceto tratores de eixo
+único, tratores rodoviários para semirreboques e tratores de lagartas (esteiras)
+Outros tratores com uma potência de motor superior a 18 kW, mas não superior a 37 kW,
+exceto tratores de eixo único, tratores rodoviários para semirreboques e tratores de lagartas
+(esteiras)
+Outros tratores com uma potência de motor superior a 37 kW, mas não superior a 75 kW,
+exceto tratores de eixo único, tratores rodoviários para semirreboques e tratores de lagartas
+(esteiras)
+Outros tratores agrícolas de rodas, com uma potência de motor superior a 75 kW, mas não
+superior a 130 kW, exceto tratores de eixo único, tratores rodoviários para semirreboques,
+tratores de lagartas (esteiras) e tratores especialmente concebidos para arrastar troncos (log
+skidders)
+Outros tratores agrícolas de rodas, com uma potência de motor superior a 130 kW, exceto
+tratores de eixo único, tratores rodoviários para semirreboques, tratores de lagartas
+(esteiras) e tratores especialmente concebidos para arrastar troncos (log skidders)
+Reboques e semirreboques, autocarregáveis ou autodescarregáveis, par`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 61,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 63)",
+    titulo: "a usos agrícolas\n\nNCM/SH\n8437.10.00\n8437.80.10\n8437.90.00\n\n8701.10.00\n8701.30.00\n8701.91.00\n8701.92.00\n\n8701.93.00\n\n8701.94.90\n\n8701.95.90\n\n8716.20.00\n\n246\n\n\fTABELA III - VEÍCULOS DE TRANSPORTE DE...",
+    conteudo: `a usos agrícolas
+
+NCM/SH
+8437.10.00
+8437.80.10
+8437.90.00
+
+8701.10.00
+8701.30.00
+8701.91.00
+8701.92.00
+
+8701.93.00
+
+8701.94.90
+
+8701.95.90
+
+8716.20.00
+
+246
+
+TABELA III - VEÍCULOS DE TRANSPORTE DE CARGA DESTINADOS A TRANSPORTADOR AUTÔNOMO
+DE CARGA PESSOA FÍSICA NÃO CONTRIBUINTE (ART. 197, II)
+ITEM
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+DESCRIÇÃO
+Chassis com motor e cabina, de veículos automóveis para transporte de mercadorias, exceto
+de camionetas e de caminhonetes de cabine dupla, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto) não
+superior a 5 toneladas
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto) não
+superior a 5 toneladas, com caixa basculante
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto) não
+superior a 5 toneladas, frigoríficos ou isotérmicos
+Outros veículos automóveis para transporte de mercadorias, exceto camionetas e
+caminhonetes de cabine dupla, unicamente com motor de pistão, de ignição por compressão
+(diesel ou semidiesel), e de peso em carga máxima (bruto) não superior a 5 toneladas
+Chassis com motor e cabina, de veículos automóveis para transporte de mercadorias,
+unicamente com motor de pistão, de ignição por compressão (diesel ou semidiesel), e de
+peso em carga máxima (bruto) superior a 5 toneladas, mas não superior a 20 toneladas
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto) superior a
+5 toneladas, mas não superior a 20 toneladas, com caixa basculante
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máx`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 62,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 64)",
+    titulo: "ima (bruto) superior a\n5 toneladas, mas não superior a 20 toneladas, frigoríficos ou isotérmicos\nOutros veículos automóveis para transporte de mercadorias, unicamente com motor de\npistão, de igniçã...",
+    conteudo: `ima (bruto) superior a
+5 toneladas, mas não superior a 20 toneladas, frigoríficos ou isotérmicos
+Outros veículos automóveis para transporte de mercadorias, unicamente com motor de
+pistão, de ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto)
+superior a 5 toneladas, mas não superior a 20 toneladas
+Chassis com motor e cabina, de veículos automóveis para transporte de mercadorias,
+unicamente com motor de pistão, de ignição por compressão (diesel ou semidiesel), e de
+peso em carga máxima (bruto) superior a 20 toneladas
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto) superior a
+20 toneladas, com caixa basculante
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto) superior a
+20 toneladas, frigoríficos ou isotérmicos
+Outros veículos automóveis para transporte de mercadorias, unicamente com motor de
+pistão, de ignição por compressão (diesel ou semidiesel), e de peso em carga máxima (bruto)
+superior a 20 toneladas
+Chassis com motor e cabina, de veículos automóveis para transporte de mercadorias, exceto
+de camionetas e de caminhonetes de cabine dupla, unicamente com motor de pistão, de
+ignição por centelha (faísca), e de peso em carga máxima (bruto) não superior a 5 toneladas
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por centelha (faísca), e de peso em carga máxima (bruto) não superior a 5 toneladas,
+com caixa basculante
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por centelha (faísca), e de peso em carga máxima (bruto) não superior a 5 toneladas,
+frigoríficos ou isotérmicos
+Outros veículos automóveis para transporte de mercadorias, exceto camionetas e
+caminhonetes de cabine dupla, unicamente com motor de pistão,`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 63,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 65)",
+    titulo: "de ignição por centelha\n(faísca), e de peso em carga máxima (bruto) não superior a 5 toneladas\nChassis com motor e cabina, de veículos automóveis para transporte de mercadorias,\nunicamente com moto...",
+    conteudo: `de ignição por centelha
+(faísca), e de peso em carga máxima (bruto) não superior a 5 toneladas
+Chassis com motor e cabina, de veículos automóveis para transporte de mercadorias,
+unicamente com motor de pistão, de ignição por centelha (faísca), e de peso em carga
+máxima (bruto) superior a 5 toneladas
+
+NCM/SH
+8704.21.10
+
+8704.21.20
+
+8704.21.30
+
+8704.21.90
+
+8704.22.10
+
+8704.22.20
+
+8704.22.30
+
+8704.22.90
+
+8704.23.10
+
+8704.23.20
+
+8704.23.30
+
+8704.23.90
+
+8704.31.10
+
+8704.31.20
+
+8704.31.30
+
+8704.31.90
+
+8704.32.10
+
+247
+
+ITEM
+18
+
+19
+
+20
+
+21
+
+22
+
+23
+
+24
+
+25
+
+26
+27
+28
+29
+30
+31
+
+DESCRIÇÃO
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por centelha (faísca), e de peso em carga máxima (bruto) superior a 5 toneladas, com
+caixa basculante
+Veículos automóveis para transporte de mercadorias, unicamente com motor de pistão, de
+ignição por centelha (faísca), e de peso em carga máxima (bruto) superior a 5 toneladas,
+frigoríficos ou isotérmicos
+Outros veículos automóveis para transporte de mercadorias, unicamente com motor de
+pistão, de ignição por centelha (faísca), e de peso em carga máxima (bruto) superior a 5
+toneladas
+Outros veículos automóveis para transporte de mercadorias, exceto camionetas e
+caminhonetes de cabine dupla, equipados para propulsão, simultaneamente, com motor de
+pistão de ignição por compressão (diesel ou semidiesel) e motor elétrico, de peso em carga
+máxima (bruto) não superior a 5 toneladas
+Outros veículos automóveis para transporte de mercadorias, equipados para propulsão,
+simultaneamente, com motor de pistão de ignição por compressão (diesel ou semidiesel) e
+motor elétrico, de peso em carga máxima (bruto) superior a 5 toneladas, mas não superior a
+20 toneladas
+Outros veículos automóveis para transporte de mercadorias, equipados para propulsão,
+simultaneamente, com motor de pistão de ignição por compressão (diesel ou semidiesel) e
+motor elétrico, de peso em carga máxima (bruto) superior a 20 toneladas
+Outros veícu`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 64,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 66)",
+    titulo: "los automóveis para transporte de mercadorias, exceto camionetas e\ncaminhonetes de cabine dupla, equipados para propulsão, simultaneamente, com motor de\npistão de ignição por centelha (faísca) e mo...",
+    conteudo: `los automóveis para transporte de mercadorias, exceto camionetas e
+caminhonetes de cabine dupla, equipados para propulsão, simultaneamente, com motor de
+pistão de ignição por centelha (faísca) e motor elétrico, de peso em carga máxima (bruto) não
+superior a 5 toneladas
+Outros veículos automóveis para transporte de mercadorias, equipados para propulsão,
+simultaneamente, com motor de pistão de ignição por centelha (faísca) e motor elétrico, de
+peso em carga máxima (bruto) superior a 5 toneladas
+Outros veículos automóveis para transporte de mercadorias, exceto camionetas e
+caminhonetes de cabine dupla, unicamente com motor elétrico para propulsão
+Outros veículos automóveis para transporte de mercadorias, exceto camionetas e
+caminhonetes de cabine dupla
+Tanques (cisternas)
+Outros reboques e semirreboques para transporte de mercadorias
+Outros reboques e semirreboques
+Outros veículos não autopropulsados
+
+NCM/SH
+8704.32.20
+
+8704.32.30
+
+8704.32.90
+
+8704.41.00
+
+8704.42.00
+
+8704.43.00
+
+8704.51.00
+
+8704.52.00
+
+8704.60.00
+8704.90.00
+8716.31.00
+8716.39.00
+8716.40.00
+8716.80.00
+
+248
+
+ANEXO V - BENS FABRICADOS NA ZFM COM 100% DE CRÉDITO PRESUMIDO (ART. 521, § 1º, IV)
+ITEM
+1
+
+DESCRIÇÃO
+Embarcações e balsas
+
+2
+
+Monitor de vídeo
+
+3
+
+Autorrádio
+
+4
+
+Vestuário
+
+5
+
+Veículos utilitários
+
+6
+
+Brinquedos
+
+7
+
+Aparelho condicionador de ar dos tipos janela ou parede e split
+
+8
+
+Fogões
+
+9
+
+Lavadora de louça
+
+NCM/SH
+8901.10.00,
+8901.90.00,
+8903.31.00,
+8903.9,
+8904.00.00,
+8907.90.00
+8528.59
+8521.90.00,
+8527.2,
+8528.72.00
+5407, 5408,
+6101, 6102,
+6103, 6104,
+6105, 6106,
+6107, 6108,
+6109, 6110,
+6111, 6112,
+6113.00.00,
+6114, 6115,
+6216, 6117,
+6201, 6202,
+6203, 6204,
+6205, 6206,
+6207, 6208,
+6209, 6210,
+6211, 6212,
+6213, 6214,
+6215,
+6216.00.00,
+6217, 6301
+8703.2,
+8703.3,
+8704.2,
+8704.3
+9503.00.10,
+9503.00.2,
+9503.00.3,
+9503.00.40,
+9503.00.50,
+9503.00.60,
+9503.00.70,
+9503.00.9,
+9504.40.00,
+9504.50.00,
+9504.90,
+9506.62.00,
+9506.69.00,
+9506.70.00
+8415.1,
+8415.82,
+8415.90
+8516.60.00
+8422.11.00,
+8422.19.00`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 65,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 67)",
+    titulo: "LEGISLAÇÃO AM\nLei 2.826/03 (art. 13, §\n13, I)\n\nLei 2.826/03 (art. 13, §\n13, III)\nLei 2.826/03 (art. 13, §\n13, V)\nLei 2.826/03 (art. 13, §\n13, VI)\n\nLei 2.826/03 (art. 13, §\n13, VII)\n\nLei 2.826/03 (a...",
+    conteudo: `LEGISLAÇÃO AM
+Lei 2.826/03 (art. 13, §
+13, I)
+
+Lei 2.826/03 (art. 13, §
+13, III)
+Lei 2.826/03 (art. 13, §
+13, V)
+Lei 2.826/03 (art. 13, §
+13, VI)
+
+Lei 2.826/03 (art. 13, §
+13, VII)
+
+Lei 2.826/03 (art. 13, §
+13, VIII)
+
+Lei 2.826/03 (art. 13, §
+13, X)
+Lei 2.826/03 (art. 13, §
+13, XI)
+Lei 2.826/03 (art. 13, §
+13, XI)
+
+249
+
+ITEM
+10
+
+DESCRIÇÃO
+Fios, telas e sacos de juta e/ou malva
+
+11
+
+Castanha beneficiada com casca ou descascada
+
+NCM/SH
+5307.10.10,
+6305.10.00
+0801.2
+
+12
+
+Aparelho de ginástica
+
+9506.91.00
+
+13
+
+Bicicleta
+
+8712.00.10
+
+14
+
+Bicicleta elétrica
+
+15
+
+Pneumáticos
+
+16
+
+Câmaras de ar
+
+17
+
+Baú de alumínio
+
+8711.60.00,
+8711.90.00
+4011.40.00,
+4011.50.00
+4013.20.00,
+4013.90.00
+8707.90.90
+
+18
+
+Semi-reboque
+
+19
+
+Repelentes
+
+20
+
+Odorizador de ambientes e desodorizador embalados sob
+pressão
+Produtos destinados à segurança ocupacional
+
+21
+
+8716.20.00,
+8716.39.00,
+8716.90.90
+3808.91.19,
+3808.91.99
+3307.49.00
+5608.90.00,
+6307.20.00,
+6307.90.90,
+7326.90.90,
+7616.99.00,
+9020.00.10,
+7326.90.90,
+6307.20.00,
+5608.90.00,
+6307.90.90,
+6307.90.90,
+9020.00.10
+8517.62,
+8521.90.00,
+8525.8,
+8543.70.39,
+8301.40.00,
+8302.60.00,
+8536.49.00,
+8529.90
+7113, 7114
+
+22
+
+Equipamentos de segurança, incluindo fechadura elétrica, trava
+elétrica e porteiro eletrônico, e partes destinadas a estes
+equipamentos
+
+23
+
+Artefatos de joalheria e de ourivesaria
+
+24
+
+Secador profissional de cabelo e aparelho para modelar cabelo
+
+8516.31.00,
+8516.32.00
+
+25
+26
+27
+
+Esquadria em PVC com reforço metálico para construção civil
+Inseticida
+Luminária com fonte de luz em estado sólido
+
+28
+29
+30
+
+Frasco coletor de amostra para laboratório
+Touca e máscara descartáveis para uso médico hospitalar
+Módulo acumulador com células eletroquímicas de íon lítio
+para estação de armazenamento de energia elétrica (exceto
+em sistemas de energia)
+
+3925.20.00
+3808.91.19
+9405.11.90,
+9405.42.00
+3923.30.90
+6307.90.10
+8507.60.00`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 66,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 68)",
+    titulo: "LEGISLAÇÃO AM\nLei 2.826/03 (art. 13, §\n13, XVII)\nLei 2.826/03 (art. 13, §\n13, XVII)\nLei 2.826/03 (art. 13, §\n13, XVIII)\nLei 2.826/03 (art. 13, §\n13, XIX)\nLei 2.826/03 (art. 13, §\n13, XIX)\nLei 2.826...",
+    conteudo: `LEGISLAÇÃO AM
+Lei 2.826/03 (art. 13, §
+13, XVII)
+Lei 2.826/03 (art. 13, §
+13, XVII)
+Lei 2.826/03 (art. 13, §
+13, XVIII)
+Lei 2.826/03 (art. 13, §
+13, XIX)
+Lei 2.826/03 (art. 13, §
+13, XIX)
+Lei 2.826/03 (art. 13, §
+13, XX)
+Lei 2.826/03 (art. 13, §
+13, XX)
+Lei 2.826/03 (art. 13, §
+13, XXI)
+Lei 2.826/03 (art. 13, §
+13, XXI)
+Lei 2.826/03 (art. 13, §
+13, XXII)
+Lei 2.826/03 (art. 13, §
+13, XXII)
+Lei 2.826/03 (art. 13, §
+13, XXIII)
+
+Lei 2.826/03 (art. 13, §
+13, XXIV)
+
+Lei 2.826/03 (art. 13, §
+13, XXVI)
+Decreto n. 46.024/22
+(prorrogado pelo
+Decreto n. 51.978/25)
+Decreto n. 46.389/22
+Decreto n. 46.559/22
+Decreto n. 46.561/22
+Decreto n. 47.263/23
+Decreto n. 47.263/23
+Decreto n. 47.282/23
+
+250
+
+ITEM
+31
+32
+33
+34
+
+DESCRIÇÃO
+Forro de PVC
+Controle remoto para aparelhos elétricos e eletrônicos
+Colchão de mola ou de espuma embalado a vácuo e
+compactado
+Poste e cruzeta de poliéster reforçado com fibra de vidro
+
+NCM/SH
+3916.20.00
+8543.70.99
+9404.29.00,
+9404.21.00
+3907.99.99,
+7019.90.00,
+3907.99.11,
+3907.99.11,
+3917.29.00
+8504.40.21,
+8504.40.29,
+8504.40.30
+8521.90.00
+
+35
+
+Conversor de corrente AC/CC - adaptador de tensão para bens
+de áudio e vídeo
+
+36
+
+Digital Vídeo Disc - DVD Player ou DVD/Blu-Ray; reprodutor de
+CD/DVD ou de DVD/Blu-Ray combinado com amplificador
+home theater; rádio com reprodutor de CD/DVD ou de DVD
+Blu-Ray combinado com amplificador home theater
+
+37
+
+Aparelho receptor e decodificador de sinais de vídeo e áudio
+
+8528.71
+
+38
+
+Aparelho receptor para radiodifusão combinado com um
+aparelho de gravação ou de reprodução de som (sistemas),
+exceto os combinados com reprodutores de vídeo
+
+8527.13.00,
+8527.91.00
+
+39
+
+Projetor de vídeo
+
+8528.62.00,
+8528.69
+
+40
+
+Motor de popa
+
+8407.21
+
+41
+
+Equipamentos médico-hospitalares e odontológicos
+
+42
+
+Produtos farmacêuticos
+
+9011, 9018,
+9019, 9020
+(exceto
+9020.00.10),
+9021, 9022
+3005
+
+LEGISLAÇÃO AM
+Decreto n. 47.708/23
+Decreto n. 48.175/23
+Decreto n. 48.487/23
+Decreto n. 48.518/23
+
+Decreto n. 48.519/23`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 67,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 69)",
+    titulo: "Decreto n. 48.569/23\n(Decreto original n.\n38.558/17, prorrogado\npelos Decretos\n40.101/18, 41.576/19,\n44.958/21, 48.216/23)\nDecreto n. 48.569/23\n(Decreto original n.\n38.558/17, prorrogado\npelos Decr...",
+    conteudo: `Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.558/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+
+251
+
+ITEM
+43
+
+DESCRIÇÃO
+Medicamento de uso humano
+
+NCM/SH
+3003, 3004
+
+44
+
+Aparelho eletromecânico para preparação instantânea de
+bebidas, em doses individuais, a partir de cápsulas
+
+8479.89.99
+
+45
+
+Aparelho receptor de televisão com projetor de vídeo
+incorporado (exceto para receptor utilizado em televisão)
+
+8528.71.90
+
+46
+
+Caixa acústica para reprodução de áudio digital via conexão
+sem fio
+
+8518.21.00,
+8518.22.00
+
+47
+
+Amplificador elétrico de audiofrequência (Soundbar)
+
+8518.22.00,
+8518.40.00
+
+48
+
+Relógio de pulso
+
+49
+
+Aparelhos digitais de sinalização acústica ou visual, exceto os
+aparelhos residenciais
+
+9102.11.10,
+9102.11.90,
+9102.12.10,
+9102.12.20,
+9102.19.00 e
+9102.21.00
+8512`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 68,
+  },
+  {
+    lei: "resolucao_cgibs_6",
+    artigo: "Art. 617 (parte 70)",
+    titulo: "LEGISLAÇÃO AM\nDecreto n. 48.569/23\n(Decreto original n.\n31.150/11, prorrogados\npelos Decretos\n44.958/21 e 48.216.23)\nDecreto n. 48.569/23\n(Decreto original n.\n38.124/17, prorrogado\npelos Decretos\n4...",
+    conteudo: `LEGISLAÇÃO AM
+Decreto n. 48.569/23
+(Decreto original n.
+31.150/11, prorrogados
+pelos Decretos
+44.958/21 e 48.216.23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.124/17, prorrogado
+pelos Decretos
+44.958/21 e 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+38.560/17, prorrogado
+pelos Decretos
+40.101/18, 41.576/19,
+44.958/21, 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+39.305/2018,
+prorrogados pelos
+Decretos 41.576/19,
+44.958/21 e 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+39.305/2018,
+prorrogados pelos
+Decretos 41.576/19,
+44.958/21 e 48.216/23)
+Decreto n. 48.569/23
+(Decreto original n.
+43.274/21, prorrogado
+pelos Decretos
+44.958/21 e 48.216/23)
+Decreto n. 48.569/23
+
+252`,
+    topicos: "CBS, IBS, Reforma Tributária, ZFM, base_calculo, combustivel, credito, credito_presumido, exportacao, reducao, regime_diferenciado",
+    cnaeGroups: "01,02,03,10,11,12,23,46,47",
+    chunkIndex: 69,
   },
 ];
