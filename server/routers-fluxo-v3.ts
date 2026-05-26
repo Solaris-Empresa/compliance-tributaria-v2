@@ -4813,7 +4813,13 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         });
       }
 
-      const questions = await db.getOnda1Questions();
+      // BUG-SOL-050-051: extrair CNAE principal do projeto para filtrar
+      // perguntas condicionais por cnae_groups (ex: crédito presumido só p/ atacadistas)
+      const confirmedCnaes = (project as any).confirmedCnaes;
+      const primaryCnae = Array.isArray(confirmedCnaes) && confirmedCnaes.length > 0
+        ? (typeof confirmedCnaes[0] === 'string' ? confirmedCnaes[0] : confirmedCnaes[0]?.code)
+        : undefined;
+      const questions = await db.getOnda1Questions(primaryCnae ?? undefined);
       const existingAnswers = await db.getOnda1Answers(input.projectId);
 
       // Mapear respostas existentes por questionId
