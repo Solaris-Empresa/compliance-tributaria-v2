@@ -1383,7 +1383,17 @@ export async function getOnda1Questions(cnaeCode?: string): Promise<SolarisQuest
     )
     .orderBy(solarisQuestions.id);
 
-  return rows;
+  // BUG-SOL-050-051: filtrar por cnae_groups quando cnaeCode é fornecido
+  // cnae_groups = null → pergunta universal (retorna sempre)
+  // cnae_groups contém CNAE compatível → retorna
+  // cnae_groups não contém CNAE compatível → não retorna
+  if (!cnaeCode) return rows;
+  return rows.filter((q) => {
+    if (q.cnaeGroups === null || q.cnaeGroups === undefined) return true; // universal
+    const groups = safeParseJson<string[]>(q.cnaeGroups, []);
+    if (groups.length === 0) return true; // empty array = universal
+    return groups.some((g) => cnaeCode.startsWith(g) || g.startsWith(cnaeCode));
+  });
 }
 
 /**
