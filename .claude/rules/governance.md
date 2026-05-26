@@ -2705,3 +2705,32 @@ O PR #1205 é **aditivo** a `inferNormativeRisks` e **não toca** esse path (`gi
 - Lição #65 (rastrear fluxo / testar a coisa certa) · Lição #87 (smoke estático ≠ consumo) · Lição #64 (audit-greps vs runtime) · Lição #71 (scripts DoD / medição calibrada)
 - REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-34 Protocolo 3 (DoD com critério negativo) · REGRA-ORQ-33 (RACI)
 - FEAT-COB-01 #1176 / PR #1205 (caso canônico) · `server/lib/normative-inference.ts` · `server/lib/cnae-oportunidade-eligibility.ts`
+
+## Lição #103 — cnae_groups NULL = pergunta universal
+
+**Contexto:** BUG-SOL-050-051 · PR #1253 · build d259d4e3 · 26/05/2026
+
+### Regra
+
+`cnae_groups = NULL` em `solaris_questions` significa **pergunta universal**
+(exibida para todos os CNAEs). Perguntas **condicionais por CNAE** DEVEM ter
+`cnae_groups` preenchido na migration de inserção. Nunca inserir como NULL
+e corrigir depois — o NULL vaza para produção como universal silenciosamente.
+
+### Aplicação
+
+Ao criar migration que insere `solaris_questions` condicionais, sempre incluir
+`cnae_groups` no INSERT. Se universal intencional, documentar explicitamente
+com comentário:
+
+```sql
+-- universal: exibida para todos os CNAEs
+```
+
+### Vinculadas
+
+- BUG-SOL-050-051 · PR #1253 (caso canônico) · migration 0106 (#1197 — SOL-050/051/052 inseridas com `cnae_groups=NULL`)
+- BUG-UX-01 #1249 / PR #1251 (ocultação condicional de SOL-052 no display — sintoma do mesmo NULL universal)
+- REGRA-ORQ-29 + Lição #61 (CNAE-condicionado / metadado determinístico antes da pergunta)
+- REGRA-ORQ-32 (no hardcode — visão sistêmica: `cnae_groups` é o campo data-driven correto, não filtro hardcoded)
+- Lição #92 (`touchesRag` casa `cnae` — falso-positivo em CNAE tributário)
