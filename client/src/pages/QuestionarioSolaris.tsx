@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { computeVisibleSolarisQuestions } from "@/lib/solaris-question-visibility";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -193,12 +194,28 @@ export default function QuestionarioSolaris() {
   // ── Derivações ────────────────────────────────────────────────────────────
 
   const questions: Question[] = useMemo(() => data?.questions ?? [], [data]);
-  const currentQuestion = questions[currentIndex];
-  const totalQuestions = questions.length;
+
+  // BUG-UX-01 (#1249): visibilidade condicional — SOL-052 só aparece quando
+  // SOL-051 = "Sim". Filtro reativo de DISPLAY/navegação (não toca gate nem submit).
+  const visibleQuestions = useMemo(
+    () => computeVisibleSolarisQuestions(questions, answers),
+    [questions, answers]
+  );
+
+  const currentQuestion = visibleQuestions[currentIndex];
+  const totalQuestions = visibleQuestions.length;
+
+  // BUG-UX-01 (#1249): clamp do currentIndex quando a lista visível encolhe
+  // (ex.: usuário muda SOL-051 de "Sim" para "Não" estando além de SOL-052).
+  useEffect(() => {
+    if (currentIndex > visibleQuestions.length - 1) {
+      setCurrentIndex(Math.max(0, visibleQuestions.length - 1));
+    }
+  }, [visibleQuestions.length, currentIndex]);
 
   const answeredCount = useMemo(
-    () => questions.filter((q) => answers[q.id]?.trim()).length,
-    [questions, answers]
+    () => visibleQuestions.filter((q) => answers[q.id]?.trim()).length,
+    [visibleQuestions, answers]
   );
 
   const progressPct = totalQuestions > 0
@@ -206,7 +223,7 @@ export default function QuestionarioSolaris() {
     : 0;
 
   // ADR-0016 Opção B: sem perguntas obrigatórias — habilitar Concluir assim que as perguntas carregarem
-  const canSubmit = questions.length > 0
+  const canSubmit = visibleQuestions.length > 0
 
   // ── Handlers ────────────────────────────────────────────────────────────────────────────────
 
@@ -381,7 +398,7 @@ export default function QuestionarioSolaris() {
 
         {/* Índice de perguntas (pills) */}
         <div className="flex flex-wrap gap-1.5">
-          {questions.map((q, idx) => {
+          {visibleQuestions.map((q, idx) => {
             const answered = !!answers[q.id]?.trim();
             const isCurrent = idx === currentIndex;
             return (
