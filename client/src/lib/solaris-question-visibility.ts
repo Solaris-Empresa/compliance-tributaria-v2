@@ -59,3 +59,17 @@ export function computeVisibleSolarisQuestions<Q extends VisibilityQuestion>(
     return true;
   });
 }
+
+/**
+ * Códigos das perguntas-gate do crédito presumido (Art. 168 LC 214/2025 —
+ * produtor rural). Criadas na migration 0106 (#1197). Usado para agrupar
+ * visualmente o bloco no questionário (UX-02 #1250).
+ */
+export const CREDITO_PRESUMIDO_GATE_CODIGOS = ["SOL-050", "SOL-051", "SOL-052"];
+
+/** True se a pergunta pertence ao bloco-gate do crédito presumido. */
+export function isCreditoPresumidoGateQuestion(
+  codigo: string | undefined | null,
+): boolean {
+  return !!codigo && CREDITO_PRESUMIDO_GATE_CODIGOS.includes(codigo);
+}
