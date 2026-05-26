@@ -44,7 +44,10 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { computeVisibleSolarisQuestions } from "@/lib/solaris-question-visibility";
+import {
+  computeVisibleSolarisQuestions,
+  isCreditoPresumidoGateQuestion,
+} from "@/lib/solaris-question-visibility";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -419,6 +422,25 @@ export default function QuestionarioSolaris() {
             );
           })}
         </div>
+
+        {/* UX-02 (#1250): header de contexto do bloco crédito presumido (Art. 168).
+            Aparece nas 3 perguntas-gate (SOL-050/051/052), independente de onde
+            o usuário entra no bloco. Apresentação apenas — não toca conteúdo/gate. */}
+        {currentQuestion && isCreditoPresumidoGateQuestion(currentQuestion.codigo) && (
+          <Alert
+            className="border-blue-500/30 bg-blue-500/5"
+            data-testid="solaris-section-header-credito-presumido"
+          >
+            <Scale className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-xs text-muted-foreground">
+              <strong className="block text-sm text-blue-700 dark:text-blue-400">
+                Crédito Presumido — Produtor Rural
+              </strong>
+              Art. 168 LC 214/2025 — aplicável a qualquer contribuinte que adquira
+              de produtor rural não contribuinte, independentemente do CNAE.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Card da pergunta atual */}
         {currentQuestion && (

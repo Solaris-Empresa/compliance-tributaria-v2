@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   answerIsAffirmative,
   computeVisibleSolarisQuestions,
+  isCreditoPresumidoGateQuestion,
 } from "./solaris-question-visibility";
 
 // Fixture mínima — espelha o shape de Question do QuestionarioSolaris.
@@ -111,5 +112,22 @@ describe("computeVisibleSolarisQuestions — dependência SOL-052 → SOL-051='S
       "SOL-051",
       "SOL-052",
     ]);
+  });
+});
+
+describe("isCreditoPresumidoGateQuestion (UX-02 #1250)", () => {
+  it("SOL-050/051/052 → true", () => {
+    expect(isCreditoPresumidoGateQuestion("SOL-050")).toBe(true);
+    expect(isCreditoPresumidoGateQuestion("SOL-051")).toBe(true);
+    expect(isCreditoPresumidoGateQuestion("SOL-052")).toBe(true);
+  });
+  it("demais perguntas → false", () => {
+    expect(isCreditoPresumidoGateQuestion("SOL-038")).toBe(false);
+    expect(isCreditoPresumidoGateQuestion("SOL-001")).toBe(false);
+  });
+  it("undefined / null / vazio → false", () => {
+    expect(isCreditoPresumidoGateQuestion(undefined)).toBe(false);
+    expect(isCreditoPresumidoGateQuestion(null)).toBe(false);
+    expect(isCreditoPresumidoGateQuestion("")).toBe(false);
   });
 });
