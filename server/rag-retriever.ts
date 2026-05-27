@@ -222,6 +222,39 @@ export function isSetorialArtigo(artigo: string | undefined | null): boolean {
 }
 
 /**
+ * Fim da Parte Geral da LC 214 (normas gerais do IBS/CBS). Art. >= 128 inicia
+ * os regimes específicos. Usado pelo D4-POOL para excluir a Parte Geral do pool
+ * de Q.NCM, onde Art. 1-13 (definições genéricas) afogam o reranker e impedem
+ * a seleção de conteúdo NCM-específico (ex.: Art. 620/Anexo).
+ *
+ * TECH-DEBT (REGRA-ORQ-32): o número 128 é interino. A solução sistêmica é
+ * classificar setorialidade por metadado (artigo_pai/tipo) — issue D2-DETECTOR
+ * (FASE 2). O mesmo número mágico aparece em isSetorialArtigo acima.
+ */
+const PARTE_GERAL_LC214_FIM = 128;
+
+/** Extrai o primeiro número de um identificador de artigo ("Art. 139" → 139). */
+function artigoNum(artigo: string | undefined | null): number | null {
+  if (!artigo) return null;
+  const m = /(\d+)/.exec(artigo);
+  return m ? parseInt(m[1]!, 10) : null;
+}
+
+/**
+ * D4-POOL: true se o chunk pertence à Parte Geral da LC 214 (Art. < 128) e,
+ * portanto, deve ser excluído do pool de Q.NCM. Escopo restrito a lei==='lc214'
+ * — decreto/resolução/tabela_ncm têm numeração própria e NÃO são filtrados
+ * (evita excluir, p.ex., o chunk do NCM 0102.xx, cujo "artigo" começa com 0102).
+ */
+export function isParteGeralLc214(
+  lei: string,
+  artigo: string | undefined | null
+): boolean {
+  if (lei !== "lc214") return false;
+  return (artigoNum(artigo) ?? Infinity) < PARTE_GERAL_LC214_FIM;
+}
+
+/**
  * Detecta se cnaeGroups do chunk casa com o grupo CNAE do projeto via
  * boundary-aware match.
  *
@@ -518,6 +551,9 @@ function formatContextText(articles: RetrievedArticle[]): string {
  * @param usageOpts         - Opções de telemetria (L-RAG-01)
  * @param skipSetorialPass  - Issue #997: pular Pass 2 setorial (backward-compat
  *                            quando archetype ausente). Default `false`.
+ * @param excludeParteGeralLc214 - D4-POOL: exclui a Parte Geral da LC 214
+ *                            (Art. < 128) do pool antes do rerank. Usado por
+ *                            Q.NCM. Default `false` (briefing/Q.NBS inalterados).
  */
 export async function retrieveArticles(
   cnaes: string[],
@@ -526,6 +562,7 @@ export async function retrieveArticles(
   leiFilter?: string[],
   usageOpts: RAGUsageOptions = {},
   skipSetorialPass = false,
+  excludeParteGeralLc214 = false,
 ): Promise<RAGContext> {
   const keywords = extractKeywords(contextQuery);
   const cnaeGroups = extractCnaeGroups(cnaes);
@@ -550,7 +587,16 @@ export async function retrieveArticles(
   const pass3Candidates = await fetchNcmCandidates(contextQuery, leiFilter);
 
   // Merge dedup por anchor_id → até 55 candidatos únicos (20 + 20 + 15).
-  const candidates = mergeAndDedup(pass1Candidates, pass2Candidates, pass3Candidates);
+  const merged = mergeAndDedup(pass1Candidates, pass2Candidates, pass3Candidates);
+
+  // D4-POOL: para Q.NCM, exclui a Parte Geral da LC 214 (Art. 1-127) do pool.
+  // Essas definições genéricas casam keywords ("IBS CBS alíquota") e dominam o
+  // reranker, descartando conteúdo NCM-específico (Art. 620/Anexo). Escopo restrito
+  // a lei==='lc214' — a Parte Geral só existe na LC 214; decreto/resolução/tabela_ncm
+  // têm numeração própria (evita excluir, p.ex., o chunk do NCM 0102.xx). Ver #997.
+  const candidates = excludeParteGeralLc214
+    ? merged.filter((c) => !isParteGeralLc214(c.lei, c.artigo))
+    : merged;
 
   // CORPUS-RFC-007 — Jina Reranker v3 dual pipeline:
   //   - JINA_RERANKER_ENABLED=false (default): pipeline idêntico ao anterior

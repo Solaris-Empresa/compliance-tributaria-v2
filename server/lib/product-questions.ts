@@ -81,7 +81,9 @@ export async function generateProductQuestions(
     try {
       // Issue #997: skipSetorialPass quando archetype ausente (backward-compat).
       const skipSetorialPass = archetypeContext === "";
-      chunks = await queryRagFn([ncm, ...cnaeCodes], contextQuery, 3, undefined, skipSetorialPass);
+      // D4-POOL: excluir Parte Geral da LC 214 do pool de Q.NCM (Art. 1-127 são
+      // definições genéricas que afogam o reranker). Só Q.NCM passa este flag.
+      chunks = await queryRagFn([ncm, ...cnaeCodes], contextQuery, 3, undefined, skipSetorialPass, true);
     } catch {
       // RAG indisponível: continua sem perguntas RAG para este NCM
     }

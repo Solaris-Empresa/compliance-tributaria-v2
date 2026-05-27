@@ -23,8 +23,9 @@ export async function queryRag(
   topK = 5,
   leiFilter?: string[],
   skipSetorialPass = false,
+  excludeParteGeralLc214 = false,
 ): Promise<RagChunk[]> {
-  const result = await retrieveArticles(codes, contextQuery, topK, leiFilter, {}, skipSetorialPass);
+  const result = await retrieveArticles(codes, contextQuery, topK, leiFilter, {}, skipSetorialPass, excludeParteGeralLc214);
   return result.articles.map(a => ({
     anchor_id: a.anchorId ?? `fallback-${Math.random().toString(36).slice(2, 8)}`,
     conteudo:  a.conteudo,
