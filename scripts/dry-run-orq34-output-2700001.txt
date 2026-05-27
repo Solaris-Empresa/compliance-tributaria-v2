@@ -1,0 +1,71 @@
+== ENV ==
+isJinaRerankerEnabled(): true
+ncmCodes: [ '8436.99.00' ] cnaeCodes: [ '2833-0/00' ]
+archetype: {"annual_revenue_range":"4800000-78000000","cnpj":"09.317.259/0001-35","company_size":"media","company_type":"ltda","confirmedCnaes":["2833-0/00"],"confirmed_by_user_id":150001,"data_version":"2026-04
+[solaris-query] BLOQUEADO: contextType='q_ncm' tentou injetar SOLARIS em questionário downstream. Retornando []. Issue #1035 — SOLARIS é EXCLUSIVO do Q1.
+== A) generateProductQuestions ==
+[
+  {
+    "id": "rag-ncm-8436.99.00-lc214-art-art-139-id181",
+    "fonte": "regulatorio",
+    "fonte_ref": "lc214-art-art-139-id181",
+    "lei_ref": "Art. 139 LC214",
+    "texto": "Sua empresa utiliza o produto classificado sob o código NCM 8436.99.00 exclusivamente no fornecimento para produções nacionais artísticas, culturais, de eventos, jornalísticas ou audiovisuais, conforme os incisos I a VII do Art. 139 da LC 214, para aplicação da redução de 60% nas alíquotas do IBS e da CBS?",
+    "categoria": "enquadramento_geral",
+    "ncm": "8436.99.00",
+    "confidence": 3
+  },
+  {
+    "id": "rag-ncm-8436.99.00-ncm-8436.99.00-id367862",
+    "fonte": "regulatorio",
+    "fonte_ref": "ncm-8436.99.00-id367862",
+    "lei_ref": "8436.99.00 TABELA_NCM_COMPLETA",
+    "texto": "A empresa está classific
+== B) RUN 1 ==
+  totalCandidates(merge): 43
+  3 finais: [ 'Art. 139', '8436.99.00', 'Art. 620 (parte 67)' ] | setoriais nos finais (F): 1
+  Pass2 real (LIMIT 20) P2: 20 | Art.197 no Pass2: false
+  Pass2 artigos: [
+  'Art. 128',           'Art. 129',
+  'Art. 130',           'Art. 131',
+  'Art. 132',           'Art. 133',
+  'Art. 134',           'Art. 135',
+  'Art. 136',           'Art. 137',
+  'Art. 138',           'Art. 138 (parte 2)',
+  'Art. 138 (parte 3)', 'Art. 139',
+  'Art. 140',           'Art. 141',
+  'Art. 142',           'Art. 143',
+  'Art. 144',           'Art. 145'
+]
+== B) RUN 2 ==
+  totalCandidates(merge): 43
+  3 finais: [ 'Art. 139', '8436.99.00', 'Art. 620 (parte 67)' ] | setoriais nos finais (F): 1
+  Pass2 real (LIMIT 20) P2: 20 | Art.197 no Pass2: false
+  Pass2 artigos: [
+  'Art. 128',           'Art. 129',
+  'Art. 130',           'Art. 131',
+  'Art. 132',           'Art. 133',
+  'Art. 134',           'Art. 135',
+  'Art. 136',           'Art. 137',
+  'Art. 138',           'Art. 138 (parte 2)',
+  'Art. 138 (parte 3)', 'Art. 139',
+  'Art. 140',           'Art. 141',
+  'Art. 142',           'Art. 143',
+  'Art. 144',           'Art. 145'
+]
+== B) RUN 3 ==
+  totalCandidates(merge): 43
+  3 finais: [ 'Art. 139', '8436.99.00', 'Art. 620 (parte 67)' ] | setoriais nos finais (F): 1
+  Pass2 real (LIMIT 20) P2: 20 | Art.197 no Pass2: false
+  Pass2 artigos: [
+  'Art. 128',           'Art. 129',
+  'Art. 130',           'Art. 131',
+  'Art. 132',           'Art. 133',
+  'Art. 134',           'Art. 135',
+  'Art. 136',           'Art. 137',
+  'Art. 138',           'Art. 138 (parte 2)',
+  'Art. 138 (parte 3)', 'Art. 139',
+  'Art. 140',           'Art. 141',
+  'Art. 142',           'Art. 143',
+  'Art. 144',           'Art. 145'
+]
