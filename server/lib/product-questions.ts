@@ -19,6 +19,7 @@ import { queryRag } from "./rag-query";
 import { querySolarisByCnaes } from "./solaris-query";
 import { inferCompanyType } from "./completeness";
 import { isSetorialArtigo } from "../rag-retriever";
+import { fetchArt197Chunks, shouldInjectArt197 } from "./art197-injection";
 
 // ─── Função principal ─────────────────────────────────────────────────────────
 
@@ -89,6 +90,19 @@ export async function generateProductQuestions(
     }
     for (const chunk of chunks) {
       ragChunksByNcm.push({ ncm, chunk });
+    }
+  }
+
+  // ─── D1-C: injeção determinística do Art. 197 (alíquota zero máquinas agrícolas) ──
+  // O Art. 197 (decreto12955/resolucao_cgibs_6) é o regime correto, mas fica na
+  // posição ~72/73 do Pass 2 (id alto) → nunca entra no LIMIT 20 nem nos topK do
+  // reranker (Lição #101). Injetamos direto no pool de geração (bypassa reranker) —
+  // padrão fetchPortariaGrounding. DoD: pergunta sobre Art. 197 / alíquota zero.
+  if (shouldInjectArt197(cnaeCodes, ncmCodes)) {
+    const ncmAlvo = ncmCodes.find((n) => n.replace(/\D/g, "").startsWith("8436")) ?? ncmCodes[0]!;
+    const art197Chunks = await fetchArt197Chunks();
+    for (const chunk of art197Chunks) {
+      ragChunksByNcm.push({ ncm: ncmAlvo, chunk });
     }
   }
 
