@@ -497,7 +497,10 @@ Os índices devem ser os números entre colchetes dos artigos mais relevantes, e
 
     return indices.map((i: number, rank: number) => ({
       ...candidates[i],
-      relevanceScore: topK - rank,
+      // COL-CONF: normalizar para [0,1] — relevanceScore vira `confidence` em
+      // product-questions.ts:158 e service-questions.ts:105 (ambos esperam [0,1];
+      // ver tracked-question.ts:42). Antes: (topK-rank) → {3,2,1}, fora da faixa.
+      relevanceScore: (topK - rank) / topK,
     }));
   } catch {
     // Fallback: retornar os primeiros topK candidatos
