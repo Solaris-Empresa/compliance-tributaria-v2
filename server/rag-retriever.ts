@@ -28,6 +28,8 @@ export interface RetrievedArticle {
   relevanceScore?: number;
   /** G11: anchor_id do chunk no banco — rastreabilidade para fundamentacao */
   anchorId?: string;
+  /** D2-DETECTOR: artigo-pai (LC 214) que rege o regime deste chunk (Anexo/Decreto). */
+  artigoPai?: string;
 }
 
 export interface RAGContext {
@@ -177,6 +179,7 @@ async function fetchCandidates(
     titulo: r.titulo,
     conteudo: r.conteudo,
     anchorId: r.anchor_id ?? undefined,
+    artigoPai: r.artigo_pai ?? undefined,
   }));
 }
 
@@ -212,13 +215,22 @@ async function fetchCandidates(
  *   - Anexos (artigo LIKE 'Anexo%')
  *   - Artigos LC 214 com número >= 128 e <= 260 (Título IV regimes diferenciados)
  */
-export function isSetorialArtigo(artigo: string | undefined | null): boolean {
+export function isSetorialArtigo(
+  artigo: string | undefined | null,
+  artigoPai?: string | null
+): boolean {
+  // D2-DETECTOR: setorial se o PRÓPRIO artigo OU o artigo-pai (metadado) cai na faixa.
+  // Reconhece "Art. 620 (parte N)" (Anexo do Decreto) via artigoPai='Art. 197' sem
+  // hardcode do número 620 — substitui a verificação só-numérica (REGRA-ORQ-32).
+  return inSetorialRange(artigo) || inSetorialRange(artigoPai);
+}
+
+/** Faixa setorial da LC 214: Anexo% OU primeiro número ∈ [128,260]. */
+function inSetorialRange(artigo: string | undefined | null): boolean {
   if (!artigo) return false;
   if (/^Anexo/i.test(artigo)) return true;
-  const match = artigo.match(/(\d+)/);
-  if (!match) return false;
-  const num = parseInt(match[1]!, 10);
-  return num >= 128 && num <= 260;
+  const n = artigoNum(artigo);
+  return n !== null && n >= 128 && n <= 260;
 }
 
 /**
@@ -338,6 +350,7 @@ async function fetchSetorialCandidates(
     titulo: r.titulo,
     conteudo: r.conteudo,
     anchorId: r.anchor_id ?? undefined,
+    artigoPai: r.artigo_pai ?? undefined,
   }));
 }
 
@@ -434,6 +447,7 @@ async function fetchNcmCandidates(
           titulo: r.titulo,
           conteudo: r.conteudo,
           anchorId: r.anchor_id ?? undefined,
+          artigoPai: r.artigo_pai ?? undefined,
         });
       }
     } catch {

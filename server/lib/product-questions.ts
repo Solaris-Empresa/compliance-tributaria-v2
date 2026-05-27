@@ -118,7 +118,7 @@ export async function generateProductQuestions(
   // 98% de confiança — é "falsa autoridade legal").
   //
   // Skip do gate se archetype ausente (backward-compat — retriever não rodou Pass 2).
-  const setorialChunks = ragChunksByNcm.filter(({ chunk }) => isSetorialArtigo(chunk.artigo));
+  const setorialChunks = ragChunksByNcm.filter(({ chunk }) => isSetorialArtigo(chunk.artigo, chunk.artigoPai));
   const corpusGapSetorial = archetypeContext !== "" && setorialChunks.length === 0;
 
   if (corpusGapSetorial && solarisQuestions.length === 0) {

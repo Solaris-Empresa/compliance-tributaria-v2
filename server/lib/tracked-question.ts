@@ -21,6 +21,7 @@ export interface RagChunk {
   lei?:      string;
   score?:    number;
   topicos?:  string;
+  artigoPai?: string;  // D2-DETECTOR: artigo-pai (LC 214) p/ isSetorialArtigo via metadado
 }
 
 // ─── Tipos de rastreabilidade ─────────────────────────────────────────────────
