@@ -126,9 +126,15 @@ export async function generateProductQuestions(
       nao_aplicavel: true,
       motivo: "corpus_gap_setorial",
       alerta:
-        "Não foi possível recuperar legislação setorial específica para os NCMs informados " +
-        "com o nível de confiança exigido pela plataforma (meta 98%). " +
-        "Equipe SOLARIS notificada — questionário ficará disponível assim que a cobertura legal for validada.",
+        // COL-LABEL: mensagem honesta — a norma EXISTE no corpus; o que falhou foi a
+        // recuperação com confiança suficiente (não é lacuna de corpus). O enum `motivo`
+        // é mantido para não quebrar contrato (frontend/union/testes); o rename para
+        // "retrieval_gap" está no backlog COL-LABEL-RENAME (Classe B, E2E).
+        "Foi identificada possível incidência de norma setorial aplicável ao NCM informado; " +
+        "contudo, o mecanismo de recuperação normativa não atingiu o grau mínimo de confiança " +
+        "exigido para geração automática segura do questionário correspondente. " +
+        "O caso foi encaminhado para revisão técnica e curadoria jurídica complementar " +
+        "(corpus_gap_setorial).",
     };
   }
 
