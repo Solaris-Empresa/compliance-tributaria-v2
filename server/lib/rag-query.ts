@@ -32,6 +32,7 @@ export async function queryRag(
     artigo:    a.artigo,
     lei:       a.lei,
     score:     a.relevanceScore,
+    artigoPai: a.artigoPai, // D2-DETECTOR: propaga artigo-pai p/ isSetorialArtigo no gate
     topicos:   undefined, // RetrievedArticle não expõe topicos — categoria inferida por conteúdo
   }));
 }
