@@ -1,0 +1,73 @@
+== ENV ==
+isJinaRerankerEnabled(): true
+ncmCodes: [ '8436.99.00' ] cnaeCodes: [ '2833-0/00' ]
+archetype: {"annual_revenue_range":"4800000-78000000","cnpj":"09.317.259/0001-35","company_size":"media","company_type":"ltda","confirmedCnaes":["2833-0/00"],"confirmed_by_user_id":150001,"data_version":"2026-04
+[DRYRUN] merge count: 43 | art197InMerge: false | artigos: ["lc214:Art. 1","lc214:Art. 2","lc214:Art. 3","lc214:Art. 4","lc214:Art. 5","lc214:Art. 5 (parte 3)","lc214:Art. 6","lc214:Art. 6 (parte 2)","lc214:Art. 7","lc214:Art. 8","lc214:Art. 9","lc214:Art. 9 (parte 2)","lc214:Art. 10","lc214:Art. 10 (parte 2)","lc214:Art. 11 (parte 2)","lc214:Art. 11 (parte 3)","lc214:Art. 11 (parte 4)","lc214:Art. 12","lc214:Art. 12 (parte 2)","lc214:Art. 13","lc214:Art. 128","lc214:Art. 129","lc214:Art. 130","lc214:Art. 131","lc214:Art. 132","lc214:Art. 133","lc214:Art. 134","lc214:Art. 135","lc214:Art. 136","lc214:Art. 137","lc214:Art. 138","lc214:Art. 138 (parte 2)","lc214:Art. 138 (parte 3)","lc214:Art. 139","lc214:Art. 140","lc214:Art. 141","lc214:Art. 142","lc214:Art. 143","lc214:Art. 144","lc214:Art. 145","decreto12955:Art. 620 (parte 67)","tabela_ncm_completa:8436.99.00","resolucao_cgibs_6:Art. 617 (parte 62)"]
+[DRYRUN] preranked count: 43 | art197InPreranked: false | artigos: ["Art. 1","Art. 2","Art. 3","Art. 4","Art. 5","Art. 5 (parte 3)","Art. 6","Art. 6 (parte 2)","Art. 7","Art. 8","Art. 9","Art. 9 (parte 2)","Art. 10","Art. 10 (parte 2)","Art. 11 (parte 2)","Art. 11 (parte 3)","Art. 11 (parte 4)","Art. 12","Art. 12 (parte 2)","Art. 13","Art. 128","Art. 129","Art. 130","Art. 131","Art. 132","Art. 133","Art. 134","Art. 135","Art. 136","Art. 137","Art. 138","Art. 138 (parte 2)","Art. 138 (parte 3)","Art. 139","Art. 140","Art. 141","Art. 142","Art. 143","Art. 144","Art. 145","Art. 620 (parte 67)","8436.99.00","Art. 617 (parte 62)"]
+[DRYRUN][rerank] LLM_SELECTED indices: [ 3, 17, 41 ] → artigos: [ 'Art. 4', 'Art. 12', '8436.99.00' ]
+[solaris-query] BLOQUEADO: contextType='q_ncm' tentou injetar SOLARIS em questionário downstream. Retornando []. Issue #1035 — SOLARIS é EXCLUSIVO do Q1.
+== A) generateProductQuestions ==
+{
+  "nao_aplicavel": true,
+  "motivo": "corpus_gap_setorial",
+  "alerta": "Não foi possível recuperar legislação setorial específica para os NCMs informados com o nível de confiança exigido pela plataforma (meta 98%). Equipe SOLARIS notificada — questionário ficará disponível assim que a cobertura legal for validada."
+}
+[DRYRUN] merge count: 43 | art197InMerge: false | artigos: ["lc214:Art. 1","lc214:Art. 2","lc214:Art. 3","lc214:Art. 4","lc214:Art. 5","lc214:Art. 5 (parte 3)","lc214:Art. 6","lc214:Art. 6 (parte 2)","lc214:Art. 7","lc214:Art. 8","lc214:Art. 9","lc214:Art. 9 (parte 2)","lc214:Art. 10","lc214:Art. 10 (parte 2)","lc214:Art. 11 (parte 2)","lc214:Art. 11 (parte 3)","lc214:Art. 11 (parte 4)","lc214:Art. 12","lc214:Art. 12 (parte 2)","lc214:Art. 13","lc214:Art. 128","lc214:Art. 129","lc214:Art. 130","lc214:Art. 131","lc214:Art. 132","lc214:Art. 133","lc214:Art. 134","lc214:Art. 135","lc214:Art. 136","lc214:Art. 137","lc214:Art. 138","lc214:Art. 138 (parte 2)","lc214:Art. 138 (parte 3)","lc214:Art. 139","lc214:Art. 140","lc214:Art. 141","lc214:Art. 142","lc214:Art. 143","lc214:Art. 144","lc214:Art. 145","decreto12955:Art. 620 (parte 67)","tabela_ncm_completa:8436.99.00","resolucao_cgibs_6:Art. 617 (parte 62)"]
+[DRYRUN] preranked count: 43 | art197InPreranked: false | artigos: ["Art. 1","Art. 2","Art. 3","Art. 4","Art. 5","Art. 5 (parte 3)","Art. 6","Art. 6 (parte 2)","Art. 7","Art. 8","Art. 9","Art. 9 (parte 2)","Art. 10","Art. 10 (parte 2)","Art. 11 (parte 2)","Art. 11 (parte 3)","Art. 11 (parte 4)","Art. 12","Art. 12 (parte 2)","Art. 13","Art. 128","Art. 129","Art. 130","Art. 131","Art. 132","Art. 133","Art. 134","Art. 135","Art. 136","Art. 137","Art. 138","Art. 138 (parte 2)","Art. 138 (parte 3)","Art. 139","Art. 140","Art. 141","Art. 142","Art. 143","Art. 144","Art. 145","Art. 620 (parte 67)","8436.99.00","Art. 617 (parte 62)"]
+[DRYRUN][rerank] LLM_SELECTED indices: [ 3, 17, 41 ] → artigos: [ 'Art. 4', 'Art. 12', '8436.99.00' ]
+== B) RUN 1 ==
+  totalCandidates(merge): 43
+  3 finais: [ 'Art. 4', 'Art. 12', '8436.99.00' ] | setoriais nos finais (F): 0
+  Pass2 real (LIMIT 20) P2: 20 | Art.197 no Pass2: false
+  Pass2 artigos: [
+  'Art. 128',           'Art. 129',
+  'Art. 130',           'Art. 131',
+  'Art. 132',           'Art. 133',
+  'Art. 134',           'Art. 135',
+  'Art. 136',           'Art. 137',
+  'Art. 138',           'Art. 138 (parte 2)',
+  'Art. 138 (parte 3)', 'Art. 139',
+  'Art. 140',           'Art. 141',
+  'Art. 142',           'Art. 143',
+  'Art. 144',           'Art. 145'
+]
+  >>> NEGATIVO VIOLADO: existe setorial no Pass2 mas NENHUM nos 3 finais → reranker/merge descartou.
+[DRYRUN] merge count: 43 | art197InMerge: false | artigos: ["lc214:Art. 1","lc214:Art. 2","lc214:Art. 3","lc214:Art. 4","lc214:Art. 5","lc214:Art. 5 (parte 3)","lc214:Art. 6","lc214:Art. 6 (parte 2)","lc214:Art. 7","lc214:Art. 8","lc214:Art. 9","lc214:Art. 9 (parte 2)","lc214:Art. 10","lc214:Art. 10 (parte 2)","lc214:Art. 11 (parte 2)","lc214:Art. 11 (parte 3)","lc214:Art. 11 (parte 4)","lc214:Art. 12","lc214:Art. 12 (parte 2)","lc214:Art. 13","lc214:Art. 128","lc214:Art. 129","lc214:Art. 130","lc214:Art. 131","lc214:Art. 132","lc214:Art. 133","lc214:Art. 134","lc214:Art. 135","lc214:Art. 136","lc214:Art. 137","lc214:Art. 138","lc214:Art. 138 (parte 2)","lc214:Art. 138 (parte 3)","lc214:Art. 139","lc214:Art. 140","lc214:Art. 141","lc214:Art. 142","lc214:Art. 143","lc214:Art. 144","lc214:Art. 145","decreto12955:Art. 620 (parte 67)","tabela_ncm_completa:8436.99.00","resolucao_cgibs_6:Art. 617 (parte 62)"]
+[DRYRUN] preranked count: 43 | art197InPreranked: false | artigos: ["Art. 1","Art. 2","Art. 3","Art. 4","Art. 5","Art. 5 (parte 3)","Art. 6","Art. 6 (parte 2)","Art. 7","Art. 8","Art. 9","Art. 9 (parte 2)","Art. 10","Art. 10 (parte 2)","Art. 11 (parte 2)","Art. 11 (parte 3)","Art. 11 (parte 4)","Art. 12","Art. 12 (parte 2)","Art. 13","Art. 128","Art. 129","Art. 130","Art. 131","Art. 132","Art. 133","Art. 134","Art. 135","Art. 136","Art. 137","Art. 138","Art. 138 (parte 2)","Art. 138 (parte 3)","Art. 139","Art. 140","Art. 141","Art. 142","Art. 143","Art. 144","Art. 145","Art. 620 (parte 67)","8436.99.00","Art. 617 (parte 62)"]
+[DRYRUN][rerank] LLM_SELECTED indices: [ 3, 17, 41 ] → artigos: [ 'Art. 4', 'Art. 12', '8436.99.00' ]
+== B) RUN 2 ==
+  totalCandidates(merge): 43
+  3 finais: [ 'Art. 4', 'Art. 12', '8436.99.00' ] | setoriais nos finais (F): 0
+  Pass2 real (LIMIT 20) P2: 20 | Art.197 no Pass2: false
+  Pass2 artigos: [
+  'Art. 128',           'Art. 129',
+  'Art. 130',           'Art. 131',
+  'Art. 132',           'Art. 133',
+  'Art. 134',           'Art. 135',
+  'Art. 136',           'Art. 137',
+  'Art. 138',           'Art. 138 (parte 2)',
+  'Art. 138 (parte 3)', 'Art. 139',
+  'Art. 140',           'Art. 141',
+  'Art. 142',           'Art. 143',
+  'Art. 144',           'Art. 145'
+]
+  >>> NEGATIVO VIOLADO: existe setorial no Pass2 mas NENHUM nos 3 finais → reranker/merge descartou.
+[DRYRUN] merge count: 43 | art197InMerge: false | artigos: ["lc214:Art. 1","lc214:Art. 2","lc214:Art. 3","lc214:Art. 4","lc214:Art. 5","lc214:Art. 5 (parte 3)","lc214:Art. 6","lc214:Art. 6 (parte 2)","lc214:Art. 7","lc214:Art. 8","lc214:Art. 9","lc214:Art. 9 (parte 2)","lc214:Art. 10","lc214:Art. 10 (parte 2)","lc214:Art. 11 (parte 2)","lc214:Art. 11 (parte 3)","lc214:Art. 11 (parte 4)","lc214:Art. 12","lc214:Art. 12 (parte 2)","lc214:Art. 13","lc214:Art. 128","lc214:Art. 129","lc214:Art. 130","lc214:Art. 131","lc214:Art. 132","lc214:Art. 133","lc214:Art. 134","lc214:Art. 135","lc214:Art. 136","lc214:Art. 137","lc214:Art. 138","lc214:Art. 138 (parte 2)","lc214:Art. 138 (parte 3)","lc214:Art. 139","lc214:Art. 140","lc214:Art. 141","lc214:Art. 142","lc214:Art. 143","lc214:Art. 144","lc214:Art. 145","decreto12955:Art. 620 (parte 67)","tabela_ncm_completa:8436.99.00","resolucao_cgibs_6:Art. 617 (parte 62)"]
+[DRYRUN] preranked count: 10 | art197InPreranked: false | artigos: ["8436.99.00","Art. 139","Art. 142","Art. 13","Art. 620 (parte 67)","Art. 10 (parte 2)","Art. 138","Art. 128","Art. 136","Art. 137"]
+[DRYRUN][rerank] LLM_SELECTED indices: [ 1, 0, 4 ] → artigos: [ 'Art. 139', '8436.99.00', 'Art. 620 (parte 67)' ]
+== B) RUN 3 ==
+  totalCandidates(merge): 43
+  3 finais: [ 'Art. 139', '8436.99.00', 'Art. 620 (parte 67)' ] | setoriais nos finais (F): 1
+  Pass2 real (LIMIT 20) P2: 20 | Art.197 no Pass2: false
+  Pass2 artigos: [
+  'Art. 128',           'Art. 129',
+  'Art. 130',           'Art. 131',
+  'Art. 132',           'Art. 133',
+  'Art. 134',           'Art. 135',
+  'Art. 136',           'Art. 137',
+  'Art. 138',           'Art. 138 (parte 2)',
+  'Art. 138 (parte 3)', 'Art. 139',
+  'Art. 140',           'Art. 141',
+  'Art. 142',           'Art. 143',
+  'Art. 144',           'Art. 145'
+]
