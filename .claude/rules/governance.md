@@ -2734,3 +2734,29 @@ com comentário:
 - REGRA-ORQ-29 + Lição #61 (CNAE-condicionado / metadado determinístico antes da pergunta)
 - REGRA-ORQ-32 (no hardcode — visão sistêmica: `cnae_groups` é o campo data-driven correto, não filtro hardcoded)
 - Lição #92 (`touchesRag` casa `cnae` — falso-positivo em CNAE tributário)
+
+## Lição #101 — boundary é por match-de-grupo (não LENGTH); casar o WHERE ≠ sobreviver ao LIMIT
+
+**Contexto:** Campanha BUG-CORPUS-GAP projeto 2700001 (fabricante CNAE 2833, NCM 8436.99.00) · D1 · 27/05/2026
+
+### Regra
+
+Boundary match é por **LIKE de grupo CNAE** (`cnaeGroups LIKE '28,%' | '%,28,%' | '%,28' | ='28'`), **não por LENGTH**. `LENGTH(cnaeGroups) < 50` é a condição de **fallback** (chunk setorial sem grupo restrito), não o discriminador de boundary — um `cnaeGroups` curto contendo o grupo (ex.: Art. 197 com `'01,02,03,...,28,...'`, len 30) **é boundary**; um longo universal também.
+
+Segundo erro, simétrico: **casar o WHERE (boundary) ≠ sobreviver ao LIMIT.** Um chunk pode ser boundary e ainda assim ser **excluído** do resultado se houver mais boundaries antes dele no ordering (PK ou outro). Corrigir o `cnaeGroups` (tornar boundary) não garante que o chunk seja retornado.
+
+### Evidência empírica (Gate 0 + dry-run, 27/05/2026)
+
+- `Art. 140`: `cnaeGroups` len=**71** E classificado **boundary** (contém 28) → tamanho não classifica.
+- Após corrigir o `cnaeGroups` do Art. 197 (D1-A), ele virou boundary — mas com `ORDER BY boundary-first, id` ficou na **posição 72 de 73 boundaries** para CNAE 28 (id alto) → **fora do LIMIT 20**. Boundary ≠ retornado.
+
+### Aplicação
+
+- Nunca usar `LENGTH(cnaeGroups)` como proxy de boundary (em WHERE ou ORDER BY) — usar os patterns LIKE de grupo.
+- Ao diagnosticar "chunk X não é recuperado", separar dois passos: (1) casa o WHERE? (2) sobrevive ao LIMIT/ordering? Medir o objetivo final (output), não o intermediário.
+
+### Vinculadas
+
+- Campanha BUG-CORPUS-GAP 2700001 · D1-A (PR #1271) · D4-POOL (#1259) · D2 (#1267/#1269)
+- Lição #65 (rastrear fluxo / medir objetivo) · Lição #93 (mecanismo verificado, não inferido)
+- REGRA-ORQ-32 (no hardcode — boundary por metadado, não LENGTH) · `server/rag-retriever.ts` (`fetchSetorialCandidates`, `matchesCnaeBoundary`)
