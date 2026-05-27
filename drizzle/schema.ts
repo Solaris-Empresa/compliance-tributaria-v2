@@ -1362,6 +1362,10 @@ export const ragDocuments = mysqlTable("ragDocuments", {
   autor: text("autor").notNull(),
   revisado_por: text("revisado_por"),
   data_revisao: varchar("data_revisao", { length: 30 }),  // ISO 8601
+  // D2-DETECTOR (migration 0117): vincula chunk de Anexo/Decreto ao artigo-pai da
+  // LC 214 que rege o regime. Permite isSetorialArtigo reconhecer "Art. 620 (parte N)"
+  // como setorial via o pai (Art. 197 ∈ [128,260]) — substitui hardcode de número (ORQ-32). Nullable.
+  artigo_pai: varchar("artigo_pai", { length: 300 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type RagDocument = typeof ragDocuments.$inferSelect;
