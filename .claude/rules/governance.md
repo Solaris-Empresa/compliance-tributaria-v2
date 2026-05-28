@@ -2760,3 +2760,20 @@ Segundo erro, simétrico: **casar o WHERE (boundary) ≠ sobreviver ao LIMIT.** 
 - Campanha BUG-CORPUS-GAP 2700001 · D1-A (PR #1271) · D4-POOL (#1259) · D2 (#1267/#1269)
 - Lição #65 (rastrear fluxo / medir objetivo) · Lição #93 (mecanismo verificado, não inferido)
 - REGRA-ORQ-32 (no hardcode — boundary por metadado, não LENGTH) · `server/rag-retriever.ts` (`fetchSetorialCandidates`, `matchesCnaeBoundary`)
+
+## Lição #107 — oráculo de cobertura é shouldInjectCategory sobre risk_categories, não o texto do grounding
+
+**Contexto:** DIAG-COVERAGE-03 · 27/05/2026 · suite `coverage-8-profiles` (57/57 com DB)
+
+### Regra
+
+O oráculo de "quais categorias se aplicam a um perfil (CNAE/regime)" é **`shouldInjectCategory` aplicado sobre `risk_categories`** (gate CNAE + vigência) — **não** o output de `fetchDeterministicGrounding`, que retorna **texto de artigo** (`[FONTE: lei, artigo]`), não códigos de categoria, e só processa o grounding infralegal (decreto/cgibs6/portaria7). Testes e auditorias de cobertura devem atacar **o gate**, não o output textual.
+
+### Caso canônico
+
+O design original do F2 (DIAG-COVERAGE-03) tentava `extractCategoriesFromOutput(fetchDeterministicGrounding(...))` para verificar `must_include` por código → daria ~0 categorias (os códigos não estão no texto; as universais nem são processadas por essa função). Corrigido para `shouldInjectCategory × risk_categories × perfil` → 8/8 PASS com DB.
+
+### Vinculadas
+
+- DIAG-COVERAGE-03 · `server/integration/coverage-8-profiles.test.ts` · `deterministic-grounding.ts` (`shouldInjectCategory:60` vs `fetchDeterministicGrounding:104`)
+- REGRA-ORQ-27 (assemble ≠ consumption) · Lição #59 · Lição #87 (smoke estático ≠ consumo)
