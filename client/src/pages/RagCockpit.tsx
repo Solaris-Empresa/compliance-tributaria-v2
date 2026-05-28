@@ -792,6 +792,123 @@ function OverviewTab({
         </div>
       </div>
 
+      {/* Gaps de Curadoria — COVERAGE-SUITE-V3 */}
+      <div
+        style={{
+          background: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: 12,
+          padding: 20,
+          marginBottom: 20,
+        }}
+      >
+        <div
+          style={{
+            color: "#94a3b8",
+            fontSize: 13,
+            fontWeight: 600,
+            marginBottom: 12,
+          }}
+        >
+          Gaps de Curadoria (COVERAGE-SUITE-V3 · 28/05/2026)
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: 12,
+            }}
+          >
+            <thead>
+              <tr style={{ borderBottom: "1px solid #1e293b" }}>
+                {["Issue", "Perfil", "Gap", "Implicação", "Prioridade", "Status"].map(h => (
+                  <th
+                    key={h}
+                    style={{
+                      color: "#64748b",
+                      fontWeight: 600,
+                      padding: "8px 10px",
+                      textAlign: "left",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                {
+                  id: "#1280",
+                  perfil: "P10 — Cooperativa",
+                  gap: "regime_cooperativas inexistente",
+                  implicacao: "Sem diferimento IBS (Arts. 271-280 LC 214)",
+                  prioridade: "P2",
+                  status: "blocked",
+                },
+                {
+                  id: "#1281",
+                  perfil: "P11 — Transporte Carga",
+                  gap: "cnae_codes 4930-2 ausente",
+                  implicacao: "Alíquota específica não identificada (Art. 264)",
+                  prioridade: "P2",
+                  status: "open",
+                },
+                {
+                  id: "#1282",
+                  perfil: "P12/P13 — IS",
+                  gap: "imposto_seletivo não data-driven",
+                  implicacao: "Tributação monofásica via hardcode",
+                  prioridade: "P3",
+                  status: "open",
+                },
+                {
+                  id: "#1283",
+                  perfil: "P13 — Bebidas/SOL-050",
+                  gap: "cnae_groups SOL-050 não cobre /02+",
+                  implicacao: "12 perguntas SOLARIS (não 15) para 4635-4/02",
+                  prioridade: "P2",
+                  status: "open",
+                },
+              ].map(g => (
+                <tr
+                  key={g.id}
+                  style={{ borderBottom: "1px solid #0f172a" }}
+                >
+                  <td style={{ padding: "8px 10px", color: "#60a5fa", fontWeight: 600 }}>
+                    {g.id}
+                  </td>
+                  <td style={{ padding: "8px 10px", color: "#e2e8f0" }}>
+                    {g.perfil}
+                  </td>
+                  <td style={{ padding: "8px 10px", color: "#fbbf24", fontFamily: "monospace", fontSize: 11 }}>
+                    {g.gap}
+                  </td>
+                  <td style={{ padding: "8px 10px", color: "#94a3b8" }}>
+                    {g.implicacao}
+                  </td>
+                  <td style={{ padding: "8px 10px" }}>
+                    <Badge
+                      text={g.prioridade}
+                      color={sev[g.prioridade] || "#6b7280"}
+                      bg={sevDark[g.prioridade] || "#1f2937"}
+                    />
+                  </td>
+                  <td style={{ padding: "8px 10px" }}>
+                    <Badge
+                      text={g.status}
+                      color={g.status === "blocked" ? "#f97316" : "#22c55e"}
+                      bg={g.status === "blocked" ? "#431407" : "#052e16"}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Regra de ouro */}
       <div
         style={{
@@ -2262,10 +2379,10 @@ export default function RAGCockpit() {
                 letterSpacing: "0.05em",
               }}
             >
-              ✅ SPRINT Z-22 — UAT ENCERRADA · 2.515 chunks · 13 leis
+              ✅ CORPUS-BASELINE v9.1 · 16.769 chunks · 25 leis · 28/05/2026
             </div>
             <div style={{ color: "#334155", fontSize: 10, marginTop: 2 }}>
-              Auditoria 🟢 APROVADA · PRs #755–#806 · HEAD 839e860 · 2026-04-21
+              COVERAGE-V3 49/49 PASS · E2E-ALIGNMENT 9/9 · GROUNDING-SMOKE 74/74
             </div>
           </div>
           <div style={{ textAlign: "center" }}>
