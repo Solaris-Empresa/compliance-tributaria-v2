@@ -3,6 +3,51 @@
 > **v7.67 · 2026-05-12 (Sprint P2 ENCERRADA — HEAD `14d70a4` · 11 PRs mergeados · E2E #5490001 🟢 confirmado P.O. 2026-05-11 · QCNAE/IS/badges/payload todos validados · próxima: curadoria corpus setorial Capítulo 23)**
 > **Predecessor:** v7.65 · 2026-05-05 (Encerramento sessão M3.10 — HEAD `5725a89`)
 
+## Sessão 2026-05-27 → 2026-05-28 — Campanha NCM 2700001 + DIAG-COVERAGE-03 (proposta Claude Code · Manus finaliza versão + ORQ-19)
+
+> **Nota RACI:** entrada proposta pelo Claude Code no fechamento da sessão. **Versão final (vX.XX), número de audit e arquivamento ORQ-19 a cargo do Manus.** O header acima (v7.67) **não** foi bumpado por mim. Audit proposto: **v7.70**, arquivado em `docs/governance/audits/v7.70-2026-05-28-campanha-ncm-diag-cobertura.md`.
+
+**HEAD main:** `11c4b61` (PR #1278 merged) — sincronizado via R-SYNC-01.
+
+### Entregue nesta sessão
+
+**Campanha NCM BUG-CORPUS-GAP 2700001 — ENCERRADA** (D4-POOL → D2-DETECTOR → D1-A → D1-C):
+
+- **D4-POOL #1259** (`fix/d4-pool-exclude-parte-geral`): exclui Parte Geral da LC 214 (`Art. 1-127`) do pool de Q.NCM (escopo `lei='lc214'`). Const `PARTE_GERAL_LC214_FIM = 128` + tech-debt → D2.
+- **COL-CONF #1261**: normaliza `relevanceScore` do reranker `{3,2,1}` → `[0,1]` em `rag-retriever.ts:517`.
+- **COL-LABEL #1263**: mensagem honesta no `corpus_gap_setorial` (enum mantido; rename em backlog).
+- **D3-JINA #1265**: diagnóstico doc-only do Jina não-determinístico.
+- **D2-DETECTOR #1267 (PR-A) + #1269 (PR-B)**: migration 0117 (`artigo_pai` em `ragDocuments` + UPDATE 5 partes Art.620→Art.197) + `isSetorialArtigo(artigo, artigoPai?)` por metadado (substitui faixa hardcoded — REGRA-ORQ-32).
+- **D1-A #1271**: migration 0118 corrige `cnaeGroups` do Art.197 em `decreto12955` + `resolucao_cgibs_6`. **Gate 0 corrigiu premissa errada:** `lc214` Art.197 é artigo **distinto** (serviços financeiros) — NÃO tocar.
+- **Lição #101 #1272**: boundary é por match-de-grupo (LIKE), não LENGTH; **casar o WHERE ≠ sobreviver ao LIMIT**.
+- **D1-C #1274** (`art197-injection.ts`): injeção determinística do Art. 197 no pool de geração (gate `shouldInjectArt197` CNAE 28 + NCM 8436.* HARDCODE INTERINO, com tech-debt → NEW-CAT #1275). Validado greenfield #3660001 (Art.197 Q4/Q5 com Decreto + CGIBS 6).
+
+**DIAG-COVERAGE-03 — ENCERRADO** (auditoria de cobertura por perfil):
+
+- **BUG-CALLER-GATE refutado** com grep definitivo: `fetchDeterministicGrounding` recebe `cnae`+`today` em `routers-fluxo-v3.ts:1446/4149` (não só `taxRegime`).
+- **Suite `coverage-8-profiles.test.ts` (#1278)** — **57/57 PASS**: Bloco 1 puro 11 (gates hardcoded) + Bloco 2 dbDescribe 8 (Manus DB, 27/05 23:00, contra `risk_categories` reais + contagem SOLARIS por perfil).
+- **Lição #107** (`governance.md:2764`): oráculo de cobertura é **`shouldInjectCategory` sobre `risk_categories`**, não o output de `fetchDeterministicGrounding` (texto de artigo).
+
+### Validação (Manus, runtime — recapitulado da sessão)
+
+- **Smoke D4 pós-merge (2700001):** Art.4/12 fora dos finais; gate não dispara ✅
+- **Smoke D1-C greenfield (3660001, fabricante máquinas):** Art.197 nas perguntas 4 e 5 ✅
+- **Cobertura Construtora (3600001, 4120):** 16 perguntas SOLARIS (12 univ + 4 construção) ✅
+- **Cobertura Advogado (2640001, 6911):** 12 perguntas universais ✅
+- **DIAG-COVERAGE-03 (57/57 PASS com DB):** 8 perfis cobertos por `shouldInjectCategory × risk_categories` ✅
+
+### Pendências / tech debt
+
+- **#1277 (P2 · `data-quality`)** — `regime_especifico_imoveis_locacao.cnae_codes = ["6810-2",...]` casa venda `6810-2/01` por prefixo. Fix de dado (Opção A: restringir a `6810-2/02`). Confirmado empiricamente pelo Bloco 2 da suite.
+- **#1275 (P2 · `needs-po-decision`)** — NEW-CAT `aliquota_zero_bens_capital_agro`: substitui o hardcode interino do D1-C por categoria data-driven. Aguarda parecer Dr. Swami (Q2/Q3/Q4/Q5/Q7).
+- **#1276 (P3)** — reranker injeta Art.139 (cultural) e Art.128 para NCM 8436.99.00 — sem aderência ao NCM. Padrão recorrente (6180001 ração + 3660001 máquinas).
+- **CI** continua com falhas pré-existentes de integração (DB ausente — issue #1043, pré-existente; não criada nesta sessão).
+- **Audit ORQ-19 formal (v7.70) + bump de versão no header:** pendente Manus.
+
+### Próxima sprint (recomendação)
+
+Atacar prioritariamente **#1277** (fix cirúrgico de dado em `regime_especifico_imoveis_locacao`) — pequeno, idempotente, fecha um bug confirmado empiricamente e libera a Imobiliária da classificação errada. **#1275** aguarda o jurídico; **#1276** depende de Gate 0 + decisão.
+
 ## Sessão 2026-05-24 — FEAT-COB-01 + encerramento FEAT-SCOPE-02 (proposta Claude Code · Manus finaliza versão + ORQ-19)
 
 > **Nota RACI:** entrada proposta pelo Claude Code no fechamento da sessão. **Versão final (vX.XX), número de audit e arquivamento ORQ-19 a cargo do Manus.** O header acima (v7.67) **não** foi bumpado por mim.

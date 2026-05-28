@@ -1,149 +1,67 @@
-# Auditoria de Fim de Sessão — v7.69 (FASE 4 / BUG-IBS — 12 PRs #1206-#1217)
+# AUDITORIA-FIM-DE-SESSAO — LATEST
 
-**Data:** 2026-05-26
-**Issue:** #1231 ([ORQ-19-SESSAO])
-**Sessão auditada:** FASE 4 / BUG-IBS (24-25/05/2026) — 12 PRs #1206-#1217
-**Gatilho ORQ-19:** ≥3 PRs mergeados (12 PRs)
-**Último audit arquivado:** v7.68 (2026-05-20) — janela #1206-#1217 nunca auditada
-**Executor:** Claude Code (Passos 0, 2, 3, 5) · Manus (1, 4, 6 — PENDENTE) · P.O. (7 — PENDENTE)
+> Espelho do audit mais recente. Histórico completo em `docs/governance/audits/`.
+> Mais recente: **v7.70** · 2026-05-28 · Campanha NCM 2700001 + DIAG-COVERAGE-03.
+
+→ Veja o arquivo completo: **[`audits/v7.70-2026-05-28-campanha-ncm-diag-cobertura.md`](./audits/v7.70-2026-05-28-campanha-ncm-diag-cobertura.md)**
 
 ---
 
-## Passo 0 — Sincronia Defensiva (Claude Code) ✅
+## Resumo executivo (v7.70 — proposto pelo Claude Code, aguarda P.O.)
 
 ```
-HEAD local      = cc0ca47
-origin/main     = cc0ca47   (byte-a-byte)
+🟢 PROPOSTO — campanha NCM 2700001 + DIAG-COVERAGE-03 encerrados
+
+HEAD:            11c4b61
+PRs auditados:   10/10 MERGED ✓ (+ 2 dry-runs CLOSED por design)
+Issues fechadas: 8/8 ✓
+Issues abertas:  3 (residuais rastreados: #1275 NEW-CAT, #1276 reranker, #1277 P6 locação)
+Greps:           10/10 ✓
+TypeScript:      0 erros (Claude Code local)
+Tests local:    49/49 ✓ + 8 skipped (dbDescribe — DB no Manus)
+Tests c/ DB:    57/57 ✓ (Manus, 27/05 23:00, DIAG-COVERAGE-03)
+HTTP prod:      _Manus completar_
+Smoke UX:       4 smokes pontuais ✅ (D4 · D1-C · Cobertura Construtora · Cobertura Advogado)
+
+BUGS ABERTOS:
+  #1276 reranker injeta Art.139/128 sem aderência ao NCM (P3)
+  #1277 regime_especifico_imoveis_locacao casa venda 6810-2/01 (P2, fix de dado)
+
+BLOQUEADORES PRÓXIMA SPRINT:
+  #1275 NEW-CAT — aguarda gate jurídico Dr. Swami (desbloqueia remoção do hardcode interino D1-C)
 ```
 
-| Item | Resultado |
-|---|---|
-| `git fetch` | OK (ruído `worktrees/tmp-m1-* Permission denied` = SUG-14 #1241, não afeta refs) |
-| HEAD = origin/main | ✅ `cc0ca47` |
-| Working tree | LIMPO — apenas untracked esperado: `reports/battery-current/` (scratch da sessão) + `scripts/backfill-risks-artigo-base-fix.ts` (resíduo 20/05, não rastreado) |
+## Lições registradas nesta sessão
 
-> Nota: HEAD atual (`cc0ca47`) está **à frente** da janela auditada — inclui lotes posteriores (#1242-#1248, e da sessão 26/05 #1251/#1252/#1254). Os 12 PRs do escopo estão todos presentes (Passo 2).
+- **Lição #101** (`.claude/rules/governance.md:2738`) — boundary é por match-de-grupo (LIKE), não LENGTH; **casar o WHERE ≠ sobreviver ao LIMIT**. PR #1272.
+- **Lição #107** (`.claude/rules/governance.md:2764`) — oráculo de cobertura é `shouldInjectCategory` sobre `risk_categories`, não o texto do `fetchDeterministicGrounding`. PR #1278.
 
-## Passo 1 — 4 HEADs Alinhados (Manus) ⏳ PENDENTE
+## PRs MERGED nesta sessão (10)
 
-| Artefato | HEAD esperado | HEAD real |
-|---|---|---|
-| GitHub `solaris/main` | `cc0ca47` | _Manus_ |
-| S3 Manus (webdev) | `cc0ca47` | _Manus_ |
-| Checkpoint publicado | — | _Manus_ |
-| `iasolaris.manus.space` | — | _Manus_ |
+| # | Título | Branch |
+|---|--------|--------|
+| #1259 | fix(rag): excluir Parte Geral LC 214 do pool de Q.NCM (D4-POOL) | `fix/d4-pool-exclude-parte-geral` |
+| #1261 | fix(rag): normalizar confidence do reranker para [0,1] (COL-CONF) | `fix/col-conf-normalize-confidence` |
+| #1263 | fix(product-questions): mensagem honesta no corpus_gap_setorial (COL-LABEL) | `fix/col-label-honest-message` |
+| #1265 | docs(bugs): diagnóstico D3-JINA — Jina não-determinístico | `docs/d3-jina-diagnostico` |
+| #1267 | db: artigo_pai em ragDocuments + link Art.620 (D2 PR-A) | `db/d2-artigo-pai-anexo-link` |
+| #1269 | fix(rag): isSetorialArtigo por metadado artigo_pai (D2 PR-B) | `fix/d2-issetorial-artigo-pai` |
+| #1271 | db: corrigir cnaeGroups Art.197 decreto/resolucao (D1-A) | `db/d1a-art197-grupos` |
+| #1272 | docs(governance): registrar Lição #101 | `chore/licao-101-corrigida` |
+| #1274 | fix(rag): injeção determinística Art. 197 no pool de Q.NCM (D1-C) | `fix/d1c-inject-art197` |
+| #1278 | test(coverage): suite 57/57 cobertura CNAE/NCM + Lição #107 | `test/coverage-8-profiles` |
 
-> R-SYNC-02: usar refspec explícito. DEPLOY-FASE4 #1218 está **CLOSED** (migrations 0108-0113 confirmadas em prod) — Manus confirmar SHA publicado.
+## Próximos passos
 
-## Passo 2 — Inventário dos PRs esperados (Claude Code) ✅ 12/12
-
-| # | PR | Commit | Entrega |
-|---|---|---|---|
-| 1 | #1206 | `5d6ee70` | docs: Lição #93 + ESTADO-ATUAL |
-| 2 | #1207 | `eddcc84` | corpus: re-ingestão CGIBS 6 completa (Arts 1-617) — CORPUS-RFC-010 |
-| 3 | #1208 | `24f978c` | docs: CORPUS-BASELINE v9.0 + chunker fix (BUG-IBS-00-FIX-A) |
-| 4 | #1209 | `b7aaf7a` | migration 0108 — bundles cgibs6 Fase 3 (BUG-IBS-01) |
-| 5 | #1210 | `79da4bb` | briefing: nota Simples Nacional no grounding (BUG-IBS-02) |
-| 6 | #1211 | `d16cc37` | briefing: Portaria 7 + header dinâmico (BUG-IBS-03 + POLISH-01) |
-| 7 | #1212 | `260eccf` | engine: aliquota_reduzida ← CGIBS 6 Art. 202-218 (CORR-01) |
-| 8 | #1213 | `6adcad9` | engine: regime_especifico_imoveis_locacao subset 8 artigos |
-| 9 | #1214 | `d16fced` | briefing: gate CNAE + vigência no grounding (Passo 2) |
-| 10 | #1215 | `c9e419b` | grounding: 3 categorias grounding-only (mig 0111) |
-| 11 | #1216 | `d2fc32a` | grounding: 6 categorias regime_diferenciado (mig 0112) |
-| 12 | #1217 | `9fc0e62` | docs: runbook deploy + ADR-ARCH-01 |
-
-**Resultado: 12/12 ✓ — zero faltantes.**
-
-## Passo 3 — Greps de Artefatos (Claude Code) ✅ 12/12
-
-| PR | Artefato canônico | Verificação |
-|---|---|---|
-| #1207 | `server/rag-corpus-resolucao-cgibs6.ts` | ✅ 24.247 linhas |
-| #1208 | `docs/rag/CORPUS-BASELINE.md` | ✅ presente |
-| #1209 | `drizzle/0108_bug_ibs_01_fase3_cgibs6_bundles.sql` | ✅ |
-| #1210 | `deterministic-grounding.ts` "Simples Nacional" | ✅ 6 matches |
-| #1211 | `server/lib/portaria-grounding.ts` | ✅ 54 linhas |
-| #1212 | `server/lib/cnae-oportunidade-eligibility.ts` (aliquota_reduzida) | ✅ |
-| #1213 | `server/lib/regime-imoveis-eligibility.ts` + `normative-inference.ts` | ✅ |
-| #1214 | `deterministic-grounding.ts` vigência/cnae | ✅ 22 matches |
-| #1215 | `drizzle/0111_bug_ibs_fase4_3cats.sql` | ✅ |
-| #1216 | `drizzle/0112_bug_ibs_fase4_6cats.sql` | ✅ |
-| #1217 | `docs/adr/ADR-ARCH-01-modelo-tributario.md` + `docs/deploy/FASE-4-runbook.md` | ✅ |
-
-**Resultado: 12/12 artefatos presentes — zero grep com 0 onde esperava ≥1.**
-
-## Passo 4 — Runtime Sanity (Manus) ⏳ PENDENTE
-
-| Verificação | Esperado | Resultado |
-|---|---|---|
-| `curl /api/health` (prod) | `status=healthy` | _Manus_ |
-| `curl https://iasolaris.manus.space` | 200 | _Manus_ |
-| Briefing cita CGIBS 6 / Decreto / Portaria 7 em prod | citação no output | _Manus_ |
-
-## Passo 5 — Unit Tests + tsc (Claude Code) ✅
-
-```
-$ pnpm check (tsc --noEmit)
-✅ EXIT=0 — zero errors
-
-$ pnpm exec vitest run <10 arquivos FASE 4>
-✓ regime-imoveis-eligibility.test.ts        (30)
-✓ bug-ibs-01-fase3-migration.contract       (8)
-✓ bug-ibs-fase4-3cats-migration.contract    (6)
-✓ bug-ibs-fase4-6cats-migration.contract    (7)
-✓ bug-ibs-04-locacao-subset-migration.contract (5)
-✓ cnae-oportunidade-eligibility.test.ts     (7)
-✓ cnae-oportunidade-engine.test.ts          (4)
-✓ deterministic-grounding.test.ts           (18)
-✓ portaria-grounding.test.ts                (4)
-✓ normative-inference.test.ts               (2)
-─────────────────────────────────────────────
-Test Files  10 passed (10)
-Tests       91 passed (91)   ← 91/91 ✓
-```
-
-## Passo 6 — Smoke UX 9 Fluxos (Manus) ⏳ PENDENTE
-
-Acessar `iasolaris.manus.space` e validar os 9 fluxos (login → projetos → questionários → briefing → ConfidenceBar → compartilhar → histórico → export CSV). Reportar K/9.
-
-## Passo 7 — Veredito Final (P.O.) ⏳ PENDENTE
-
-### Dimensão Pipeline (Claude Code — evidência reproduzível) 🟢
-
-- 12/12 PRs presentes em `origin/main`
-- 12/12 artefatos canônicos verificados (corpus, migrations, grounding, engine, ADR, runbook)
-- 91/91 unit + contract tests PASS
-- 0 erros tsc
-
-### Dimensão Feature/Runtime (Manus — PENDENTE)
-
-- Passos 1, 4, 6 aguardam Manus (4 HEADs · HTTP prod · smoke UX 9 fluxos)
-- DEPLOY-FASE4 #1218 já **CLOSED** → deploy ocorreu; Manus confirmar SHA publicado vs `cc0ca47`
-
-### Veredito proposto (a confirmar pelo P.O. após Manus)
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│  Pipeline: 🟢  (12/12 PRs · 12/12 artefatos · 91/91 tests · tsc 0)│
-│  Feature:  ⏳  (aguarda Manus 1/4/6)                              │
-│  HEAD: cc0ca47 | Data: 2026-05-26                                │
-└────────────────────────────────────────────────────────────────┘
-```
-
-## Bugs / Bloqueadores residuais
-
-- **#1043** (DB no CI) — OPEN, P1 — "TypeScript + Vitest" lento/instável no CI; bloqueia SUG-1 #1220 no pipeline.
-- **SUG-1 #1220** — OPEN — teste E2E de consumo (briefing cita artigos injetados); P.O. sequenciou-o antes do retomar definitivo da ORQ-19, mas optou por executar a auditoria agora.
-- **#1242** — OPEN — reconciliação cnae_codes reduzida_30; fix mergeado (mig 0114) mas issue aberta (confirmar evidência prod / fechar).
-- **SUG-14 #1241** — OPEN — `tmp-m1-*` worktrees causam Permission denied em git.
-
-## Janelas posteriores NÃO cobertas por este audit (#1231 = #1206-#1217)
-
-- Lote **#1242-#1248** (25-26/05) — data fixes (mig 0114/0115/0116, grounding smoke v3). Sem audit ORQ-19 próprio.
-- Sessão **26/05** — #1251 (BUG-UX-01), #1252 (UX-02), #1254 (Lição #103). Gatilho ORQ-19 próprio (≥3 PRs) — audit separado recomendado.
+- **Próxima sprint:** atacar **#1277** (fix P6 locação — restringir `cnae_codes` a `6810-2/02`).
+- **Aguarda jurídico:** **#1275** NEW-CAT (Dr. Swami — Q2/Q3/Q4/Q5/Q7).
+- **Backlog:** **#1276** (reranker noise) · Lições #94–#102 pendentes em `governance.md` (pré-existente).
 
 ---
 
-**Auditoria executada por:** Claude Code (Passos 0, 2, 3, 5) — Passos 1/4/6 pendentes Manus.
-**Veredito consolidado por:** P.O. (Passo 7 — pendente).
-**Data:** 2026-05-26
+**Histórico anterior:**
+- v7.69 · 2026-05-26 · FASE 4 (12 PRs #1206-1217)
+- v7.68 · 2026-05-20 · Sprint BUG-FIX
+- v7.67 · 2026-05-12 · Sprint P2 encerramento
+- v7.66 · 2026-05-07 · Sprint v2 Issue #1010
+- v7.65 · 2026-05-05 · End-of-session M3.10
