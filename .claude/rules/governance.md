@@ -2357,6 +2357,85 @@ Todo chunk inserido em `ragDocuments` DEVE ter `conteudo` entre **10 e 5.000 cha
 - **CI:** step `check-chunk-size` em `rag-quality-gate.yml` (warning para scripts legados)
 - **Scripts de referência:** `scripts/fix-lc214-art544-chunks.ts:52` + `scripts/normalize-rag-corpus-lcs-novas.ts:33`
 
+## REGRA-ORQ-41 — Protocolo AS-IS/TO-BE com impact-tree (29/05/2026)
+
+**Vigência:** permanente, a partir de 2026-05-29
+**Severidade:** governança crítica — bloqueante para implementação de mudanças cross-cutting
+**Origem:** sessão 29/05/2026 — caso canônico AS-IS/TO-BE CPF agro (v1 75% → v4 99%)
+
+### Quando aplicar
+
+Toda mudança que cumpra qualquer gatilho:
+- campo persistido (schema column ou JSON shape compartilhado)
+- tipo compartilhado (interface usada por backend + frontend + shared)
+- identidade (`cnpj`, `cpf`, `user_id`, `project_id`, e similares)
+- enum global (`companyType`, `taxRegime`, `status`, etc.)
+- contrato canônico governado por ADR (`perfilHash`, `archetypeVersion`, etc.)
+
+### 10 itens hard-enforced no AS-IS/TO-BE
+
+1. Toda afirmação com citação `arquivo:linha` (sem exceção)
+2. Skill `impact-tree` aplicada (11 passos — `.claude/skills/impact-tree/SKILL.md`)
+3. LOC reais medidos (`wc -l`) antes de classificar Classe B vs C (REGRA-ORQ-24)
+4. Snapshots `.snap` LIDOS (não assumidos)
+5. ADRs afetados identificados com bump declarado (MAJOR/MINOR/PATCH)
+6. UX_DICTIONARY analisado (regra Z-13.5) — se toca frontend
+7. Plano de rollback com N níveis declarado
+8. Spec do banco (`DB-SPEC-*.md`) separada do AS-IS/TO-BE
+9. Plano de testes de aceitação (`PLANO-TESTES-*.md`) separado com DoD por fase
+10. Issues pré-existentes verificadas (`gh issue search` — Lição #83)
+
+### Tooling obrigatório (instalável globalmente)
+
+- `ast-grep`: padrões semânticos em corpo de função/expressão
+- `knip` / `ts-prune`: dead-exports (NÃO dead-fields — usar grep manual para fields)
+- `dependency-cruiser`: grafo formal de dependências
+- `grep` / `gh` CLI: padrões textuais simples + busca de issues
+
+Guia operacional: `docs/governance/relatorios/TOOLING-IMPACT-TREE-GUIDE-20260529.md`.
+
+### Limitações conhecidas (Lição #93)
+
+- `knip`/`ts-prune` detectam dead-EXPORTS, não dead-FIELDS de schema
+  → para campos: `grep -rn "\.<campo>\b" server/ client/src`
+- `ast-grep` tem limitação com padrões em interfaces TS
+  → usar para corpo de função/expressão; grep para tipos em interfaces
+- `depcruise` global emite warning recomendando devDependency local
+  → funcional, ignorável em uso pontual
+
+### 4 entregáveis obrigatórios antes de implementar
+
+1. `AS-IS-TO-BE-<feature>-v<N>.md` — spec principal (9 seções da skill `impact-tree`)
+2. `DB-SPEC-<feature>.md` — spec do banco + migrations UP/DOWN + queries de verificação
+3. `PLANO-TESTES-<feature>.md` — contratos de teste por fase + DoD
+4. `CHECKLIST-ACEITE-<feature>.md` — checklist P.O. com assinatura antes de F0
+
+### Refutação técnica obrigatória (Lição #93)
+
+Se outro agente (Manus, ChatGPT, outro Claude) fornecer análise técnica de comportamento de campo/função sem citação `arquivo:linha`, Claude Code DEVE validar via Read antes de incorporar ao TO-BE.
+
+**Caso canônico (29/05/2026):** Manus afirmou que a flag `analise_1_cnpj_operacional` "verifica se o CNPJ existe". Read em `buildPerfilEntidade.ts:346-369` + `routers/perfil.ts:186` mostrou que a flag é sobre "escopo unitário de 1 entidade vs consolidação multi-CNPJ de grupo econômico". Conclusão (manter o nome) permaneceu correta, pela razão certa.
+
+### Consequências
+
+- Mudança cross-cutting **sem AS-IS/TO-BE compliant** → P.O. NÃO autoriza F0
+- Implementação iniciada sem os 4 artefatos → `validate-pr` reprova
+- Afirmação técnica sem citação `arquivo:linha` no AS-IS → review reprova
+- Skill `impact-tree` não aplicada → cobertura declarada considerada <90% e bloqueada
+
+### Exceções
+
+- Hotfix P0 (REGRA-ORQ-11): fast-track com AS-IS resumido + DB-SPEC + CHECKLIST
+- Mudanças triviais Classe A (≤50 LOC · 1 arquivo · sem schema · sem ADR): AS-IS curto suficiente
+
+### Vinculadas
+
+- REGRA-ORQ-24 · REGRA-ORQ-26 · REGRA-ORQ-27 · REGRA-ORQ-28 · REGRA-ORQ-34 · REGRA-ORQ-35 · REGRA-ORQ-36
+- Lições #59, #64, #65, #66, #83, #87, **#93**
+- Skill: `.claude/skills/impact-tree/SKILL.md` (PR #1287)
+- Espelho completo: `docs/governance/relatorios/REGRA-ORQ-41-AS-IS-TO-BE-IMPACT-TREE.md`
+- Caso canônico (4 versões): `docs/governance/relatorios/AS-IS-TO-BE-CPF-PRODUTOR-RURAL-PF-*.md`
+
 ## REGRA-ORQ-SPEC-01 — Precisão em Specs de CI (19/05/2026)
 
 **Origem:** Auditoria Manus — PR #1114 (19/05/2026)
