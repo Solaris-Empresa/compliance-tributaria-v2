@@ -15,7 +15,13 @@ export const RULES_HASH =
 
 export interface PerfilSnapshotInput {
   readonly project_id: number;
-  readonly cnpj: string;
+  // BUG-AGRO-CPF F3 (#1290) — cnpj tornou-se OPCIONAL para suportar PF (CPF).
+  // Retrocompat preservada: registros legacy sem cpf/taxIdType continuam
+  // produzindo o mesmo hash byte-a-byte (canonical idêntico ao pré-F3).
+  readonly cnpj?: string;
+  readonly cpf?: string;
+  readonly taxIdType?: "cnpj" | "cpf";
+  readonly taxId?: string;
   readonly confirmedCnaes: readonly string[];
   readonly ncms_canonicos_array: readonly string[];
   readonly nbss_canonicos_array: readonly string[];
@@ -33,6 +39,15 @@ export interface PerfilSnapshotInput {
 }
 
 /**
+ * BUG-AGRO-CPF F3 (#1290) — Sentinel para inputs sem identificador fiscal.
+ * Usado quando taxId, cpf E cnpj estão todos ausentes/null/undefined.
+ * Não-pretende-ser-um-CPF/CNPJ-válido; serve para gerar hash determinístico
+ * mesmo em projetos sem documento (3202/3400 projetos com companyProfile=NULL
+ * — confirmado pelo Gate 3 do F0).
+ */
+export const UNKNOWN_TAX_ID = "UNKNOWN_TAX_ID" as const;
+
+/**
  * Computa sha256 hex do snapshot canonical.
  *
  * Garantias:
@@ -41,9 +56,17 @@ export interface PerfilSnapshotInput {
  *   - Insensível a whitespace nas strings de array (trim interno)
  */
 export function computePerfilHash(input: PerfilSnapshotInput): string {
-  const canonical = {
+  // BUG-AGRO-CPF F3 (#1290) — Canonical preservando retrocompat byte-a-byte.
+  // Registros legacy (sem taxIdType) produzem o MESMO hash que pré-F3.
+  // Registros F3-aware (com taxIdType explícito) ganham taxId + taxIdType
+  // no canonical → permite distinguir PF (cpf) de PJ (cnpj) com mesma string.
+  //
+  // null-safety: cnpj?.trim() ?? "" tolera undefined/null silenciosamente.
+  // Para o teste TR-03 (companyProfile=null no callsite), o callsite em
+  // routers/perfil.ts:233 já faz `?.cnpj ?? ""` antes de chamar esta função.
+  const canonical: Record<string, unknown> = {
     project_id: input.project_id,
-    cnpj: input.cnpj.trim(),
+    cnpj: (input.cnpj ?? "").trim(),
     confirmedCnaes: [...input.confirmedCnaes].map((s) => s.trim()).sort(),
     ncms_canonicos_array: [...input.ncms_canonicos_array]
       .map((s) => s.trim())
@@ -63,5 +86,21 @@ export function computePerfilHash(input: PerfilSnapshotInput): string {
     orgao_regulador: [...(input.orgao_regulador ?? [])].sort(),
     regime_especifico: input.regime_especifico ?? null,
   };
+
+  // F3 ADR-0033 — Identidade fiscal dual.
+  // Adicionado ao canonical APENAS quando taxIdType é explícito:
+  //   - Registros legacy (taxIdType undefined): canonical permanece IDÊNTICO ao pré-F3
+  //     → hash byte-a-byte igual ao histórico. Preserva ADR-0032 §3 (MINOR aditivo).
+  //   - Registros F3 PJ (taxIdType='cnpj'): canonical ganha campos → hash NOVO.
+  //   - Registros F3 PF (taxIdType='cpf'): canonical ganha campos → hash NOVO.
+  // taxId derivado: taxId explícito → cpf → cnpj → UNKNOWN_TAX_ID (null-safe).
+  if (input.taxIdType !== undefined) {
+    const effectiveTaxId = (
+      input.taxId ?? input.cpf ?? input.cnpj ?? UNKNOWN_TAX_ID
+    ).trim();
+    canonical.taxIdType = input.taxIdType;
+    canonical.taxId = effectiveTaxId.length > 0 ? effectiveTaxId : UNKNOWN_TAX_ID;
+  }
+
   return createHash("sha256").update(JSON.stringify(canonical)).digest("hex");
 }

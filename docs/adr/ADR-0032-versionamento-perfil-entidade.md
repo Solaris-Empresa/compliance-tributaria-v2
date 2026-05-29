@@ -51,7 +51,39 @@ Coluna `projects.archetypeVersion` semver `MAJOR.MINOR.PATCH`.
 ## Referências
 
 - ADR-0031 (imutabilidade — par)
+- ADR-0033 (Identidade Fiscal Dual — MINOR aditivo aplicado em F3 do BUG-AGRO-CPF #1290)
 - `docs/specs/m2-perfil-entidade/PROMPT-M2-v3-FINAL.json` (SPEC)
 - `server/lib/archetype/versioning.ts` (constantes)
 - `server/routers/perfil.ts` (uso)
 - `tests/archetype-validation/RESULT-51-casos-brasil-v3.json` (baseline determinístico m1-v1.0.0)
+
+---
+
+## Adendo F3 BUG-AGRO-CPF (29/05/2026) — Aplicação concreta da regra MINOR aditivo
+
+`PerfilSnapshotInput` (em `server/lib/archetype/perfilHash.ts`) ganhou em F3 três campos opcionais aditivos:
+
+- `cpf?: string` — CPF do produtor rural PF (Art. 164 LC 214/2025)
+- `taxIdType?: 'cnpj' | 'cpf'` — discriminador da identidade fiscal
+- `taxId?: string` — valor unificado (CPF ou CNPJ) para distinção no canonical
+
+`cnpj` tornou-se `cnpj?: string` (opcional).
+
+**Por que continua `m1-v1.0.0` (sem MINOR bump explícito no semver):**
+
+O `RULES_HASH` é calculado sobre o **manifesto de regras de derivação** (`docs/epic-830-rag-arquetipo/manifests/m1-v1.0.0.json`), não sobre o shape de `PerfilSnapshotInput`. F3 NÃO muda nenhuma regra de derivação — apenas adiciona campos opcionais ao input do hash do snapshot. O `RULES_HASH = "4929516bb51f737a041eda96385a71debdbbf5c8d1ad2544ff8d18096e86e272"` permanece inalterado.
+
+**Por que retrocompat byte-a-byte é preservada:**
+
+`computePerfilHash` adiciona `taxIdType` e `taxId` ao canonical **condicionalmente**:
+
+```typescript
+if (input.taxIdType !== undefined) {
+  canonical.taxIdType = input.taxIdType;
+  canonical.taxId = effectiveTaxId;
+}
+```
+
+Snapshots persistidos antes de F3 (sem `taxIdType` no input) produzem canonical idêntico ao histórico → hash byte-a-byte preservado. Cumpre estritamente §3 (MINOR = "sem invalidar snapshots anteriores").
+
+Detalhamento técnico completo em ADR-0033 + caso canônico em `docs/governance/relatorios/AS-IS-TO-BE-CPF-PRODUTOR-RURAL-PF-v4-20260529.md` §3.1.
