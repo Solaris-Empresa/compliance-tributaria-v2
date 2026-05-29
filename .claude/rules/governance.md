@@ -2993,3 +2993,57 @@ no schema backend — não alterar o frontend (risco de cascata em N callsites).
 
 **Referência:** Fix implementado em `server/routers-fluxo-v3.ts` via
 helper `emptyToUndefined` (PR #1304, BUG-AGRO-CPF-UX-F8).
+
+## Lição #113 — "UI mostra X" ≠ "DB persiste X" (extensão da REGRA-ORQ-27)
+
+**Data:** 29/05/2026 | **Origem:** diagnóstico falso-positivo perfil.pdf vs Q-NEW-1/Q-NEW-2 do Manus
+
+**Regra:**
+Antes de classificar causa-raiz como bug de persistência, validar empiricamente que
+UI e banco concordam. PDF/tela mostrando um valor **não prova** que o banco persiste
+esse valor. Query SQL é obrigatória antes de qualquer diagnóstico de persistência.
+
+**Origem:**
+`perfil.pdf` do projeto 4470001 exibiu `Regime: lucro_real (Usuário preenchido)` para
+projeto PF. Diagnóstico inicial concluiu: "F7 não cobriu a tela ConfirmacaoPerfil; PF
+preencheu regime indevidamente". Q-NEW-1 do Manus refutou: `archetype.regime = NULL`
+em **0/N projetos PF**. Q-NEW-2 confirmou: 4470001 tem `regime_companyprofile=null`
+**e** `regime_perfil_entidade=null`. A string `"lucro_real"` no PDF era artefato de
+template/cache, não dado persistido. Falso positivo de diagnóstico de causa-raiz.
+
+**Procedimento obrigatório antes de afirmar "X está persistido errado":**
+
+1. Identificar o campo SQL exato suposto (`tabela.coluna` ou `JSON_EXTRACT`)
+2. Executar query empírica que comprova ou refuta a persistência
+3. Só então classificar como "bug de persistência" ou "bug de UI/template"
+
+**Anti-padrão:**
+
+```
+Observação: "PDF mostra Regime: lucro_real para PF"
+Inferência:  "Logo, o banco está persistindo lucro_real para PF"
+Conclusão:   "Bug crítico de persistência — abrir hotfix P0"
+```
+
+→ pula direto da observação para a conclusão sem provar a inferência intermediária.
+A mesma classe de erro que REGRA-ORQ-27 (assemble ≠ consumption) descreve, agora
+aplicada à **observação visual ≠ dado persistido**.
+
+**Pattern correto:**
+
+```
+Observação:  "PDF mostra Regime: lucro_real para PF"
+Validação:   "SELECT JSON_EXTRACT(...) AS regime FROM projects WHERE id=X"
+  → Se = 'lucro_real' → bug de persistência (continue diagnóstico)
+  → Se = NULL          → bug de UI/template/cache (mude direção)
+Conclusão:   só depois da validação
+```
+
+**Vinculadas:**
+- REGRA-ORQ-27 (assemble ≠ consumption — pai conceitual)
+- Lição #59 (engine declara consumir vs consome em runtime)
+- Lição #87 (smoke estático ≠ consumo runtime)
+- Lição #93 (mecanismo verificado, não inferido)
+- Lição #110 (schema replicado mascara bugs)
+- Lição #111 (testar valor real do frontend, não conveniente)
+- Diagnóstico E2E 4470001 (caso canônico — falso positivo de regime PF)
