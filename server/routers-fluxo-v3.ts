@@ -183,6 +183,119 @@ function filtrarCategoriasPorPerfil(
   });
 }
 
+// BUG-AGRO-CPF-UX (#1299) — Schema canônico do companyProfile exportado para reuso
+// em testes (Lição #110: importar schema real, NÃO replicar). Antes era inline na
+// `createProject.input(...)` — reuso obrigava replicação simplificada que mascarava
+// regressões (caso canônico: F5 TB-01 PR #1297).
+//
+// Cascata UX dual:
+//   - cnpj  opcional (era min(14) em F0; F1 tornou opcional para receber payload PF)
+//   - cpf   opcional
+//   - taxIdType com default 'cnpj' — retrocompat F1↔F2 (frontend legacy sem flag)
+//   - companyType/companySize/taxRegime tornam-se OPCIONAIS quando taxIdType='cpf'
+//     (PF agro não tem Tipo Jurídico / Porte / Regime PJ — REGRA-ORQ-42 §1)
+//   - superRefine substitui o .refine antigo, cobrindo:
+//     (a) length de taxId (CPF=11 ou CNPJ=14)
+//     (b) campos PJ obrigatórios SOMENTE quando taxIdType='cnpj'
+export const companyProfileSchema = z
+  .object({
+    cnpj: z.string().optional(),
+    // BUG-AGRO-CPF-UX (#1299) — 3 campos PJ-only tornam-se opcionais; obrigatoriedade
+    // condicional é validada no superRefine abaixo (apenas quando taxIdType='cnpj').
+    companyType: z
+      .enum([
+        "ltda",
+        "sa",
+        "mei",
+        "eireli",
+        "scp",
+        "cooperativa",
+        "outro",
+        "slu",
+        "outros",
+      ])
+      .optional()
+      .nullable(),
+    companySize: z
+      .enum(["mei", "micro", "pequena", "media", "grande"])
+      .optional()
+      .nullable(),
+    taxRegime: z
+      .enum(["simples_nacional", "lucro_presumido", "lucro_real"])
+      .optional()
+      .nullable(),
+    foundingYear: z.number().optional(),
+    stateUF: z.string().optional(),
+    employeeCount: z.string().optional(),
+    annualRevenueRange: z
+      .enum([
+        "ate_360k",
+        "360k_4_8m",
+        "4_8m_78m",
+        "acima_78m",
+        "0-360000",
+        "360000-4800000",
+        "4800000-78000000",
+        "78000000+",
+      ])
+      .optional(),
+    isEconomicGroup: z.boolean().optional().nullable(),
+    taxCentralization: z
+      .enum(["centralized", "decentralized", "partial"])
+      .optional()
+      .nullable(),
+    cpf: z.string().optional(),
+    taxIdType: z.enum(["cnpj", "cpf"]).default("cnpj"),
+    taxId: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // (a) length de taxId — derivação automática (mantém comportamento F1)
+    const taxId =
+      data.taxId ?? (data.taxIdType === "cpf" ? data.cpf : data.cnpj);
+    if (!taxId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Documento inválido — CPF (11 dígitos) ou CNPJ (14 dígitos)",
+        path: ["taxId"],
+      });
+    } else {
+      const d = taxId.replace(/\D/g, "");
+      if (d.length !== 11 && d.length !== 14) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "Documento inválido — CPF (11 dígitos) ou CNPJ (14 dígitos)",
+          path: ["taxId"],
+        });
+      }
+    }
+    // (b) campos PJ obrigatórios SOMENTE quando taxIdType='cnpj'.
+    // PF agro NÃO tem Tipo Jurídico / Porte / Regime (Lição #109 / REGRA-ORQ-42).
+    if (data.taxIdType === "cpf") return;
+    if (!data.companyType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Tipo Jurídico obrigatório para PJ",
+        path: ["companyType"],
+      });
+    }
+    if (!data.companySize) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Porte da empresa obrigatório para PJ",
+        path: ["companySize"],
+      });
+    }
+    if (!data.taxRegime) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Regime tributário obrigatório para PJ",
+        path: ["taxRegime"],
+      });
+    }
+  });
+
 export const fluxoV3Router = router({
   // ─────────────────────────────────────────────────────────────────────────
   // ETAPA 1: Criar projeto
@@ -196,71 +309,9 @@ export const fluxoV3Router = router({
           .min(50, "Descrição deve ter pelo menos 50 caracteres"),
         clientId: z.number({ message: "Cliente é obrigatório" }),
         faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
-        // v2.1: Company Profile Layer — OBRIGATÓRIO (fix/v2.1-company-profile-required)
-        // BUG-AGRO-CPF F1 (#1290): cnpj agora é OPCIONAL — refine no objeto (linha final
-        // do z.object) deriva taxId de cnpj/cpf conforme taxIdType. Retrocompat F1↔F2:
-        // frontend legacy continua enviando só cnpj e backend deriva automaticamente.
-        companyProfile: z.object({
-          cnpj: z.string().optional(), // deprecated — retrocompat F1↔F2 (era min(14) em F0)
-          companyType: z.enum([
-            "ltda",
-            "sa",
-            "mei",
-            "eireli",
-            "scp",
-            "cooperativa",
-            "outro",
-            "slu",
-            "outros",
-          ]),
-          companySize: z.enum(["mei", "micro", "pequena", "media", "grande"]),
-          taxRegime: z.enum([
-            "simples_nacional",
-            "lucro_presumido",
-            "lucro_real",
-          ]),
-          foundingYear: z.number().optional(),
-          stateUF: z.string().optional(),
-          employeeCount: z.string().optional(),
-          annualRevenueRange: z
-            .enum([
-              "ate_360k",
-              "360k_4_8m",
-              "4_8m_78m",
-              "acima_78m",
-              "0-360000",
-              "360000-4800000",
-              "4800000-78000000",
-              "78000000+",
-            ])
-            .optional(),
-          // ISSUE-001: QC-02 — Estrutura Societária (Prefill Contract Fase 1 Final)
-          isEconomicGroup: z.boolean().optional().nullable(),
-          taxCentralization: z
-            .enum(["centralized", "decentralized", "partial"])
-            .optional()
-            .nullable(),
-          // BUG-AGRO-CPF F1 (#1290) — identidade fiscal dual com derivação automática.
-          // taxIdType.default('cnpj') garante retrocompat: payload legacy sem taxIdType
-          // herda 'cnpj' e o refine deriva taxId de cnpj. Para PF, frontend (F2) envia
-          // taxIdType='cpf' e refine deriva taxId de cpf.
-          cpf: z.string().optional(),
-          taxIdType: z.enum(["cnpj", "cpf"]).default("cnpj"),
-          taxId: z.string().optional(),
-        }).refine(
-          (data) => {
-            // Derivação automática: taxId explícito → cpf (se PF) → cnpj (default).
-            // Garante que frontend legacy (sem taxId) e PF (com cpf) ambos validem.
-            const taxId = data.taxId ?? (data.taxIdType === "cpf" ? data.cpf : data.cnpj);
-            if (!taxId) return false;
-            const d = taxId.replace(/\D/g, "");
-            return d.length === 11 || d.length === 14;
-          },
-          {
-            message: "Documento inválido — CPF (11 dígitos) ou CNPJ (14 dígitos)",
-            path: ["taxId"],
-          },
-        ),
+        // BUG-AGRO-CPF-UX (#1299) — reusa schema canônico exportado acima.
+        // F0 → F5: contrato técnico de identidade dual; UX (#1299): cascata PF completa.
+        companyProfile: companyProfileSchema,
         operationProfile: z.object({
           operationType: z.enum([
             "produto",

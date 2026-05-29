@@ -209,13 +209,16 @@ export const mockProjectPF = {
   // companyProfile espelha o que o frontend F2+ envia para PF: cnpj OMITIDO
   // (não-null) porque o schema F1 (routers-fluxo-v3.ts:204) é
   // `cnpj: z.string().optional()` — null não é string nem undefined.
+  // BUG-AGRO-CPF-UX (#1299) — PF agro NÃO tem companyType/companySize/taxRegime
+  // (todos enum PJ-only no schema). Campos ficam null por design (Lição #109 + #110:
+  // não inventar valores; tabela de visibilidade REGRA-ORQ-42 §1).
   companyProfile: {
     cpf: "52998224725",
     taxIdType: "cpf" as const,
     taxId: "529.982.247-25",
-    companyType: "produtor_rural_pf",
-    companySize: "micro" as const,
-    taxRegime: "simples_nacional" as const,
+    companyType: null,
+    companySize: null,
+    taxRegime: null,
   },
   // coluna DB F0 (migration 0119): tax_id_type ENUM('cnpj','cpf') NOT NULL
   tax_id_type: "cpf" as const,
