@@ -1,0 +1,16 @@
+# .dockerignore — IA SOLARIS Compliance Tributário v2
+#
+# Excluir do pacote de build/deploy artefatos grandes que não são consumidos
+# em runtime de produção. Ganho estimado: −19 MB no upload.
+#
+# scripts/corpus-source/ — corpus jurídico bruto (texto integral de leis +
+#   regulamentos). É ingerido em desenvolvimento via scripts/ingest-* e
+#   persistido na tabela ragDocuments do TiDB. Em produção, o app lê o RAG
+#   do banco — nunca lê os arquivos fonte do disco.
+#
+# docs/                  — documentação operacional, ADRs, governança,
+#   sprints, mockups, post-mortems. Útil para Claude Code/Manus mas não
+#   referenciada pelo runtime do servidor.
+
+scripts/corpus-source/
+docs/
