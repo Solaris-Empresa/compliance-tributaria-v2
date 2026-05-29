@@ -31,7 +31,7 @@ import {
   mockProjectPJLegacy,
 } from "../test-helpers";
 
-describe("BUG-AGRO-CPF — 7 testes bloqueantes (TB)", () => {
+describe("BUG-AGRO-CPF — 9 testes bloqueantes (TB) [F5+F6+F8]", () => {
   // ── TB-01 ─────────────────────────────────────────────────────────────────
   it("TB-01: schema REAL aceita PF com CPF válido (Lição #110 — não replicado)", () => {
     const result = companyProfileSchema.safeParse(mockProjectPF.companyProfile);
@@ -171,6 +171,48 @@ describe("BUG-AGRO-CPF — 7 testes bloqueantes (TB)", () => {
       taxRegime: "lucro_presumido" as const,
     };
     const result = companyProfileSchema.safeParse(payloadPJIncompleto);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const hasCompanyTypeError = result.error.issues.some((i) =>
+        i.path.includes("companyType"),
+      );
+      expect(hasCompanyTypeError).toBe(true);
+    }
+  });
+
+  // ── TB-08 (F8 hotfix P0) ──────────────────────────────────────────────────
+  // Lição #111: testes de schema devem usar o valor que o FRONTEND produz ("")
+  // — não um valor conveniente (null). TB-06 testou com null e PASS; produção
+  // envia "" via useEffect F6/F7 e falha. TB-08 reproduz o cenário real.
+  // Preprocess emptyToUndefined deve aceitar "" como ausente.
+  it("TB-08: schema REAL aceita PF com \"\" em campos PJ (F8 — Lição #111)", () => {
+    const payloadPFComStringVazia = {
+      taxIdType: "cpf" as const,
+      taxId: "529.982.247-25",
+      cpf: "52998224725",
+      // Frontend F6/F7 useEffect zera com "" — não null. Pre-F8 isto causava
+      // 3 erros invalid_value em produção. F8 preprocess deve aceitar.
+      companyType: "",
+      companySize: "",
+      taxRegime: "",
+    };
+    const result = companyProfileSchema.safeParse(payloadPFComStringVazia);
+    expect(result.success).toBe(true);
+  });
+
+  // ── TB-09 (F8 hotfix P0) ──────────────────────────────────────────────────
+  // Regressão F8: payload PJ com companyType="" deve continuar sendo rejeitado.
+  // Preprocess converte "" → undefined; superRefine então enxerga undefined e
+  // adiciona issue 'companyType obrigatório para PJ'. PJ não regride.
+  it("TB-09: schema REAL rejeita PJ com \"\" em companyType (regressão F8)", () => {
+    const payloadPJStringVazia = {
+      taxIdType: "cnpj" as const,
+      cnpj: "11.222.333/0001-81",
+      companyType: "", // preprocess → undefined → superRefine custom error
+      companySize: "media" as const,
+      taxRegime: "lucro_presumido" as const,
+    };
+    const result = companyProfileSchema.safeParse(payloadPJStringVazia);
     expect(result.success).toBe(false);
     if (!result.success) {
       const hasCompanyTypeError = result.error.issues.some((i) =>
