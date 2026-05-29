@@ -118,7 +118,10 @@ export const projects = mysqlTable("projects", {
   // V63: Motor de decisão explícito
   decisaoData: json("decisaoData"),                      // { acao_principal, prazo_dias, risco_se_nao_fazer, momento_wow }
   // v2.1: Company Profile Layer — dados corporativos estruturados para IA
-  companyProfile: json("companyProfile"),               // { cnpj, companyType, companySize, taxRegime, annualRevenueRange }
+  companyProfile: json("companyProfile"),               // { cnpj, companyType, companySize, taxRegime, annualRevenueRange, cpf?, taxIdType?, taxId? — BUG-AGRO-CPF F0 }
+  // BUG-AGRO-CPF F0 (#1290) — discriminador PJ/PF (Art. 164 LC 214/2025)
+  // Migration: 0119_tax_id_type_projects.sql · DEFAULT 'cnpj' (retrocompat) · feature flag ENABLE_TAX_ID_DUAL
+  taxIdType: mysqlEnum("tax_id_type", ["cnpj", "cpf"]).default("cnpj").notNull(),
   operationProfile: json("operationProfile"),           // { operationType, clientType: string[], multiState }
   taxComplexity: json("taxComplexity"),                 // { hasInternationalOps, usesTaxIncentives, usesMarketplace }
   financialProfile: json("financialProfile"),           // { paymentMethods: string[], hasIntermediaries }
