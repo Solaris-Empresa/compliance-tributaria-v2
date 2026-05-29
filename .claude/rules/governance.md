@@ -2942,61 +2942,54 @@ despacho de formulário multi-perfil sem os 3 itens acima.
 - Alterações de campo único sem mudança de perfil
 - Componentes não-formulário (PDF, hash, schema DB)
 
-## Lição #111 — Testes de schema devem usar o valor que o FRONTEND produz, não um valor conveniente
+### Lição #111 — Testes de schema devem usar o valor real que o frontend produz
 
-**Origem:** BUG-AGRO-CPF-UX-F8 · PR #1303 · 29/05/2026 — regressão P0 em produção
+**Data:** 29/05/2026 | **Origem:** BUG-AGRO-CPF-UX F6/F8 | **PR:** #1304
 
-**O que aconteceu:**
-TB-06 e TB-07 do F5 (PR #1297) e F6 (PR #1300) testaram o schema com
-`companyType: null` em payload PF. Ambos passaram. Tinham `companyProfileSchema`
-real importado (Lição #110 honrada). Mas o frontend F6/F7 (`PerfilEmpresaIntelligente.tsx:837-846`)
-zera os campos com **string vazia `""`** (não `null`), porque o tipo
-`PerfilEmpresaData.companyType` é `string` (sem `| null`).
-
-Zod 4 `z.enum([...]).optional().nullable()` aceita `null` e `undefined` mas
-**rejeita `""`** — string vazia não bate com nenhum valor do enum. Resultado em
-produção: 4 erros `invalid_value` ao submeter projeto PF. Test verde sobre
-produto vermelho — segunda vez no mesmo bug (Lição #110 era extensão da #59;
-#111 é o caso runtime concreto).
-
-**Regra:**
-Testes de schema (Zod, JSON Schema, OpenAPI) que validem caminhos de UI DEVEM
-usar exatamente o valor que o frontend **realmente produz**, não um valor
-conveniente que o autor do teste escolheu por simetria com o tipo.
-
-Antes de escrever `safeParse({campo: null})`, conferir:
-1. O frontend grava `null`, `undefined` ou `""` neste campo?
-2. Se grava `""`, escrever pelo menos 1 teste com `""` literal.
-
-Caso canônico: TB-08 (`bug-agro-cpf.test.ts`) — testa exatamente
-`companyType: ""` como o useEffect F6/F7 produz, e PASSARIA verde tanto antes
-quanto depois do F8 só se o preprocess existisse. Antes do F8 reprovava — esse
-é o teste que **teria pegado** a regressão.
-
-**Padrão de defesa em profundidade:**
-
-```ts
-// Caso 1: valor "conveniente" — útil mas não cobre realidade
-it("TB-X: schema aceita null", () => {
-  expect(schema.safeParse({ campo: null }).success).toBe(true);
-});
-
-// Caso 2: valor REAL do frontend — obrigatório para schemas de form
-it("TB-Y: schema aceita o que o frontend produz", () => {
-  // useEffect zera com "" — espelhar exatamente
-  expect(schema.safeParse({ campo: "" }).success).toBe(true);
-});
+**Anti-padrão:**
+```typescript
+// ❌ ERRADO — usa null como atalho conveniente
+companyType: null,   // frontend NÃO produz null; produz ""
+taxRegime: null,
 ```
 
-**Corolário (extensão das Lições #59 e #110):**
-Lição #59: assemble ≠ consumption (engine declara consumir mas não consome em runtime).
-Lição #110: assemble ≠ consumption para schemas (replicar simplifica e mascara).
-**Lição #111: assemble ≠ consumption para valores de input** (testar com `null` enquanto frontend manda `""` é a mesma classe de erro — teste valida pelo motivo errado).
+**Padrão correto:**
+```typescript
+// ✅ CORRETO — usa o valor que o frontend realmente envia
+companyType: "",     // useEffect zera com string vazia
+taxRegime: "",
+```
 
-**Vinculadas:**
-- Lição #59 (assemble ≠ consumption — pai conceitual)
-- Lição #110 (schema replicado — irmã)
-- Lição #65 (rastrear fluxo end-to-end — mapear o que o frontend produz é parte do mapa)
-- Lição #87 (smoke estático ≠ consumo runtime)
-- REGRA-ORQ-27 (validação de consumo — agora estendida ao input do schema)
-- BUG-AGRO-CPF-UX-F8 PR #1303 (caso canônico — TB-08 é o teste-prova)
+**Regra:** Antes de escrever um teste de schema, verificar o valor exato que o
+frontend produz para o campo em questão (inspecionar o useEffect/onChange/submit).
+Testar com `null` quando o frontend envia `""` é um falso positivo — o teste passa
+mas o produto está quebrado.
+
+**Corolário:** `z.enum().optional().nullable()` aceita `null` e `undefined` mas
+rejeita `""`. O teste verde com `null` não prova que `""` passa.
+
+---
+
+### Lição #112 — useEffect que zera campos com "" é contrato implícito — documentar na tabela de visibilidade
+
+**Data:** 29/05/2026 | **Origem:** BUG-AGRO-CPF-UX F6/F8 | **PR:** #1304
+
+**Problema:** `useEffect` que zera campos ao trocar de perfil (PJ→PF) usando `""`
+em vez de `null`/`undefined` cria um contrato implícito entre frontend e backend
+que não aparece no schema Zod nem no tipo TypeScript.
+
+**Regra (REGRA-ORQ-42 extensão):** Qualquer `useEffect` de limpeza de campos em
+formulário multi-perfil DEVE ser documentado na **tabela de visibilidade** do
+despacho, incluindo:
+
+| Campo | Valor ao limpar | Motivo |
+|---|---|---|
+| `companyType` | `""` (string vazia) | `<select>` HTML retorna `""` por padrão |
+| `taxRegime` | `""` | idem |
+
+**Fix canônico quando o frontend zera com `""`:**
+Usar `z.preprocess(v => v === "" ? undefined : v, z.enum([...]).optional())`
+no schema backend — não alterar o frontend (risco de cascata em N callsites).
+
+**Referência:** Fix implementado em `server/routers-fluxo-v3.ts` via
+helper `emptyToUndefined` (PR #1304, BUG-AGRO-CPF-UX-F8).
