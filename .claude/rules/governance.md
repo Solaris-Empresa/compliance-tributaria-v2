@@ -2856,3 +2856,88 @@ O design original do F2 (DIAG-COVERAGE-03) tentava `extractCategoriesFromOutput(
 
 - DIAG-COVERAGE-03 · `server/integration/coverage-8-profiles.test.ts` · `deterministic-grounding.ts` (`shouldInjectCategory:60` vs `fetchDeterministicGrounding:104`)
 - REGRA-ORQ-27 (assemble ≠ consumption) · Lição #59 · Lição #87 (smoke estático ≠ consumo)
+
+## Lição #109 — Spec sem modelo conceitual entrega contrato técnico, não produto
+
+**Origem:** BUG-AGRO-CPF · PR #1294 (F2) · 29/05/2026
+
+**O que aconteceu:**
+A spec F2 definiu "radio PJ/PF + input CPF condicional". Claude Code entregou
+exatamente isso. Mas o produto real exige que, ao selecionar PF, campos exclusivos
+de PJ (Tipo Jurídico, Porte, Regime Tributário, Estrutura Societária) desapareçam.
+Isso nunca foi escrito em nenhum artefato. O scorecard F2 marcou ✅ — tecnicamente
+correto por arquivo, funcionalmente falso por produto.
+
+**Regra:**
+Toda spec de formulário com múltiplos perfis de usuário (PJ/PF, admin/cliente,
+pessoa física/jurídica) DEVE incluir uma tabela de visibilidade de campos:
+
+| Campo | Perfil A | Perfil B |
+|---|---|---|
+| Tipo Jurídico | visível + obrigatório | OCULTO |
+| ... | ... | ... |
+
+Sem essa tabela, a spec está incompleta e não pode ser aceita como DoD.
+
+**Corolário:**
+Smoke test de feature de formulário DEVE incluir cenário E2E completo:
+selecionar perfil → preencher campos visíveis → clicar Avançar → confirmar que
+avançou. Smoke que valida apenas o campo novo (radio, input) sem testar o fluxo
+completo é smoke parcial — não é DoD.
+
+---
+
+## Lição #110 — Test que replica schema simplificado passa por motivo errado
+
+**Origem:** BUG-AGRO-CPF · PR #1297 (F5) · 29/05/2026
+
+**O que aconteceu:**
+O teste TB-01 em `bug-agro-cpf.test.ts` replicou o schema Zod com
+`companyType: z.string()` em vez de importar o schema real de
+`routers-fluxo-v3.ts`. O valor `"produtor_rural_pf"` passou no teste mas seria
+rejeitado pelo backend real (enum com 9 valores PJ).
+O teste marcou PASS. A produção teria marcado 400.
+
+**Regra:**
+Testes de contrato de schema DEVEM importar o schema real, não replicá-lo.
+
+```typescript
+// ❌ ERRADO — replica schema, pode divergir silenciosamente
+const schema = z.object({ companyType: z.string() });
+
+// ✅ CORRETO — importa o schema real
+import { projectCreateSchema } from '../routers/routers-fluxo-v3';
+```
+
+Se o schema não é exportado, exportar como `export const` antes de escrever o
+teste — nunca replicar.
+
+**Corolário (extensão da Lição #59):**
+Assemble ≠ Consumption se aplica também a schemas: validar que o refine local
+aceita CPF não prova que o schema de produção aceita um payload PF completo.
+
+---
+
+## REGRA-ORQ-42 — Spec de formulário multi-perfil exige tabela de visibilidade
+
+**Origem:** Lição #109 · BUG-AGRO-CPF · 29/05/2026
+
+**Regra:**
+Qualquer despacho que altere um formulário com mais de um perfil de usuário
+(ex: PJ/PF, admin/cliente, contribuinte/não-contribuinte) é BLOQUEADO até que
+o despacho inclua:
+
+1. **Tabela de visibilidade de campos** — para cada campo do formulário,
+   qual perfil o vê e se é obrigatório.
+2. **Cenário E2E no DoD** — "selecionar perfil X → preencher → avançar → confirmar".
+3. **Critério de aceite no schema backend** — confirmar que o schema Zod/backend
+   aceita payload do perfil novo sem valores do perfil antigo.
+
+**Aplicação:**
+Claude Code deve levantar Nível 1 (bloqueante técnico — REGRA-ORQ-22) se receber
+despacho de formulário multi-perfil sem os 3 itens acima.
+
+**Não se aplica a:**
+- Formulários com perfil único
+- Alterações de campo único sem mudança de perfil
+- Componentes não-formulário (PDF, hash, schema DB)
