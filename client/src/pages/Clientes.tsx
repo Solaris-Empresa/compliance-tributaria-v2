@@ -13,10 +13,15 @@ export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: clientes, isLoading } = trpc.users.listClients.useQuery();
 
+  // BUG-AGRO-CPF F2 (#1290) — feature flag UI dual PJ/PF
+  const enableTaxIdDual = (import.meta.env.VITE_ENABLE_TAX_ID_DUAL as string | undefined) === "true";
+
   const clientesFiltrados = clientes?.filter(cliente =>
     cliente.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cliente.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.cnpj?.includes(searchTerm)
+    cliente.cnpj?.includes(searchTerm) ||
+    // BUG-AGRO-CPF F2: busca por CPF também (campo dead-read em users — preparação para uso real)
+    cliente.cpf?.includes(searchTerm)
   );
 
   return (
@@ -43,7 +48,7 @@ export default function Clientes() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por nome, empresa ou CNPJ..."
+              placeholder={enableTaxIdDual ? "Buscar por nome, empresa, CNPJ ou CPF..." : "Buscar por nome, empresa ou CNPJ..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -76,12 +81,18 @@ export default function Clientes() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {cliente.cnpj && (
+                  {/* BUG-AGRO-CPF F2 (#1290) — Display CNPJ ou CPF (fallback) */}
+                  {cliente.cnpj ? (
                     <div className="flex items-center gap-2 text-sm">
                       <Badge variant="outline">CNPJ</Badge>
-                      <span className="text-muted-foreground">{cliente.cnpj}</span>
+                      <span data-testid="display-documento" className="text-muted-foreground">{cliente.cnpj}</span>
                     </div>
-                  )}
+                  ) : cliente.cpf ? (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Badge variant="outline">CPF</Badge>
+                      <span data-testid="display-documento" className="text-muted-foreground">{cliente.cpf}</span>
+                    </div>
+                  ) : null}
                   {cliente.segment && (
                     <div className="flex items-center gap-2 text-sm">
                       <Badge variant="outline">Segmento</Badge>

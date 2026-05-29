@@ -10,6 +10,8 @@
  * - CTA principal "Avançar" (não "Salvar" ou botão técnico)
  */
 import { useState, useEffect, useCallback } from "react";
+// BUG-AGRO-CPF F2 (#1290) — validação CPF
+import { validateCpf, maskCpf } from "@/lib/validate-cpf";
 import {
   CheckCircle2, Lock, AlertCircle, Sparkles, Building2, TrendingUp,
   Globe, CreditCard, Shield, ChevronRight, Info, Loader2, Brain,
@@ -30,6 +32,10 @@ import { toast } from "sonner";
 
 export interface PerfilEmpresaData {
   cnpj: string;
+  // BUG-AGRO-CPF F2 (#1290) — identidade fiscal dual (Pessoa Física Art. 164 LC 214/2025)
+  // Aditivos OPCIONAIS — não-quebra de tipos existentes. Backend F1 já aceita via Zod refine dual.
+  cpf?: string;
+  taxIdType?: "cnpj" | "cpf";
   companyType: string;
   companySize: string;
   annualRevenueRange: string;
@@ -55,6 +61,9 @@ export interface PerfilEmpresaData {
 
 export const PERFIL_VAZIO: PerfilEmpresaData = {
   cnpj: "",
+  // BUG-AGRO-CPF F2 (#1290) — default PJ para retrocompat (mantido quando flag OFF)
+  cpf: "",
+  taxIdType: "cnpj",
   companyType: "",
   companySize: "",
   annualRevenueRange: "",
@@ -742,7 +751,13 @@ interface PerfilEmpresaIntelligenteProps {
 }
 
 export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore: _onCpieScore, externalCpieV2Gate, mode = 'create', onSave }: PerfilEmpresaIntelligenteProps) {
+  // BUG-AGRO-CPF F2 (#1290) — feature flag UI dual PJ/PF
+  // Flag OFF (default) → comportamento idêntico ao atual (zero regressão)
+  // Flag ON → radio Tipo de Pessoa + campo dinâmico CNPJ/CPF
+  const enableTaxIdDual = (import.meta.env.VITE_ENABLE_TAX_ID_DUAL as string | undefined) === "true";
+  const taxIdType = value.taxIdType ?? "cnpj"; // default PJ para retrocompat
   const [cnpjError, setCnpjError] = useState("");
+  const [cpfError, setCpfError] = useState("");
   // fix(z22) Wave A.2+B: states cpieResult / cpieV2Gate / restoredFromDb removidos — CPIE v1/v2 deletados.
   // Props onCpieScore / externalCpieV2Gate preservadas nas assinaturas para retrocompatibilidade
   // de call sites (NovoProjeto, FormularioProjeto, ProjetoDetalhesV2) até próxima sprint de cleanup.
@@ -815,6 +830,19 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
   const cnpjDigits = value.cnpj.replace(/\D/g, "");
   const cnpjOk = validateCnpj(value.cnpj);
 
+  // BUG-AGRO-CPF F2 (#1290) — Validação CPF (espelho de handleCnpjBlur)
+  const handleCpfBlur = () => {
+    const cpfValue = value.cpf ?? "";
+    const digits = cpfValue.replace(/\D/g, "");
+    if (digits.length === 0) { setCpfError(""); return; }
+    if (digits.length !== 11) { setCpfError("CPF incompleto — digite os 11 dígitos"); return; }
+    if (!validateCpf(cpfValue)) { setCpfError("CPF inválido — verifique os dígitos verificadores"); return; }
+    setCpfError("");
+  };
+
+  const cpfDigits = (value.cpf ?? "").replace(/\D/g, "");
+  const cpfOk = validateCpf(value.cpf ?? "");
+
   const formContent = (
     <div className="space-y-8">
 
@@ -826,26 +854,88 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
         </div>
 
-        {/* CNPJ */}
-        <div className="space-y-1.5">
-          <Label className="text-sm">CNPJ <span className="text-destructive">*</span></Label>
-          <Input
-            placeholder="00.000.000/0000-00"
-            value={value.cnpj}
-            onChange={(e) => set("cnpj", maskCnpj(e.target.value))}
-            onBlur={handleCnpjBlur}
-            maxLength={18}
-            className={cn(
-              cnpjError ? "border-destructive focus-visible:ring-destructive" : "",
-              cnpjOk ? "border-emerald-500 focus-visible:ring-emerald-500" : ""
+        {/* BUG-AGRO-CPF F2 (#1290) — Radio Tipo de Pessoa (sob flag ENABLE_TAX_ID_DUAL) */}
+        {enableTaxIdDual && (
+          <div className="space-y-1.5">
+            <Label className="text-sm">Tipo de Pessoa <span className="text-destructive">*</span></Label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                data-testid="radio-pj"
+                onClick={() => set("taxIdType", "cnpj")}
+                className={cn(
+                  "flex-1 px-4 py-2 border rounded-md text-sm transition-colors",
+                  taxIdType === "cnpj"
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-input hover:bg-accent"
+                )}
+              >
+                Pessoa Jurídica (CNPJ)
+              </button>
+              <button
+                type="button"
+                data-testid="radio-pf"
+                onClick={() => set("taxIdType", "cpf")}
+                className={cn(
+                  "flex-1 px-4 py-2 border rounded-md text-sm transition-colors",
+                  taxIdType === "cpf"
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-input hover:bg-accent"
+                )}
+              >
+                Pessoa Física (CPF)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* CNPJ — exibido sempre quando flag OFF · ou quando taxIdType === 'cnpj' */}
+        {(!enableTaxIdDual || taxIdType === "cnpj") && (
+          <div className="space-y-1.5">
+            <Label data-testid="label-documento" className="text-sm">CNPJ <span className="text-destructive">*</span></Label>
+            <Input
+              data-testid="input-cnpj"
+              placeholder="00.000.000/0000-00"
+              value={value.cnpj}
+              onChange={(e) => set("cnpj", maskCnpj(e.target.value))}
+              onBlur={handleCnpjBlur}
+              maxLength={18}
+              className={cn(
+                cnpjError ? "border-destructive focus-visible:ring-destructive" : "",
+                cnpjOk ? "border-emerald-500 focus-visible:ring-emerald-500" : ""
+              )}
+            />
+            {cnpjError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{cnpjError}</p>}
+            {cnpjOk && <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />CNPJ válido</p>}
+            {!cnpjOk && !cnpjError && cnpjDigits.length > 0 && cnpjDigits.length < 14 && (
+              <p className="text-xs text-muted-foreground">{14 - cnpjDigits.length} dígito(s) restante(s)</p>
             )}
-          />
-          {cnpjError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{cnpjError}</p>}
-          {cnpjOk && <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />CNPJ válido</p>}
-          {!cnpjOk && !cnpjError && cnpjDigits.length > 0 && cnpjDigits.length < 14 && (
-            <p className="text-xs text-muted-foreground">{14 - cnpjDigits.length} dígito(s) restante(s)</p>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* BUG-AGRO-CPF F2 (#1290) — CPF (exibido apenas sob flag ON + taxIdType='cpf') */}
+        {enableTaxIdDual && taxIdType === "cpf" && (
+          <div className="space-y-1.5">
+            <Label data-testid="label-documento" className="text-sm">CPF <span className="text-destructive">*</span></Label>
+            <Input
+              data-testid="input-cpf"
+              placeholder="000.000.000-00"
+              value={value.cpf ?? ""}
+              onChange={(e) => set("cpf", maskCpf(e.target.value))}
+              onBlur={handleCpfBlur}
+              maxLength={14}
+              className={cn(
+                cpfError ? "border-destructive focus-visible:ring-destructive" : "",
+                cpfOk ? "border-emerald-500 focus-visible:ring-emerald-500" : ""
+              )}
+            />
+            {cpfError && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" /><span data-testid="validate-cpf-error">{cpfError}</span></p>}
+            {cpfOk && <p className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /><span data-testid="validate-cpf-success">CPF válido</span></p>}
+            {!cpfOk && !cpfError && cpfDigits.length > 0 && cpfDigits.length < 11 && (
+              <p className="text-xs text-muted-foreground">{11 - cpfDigits.length} dígito(s) restante(s)</p>
+            )}
+          </div>
+        )}
 
         {/* Tipo Jurídico */}
         <div className="space-y-2">
