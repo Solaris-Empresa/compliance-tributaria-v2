@@ -181,12 +181,13 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
   // Lição #109 + REGRA-ORQ-42: tabela de visibilidade de campos exige gate diferente
   // por perfil (UI esconde os campos + score não cobra preenchimento).
   const isPF = p.taxIdType === "cpf";
+  // BUG-AGRO-CPF-UX-F7 (#1299) — Despacho F7 reduziu PF a apenas [CPF válido]
+  // (Tipo de Operação ocultado via Mudança 2; clientType + multiState ficam
+  // visíveis mas opcionais). PJ ganha operationType explícito (já era contado
+  // antes em outro item da lista — mantém comportamento PJ).
   const required: Array<[boolean, string]> = isPF
     ? [
         [validateCpf(p.cpf ?? ""), "CPF válido"],
-        [!!p.operationType, "Tipo de Operação"],
-        [p.clientType.length > 0, "Tipo de Cliente"],
-        [p.multiState !== null, "Operação multiestadual"],
       ]
     : [
         [validateCnpj(p.cnpj), "CNPJ válido"],
@@ -194,8 +195,6 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
         [!!p.companySize, "Porte da empresa"],
         [!!p.taxRegime, "Regime Tributário"],
         [!!p.operationType, "Tipo de Operação"],
-        [p.clientType.length > 0, "Tipo de Cliente"],
-        [p.multiState !== null, "Operação multiestadual"],
       ];
   const optional: Array<[boolean, string]> = [
     [!!p.annualRevenueRange, "Faturamento Anual"],
@@ -832,6 +831,9 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
   const isPF = enableTaxIdDual && taxIdType === "cpf";
   useEffect(() => {
     if (!isPF) return;
+    // BUG-AGRO-CPF-UX-F7 (#1299) — F7 limpa mais 2 campos (annualRevenueRange,
+    // operationType) que viraram PJ-only. Nomes reais do tipo PerfilEmpresaData:
+    // annualRevenueRange (não annualRevenue) e operationType são `string` (não null).
     onChange({
       ...value,
       companyType: "",
@@ -840,6 +842,8 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       isEconomicGroup: null,
       taxCentralization: null,
       hasTaxTeam: null,
+      annualRevenueRange: "",
+      operationType: "",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPF]);
@@ -1021,21 +1025,19 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
       </section>
 
-      {/* ── Seção 2: Regime Tributário (PJ) / Receita Bruta (PF) ────────── */}
-      {/* BUG-AGRO-CPF-UX (#1299) — cabeçalho dinâmico + Regime PJ-only;
-          Faturamento permanece em ambos os modos com label diferente
-          (Lição #109 — tabela de visibilidade REGRA-ORQ-42 §1). */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2 pb-1 border-b">
-          <CreditCard className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">
-            {isPF ? "Receita Bruta Anual" : "Regime Tributário"}
-          </h3>
-          {!isPF && <Badge variant="secondary" className="text-xs">Obrigatório</Badge>}
-        </div>
+      {/* ── Seção 2: Regime Tributário + Receita Bruta — PJ-only (F7) ───── */}
+      {/* BUG-AGRO-CPF-UX-F7 (#1299) — F7 ocultou Faturamento também em PF.
+          Toda a Seção 2 vira PJ-only; cabeçalho volta a ser "Regime Tributário"
+          fixo (REGRA-ORQ-42 §1 — tabela de visibilidade). */}
+      {!isPF && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-1 border-b">
+            <CreditCard className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">Regime Tributário</h3>
+            <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
+          </div>
 
-        {/* Regime — PJ-only */}
-        {!isPF && (
+          {/* Regime */}
           <div className="space-y-2">
             <Label className="text-sm">Regime Atual <span className="text-destructive">*</span></Label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -1055,29 +1057,29 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
               ))}
             </div>
           </div>
-        )}
 
-        {/* Faturamento / Receita Bruta — visível em ambos, label condicional */}
-        <div className="space-y-2">
-          <Label className="text-sm">{isPF ? "Receita Bruta Anual" : "Faturamento Anual Estimado"}</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { value: "0-360000", label: "Até R$ 360 mil" },
-              { value: "360000-4800000", label: "R$ 360 mil – R$ 4,8 mi" },
-              { value: "4800000-78000000", label: "R$ 4,8 mi – R$ 78 mi" },
-              { value: "78000000+", label: "Acima de R$ 78 mi" },
-            ].map((opt) => (
-              <SelectCard
-                key={opt.value}
-                value={opt.value}
-                selected={value.annualRevenueRange === opt.value}
-                onClick={() => set("annualRevenueRange", opt.value)}
-                label={opt.label}
-              />
-            ))}
+          {/* Faturamento Anual Estimado */}
+          <div className="space-y-2">
+            <Label className="text-sm">Faturamento Anual Estimado</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: "0-360000", label: "Até R$ 360 mil" },
+                { value: "360000-4800000", label: "R$ 360 mil – R$ 4,8 mi" },
+                { value: "4800000-78000000", label: "R$ 4,8 mi – R$ 78 mi" },
+                { value: "78000000+", label: "Acima de R$ 78 mi" },
+              ].map((opt) => (
+                <SelectCard
+                  key={opt.value}
+                  value={opt.value}
+                  selected={value.annualRevenueRange === opt.value}
+                  onClick={() => set("annualRevenueRange", opt.value)}
+                  label={opt.label}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Seção 3: Operações ───────────────────────────────────────────── */}
       <section className="space-y-4">
@@ -1087,29 +1089,33 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
         </div>
 
-        {/* Tipo de Operação */}
-        <div className="space-y-2">
-          <Label className="text-sm">Tipo de Operação Principal <span className="text-destructive">*</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {[
-              { value: "industria", label: "Indústria", sublabel: "Fabricação e transformação" },
-              { value: "comercio", label: "Comércio", sublabel: "Compra e venda de mercadorias" },
-              { value: "servicos", label: "Serviços", sublabel: "Prestação de serviços" },
-              { value: "misto", label: "Misto", sublabel: "Comércio + Serviços" },
-              { value: "agronegocio", label: "Agronegócio", sublabel: "Atividade rural" },
-              { value: "financeiro", label: "Financeiro", sublabel: "Bancos, seguros, fintechs" },
-            ].map((opt) => (
-              <SelectCard
-                key={opt.value}
-                value={opt.value}
-                selected={value.operationType === opt.value}
-                onClick={() => set("operationType", opt.value)}
-                label={opt.label}
-                sublabel={opt.sublabel}
-              />
-            ))}
+        {/* BUG-AGRO-CPF-UX-F7 (#1299) — Tipo de Operação Principal: PJ-only.
+            PF agro é implicitamente "Agronegócio" e não precisa selecionar — o
+            cliente é produtor rural por declaração via radio PF. */}
+        {!isPF && (
+          <div className="space-y-2">
+            <Label className="text-sm">Tipo de Operação Principal <span className="text-destructive">*</span></Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {[
+                { value: "industria", label: "Indústria", sublabel: "Fabricação e transformação" },
+                { value: "comercio", label: "Comércio", sublabel: "Compra e venda de mercadorias" },
+                { value: "servicos", label: "Serviços", sublabel: "Prestação de serviços" },
+                { value: "misto", label: "Misto", sublabel: "Comércio + Serviços" },
+                { value: "agronegocio", label: "Agronegócio", sublabel: "Atividade rural" },
+                { value: "financeiro", label: "Financeiro", sublabel: "Bancos, seguros, fintechs" },
+              ].map((opt) => (
+                <SelectCard
+                  key={opt.value}
+                  value={opt.value}
+                  selected={value.operationType === opt.value}
+                  onClick={() => set("operationType", opt.value)}
+                  label={opt.label}
+                  sublabel={opt.sublabel}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Tipo de Cliente */}
         <div className="space-y-2">
