@@ -304,7 +304,10 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
         r.severidade,
         r.source_priority?.toUpperCase() ?? "—",
         r.artigo || "—",
-        r.rag_validated ? "✓" : "—",
+        // BUG-CPF-COL-#6 — jsPDF Helvetica = WinAnsiEncoding (Windows-1252);
+        // U+2713 (✓) fora do Latin-1 → renderiza como apóstrofo no PDF.
+        // Trocado por "Sim"/"—" (Latin-1 safe). Header do arquivo documenta restrição.
+        r.rag_validated ? "Sim" : "—",
       ]),
       styles: { fontSize: 8 },
       headStyles: { fillColor: [163, 45, 45] }, // red-800
