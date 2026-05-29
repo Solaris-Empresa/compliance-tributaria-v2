@@ -237,6 +237,12 @@ export const fluxoV3Router = router({
             .enum(["centralized", "decentralized", "partial"])
             .optional()
             .nullable(),
+          // BUG-AGRO-CPF F0 (#1290) — campos aditivos opcionais para suporte futuro a CPF.
+          // F0: apenas aceita os campos (sem refine dual). F1 substitui cnpj.min(14)
+          // por refine dual que valida CPF (11 dig) OU CNPJ (14 dig) conforme taxIdType.
+          cpf: z.string().optional(),
+          taxIdType: z.enum(["cnpj", "cpf"]).optional(),
+          taxId: z.string().optional(),
         }),
         operationProfile: z.object({
           operationType: z.enum([
