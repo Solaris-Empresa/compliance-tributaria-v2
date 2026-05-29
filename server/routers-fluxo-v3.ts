@@ -183,6 +183,17 @@ function filtrarCategoriasPorPerfil(
   });
 }
 
+// BUG-AGRO-CPF-UX-F8 (#1299) — helper local: Zod 4 `z.enum().optional().nullable()`
+// aceita `null`/`undefined` mas REJEITA `""` (string vazia ≠ valor enum). Frontend
+// F6/F7 zera campos PJ-only com `""` ao alternar para PF — produção rejeitava 4
+// campos com `invalid_value`. Hotfix P0: preprocess converte `""` para `undefined`
+// ANTES da validação enum (Opção A do diagnóstico — REGRA-ORQ-11 fast-track).
+//
+// Lição #111 (registrada neste PR): testes de schema devem usar o valor que o
+// FRONTEND produz (`""`), não um valor conveniente (`null`). TB-06/TB-07 do F5
+// passaram com null e mascararam a regressão (Lição #110 extensão).
+const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
+
 // BUG-AGRO-CPF-UX (#1299) — Schema canônico do companyProfile exportado para reuso
 // em testes (Lição #110: importar schema real, NÃO replicar). Antes era inline na
 // `createProject.input(...)` — reuso obrigava replicação simplificada que mascarava
@@ -202,28 +213,39 @@ export const companyProfileSchema = z
     cnpj: z.string().optional(),
     // BUG-AGRO-CPF-UX (#1299) — 3 campos PJ-only tornam-se opcionais; obrigatoriedade
     // condicional é validada no superRefine abaixo (apenas quando taxIdType='cnpj').
-    companyType: z
-      .enum([
-        "ltda",
-        "sa",
-        "mei",
-        "eireli",
-        "scp",
-        "cooperativa",
-        "outro",
-        "slu",
-        "outros",
-      ])
-      .optional()
-      .nullable(),
-    companySize: z
-      .enum(["mei", "micro", "pequena", "media", "grande"])
-      .optional()
-      .nullable(),
-    taxRegime: z
-      .enum(["simples_nacional", "lucro_presumido", "lucro_real"])
-      .optional()
-      .nullable(),
+    // F8 (#1299 hotfix P0): preprocess emptyToUndefined porque frontend F6/F7 zera
+    // com "" e Zod 4 rejeita "" em enum.optional().nullable().
+    companyType: z.preprocess(
+      emptyToUndefined,
+      z
+        .enum([
+          "ltda",
+          "sa",
+          "mei",
+          "eireli",
+          "scp",
+          "cooperativa",
+          "outro",
+          "slu",
+          "outros",
+        ])
+        .optional()
+        .nullable(),
+    ),
+    companySize: z.preprocess(
+      emptyToUndefined,
+      z
+        .enum(["mei", "micro", "pequena", "media", "grande"])
+        .optional()
+        .nullable(),
+    ),
+    taxRegime: z.preprocess(
+      emptyToUndefined,
+      z
+        .enum(["simples_nacional", "lucro_presumido", "lucro_real"])
+        .optional()
+        .nullable(),
+    ),
     foundingYear: z.number().optional(),
     stateUF: z.string().optional(),
     employeeCount: z.string().optional(),
@@ -313,20 +335,34 @@ export const fluxoV3Router = router({
         // F0 → F5: contrato técnico de identidade dual; UX (#1299): cascata PF completa.
         companyProfile: companyProfileSchema,
         operationProfile: z.object({
-          operationType: z.enum([
-            "produto",
-            "servico",
-            "misto",
-            "industria",
-            "comercio",
-            "servicos",
-            "agronegocio",
-            "financeiro",
-          ]),
+          // BUG-AGRO-CPF-UX-F8 (#1299 hotfix P0) — F7 useEffect zera operationType
+          // com "" ao alternar para PF. Schema agora aceita "" via preprocess.
+          // Obrigatoriedade para PJ é re-imposta pelo superRefine raiz abaixo.
+          operationType: z.preprocess(
+            emptyToUndefined,
+            z
+              .enum([
+                "produto",
+                "servico",
+                "misto",
+                "industria",
+                "comercio",
+                "servicos",
+                "agronegocio",
+                "financeiro",
+              ])
+              .optional()
+              .nullable(),
+          ),
           clientType: z
             .array(z.string())
             .min(1, "Selecione pelo menos 1 tipo de cliente"),
-          multiState: z.boolean(),
+          // BUG-AGRO-CPF-UX-F8 — multiState aceita null/"" (frontend pode mandar
+          // null se PF não responder Sim/Não). Obrigatoriedade PJ via superRefine.
+          multiState: z.preprocess(
+            (v) => (v === null || v === "" ? undefined : v),
+            z.boolean().optional(),
+          ),
           geographicScope: z.string().optional(),
           // Bloco E (CNT-01c): NCM/NBS persistidos no operationProfile — sem colunas soltas
           principaisProdutos: z
@@ -365,6 +401,7 @@ export const fluxoV3Router = router({
             paymentMethods: z.array(z.string()).optional(),
             paymentMethodsOther: z.string().optional(),
             hasIntermediaries: z.boolean().optional(),
+
           })
           .optional(),
         governanceProfile: z
@@ -375,6 +412,28 @@ export const fluxoV3Router = router({
           })
           .optional(),
       })
+        // BUG-AGRO-CPF-UX-F8 (#1299 hotfix P0) — cross-schema validation:
+        // taxIdType vive em companyProfile, mas operationType + multiState vivem em
+        // operationProfile. Schemas filhos não enxergam taxIdType → este superRefine
+        // raiz é o único lugar onde dá pra impor "obrigatório PJ" para operationType
+        // e multiState. PF não exige nenhum dos 2 (REGRA-ORQ-42 §1).
+        .superRefine((data, ctx) => {
+          if (data.companyProfile?.taxIdType === "cpf") return;
+          if (!data.operationProfile?.operationType) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Tipo de Operação obrigatório para PJ",
+              path: ["operationProfile", "operationType"],
+            });
+          }
+          if (data.operationProfile?.multiState === undefined) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Operação multiestadual obrigatória para PJ",
+              path: ["operationProfile", "multiState"],
+            });
+          }
+        }),
     )
     .mutation(async ({ input, ctx }) => {
       const projectId = await db.createProject({
