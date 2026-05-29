@@ -176,15 +176,27 @@ function validateCnpj(cnpj: string): boolean {
 
 /** Calcula score de completude (0-100) e confiança (0-100) */
 export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; confidence: number; missingRequired: string[]; missingOptional: string[] } {
-  const required: Array<[boolean, string]> = [
-    [validateCnpj(p.cnpj), "CNPJ válido"],
-    [!!p.companyType, "Tipo Jurídico"],
-    [!!p.companySize, "Porte da empresa"],
-    [!!p.taxRegime, "Regime Tributário"],
-    [!!p.operationType, "Tipo de Operação"],
-    [p.clientType.length > 0, "Tipo de Cliente"],
-    [p.multiState !== null, "Operação multiestadual"],
-  ];
+  // BUG-AGRO-CPF-UX (#1299) — gate de obrigatórios condicional por taxIdType.
+  // PF (taxIdType='cpf') NÃO tem Tipo Jurídico/Porte/Regime — pertencem só a PJ.
+  // Lição #109 + REGRA-ORQ-42: tabela de visibilidade de campos exige gate diferente
+  // por perfil (UI esconde os campos + score não cobra preenchimento).
+  const isPF = p.taxIdType === "cpf";
+  const required: Array<[boolean, string]> = isPF
+    ? [
+        [validateCpf(p.cpf ?? ""), "CPF válido"],
+        [!!p.operationType, "Tipo de Operação"],
+        [p.clientType.length > 0, "Tipo de Cliente"],
+        [p.multiState !== null, "Operação multiestadual"],
+      ]
+    : [
+        [validateCnpj(p.cnpj), "CNPJ válido"],
+        [!!p.companyType, "Tipo Jurídico"],
+        [!!p.companySize, "Porte da empresa"],
+        [!!p.taxRegime, "Regime Tributário"],
+        [!!p.operationType, "Tipo de Operação"],
+        [p.clientType.length > 0, "Tipo de Cliente"],
+        [p.multiState !== null, "Operação multiestadual"],
+      ];
   const optional: Array<[boolean, string]> = [
     [!!p.annualRevenueRange, "Faturamento Anual"],
     [p.hasMultipleEstablishments !== null, "Múltiplos estabelecimentos"],
@@ -813,6 +825,25 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
     onChange({ ...value, [key]: val });
   }, [value, onChange]);
 
+  // BUG-AGRO-CPF-UX (#1299) — cascata PF: deriva isPF + limpa 6 campos PJ-only
+  // ao alternar para PF. Quando alterna PF→PJ não limpa cpf (usuário pode estar
+  // corrigindo; cpf vira "lixo" oculto que o backend ignora — refine usa cnpj).
+  // Trigger único em mudança de isPF (não em cada render do value).
+  const isPF = enableTaxIdDual && taxIdType === "cpf";
+  useEffect(() => {
+    if (!isPF) return;
+    onChange({
+      ...value,
+      companyType: "",
+      companySize: "",
+      taxRegime: "",
+      isEconomicGroup: null,
+      taxCentralization: null,
+      hasTaxTeam: null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPF]);
+
   const toggleArray = useCallback((key: "clientType" | "paymentMethods", item: string) => {
     const arr = value[key] as string[];
     onChange({ ...value, [key]: arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item] });
@@ -937,86 +968,98 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           </div>
         )}
 
-        {/* Tipo Jurídico */}
-        <div className="space-y-2">
-          <Label className="text-sm">Tipo Jurídico <span className="text-destructive">*</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {[
-              { value: "ltda", label: "LTDA", sublabel: "Sociedade Limitada" },
-              { value: "sa", label: "S.A.", sublabel: "Sociedade Anônima" },
-              { value: "mei", label: "MEI", sublabel: "Microempreendedor Individual" },
-              { value: "eireli", label: "EIRELI", sublabel: "Empresa Individual de Resp. Limitada" },
-              { value: "slu", label: "SLU", sublabel: "Sociedade Limitada Unipessoal" },
-              { value: "outros", label: "Outros", sublabel: "Cooperativa, Associação, etc." },
-            ].map((opt) => (
-              <SelectCard
-                key={opt.value}
-                value={opt.value}
-                selected={value.companyType === opt.value}
-                onClick={() => set("companyType", opt.value)}
-                label={opt.label}
-                sublabel={opt.sublabel}
-              />
-            ))}
-          </div>
-        </div>
+        {/* BUG-AGRO-CPF-UX (#1299) — Tipo Jurídico + Porte: PJ-only (ocultos em PF). */}
+        {!isPF && (
+          <>
+            {/* Tipo Jurídico */}
+            <div className="space-y-2">
+              <Label className="text-sm">Tipo Jurídico <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {[
+                  { value: "ltda", label: "LTDA", sublabel: "Sociedade Limitada" },
+                  { value: "sa", label: "S.A.", sublabel: "Sociedade Anônima" },
+                  { value: "mei", label: "MEI", sublabel: "Microempreendedor Individual" },
+                  { value: "eireli", label: "EIRELI", sublabel: "Empresa Individual de Resp. Limitada" },
+                  { value: "slu", label: "SLU", sublabel: "Sociedade Limitada Unipessoal" },
+                  { value: "outros", label: "Outros", sublabel: "Cooperativa, Associação, etc." },
+                ].map((opt) => (
+                  <SelectCard
+                    key={opt.value}
+                    value={opt.value}
+                    selected={value.companyType === opt.value}
+                    onClick={() => set("companyType", opt.value)}
+                    label={opt.label}
+                    sublabel={opt.sublabel}
+                  />
+                ))}
+              </div>
+            </div>
 
-        {/* Porte */}
-        <div className="space-y-2">
-          <Label className="text-sm">Porte da Empresa <span className="text-destructive">*</span></Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {[
-              { value: "mei", label: "MEI", sublabel: "Até R$ 81 mil/ano" },
-              { value: "micro", label: "Microempresa", sublabel: "Até R$ 360 mil/ano" },
-              { value: "pequena", label: "Pequena", sublabel: "Até R$ 4,8 mi/ano" },
-              { value: "media", label: "Média", sublabel: "Até R$ 300 mi/ano" },
-              { value: "grande", label: "Grande", sublabel: "Acima de R$ 300 mi/ano" },
-            ].map((opt) => (
-              <SelectCard
-                key={opt.value}
-                value={opt.value}
-                selected={value.companySize === opt.value}
-                onClick={() => set("companySize", opt.value)}
-                label={opt.label}
-                sublabel={opt.sublabel}
-              />
-            ))}
-          </div>
-        </div>
+            {/* Porte */}
+            <div className="space-y-2">
+              <Label className="text-sm">Porte da Empresa <span className="text-destructive">*</span></Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {[
+                  { value: "mei", label: "MEI", sublabel: "Até R$ 81 mil/ano" },
+                  { value: "micro", label: "Microempresa", sublabel: "Até R$ 360 mil/ano" },
+                  { value: "pequena", label: "Pequena", sublabel: "Até R$ 4,8 mi/ano" },
+                  { value: "media", label: "Média", sublabel: "Até R$ 300 mi/ano" },
+                  { value: "grande", label: "Grande", sublabel: "Acima de R$ 300 mi/ano" },
+                ].map((opt) => (
+                  <SelectCard
+                    key={opt.value}
+                    value={opt.value}
+                    selected={value.companySize === opt.value}
+                    onClick={() => set("companySize", opt.value)}
+                    label={opt.label}
+                    sublabel={opt.sublabel}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </section>
 
-      {/* ── Seção 2: Regime Tributário ──────────────────────────────────── */}
+      {/* ── Seção 2: Regime Tributário (PJ) / Receita Bruta (PF) ────────── */}
+      {/* BUG-AGRO-CPF-UX (#1299) — cabeçalho dinâmico + Regime PJ-only;
+          Faturamento permanece em ambos os modos com label diferente
+          (Lição #109 — tabela de visibilidade REGRA-ORQ-42 §1). */}
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
           <CreditCard className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Regime Tributário</h3>
-          <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
+          <h3 className="text-sm font-semibold">
+            {isPF ? "Receita Bruta Anual" : "Regime Tributário"}
+          </h3>
+          {!isPF && <Badge variant="secondary" className="text-xs">Obrigatório</Badge>}
         </div>
 
-        {/* Regime */}
-        <div className="space-y-2">
-          <Label className="text-sm">Regime Atual <span className="text-destructive">*</span></Label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {[
-              { value: "simples_nacional", label: "Simples Nacional", sublabel: "Receita até R$ 4,8 mi/ano" },
-              { value: "lucro_presumido", label: "Lucro Presumido", sublabel: "Receita até R$ 78 mi/ano" },
-              { value: "lucro_real", label: "Lucro Real", sublabel: "Obrigatório acima de R$ 78 mi/ano" },
-            ].map((opt) => (
-              <SelectCard
-                key={opt.value}
-                value={opt.value}
-                selected={value.taxRegime === opt.value}
-                onClick={() => set("taxRegime", opt.value)}
-                label={opt.label}
-                sublabel={opt.sublabel}
-              />
-            ))}
+        {/* Regime — PJ-only */}
+        {!isPF && (
+          <div className="space-y-2">
+            <Label className="text-sm">Regime Atual <span className="text-destructive">*</span></Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {[
+                { value: "simples_nacional", label: "Simples Nacional", sublabel: "Receita até R$ 4,8 mi/ano" },
+                { value: "lucro_presumido", label: "Lucro Presumido", sublabel: "Receita até R$ 78 mi/ano" },
+                { value: "lucro_real", label: "Lucro Real", sublabel: "Obrigatório acima de R$ 78 mi/ano" },
+              ].map((opt) => (
+                <SelectCard
+                  key={opt.value}
+                  value={opt.value}
+                  selected={value.taxRegime === opt.value}
+                  onClick={() => set("taxRegime", opt.value)}
+                  label={opt.label}
+                  sublabel={opt.sublabel}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Faturamento */}
+        {/* Faturamento / Receita Bruta — visível em ambos, label condicional */}
         <div className="space-y-2">
-          <Label className="text-sm">Faturamento Anual Estimado</Label>
+          <Label className="text-sm">{isPF ? "Receita Bruta Anual" : "Faturamento Anual Estimado"}</Label>
           <div className="grid grid-cols-2 gap-2">
             {[
               { value: "0-360000", label: "Até R$ 360 mil" },
@@ -1371,61 +1414,69 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       </section>
 
       {/* ── Seção 6.5: Estrutura Societária (QC-02) — ISSUE-001 Prefill Contract Fase 1 ── */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2 pb-1 border-b">
-          <Network className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Estrutura Societária</h3>
-          <Badge variant="outline" className="text-xs">QC-02 — Prefill</Badge>
-        </div>
-        <div className="space-y-3">
-          <SimNaoToggle
-            value={value.isEconomicGroup}
-            onChange={(v) => set("isEconomicGroup", v)}
-            label="A empresa integra grupo econômico?"
-            tooltip="Empresas em grupo econômico têm obrigações de consolidação e podem ter regimes diferenciados de apuração do IBS/CBS."
-          />
-          <div className="space-y-2">
-            <Label className="text-sm">Centralização das operações fiscais</Label>
-            <p className="text-xs text-muted-foreground">Como as operações fiscais são geridas entre matriz e filiais?</p>
-            <div className="grid grid-cols-1 gap-2">
-              {[
-                { value: "centralized", label: "Centralizadas na matriz", sublabel: "Matriz apura e recolhe por todas as unidades" },
-                { value: "decentralized", label: "Descentralizadas por unidade", sublabel: "Cada estabelecimento apura separadamente" },
-                { value: "partial", label: "Parcialmente centralizado", sublabel: "Algumas obrigações centralizadas, outras não" },
-              ].map((opt) => (
-                <SelectCard
-                  key={opt.value}
-                  value={opt.value}
-                  selected={value.taxCentralization === opt.value}
-                  onClick={() => set("taxCentralization", value.taxCentralization === opt.value ? null : opt.value)}
-                  label={opt.label}
-                  sublabel={opt.sublabel}
-                />
-              ))}
+      {/* BUG-AGRO-CPF-UX (#1299) — PJ-only: grupo econômico + centralização matriz/filial
+          são conceitos de pessoa jurídica; PF agro não tem estrutura societária. */}
+      {!isPF && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-1 border-b">
+            <Network className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">Estrutura Societária</h3>
+            <Badge variant="outline" className="text-xs">QC-02 — Prefill</Badge>
+          </div>
+          <div className="space-y-3">
+            <SimNaoToggle
+              value={value.isEconomicGroup}
+              onChange={(v) => set("isEconomicGroup", v)}
+              label="A empresa integra grupo econômico?"
+              tooltip="Empresas em grupo econômico têm obrigações de consolidação e podem ter regimes diferenciados de apuração do IBS/CBS."
+            />
+            <div className="space-y-2">
+              <Label className="text-sm">Centralização das operações fiscais</Label>
+              <p className="text-xs text-muted-foreground">Como as operações fiscais são geridas entre matriz e filiais?</p>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { value: "centralized", label: "Centralizadas na matriz", sublabel: "Matriz apura e recolhe por todas as unidades" },
+                  { value: "decentralized", label: "Descentralizadas por unidade", sublabel: "Cada estabelecimento apura separadamente" },
+                  { value: "partial", label: "Parcialmente centralizado", sublabel: "Algumas obrigações centralizadas, outras não" },
+                ].map((opt) => (
+                  <SelectCard
+                    key={opt.value}
+                    value={opt.value}
+                    selected={value.taxCentralization === opt.value}
+                    onClick={() => set("taxCentralization", value.taxCentralization === opt.value ? null : opt.value)}
+                    label={opt.label}
+                    sublabel={opt.sublabel}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Seção 6: Governança ──────────────────────────────────────────── */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2 pb-1 border-b">
-          <Shield className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Governança Tributária</h3>
-          <Badge variant="outline" className="text-xs">Opcional</Badge>
-        </div>
-        <div className="space-y-3">
-          <SimNaoToggle value={value.hasTaxTeam} onChange={(v) => set("hasTaxTeam", v)}
-            label="Possui equipe tributária interna (contador, advogado fiscal)?"
-            tooltip="Empresas sem equipe tributária têm maior risco de não conformidade durante a transição." />
-          <SimNaoToggle value={value.hasAudit} onChange={(v) => set("hasAudit", v)}
-            label="Realiza auditoria fiscal periódica?"
-            tooltip="Auditorias regulares reduzem o risco de passivos tributários ocultos." />
-          <SimNaoToggle value={value.hasTaxIssues} onChange={(v) => set("hasTaxIssues", v)}
-            label="Possui passivo tributário ou pendências com a Receita Federal?"
-            tooltip="Passivos existentes podem ser agravados pela mudança de regime na Reforma Tributária." />
+      {/* BUG-AGRO-CPF-UX (#1299) — "Equipe tributária interna" pressupõe estrutura
+          empresarial PJ. PF agro não tem equipe tributária formal — oculto. */}
+      {!isPF && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-1 border-b">
+            <Shield className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">Governança Tributária</h3>
+            <Badge variant="outline" className="text-xs">Opcional</Badge>
           </div>
-      </section>
+          <div className="space-y-3">
+            <SimNaoToggle value={value.hasTaxTeam} onChange={(v) => set("hasTaxTeam", v)}
+              label="Possui equipe tributária interna (contador, advogado fiscal)?"
+              tooltip="Empresas sem equipe tributária têm maior risco de não conformidade durante a transição." />
+            <SimNaoToggle value={value.hasAudit} onChange={(v) => set("hasAudit", v)}
+              label="Realiza auditoria fiscal periódica?"
+              tooltip="Auditorias regulares reduzem o risco de passivos tributários ocultos." />
+            <SimNaoToggle value={value.hasTaxIssues} onChange={(v) => set("hasTaxIssues", v)}
+              label="Possui passivo tributário ou pendências com a Receita Federal?"
+              tooltip="Passivos existentes podem ser agravados pela mudança de regime na Reforma Tributária." />
+            </div>
+        </section>
+      )}
       {/* M2 UX: botão explícito Salvar Produtos e Serviços — só em mode='edit' */}
       {mode === 'edit' && projectId && (
         <div className="pt-4 border-t">
