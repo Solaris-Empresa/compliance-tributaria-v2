@@ -673,6 +673,13 @@ export default function ConsolidacaoV4() {
             onClick={() => {
               generateDiagnosticoPDF({
                 cnpj: undefined,
+                // BUG-AGRO-CPF F4 (#1290) — identidade fiscal dual.
+                // Tech debt P3: adicionar useQuery do project aqui e ler
+                // companyProfile.taxIdType/taxId/cpf — undefined preserva
+                // comportamento atual (PDF sem documento no cabeçalho).
+                cpf: undefined,
+                taxIdType: undefined,
+                taxId: undefined,
                 citedLaws,
                 score: score?.score ?? 0,
                 nivel: score?.nivel ?? "baixo",

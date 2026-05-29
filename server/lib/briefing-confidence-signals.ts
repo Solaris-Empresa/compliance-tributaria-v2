@@ -101,7 +101,11 @@ export function computePerfilCompleteness(input: {
 
   // 7 obrigatórios
   const obrigatorios: boolean[] = [
-    isTruthy(cp.cnpj),
+    // BUG-AGRO-CPF F4 (#1290) — Identidade fiscal dual.
+    // Aceita CPF (PF — produtor rural Art. 164 LC 214/2025) OU CNPJ (PJ) OU taxId
+    // (campo unificado pós-F2 UI). Antes era apenas cp.cnpj — eliminava 100% de
+    // PF do signal de "obrigatórios preenchidos" (subestimava confiança).
+    isTruthy(cp.cnpj) || isTruthy(cp.cpf) || isTruthy(cp.taxId),
     isTruthy(cp.companyType),
     isTruthy(cp.companySize),
     isTruthy(cp.taxRegime),
