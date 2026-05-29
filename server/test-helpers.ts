@@ -175,3 +175,86 @@ export function generateTestRisk() {
     mitigationStatus: "identificado" as const,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUG-AGRO-CPF F5 (#1290) — Fixtures de identidade fiscal dual
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// 3 fixtures canônicas para testes de PF (produtor rural — Art. 164 LC 214/2025)
+// e retrocompat PJ legacy. Usadas em:
+//   - server/integration/bug-agro-cpf.test.ts (5 TB bloqueantes)
+//   - testes futuros que precisem de projeto PF ou PJ legacy sem boilerplate.
+//
+// Decisões:
+//   - CPF válido `529.982.247-25` é o mesmo do plano (TC-01 de validate-cpf).
+//   - `cnpj=null` em PF: F0 schema torna a coluna NULL-safe; refine F1 deriva
+//     taxId de cpf quando taxIdType='cpf'.
+//   - `companyProfile=null` em mockProjectPFSemProfile cobre o achado do Gate 3
+//     F0 (3202/3400 projetos com companyProfile=NULL).
+//   - mockProjectPJLegacy não declara `taxIdType` → Zod default 'cnpj' (F1
+//     refine) + perfilHash mantém retrocompat byte-by-byte (F3 ADR-0032).
+//
+
+/**
+ * Projeto PF (produtor rural) com CPF válido e companyProfile preenchido.
+ * Cobre cenário "novo projeto PF criado via UI F2+ com radio PF + input CPF".
+ */
+export const mockProjectPF = {
+  id: 99001,
+  name: "Sítio Esperança — Produtor Rural PF",
+  clientId: 1,
+  taxIdType: "cpf" as const,
+  taxId: "529.982.247-25",
+  cnpj: null as string | null,
+  // companyProfile espelha o que o frontend F2+ envia para PF: cnpj OMITIDO
+  // (não-null) porque o schema F1 (routers-fluxo-v3.ts:204) é
+  // `cnpj: z.string().optional()` — null não é string nem undefined.
+  companyProfile: {
+    cpf: "52998224725",
+    taxIdType: "cpf" as const,
+    taxId: "529.982.247-25",
+    companyType: "produtor_rural_pf",
+    companySize: "micro" as const,
+    taxRegime: "simples_nacional" as const,
+  },
+  // coluna DB F0 (migration 0119): tax_id_type ENUM('cnpj','cpf') NOT NULL
+  tax_id_type: "cpf" as const,
+};
+
+/**
+ * Projeto PF com companyProfile=null — cobre o achado do Gate 3 F0
+ * (94% da base de produção: 3202/3400 projetos sem profile preenchido).
+ * Garante que perfilHash + briefing signals não crasham mesmo sem profile.
+ */
+export const mockProjectPFSemProfile = {
+  id: 99002,
+  name: "Projeto PF legado sem profile",
+  clientId: 1,
+  taxIdType: "cpf" as const,
+  taxId: "529.982.247-25",
+  cnpj: null as string | null,
+  companyProfile: null as Record<string, unknown> | null,
+  tax_id_type: "cpf" as const,
+};
+
+/**
+ * Projeto PJ legado SEM taxIdType — cobre retrocompat F1 Opção 1
+ * (frontend pre-F2 envia apenas cnpj; refine deriva taxId='cnpj' por default).
+ * perfilHash F3 preserva canonical byte-by-byte para este cenário (ADR-0032).
+ */
+export const mockProjectPJLegacy = {
+  id: 99003,
+  name: "Empresa PJ legacy SA",
+  clientId: 1,
+  taxIdType: undefined as "cnpj" | "cpf" | undefined,
+  taxId: undefined as string | undefined,
+  cnpj: "11.222.333/0001-81",
+  companyProfile: {
+    cnpj: "11222333000181",
+    companyType: "ltda" as const,
+    companySize: "media" as const,
+    taxRegime: "lucro_presumido" as const,
+  },
+  // F0 default da coluna: pré-F2 → 'cnpj' (backfill da migration 0119)
+  tax_id_type: "cnpj" as const,
+};
