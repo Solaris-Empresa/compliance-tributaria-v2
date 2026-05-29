@@ -230,18 +230,26 @@ export const perfilRouter = router({
       });
 
       const snapshot = buildSnapshot(seed, DATA_VERSION);
-      const cnpj = ((project.companyProfile as Record<string, unknown>)?.cnpj ??
-        "") as string;
+      // BUG-AGRO-CPF F3 (#1290) — leitura null-safe de companyProfile + dual identity.
+      // companyProfile=null (3202/3400 projetos — Gate 3 F0) → cp = {} → todos undefined.
+      const cp = (project.companyProfile ?? {}) as Record<string, unknown>;
+      const cnpj = (cp.cnpj ?? "") as string;
+      const cpf = cp.cpf as string | undefined;
+      const taxIdType = cp.taxIdType as "cnpj" | "cpf" | undefined;
+      const taxId = cp.taxId as string | undefined;
       const confirmedCnaesCodes = (
         (project.confirmedCnaes ?? []) as Array<{ code?: string }>
       )
         .map((c) => c.code)
         .filter((c): c is string => typeof c === "string");
 
-      // Re-computa perfil_hash com escopo expandido (project_id + cnpj + cnaes)
+      // Re-computa perfil_hash com escopo expandido (project_id + cnpj + cnaes + dual identity F3)
       const perfilHashExpandido = computePerfilHash({
         project_id: input.projectId,
         cnpj,
+        cpf,
+        taxIdType,
+        taxId,
         confirmedCnaes: confirmedCnaesCodes,
         ncms_canonicos_array: [...seed.ncms_principais],
         nbss_canonicos_array: [...seed.nbss_principais],
@@ -342,8 +350,12 @@ export const perfilRouter = router({
         });
       }
 
-      const cnpj = ((project.companyProfile as Record<string, unknown>)?.cnpj ??
-        "") as string;
+      // BUG-AGRO-CPF F3 (#1290) — leitura null-safe + dual identity (espelho do callsite acima)
+      const cp = (project.companyProfile ?? {}) as Record<string, unknown>;
+      const cnpj = (cp.cnpj ?? "") as string;
+      const cpf = cp.cpf as string | undefined;
+      const taxIdType = cp.taxIdType as "cnpj" | "cpf" | undefined;
+      const taxId = cp.taxId as string | undefined;
       const confirmedCnaesCodes = (
         (project.confirmedCnaes ?? []) as Array<{ code?: string }>
       )
@@ -353,6 +365,9 @@ export const perfilRouter = router({
       const perfilHashExpandido = computePerfilHash({
         project_id: input.projectId,
         cnpj,
+        cpf,
+        taxIdType,
+        taxId,
         confirmedCnaes: confirmedCnaesCodes,
         ncms_canonicos_array: [...seed.ncms_principais],
         nbss_canonicos_array: [...seed.nbss_principais],
