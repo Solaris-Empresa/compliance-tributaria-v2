@@ -302,3 +302,49 @@ Spec HIBRIDA obrigatoria:
 - `perfil.confirm(projectId)` — write-once, persiste em `projects.archetype*`
 - `perfil.get(projectId)` — retorna snapshot ou null
 - Todas guardadas por `assertM2Enabled(ctx, projectId)` — feature flag `m2-perfil-entidade-enabled`
+
+---
+
+## §M1.1 — Identidade Fiscal Dual (BUG-AGRO-CPF — Issue #1290)
+
+**Origem:** F2 (PR #1294) — UI radio PJ/PF + input CPF condicional.
+**Tela:** `NovoProjeto.tsx` (formulário inicial de criação de projeto).
+**Mockup:** `docs/governance/mockups/mockup-cpf-pf-variante-a.html` (estático, referência QA).
+**Spec normativa:** Art. 164 LC 214/2025 (produtor rural Pessoa Física como sujeito tributário).
+**Feature flag:** `VITE_ENABLE_TAX_ID_DUAL` (frontend) · `ENABLE_TAX_ID_DUAL` (backend) — default `false`.
+
+### 3 entradas canônicas
+
+| Chave | Label PT-BR | Tooltip | Contexto (data-testid) |
+|---|---|---|---|
+| `tax_id_type.pj` | "Pessoa Jurídica" | "Empresa com CNPJ" | `radio-tax-id-type-pj` |
+| `tax_id_type.pf` | "Pessoa Física Produtor Rural" | "Produtor rural com CPF (Art. 164 LC 214/2025)" | `radio-tax-id-type-pf` |
+| `tax_id.cpf_label` | "CPF" | "Cadastro de Pessoa Física — 11 dígitos" | `input-cpf` (label) |
+
+### Comportamento UI
+
+- Radio group `[PJ] [PF]` é exibido **somente** quando `VITE_ENABLE_TAX_ID_DUAL=true` (REGRA-ORQ-32 — feature flag).
+- Quando flag OFF: apenas campo CNPJ visível (comportamento AS-IS pré-F2).
+- Quando flag ON + PJ selecionado: campo CNPJ visível com máscara `00.000.000/0000-00`.
+- Quando flag ON + PF selecionado: campo CPF visível com máscara progressiva `000.000.000-00`; campo CNPJ oculto; `companyType` é forçado para `produtor_rural_pf` no submit (não exibido ao usuário).
+
+### Invariantes
+
+- O `data-testid` do radio PF é `radio-tax-id-type-pf` (não `radio-pf` puro — F2 commit `1080a6c`).
+- `cpfValid` controla `disabled` do botão "Avançar" quando PF selecionado (mesma lógica que `cnpjValid` para PJ).
+- Mudança PJ→PF limpa o campo CNPJ e vice-versa (sem persistir documento do outro tipo).
+- Schema Zod backend (`server/routers-fluxo-v3.ts:248-263`) tem `taxIdType.default('cnpj')` → retrocompat F1↔F2: payload sem `taxIdType` continua sendo aceito como PJ legacy.
+
+### Procedures impactadas
+
+- `fluxoV3Router.createProject` — schema dual (F1 PR #1293), refine derivado.
+- `perfil.build` + `perfil.confirm` — hash null-safe (F3 PR #1295 ADR-0033).
+
+### Vinculadas
+
+- ADR-0033 (Identidade Fiscal Dual)
+- ADR-0032 (Versionamento Snapshot — MINOR aditivo preservado)
+- REGRA-ORQ-29 (CNAE-condicionado — extensão para sujeito tributário)
+- REGRA-ORQ-32 (no hardcode — feature flag em vez de if/else)
+- Lição #93 (mecanismo verificado: `analise_1_cnpj_operacional` mantido por escopo unitário, não rotulagem CNPJ)
+- F0 #1292 · F1 #1293 · F2 #1294 · F3 #1295 · F4 #1296 · F5 (este PR fecha #1290)
