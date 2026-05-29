@@ -14,8 +14,11 @@ import { z } from "zod";
 import * as db from "../db";
 
 // ─── Zod schema idêntico ao do router (reproduzido para teste isolado) ───────
+// BUG-AGRO-CPF F1 (#1290) — espelho do refine dual em routers-fluxo-v3.ts.
+// cnpj agora é opcional · refine no objeto deriva taxId de cnpj/cpf conforme taxIdType.
+// Retrocompat F1↔F2: payload legacy sem taxId/taxIdType continua validando via cnpj.
 const companyProfileSchema = z.object({
-  cnpj: z.string().min(14, "CNPJ é obrigatório"),
+  cnpj: z.string().optional(), // deprecated — retrocompat F1↔F2 (era min(14) em F0)
   companyType: z.enum(["ltda", "sa", "mei", "eireli", "scp", "cooperativa", "outro"]),
   companySize: z.enum(["mei", "micro", "pequena", "media", "grande"]),
   taxRegime: z.enum(["simples_nacional", "lucro_presumido", "lucro_real"]),
@@ -23,7 +26,22 @@ const companyProfileSchema = z.object({
   stateUF: z.string().optional(),
   employeeCount: z.string().optional(),
   annualRevenueRange: z.enum(["ate_360k", "360k_4_8m", "4_8m_78m", "acima_78m"]).optional(),
-});
+  // BUG-AGRO-CPF F1 (#1290) — identidade fiscal dual
+  cpf: z.string().optional(),
+  taxIdType: z.enum(["cnpj", "cpf"]).default("cnpj"),
+  taxId: z.string().optional(),
+}).refine(
+  (data) => {
+    const taxId = data.taxId ?? (data.taxIdType === "cpf" ? data.cpf : data.cnpj);
+    if (!taxId) return false;
+    const d = taxId.replace(/\D/g, "");
+    return d.length === 11 || d.length === 14;
+  },
+  {
+    message: "Documento inválido — CPF (11 dígitos) ou CNPJ (14 dígitos)",
+    path: ["taxId"],
+  },
+);
 
 const operationProfileSchema = z.object({
   operationType: z.enum(["produto", "servico", "misto"]),
@@ -135,15 +153,21 @@ let createdProjectId: number | null = null;
 
 describe("v2.1.2 — Perfil da Empresa Obrigatório (E2E)", () => {
 
-  // ── EVIDÊNCIA 3: Validação de CNPJ inválido ──────────────────────────────
-  describe("Evidência 3 — Validação de CNPJ inválido bloqueada", () => {
+  // ── EVIDÊNCIA 3: Validação de CNPJ/CPF inválido (BUG-AGRO-CPF F1 #1290) ──────
+  // Em F0, cnpj era min(14) — erro tinha path ["cnpj"]. Em F1, refine é no objeto
+  // e erro tem path ["taxId"] (derivação automática). Asserção atualizada.
+  describe("Evidência 3 — Validação de CNPJ/CPF inválido bloqueada", () => {
     it("rejeita CNPJ vazio", () => {
       const result = createProjectSchema.safeParse(PAYLOAD_SEM_CNPJ);
       expect(result.success).toBe(false);
       if (!result.success) {
-        const cnpjError = result.error.issues.find(i => i.path.includes("cnpj"));
-        expect(cnpjError).toBeDefined();
-        console.log("✅ CNPJ vazio rejeitado:", cnpjError?.message);
+        // F1: erro do refine tem path ["taxId"] (não mais "cnpj").
+        // Aceita ambos os paths para retrocompat de leitura.
+        const docError = result.error.issues.find(
+          (i) => i.path.includes("taxId") || i.path.includes("cnpj")
+        );
+        expect(docError).toBeDefined();
+        console.log("✅ Documento (CNPJ/CPF) vazio rejeitado:", docError?.message);
       }
     });
   });

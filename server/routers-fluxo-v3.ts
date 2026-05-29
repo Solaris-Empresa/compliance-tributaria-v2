@@ -197,8 +197,11 @@ export const fluxoV3Router = router({
         clientId: z.number({ message: "Cliente é obrigatório" }),
         faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
         // v2.1: Company Profile Layer — OBRIGATÓRIO (fix/v2.1-company-profile-required)
+        // BUG-AGRO-CPF F1 (#1290): cnpj agora é OPCIONAL — refine no objeto (linha final
+        // do z.object) deriva taxId de cnpj/cpf conforme taxIdType. Retrocompat F1↔F2:
+        // frontend legacy continua enviando só cnpj e backend deriva automaticamente.
         companyProfile: z.object({
-          cnpj: z.string().min(14, "CNPJ é obrigatório"),
+          cnpj: z.string().optional(), // deprecated — retrocompat F1↔F2 (era min(14) em F0)
           companyType: z.enum([
             "ltda",
             "sa",
@@ -237,13 +240,27 @@ export const fluxoV3Router = router({
             .enum(["centralized", "decentralized", "partial"])
             .optional()
             .nullable(),
-          // BUG-AGRO-CPF F0 (#1290) — campos aditivos opcionais para suporte futuro a CPF.
-          // F0: apenas aceita os campos (sem refine dual). F1 substitui cnpj.min(14)
-          // por refine dual que valida CPF (11 dig) OU CNPJ (14 dig) conforme taxIdType.
+          // BUG-AGRO-CPF F1 (#1290) — identidade fiscal dual com derivação automática.
+          // taxIdType.default('cnpj') garante retrocompat: payload legacy sem taxIdType
+          // herda 'cnpj' e o refine deriva taxId de cnpj. Para PF, frontend (F2) envia
+          // taxIdType='cpf' e refine deriva taxId de cpf.
           cpf: z.string().optional(),
-          taxIdType: z.enum(["cnpj", "cpf"]).optional(),
+          taxIdType: z.enum(["cnpj", "cpf"]).default("cnpj"),
           taxId: z.string().optional(),
-        }),
+        }).refine(
+          (data) => {
+            // Derivação automática: taxId explícito → cpf (se PF) → cnpj (default).
+            // Garante que frontend legacy (sem taxId) e PF (com cpf) ambos validem.
+            const taxId = data.taxId ?? (data.taxIdType === "cpf" ? data.cpf : data.cnpj);
+            if (!taxId) return false;
+            const d = taxId.replace(/\D/g, "");
+            return d.length === 11 || d.length === 14;
+          },
+          {
+            message: "Documento inválido — CPF (11 dígitos) ou CNPJ (14 dígitos)",
+            path: ["taxId"],
+          },
+        ),
         operationProfile: z.object({
           operationType: z.enum([
             "produto",
