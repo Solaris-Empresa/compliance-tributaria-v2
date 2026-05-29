@@ -308,10 +308,19 @@ export const risksV4Router = router({
         risks.map(async (risk) => {
           const plans = await getActionPlansByRisk(risk.id);
           // Sprint Z-16 #614 — include tasks per plan for task edit modal
+          // BUG-CPF-COL-#5 — propagar artigo + categoria do risco pai para o
+          // plano. Sem isso, qualquer consumer que faça `flatMap(r => r.actionPlans)`
+          // perde a referência ao pai (caso canônico: ConsolidacaoV4.tsx PDF
+          // "Risco (Art.)" = "—"). Fix no backend resolve N consumers de uma vez.
           const plansWithTasks = await Promise.all(
             plans.map(async (plan) => {
               const tasks = await getTasksByActionPlan(plan.id);
-              return { ...plan, tasks };
+              return {
+                ...plan,
+                tasks,
+                artigo: risk.artigo,
+                categoria: risk.categoria,
+              };
             })
           );
           return { ...risk, actionPlans: plansWithTasks };

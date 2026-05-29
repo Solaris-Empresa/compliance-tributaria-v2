@@ -452,6 +452,10 @@ export const fluxoV3Router = router({
         taxComplexity: input.taxComplexity ?? null,
         financialProfile: input.financialProfile ?? null,
         governanceProfile: input.governanceProfile ?? null,
+        // BUG-CPF-COL-#4 — coluna SQL dedicada `tax_id_type` (migration 0119)
+        // não estava sendo populada; default 'cnpj' aplicava em 100% INSERTs
+        // mesmo para PF. Lição #65 — JSON tinha taxIdType='cpf', SQL coluna ficou 'cnpj'.
+        taxIdType: input.companyProfile?.taxIdType ?? "cnpj",
       } as any);
       return { projectId };
     }),
