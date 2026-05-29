@@ -1379,7 +1379,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
             label="Realiza operações de importação ou exportação?"
             tooltip="Impacta IBS, CBS e regimes aduaneiros especiais." />
           <SimNaoToggle value={value.hasSpecialRegimes} onChange={(v) => set("hasSpecialRegimes", v)}
-            label="Possui regimes tributários especiais (RECOF, Drawback, ZFM, etc.)?"
+            label="Possui regimes tributários especiais (REIDI, ZFM, RECOF, Drawback, etc.)?"
             tooltip="Regimes especiais podem ser impactados pela transição para o IBS/CBS." />
         </div>
       </section>
