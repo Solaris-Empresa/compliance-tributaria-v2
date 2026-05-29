@@ -87,6 +87,15 @@ export default function ComplianceDashboard() {
       // PR #2 vai enriquecer com risks/plans detalhados.
       generateDiagnosticoPDF({
         empresa: project?.name ?? `Projeto #${projectId}`,
+        // BUG-AGRO-CPF F4 (#1290) — identidade fiscal dual.
+        // Tech debt P3: o tipo retornado por `projects.getById` aqui NÃO inclui
+        // `companyProfile`. Para passar taxIdType/taxId/cpf é preciso expor o
+        // campo no procedure tRPC OU adicionar useQuery dedicado.
+        // undefined preserva o comportamento atual (PDF sem documento no cabeçalho).
+        cnpj: undefined,
+        cpf: undefined,
+        taxIdType: undefined,
+        taxId: undefined,
         score: compliance.score,
         nivel: compliance.nivel,
         totalAlta: compliance.total_alta,

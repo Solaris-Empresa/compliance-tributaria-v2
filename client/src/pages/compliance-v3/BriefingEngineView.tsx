@@ -68,7 +68,7 @@ const SECTIONS = [
     icon: Building2,
     color: "text-blue-600",
     bg: "bg-blue-50 border-blue-200",
-    description: "Dados do cliente, CNPJ, porte, regime tributário e responsável técnico.",
+    description: "Dados do cliente, CNPJ ou CPF, porte, regime tributário e responsável técnico.",
   },
   {
     key: "escopo",

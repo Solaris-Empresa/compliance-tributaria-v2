@@ -24,6 +24,8 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { LawInfo } from "./cited-laws";
+// BUG-AGRO-CPF F4 (#1290) — formatação CPF para PDF de PF
+import { maskCpf } from "./validate-cpf";
 import {
   classifyExposicao,
   EXPOSICAO_CONFIG,
@@ -31,8 +33,44 @@ import {
   META_EXPOSICAO,
 } from "./exposicao-risco-thresholds";
 
+// BUG-AGRO-CPF F4 (#1290) — máscara CNPJ progressiva (espelha maskCpf de F1).
+// Inline para não criar dependência circular nem dispersar utilidades de máscara.
+function maskCnpj(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 14);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  if (digits.length <= 8)
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  if (digits.length <= 12)
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+}
+
+/**
+ * BUG-AGRO-CPF F4 (#1290) — resolve label + valor formatado conforme taxIdType.
+ * Retrocompat absoluta: taxIdType undefined → trata como 'cnpj' (default).
+ * Ordem de preferência: taxId explícito → cpf/cnpj específico → null (omite).
+ */
+function resolveTaxIdDisplay(data: DiagnosticoPDFData): { label: string; value: string } | null {
+  const isCpf = data.taxIdType === "cpf";
+  if (isCpf) {
+    const cpfValue = data.taxId ?? data.cpf;
+    if (cpfValue) return { label: "CPF", value: maskCpf(cpfValue) };
+    return null;
+  }
+  // PJ ou taxIdType undefined → fallback CNPJ (retrocompat absoluta)
+  const cnpjValue = data.taxId ?? data.cnpj;
+  if (cnpjValue) return { label: "CNPJ", value: maskCnpj(cnpjValue) };
+  return null;
+}
+
 export interface DiagnosticoPDFData {
   cnpj?: string;
+  // BUG-AGRO-CPF F4 (#1290) — identidade fiscal dual (Art. 164 LC 214/2025)
+  // taxIdType undefined → fallback 'cnpj' (zero regressão para PJ existente)
+  cpf?: string;
+  taxIdType?: "cnpj" | "cpf";
+  taxId?: string;
   empresa?: string;
   cnaes?: string[];
   score: number;
@@ -122,7 +160,9 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.text(`Reforma Tributária — LC 214/2025`, margin, 21);
-  if (data.cnpj) doc.text(`CNPJ: ${data.cnpj}`, margin, 27);
+  // BUG-AGRO-CPF F4 (#1290) — label dinâmica: CPF para PF, CNPJ para PJ (default)
+  const docDisplay = resolveTaxIdDisplay(data);
+  if (docDisplay) doc.text(`${docDisplay.label}: ${docDisplay.value}`, margin, 27);
   // fix UAT 2026-04-21 D10: exibe timestamp da VERSÃO do briefing, não da exportação.
   // "Gerado em [hoje]" era enganoso em PDFs exportados dias depois da aprovação.
   const versaoDate = formatVersaoDate(data.versaoGeradaEm);
@@ -352,7 +392,8 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   doc.text(disclaimerLines, margin, y);
 
   // ─── Save ───────────────────────────────────────────────────────────
-  const cnpjSlug = (data.cnpj ?? "sem-cnpj").replace(/\D/g, "");
+  // BUG-AGRO-CPF F4 (#1290) — filename usa taxId/cpf/cnpj com fallback null-safe
+  const taxIdSlug = (data.taxId ?? data.cpf ?? data.cnpj ?? "sem-documento").replace(/\D/g, "");
   const dateSlug = new Date().toISOString().slice(0, 10);
-  doc.save(`diagnostico-${cnpjSlug}-${dateSlug}.pdf`);
+  doc.save(`diagnostico-${taxIdSlug}-${dateSlug}.pdf`);
 }
