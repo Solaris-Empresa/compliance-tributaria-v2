@@ -5003,6 +5003,11 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
             questionId: z.number().int().positive(),
             codigo: z.string().min(1).max(10),
             resposta: z.string(), // ADR-0016 MASP: removido .min(1) — resposta vazia permitida
+            // FEAT-SOL-UX-01 PR-B (30/05/2026): valor discreto dual-column
+            respostaOpcao: z
+              .enum(["sim", "nao", "nao_sei", "nao_se_aplica"])
+              .optional()
+              .nullable(),
           })
         ),
       })
@@ -5100,6 +5105,11 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
         questionId: z.number().int().positive(),
         codigo: z.string().min(1).max(10),
         answer: z.string(),
+        // FEAT-SOL-UX-01 PR-B (30/05/2026): valor discreto dual-column
+        respostaOpcao: z
+          .enum(["sim", "nao", "nao_sei", "nao_se_aplica"])
+          .optional()
+          .nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -5125,6 +5135,8 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
           questionId: input.questionId,
           codigo: input.codigo,
           resposta: input.answer,
+          // FEAT-SOL-UX-01 PR-B: propaga dual-column quando o frontend envia
+          respostaOpcao: input.respostaOpcao ?? null,
         },
       ]);
       return { saved: true };

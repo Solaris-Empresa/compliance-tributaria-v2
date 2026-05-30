@@ -4,7 +4,10 @@
  * Consumo real (consolidateRisks) validado em credito-presumido-engine.test.ts (Lição #59).
  */
 import { describe, it, expect } from "vitest";
-import { evaluateCreditoPresumidoEligibility } from "./credito-presumido-eligibility";
+import {
+  coerceOnda1AnswerToGateText,
+  evaluateCreditoPresumidoEligibility,
+} from "./credito-presumido-eligibility";
 
 const GATE = ["SOL-050", "SOL-051", "SOL-052"];
 const allSim = () =>
@@ -62,6 +65,48 @@ describe("FEAT-SCOPE-02 — gate credito_presumido Art. 168 (função pura)", ()
 
   it("aceita variações de 'sim' (case/acento/trailing)", () => {
     const map = new Map([["SOL-050", " SIM "], ["SOL-051", "sim, contrato"], ["SOL-052", "Sim"]]);
+    expect(evaluateCreditoPresumidoEligibility(GATE, map, "lucro_real").eligible).toBe(true);
+  });
+});
+
+// ─── FEAT-SOL-UX-01 PR-B2: coerção dual-column ────────────────────────────────
+describe("FEAT-SOL-UX-01 PR-B2 — coerceOnda1AnswerToGateText (dual-column)", () => {
+  it("respostaOpcao='sim' → 'sim' (prioriza coluna nova mesmo com resposta texto contraditória)", () => {
+    expect(coerceOnda1AnswerToGateText({ resposta: "Não", respostaOpcao: "sim" })).toBe("sim");
+  });
+
+  it("respostaOpcao='nao_sei' → 'nao' (conservador — bloqueia gate Art. 168)", () => {
+    expect(coerceOnda1AnswerToGateText({ resposta: "talvez", respostaOpcao: "nao_sei" })).toBe("nao");
+  });
+
+  it("respostaOpcao='nao_se_aplica' → 'na' (rejeitado pela função pura — startsWith('sim'))", () => {
+    expect(coerceOnda1AnswerToGateText({ resposta: "", respostaOpcao: "nao_se_aplica" })).toBe("na");
+  });
+
+  it("respostaOpcao ausente → preserva resposta texto-livre histórica", () => {
+    expect(coerceOnda1AnswerToGateText({ resposta: "Sim, contrato firmado" })).toBe("Sim, contrato firmado");
+    expect(coerceOnda1AnswerToGateText({ resposta: "Não" })).toBe("Não");
+    expect(coerceOnda1AnswerToGateText({ resposta: "", respostaOpcao: null })).toBe("");
+  });
+
+  it("integração: respostaOpcao='nao_sei' no gate → não elegível (mesmo regime válido + restantes 'Sim')", () => {
+    // Simula o que o orquestrador faria após a coerção.
+    const map = new Map<string, string>([
+      ["SOL-050", coerceOnda1AnswerToGateText({ resposta: "—", respostaOpcao: "nao_sei" })],
+      ["SOL-051", coerceOnda1AnswerToGateText({ resposta: "Sim", respostaOpcao: "sim" })],
+      ["SOL-052", coerceOnda1AnswerToGateText({ resposta: "Sim", respostaOpcao: "sim" })],
+    ]);
+    const r = evaluateCreditoPresumidoEligibility(GATE, map, "lucro_real");
+    expect(r.eligible).toBe(false);
+    expect(r.reason).toBe("SOL-050_negativa");
+  });
+
+  it("integração: 3 'sim' via respostaOpcao + Lucro Real → elegível (paridade com texto)", () => {
+    const map = new Map<string, string>([
+      ["SOL-050", coerceOnda1AnswerToGateText({ resposta: "", respostaOpcao: "sim" })],
+      ["SOL-051", coerceOnda1AnswerToGateText({ resposta: "", respostaOpcao: "sim" })],
+      ["SOL-052", coerceOnda1AnswerToGateText({ resposta: "", respostaOpcao: "sim" })],
+    ]);
     expect(evaluateCreditoPresumidoEligibility(GATE, map, "lucro_real").eligible).toBe(true);
   });
 });
