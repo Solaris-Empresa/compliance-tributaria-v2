@@ -3047,3 +3047,52 @@ Conclusão:   só depois da validação
 - Lição #110 (schema replicado mascara bugs)
 - Lição #111 (testar valor real do frontend, não conveniente)
 - Diagnóstico E2E 4470001 (caso canônico — falso positivo de regime PF)
+
+## Lição #114 — Restrições de escopo no despacho devem ser verificadas contra o contrato real do backend
+
+**Data:** 29/05/2026 | **Origem:** BUG-AGRO-CPF-UX · despacho item G (excluir campo cliente)
+
+**Contexto:** O despacho declarou "❌ NÃO tocar server/". Claude Code fez grep e descobriu que
+`clientId` era `z.number({ message: "Cliente é obrigatório" })` — obrigatório, não opcional.
+Seguir o despacho literalmente quebraria o DoD D2 silenciosamente (frontend para de enviar
+`clientId` → backend rejeita com 400).
+
+**Lição:** Restrições de escopo declaradas pelo Orquestrador ("não tocar X") são baseadas em
+premissas sobre o estado do código. Claude Code tem o dever de verificar empiricamente via grep
+antes de implementar — e levantar conflito se a premissa for falsa. O Orquestrador não tem acesso
+ao código; Claude Code tem.
+
+**Regra:** Antes de aceitar uma restrição de escopo, executar:
+```bash
+grep -n "<campo_restrito>" <arquivo_restrito> | head -10
+```
+Se o grep revelar premissa falsa → parar e reportar ao Orquestrador antes de implementar.
+
+---
+
+## Lição #115 — Smoke via script tRPC ≠ smoke via UI
+
+**Data:** 29/05/2026 | **Origem:** BUG-CPF-E2E-REG-01 · `NovoProjeto.tsx` L317
+
+**Contexto:** O DoD do fix `tax_id_type` foi validado via script que chamava o endpoint tRPC
+diretamente com `taxIdType: 'cpf'` hardcoded no payload. O teste passou. Mas o frontend
+`NovoProjeto.tsx` lia `perfilData.personType` (campo inexistente) em vez de
+`perfilData.taxIdType` — então `isPF` era sempre `false`, e o payload enviado pela UI era
+sempre montado como PJ. O bug só foi descoberto no E2E manual.
+
+**Lição:** Um teste que chama o endpoint diretamente com payload hardcoded valida o
+**backend isolado**, mas **não valida o contrato frontend→backend**. São duas camadas
+distintas. Um bug pode existir exclusivamente na camada de montagem do payload no frontend
+e passar invisível em qualquer teste de backend.
+
+**Regra:** O DoD de qualquer fix de formulário DEVE incluir pelo menos uma das seguintes
+evidências:
+1. Clique real na UI (smoke manual) com o formulário preenchido pelo usuário, OU
+2. Teste Playwright/Cypress que simule o `handleSubmit` completo do formulário
+
+Scripts tRPC diretos são válidos como evidência de backend, mas **não substituem** o smoke
+de UI para fixes que envolvem formulários.
+
+**Par com Lição #113:** "UI mostra X ≠ DB persiste X" (não confiar na UI para inferir o DB).
+Lição #115 é o inverso: "script passa ≠ UI funciona" (não confiar no script para inferir o
+comportamento da UI).
