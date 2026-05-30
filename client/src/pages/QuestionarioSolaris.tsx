@@ -23,6 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   Scale,
   ChevronLeft,
@@ -33,6 +35,8 @@ import {
   ArrowRight,
   SkipForward,
   AlertTriangle,
+  Lightbulb,
+  Loader2,
 } from "lucide-react";
 import {
   Dialog,
@@ -61,29 +65,80 @@ interface Question {
   existingAnswer: string | null;
 }
 
-// ─── Prefix helper (fix UAT 2026-04-20 — opção A2) ───────────────────────────
-// Sugere formato Sim/Não/N.A. + justificativa sem alterar schema.
-// Backend continua aceitando qualquer texto em solaris_answers.resposta.
+// ─── FEAT-SOL-UX-01 PR-C — Radio dual-column ─────────────────────────────────
+// Substitui os prefix-buttons históricos (fix UAT 2026-04-20 / opção A2) por
+// um RadioGroup estruturado de 4 opções que escreve em `solaris_answers.resposta_opcao`
+// (coluna nova — migration 0120 / PR-A). O Textarea legado fica como justificativa
+// opcional gravada em `solaris_answers.resposta` (text — preservada intacta).
 
-const PREFIX_OPTIONS = [
-  { prefix: "Sim. ", label: "Sim", testId: "sim" },
-  { prefix: "Não. ", label: "Não", testId: "nao" },
-  { prefix: "N/A. ", label: "Não se aplica", testId: "na" },
-] as const;
+type RespostaOpcao = "sim" | "nao" | "nao_sei" | "nao_se_aplica";
 
-const KNOWN_PREFIXES = PREFIX_OPTIONS.map((o) => o.prefix);
+const OPCOES: ReadonlyArray<{ value: RespostaOpcao; label: string; testId: string }> = [
+  { value: "sim", label: "Sim", testId: "sim" },
+  { value: "nao", label: "Não", testId: "nao" },
+  { value: "nao_sei", label: "Não sei", testId: "nao-sei" },
+  { value: "nao_se_aplica", label: "Não se aplica", testId: "nao-se-aplica" },
+];
 
-/**
- * Aplica um prefixo (Sim./Não./N/A.) ao texto atual.
- * - Se já tem um prefixo conhecido → substitui
- * - Se não tem → prepend no início preservando o texto
- */
-function applyPrefix(currentText: string, newPrefix: string): string {
-  const existing = KNOWN_PREFIXES.find((p) => currentText.startsWith(p));
-  if (existing) {
-    return newPrefix + currentText.slice(existing.length);
+// ─── Componente: Card "Objetivo desta pergunta" ───────────────────────────────
+// FEAT-SOL-UX-01 PR-C — sempre expandido. Consome solarisObjetivo.get por código.
+// Fallback silencioso: se a rota retorna { objetivo: null }, o card não aparece —
+// não bloqueia o fluxo (Lição #67 — degradação graciosa).
+
+function ObjetivoCard({ codigo }: { codigo: string }) {
+  const { data, isFetching, isError } = trpc.solarisObjetivo.get.useQuery(
+    { codigo },
+    {
+      // Sem refetch em foco/reconnect — o card é informacional, custo controlado
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      // Cacheia por sessão para evitar regeneração ao navegar entre perguntas
+      staleTime: Infinity,
+    }
+  );
+
+  // Loading: skeleton enxuto enquanto o LLM responde (≤5s)
+  if (isFetching && !data) {
+    return (
+      <Alert
+        className="border-amber-500/30 bg-amber-500/5"
+        data-testid="objetivo-card-loading"
+      >
+        <Loader2 className="h-4 w-4 text-amber-600 animate-spin" />
+        <AlertDescription className="text-xs text-muted-foreground">
+          <strong className="block text-sm text-amber-700 dark:text-amber-400">
+            Objetivo desta pergunta
+          </strong>
+          <span className="flex items-center gap-2 pt-1">
+            <Skeleton className="h-3 w-full" />
+          </span>
+        </AlertDescription>
+      </Alert>
+    );
   }
-  return newPrefix + currentText;
+
+  // Sem objetivo (pergunta sem registro, LLM 5xx, timeout 5s): não renderiza nada
+  if (isError || !data?.objetivo) return null;
+
+  return (
+    <Alert
+      className="border-amber-500/30 bg-amber-500/5"
+      data-testid="objetivo-card"
+    >
+      <Lightbulb className="h-4 w-4 text-amber-600" />
+      <AlertDescription className="text-xs text-muted-foreground">
+        <strong className="block text-sm text-amber-700 dark:text-amber-400">
+          Objetivo desta pergunta
+        </strong>
+        <span
+          className="block pt-1 leading-relaxed"
+          data-testid="objetivo-card-texto"
+        >
+          {data.objetivo}
+        </span>
+      </AlertDescription>
+    </Alert>
+  );
 }
 
 // ─── Componente principal ────────────────────────────────────────────────────
@@ -96,6 +151,8 @@ export default function QuestionarioSolaris() {
 
   // Estado local das respostas: { [questionId]: resposta }
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  // FEAT-SOL-UX-01 PR-C — opção discreta (dual-column). null = ainda não selecionado.
+  const [opcoes, setOpcoes] = useState<Record<number, RespostaOpcao | null>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -216,9 +273,14 @@ export default function QuestionarioSolaris() {
     }
   }, [visibleQuestions.length, currentIndex]);
 
+  // FEAT-SOL-UX-01 PR-C — pergunta respondida se houver opção selecionada
+  // OU texto livre preenchido (mantém retrocompatibilidade com fluxo pré-radio).
   const answeredCount = useMemo(
-    () => visibleQuestions.filter((q) => answers[q.id]?.trim()).length,
-    [visibleQuestions, answers]
+    () =>
+      visibleQuestions.filter(
+        (q) => opcoes[q.id] != null || answers[q.id]?.trim()
+      ).length,
+    [visibleQuestions, answers, opcoes]
   );
 
   const progressPct = totalQuestions > 0
@@ -240,21 +302,35 @@ export default function QuestionarioSolaris() {
     setConfirmSkipAll(false);
   }, [projectId, skipQuestionnaire]);
 
-  function handleAnswerChange(questionId: number, value: string) {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-    // BUG-SOLARIS-SAVE: auto-save com debounce 800ms
+  // FEAT-SOL-UX-01 PR-C — auto-save dual-column (texto livre + opção discreta)
+  // Recebe os valores novos como argumento para evitar closure stale do setTimeout.
+  function scheduleSave(
+    questionId: number,
+    texto: string,
+    opcao: RespostaOpcao | null
+  ) {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     const question = questions.find((q) => q.id === questionId);
-    if (question) {
-      saveTimer.current = setTimeout(() => {
-        saveSolarisAnswer.mutate({
-          projectId,
-          questionId,
-          codigo: question.codigo,
-          answer: value,
-        });
-      }, 800);
-    }
+    if (!question) return;
+    saveTimer.current = setTimeout(() => {
+      saveSolarisAnswer.mutate({
+        projectId,
+        questionId,
+        codigo: question.codigo,
+        answer: texto,
+        respostaOpcao: opcao,
+      });
+    }, 800);
+  }
+
+  function handleAnswerChange(questionId: number, value: string) {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    scheduleSave(questionId, value, opcoes[questionId] ?? null);
+  }
+
+  function handleOpcaoChange(questionId: number, value: RespostaOpcao) {
+    setOpcoes((prev) => ({ ...prev, [questionId]: value }));
+    scheduleSave(questionId, answers[questionId] ?? "", value);
   }
 
   function handleNext() {
@@ -275,10 +351,12 @@ export default function QuestionarioSolaris() {
 
     // ADR-0016 MASP: envia TODAS as perguntas (sem filter) — consistênte com IaGen
     // Perguntas sem resposta chegam com resposta: "" e são aceitas pelo backend (z.string())
+    // FEAT-SOL-UX-01 PR-C — payload dual-column: texto livre + opção discreta
     const payload = questions.map((q) => ({
       questionId: q.id,
       codigo: q.codigo,
       resposta: answers[q.id]?.trim() ?? "",
+      respostaOpcao: opcoes[q.id] ?? null,
     }));
 
     completeOnda1.mutate({ projectId, answers: payload });
@@ -480,54 +558,91 @@ export default function QuestionarioSolaris() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {/* fix UAT 2026-04-20: guia de formato + botões de prefix — respostas abertas ganham
-                  consistência visual sem mudança de schema (opção A2). Backend continua aceitando
-                  qualquer texto. */}
-              <p className="text-xs text-muted-foreground">
-                💡 Formato sugerido: <strong>Sim</strong>, <strong>Não</strong> ou <strong>Não se aplica</strong> — seguido de justificativa breve.
-              </p>
+              {/* C3 — Card "Objetivo desta pergunta" — sempre expandido. */}
+              <ObjetivoCard codigo={currentQuestion.codigo} />
 
-              <div className="flex gap-2 flex-wrap" data-testid="prefix-buttons">
-                {PREFIX_OPTIONS.map((opt) => (
-                  <Button
-                    key={opt.prefix}
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      handleAnswerChange(
-                        currentQuestion.id,
-                        applyPrefix(answers[currentQuestion.id] ?? "", opt.prefix)
-                      )
-                    }
-                    data-testid={`prefix-btn-${opt.testId}`}
-                    className="h-7 text-xs"
+              {/* C1 — Radio dual-column: 4 opções acima do textarea. */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Selecione a resposta</p>
+                <RadioGroup
+                  value={opcoes[currentQuestion.id] ?? ""}
+                  onValueChange={(v) =>
+                    handleOpcaoChange(currentQuestion.id, v as RespostaOpcao)
+                  }
+                  className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                  data-testid={`radio-opcoes-${currentQuestion.id}`}
+                >
+                  {OPCOES.map((opt) => (
+                    <div
+                      key={opt.value}
+                      className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 hover:border-blue-500/50"
+                    >
+                      <RadioGroupItem
+                        value={opt.value}
+                        id={`opcao-${currentQuestion.id}-${opt.testId}`}
+                        data-testid={`radio-opcao-${opt.testId}`}
+                      />
+                      <Label
+                        htmlFor={`opcao-${currentQuestion.id}-${opt.testId}`}
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {opt.label}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+
+                {/* C4 — Badge informativo quando "Não sei" — não bloqueia. */}
+                {opcoes[currentQuestion.id] === "nao_sei" && (
+                  <Alert
+                    className="border-amber-500/40 bg-amber-500/5"
+                    data-testid="badge-nao-sei-info"
                   >
-                    {opt.label}
-                  </Button>
-                ))}
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    <AlertDescription className="text-xs text-amber-700 dark:text-amber-400">
+                      Para efeitos de diagnóstico tributário, esta resposta será
+                      tratada de forma conservadora — equivalente a uma negativa.
+                      Você pode avançar normalmente.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
 
-              <Textarea
-                placeholder="Ex: Sim. A empresa já implementou o regime de competência conforme art. 9º..."
-                value={answers[currentQuestion.id] ?? ""}
-                onChange={(e) =>
-                  handleAnswerChange(currentQuestion.id, e.target.value)
-                }
-                rows={5}
-                className="resize-none focus-visible:ring-blue-500/50"
-                data-testid={`textarea-resposta-${currentQuestion.id}`}
-              />
+              {/* C2 — Textarea agora opcional: justificativa / complemento. */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor={`justificativa-${currentQuestion.id}`}
+                  className="text-xs text-muted-foreground"
+                >
+                  Justificativa / complemento{" "}
+                  <span className="text-muted-foreground/70">(opcional)</span>
+                </Label>
+                <Textarea
+                  id={`justificativa-${currentQuestion.id}`}
+                  placeholder="Adicione contexto, fundamento ou ressalva. Ex.: contrato vigente desde 2024, processo em revisão pela auditoria, etc."
+                  value={answers[currentQuestion.id] ?? ""}
+                  onChange={(e) =>
+                    handleAnswerChange(currentQuestion.id, e.target.value)
+                  }
+                  rows={4}
+                  className="resize-none focus-visible:ring-blue-500/50"
+                  data-testid={`textarea-resposta-${currentQuestion.id}`}
+                />
+              </div>
 
               {/* Indicador de resposta salva */}
-              {answers[currentQuestion.id]?.trim() && (
+              {(opcoes[currentQuestion.id] != null ||
+                answers[currentQuestion.id]?.trim()) && (
                 <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Resposta registrada
                 </p>
               )}
-              {/* ADR-0016 Etapa 4: Botão Pular pergunta */}
-              {!answers[currentQuestion.id]?.trim() && !skippedIds.has(currentQuestion.id) && (
+              {/* ADR-0016 Etapa 4: Botão Pular pergunta — só aparece quando NEM opção
+                  selecionada NEM texto livre preenchido (FEAT-SOL-UX-01 PR-C). */}
+              {opcoes[currentQuestion.id] == null &&
+                !answers[currentQuestion.id]?.trim() &&
+                !skippedIds.has(currentQuestion.id) && (
                 <div className="flex justify-end pt-1">
                   <Button
                     variant="ghost"
