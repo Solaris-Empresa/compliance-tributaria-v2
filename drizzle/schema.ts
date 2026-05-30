@@ -1767,6 +1767,13 @@ export const solarisAnswers = mysqlTable("solaris_answers", {
   /** Código canônico da pergunta (SOL-001..SOL-NNN) — desnormalizado para auditoria */
   codigo:     varchar("codigo", { length: 10 }).notNull(),
   resposta:   text("resposta").notNull(),
+  /**
+   * FEAT-SOL-UX-01 PR-A (migration 0120): coluna estruturada dual-column.
+   * Coexiste com `resposta` (text): `resposta` preserva justificativa/complemento texto-livre;
+   * `respostaOpcao` carrega o valor discreto da nova UX (radio: Sim/Não/Não sei/N.A.).
+   * NULL para registros legados (anteriores à UX nova) ou quando o usuário só preencheu texto livre.
+   */
+  respostaOpcao: mysqlEnum("resposta_opcao", ["sim", "nao", "nao_sei", "nao_se_aplica"]),
   /** Sempre 'solaris' — identifica Onda 1 no diagnóstico */
   fonte:      varchar("fonte", { length: 20 }).default("solaris"),
   createdAt:  bigint("created_at", { mode: "number" }).notNull(),
