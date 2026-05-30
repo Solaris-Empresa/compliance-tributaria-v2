@@ -35,8 +35,14 @@ import {
 import {
   Upload, FileText, X, CheckCircle2, AlertCircle, AlertTriangle,
   Loader2, Download, Trash2, RotateCcw, Search, Filter, Eye,
-  List, History,
+  List, History, Pencil, Plus,
 } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,6 +58,8 @@ interface SolarisQuestion {
   vigencia_inicio: number | null;
   upload_batch_id: string | null;
   risk_category_code?: string | null;
+  topicos?: string | null;
+  classification_scope?: string | null;
   ativo: number;
   criado_em: number;
 }
@@ -201,6 +209,97 @@ function TabLista({
     },
   });
 
+  // Edit modal
+  const [editingQuestion, setEditingQuestion] = useState<SolarisQuestion | null>(null);
+  const [editForm, setEditForm] = useState({
+    titulo: "", texto: "", categoria: "", severidade_base: "",
+    vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "",
+  });
+
+  const openEditModal = (q: SolarisQuestion) => {
+    setEditingQuestion(q);
+    setEditForm({
+      titulo: q.titulo || "",
+      texto: q.texto || "",
+      categoria: q.categoria || "",
+      severidade_base: q.severidade_base || "",
+      vigencia_inicio: q.vigencia_inicio ? String(q.vigencia_inicio) : "",
+      topicos: q.topicos || "",
+      risk_category_code: q.risk_category_code || "",
+      classification_scope: q.classification_scope || "risk_engine",
+    });
+  };
+
+  const updateMutation = trpc.solarisAdmin.updateQuestion.useMutation({
+    onSuccess: () => {
+      toast.success("Pergunta atualizada com sucesso");
+      setEditingQuestion(null);
+      refetch();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao atualizar: ${err.message}`);
+    },
+  });
+
+  const handleSaveEdit = () => {
+    if (!editingQuestion) return;
+    updateMutation.mutate({
+      id: editingQuestion.id,
+      titulo: editForm.titulo || undefined,
+      texto: editForm.texto || undefined,
+      categoria: (editForm.categoria || undefined) as "contabilidade_fiscal" | "negocio" | "ti" | "juridico" | undefined,
+      severidade_base: (editForm.severidade_base || undefined) as "critica" | "alta" | "media" | "baixa" | undefined,
+      vigencia_inicio: editForm.vigencia_inicio || undefined,
+      topicos: editForm.topicos || undefined,
+      risk_category_code: editForm.risk_category_code || undefined,
+      classification_scope: (editForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
+    });
+  };
+
+  // Create question modal
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    titulo: "", texto: "", categoria: "contabilidade_fiscal", severidade_base: "",
+    vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "risk_engine",
+    cnae_groups: "",
+  });
+
+  const resetCreateForm = () => setCreateForm({
+    titulo: "", texto: "", categoria: "contabilidade_fiscal", severidade_base: "",
+    vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "risk_engine",
+    cnae_groups: "",
+  });
+
+  const createMutation = trpc.solarisAdmin.createQuestion.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Pergunta ${result.codigo} criada com sucesso`);
+      setCreateOpen(false);
+      resetCreateForm();
+      refetch();
+    },
+    onError: (err) => {
+      toast.error(`Erro ao criar: ${err.message}`);
+    },
+  });
+
+  const handleCreate = () => {
+    if (!createForm.titulo.trim() || !createForm.texto.trim()) {
+      toast.error("Título e Texto são obrigatórios");
+      return;
+    }
+    createMutation.mutate({
+      titulo: createForm.titulo,
+      texto: createForm.texto,
+      categoria: createForm.categoria as "contabilidade_fiscal" | "negocio" | "ti" | "juridico",
+      severidade_base: (createForm.severidade_base || undefined) as "critica" | "alta" | "media" | "baixa" | undefined,
+      vigencia_inicio: createForm.vigencia_inicio || undefined,
+      topicos: createForm.topicos || undefined,
+      risk_category_code: createForm.risk_category_code || undefined,
+      classification_scope: (createForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
+      cnae_groups: createForm.cnae_groups || undefined,
+    });
+  };
+
   const handleSelectAll = () => {
     if (!data) return;
     if (selected.size === data.questions.length) {
@@ -334,7 +433,17 @@ function TabLista({
 
       {/* Contador + ações em lote */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>Exibindo {questions.length} de {total} perguntas</span>
+        <div className="flex items-center gap-3">
+          <span>Exibindo {questions.length} de {total} perguntas</span>
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="flex items-center gap-1"
+          >
+            <Plus className="w-3 h-3" />
+            Nova Pergunta
+          </Button>
+        </div>
         {selected.size > 0 && (
           <div className="flex items-center gap-2">
             <span className="text-foreground font-medium">{selected.size} selecionada{selected.size > 1 ? "s" : ""}</span>
@@ -435,7 +544,16 @@ function TabLista({
                     )}
                   </td>
                   <td className="p-3 text-xs font-mono text-muted-foreground">{shortBatchId(q.upload_batch_id)}</td>
-                  <td className="p-3">
+                  <td className="p-3 flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEditModal(q)}
+                      className="text-muted-foreground hover:text-blue-600 hover:bg-blue-50 p-1 h-auto"
+                      title="Editar esta pergunta"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -518,6 +636,250 @@ function TabLista({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog de edição inline */}
+      <Dialog open={!!editingQuestion} onOpenChange={(open) => { if (!open) setEditingQuestion(null); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Pergunta</DialogTitle>
+            <DialogDescription>
+              Edite os campos abaixo. Apenas campos alterados serão salvos.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="edit-titulo">Título</Label>
+              <Input
+                id="edit-titulo"
+                value={editForm.titulo}
+                onChange={(e) => setEditForm((f) => ({ ...f, titulo: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-texto">Texto / Conteúdo</Label>
+              <Textarea
+                id="edit-texto"
+                rows={6}
+                value={editForm.texto}
+                onChange={(e) => setEditForm((f) => ({ ...f, texto: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Categoria</Label>
+                <Select
+                  value={editForm.categoria || "_none"}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, categoria: v === "_none" ? "" : v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_none">— Nenhuma</SelectItem>
+                    <SelectItem value="contabilidade_fiscal">Contabilidade Fiscal</SelectItem>
+                    <SelectItem value="negocio">Negócio</SelectItem>
+                    <SelectItem value="ti">TI</SelectItem>
+                    <SelectItem value="juridico">Jurídico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Severidade</Label>
+                <Select
+                  value={editForm.severidade_base || "_none"}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, severidade_base: v === "_none" ? "" : v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_none">— Nenhuma</SelectItem>
+                    <SelectItem value="alta">Alta</SelectItem>
+                    <SelectItem value="media">Média</SelectItem>
+                    <SelectItem value="baixa">Baixa</SelectItem>
+                    <SelectItem value="critica">Crítica</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="edit-vigencia">Vigência Início</Label>
+                <Input
+                  id="edit-vigencia"
+                  placeholder="2026-01-01 ou vazio"
+                  value={editForm.vigencia_inicio}
+                  onChange={(e) => setEditForm((f) => ({ ...f, vigencia_inicio: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="edit-risk-code">Risk Category Code</Label>
+                <Input
+                  id="edit-risk-code"
+                  placeholder="Ex: TRIB-001"
+                  value={editForm.risk_category_code}
+                  onChange={(e) => setEditForm((f) => ({ ...f, risk_category_code: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-topicos">Tópicos</Label>
+              <Textarea
+                id="edit-topicos"
+                rows={3}
+                placeholder="Tópicos separados por vírgula ou linha"
+                value={editForm.topicos}
+                onChange={(e) => setEditForm((f) => ({ ...f, topicos: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Classification Scope</Label>
+              <Select
+                value={editForm.classification_scope || "risk_engine"}
+                onValueChange={(v) => setEditForm((f) => ({ ...f, classification_scope: v }))}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="risk_engine">risk_engine</SelectItem>
+                  <SelectItem value="diagnostic_only">diagnostic_only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingQuestion(null)}>Cancelar</Button>
+            <Button onClick={handleSaveEdit} disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>
+              ) : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de criação de pergunta */}
+      <Dialog open={createOpen} onOpenChange={(open) => { if (!open) { setCreateOpen(false); resetCreateForm(); } }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nova Pergunta Solaris</DialogTitle>
+            <DialogDescription>
+              Preencha os campos abaixo. O código (SOL-NNN) será gerado automaticamente.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="create-titulo">Título *</Label>
+              <Input
+                id="create-titulo"
+                placeholder="Ex: Obrigação de emissão de NF-e"
+                value={createForm.titulo}
+                onChange={(e) => setCreateForm((f) => ({ ...f, titulo: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="create-texto">Texto / Conteúdo *</Label>
+              <Textarea
+                id="create-texto"
+                rows={6}
+                placeholder="Texto completo da pergunta que será exibida no questionário..."
+                value={createForm.texto}
+                onChange={(e) => setCreateForm((f) => ({ ...f, texto: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Categoria *</Label>
+                <Select
+                  value={createForm.categoria}
+                  onValueChange={(v) => setCreateForm((f) => ({ ...f, categoria: v }))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="contabilidade_fiscal">Contabilidade Fiscal</SelectItem>
+                    <SelectItem value="negocio">Negócio</SelectItem>
+                    <SelectItem value="ti">TI</SelectItem>
+                    <SelectItem value="juridico">Jurídico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Severidade</Label>
+                <Select
+                  value={createForm.severidade_base || "_none"}
+                  onValueChange={(v) => setCreateForm((f) => ({ ...f, severidade_base: v === "_none" ? "" : v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_none">— Nenhuma</SelectItem>
+                    <SelectItem value="critica">Crítica</SelectItem>
+                    <SelectItem value="alta">Alta</SelectItem>
+                    <SelectItem value="media">Média</SelectItem>
+                    <SelectItem value="baixa">Baixa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="create-vigencia">Vigência Início</Label>
+                <Input
+                  id="create-vigencia"
+                  placeholder="2026-01-01"
+                  value={createForm.vigencia_inicio}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, vigencia_inicio: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="create-risk-code">Risk Category Code</Label>
+                <Input
+                  id="create-risk-code"
+                  placeholder="Ex: TRIB-001"
+                  value={createForm.risk_category_code}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, risk_category_code: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="create-topicos">Tópicos</Label>
+              <Textarea
+                id="create-topicos"
+                rows={2}
+                placeholder="IBS, CBS, NF-e (separados por vírgula)"
+                value={createForm.topicos}
+                onChange={(e) => setCreateForm((f) => ({ ...f, topicos: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Classification Scope</Label>
+                <Select
+                  value={createForm.classification_scope}
+                  onValueChange={(v) => setCreateForm((f) => ({ ...f, classification_scope: v }))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="risk_engine">risk_engine</SelectItem>
+                    <SelectItem value="diagnostic_only">diagnostic_only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="create-cnae">CNAE Groups (JSON)</Label>
+                <Input
+                  id="create-cnae"
+                  placeholder='["11","4639-7"] ou vazio=universal'
+                  value={createForm.cnae_groups}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, cnae_groups: e.target.value }))}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCreateOpen(false); resetCreateForm(); }}>Cancelar</Button>
+            <Button onClick={handleCreate} disabled={createMutation.isPending}>
+              {createMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Criando...</>
+              ) : "Criar Pergunta"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Toast de undo */}
       {undo && (
