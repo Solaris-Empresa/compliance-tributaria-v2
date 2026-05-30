@@ -329,7 +329,13 @@ export const fluxoV3Router = router({
         description: z
           .string()
           .min(50, "Descrição deve ter pelo menos 50 caracteres"),
-        clientId: z.number({ message: "Cliente é obrigatório" }),
+        // EXCLUIR-CLIENTE-PROJETO (29/05/2026) — campo "Cliente Vinculado" removido
+        // da UI /projetos/novo. Backend auto-deriva clientId = ctx.user.id no INSERT
+        // quando ausente (linha ~442). Schema opcional para retrocompat com callers
+        // programáticos (admin/scripts/API) que ainda passam clientId explícito.
+        // Decisão de produto: novos projetos terão clientId = createdById. Histórico
+        // (1.464/3.892 projetos com clientId ≠ createdById) preservado.
+        clientId: z.number().optional(),
         faturamentoAnual: z.number().optional(), // V61: para tradução financeira do risco
         // BUG-AGRO-CPF-UX (#1299) — reusa schema canônico exportado acima.
         // F0 → F5: contrato técnico de identidade dual; UX (#1299): cascata PF completa.
@@ -439,7 +445,10 @@ export const fluxoV3Router = router({
       const projectId = await db.createProject({
         name: input.name,
         description: input.description,
-        clientId: input.clientId,
+        // EXCLUIR-CLIENTE-PROJETO — auto-derivação cliente=usuário quando ausente
+        // (UI não pede mais). Caller programático que passa clientId explícito
+        // (admin/scripts) continua honrado.
+        clientId: input.clientId ?? ctx.user.id,
         status: "rascunho",
         createdById: ctx.user.id,
         createdByRole: ctx.user.role as any,
