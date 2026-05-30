@@ -3096,3 +3096,73 @@ de UI para fixes que envolvem formulários.
 **Par com Lição #113:** "UI mostra X ≠ DB persiste X" (não confiar na UI para inferir o DB).
 Lição #115 é o inverso: "script passa ≠ UI funciona" (não confiar no script para inferir o
 comportamento da UI).
+
+**Caso canônico complementar — BUG-TAX-ID-SQL (29/05/2026 ~21:43):** Orquestrador
+recebeu report do Manus indicando que `SELECT tax_id_type FROM projects WHERE id=4500032`
+retornava `'cnpj'`. O diagnóstico inferiu causa-raiz "código `createProject()` não popula
+a coluna" e o despacho foi formulado para refazer o fix. Verificação literal do código
+em main HEAD `8f54939` (via Read tool) mostrou que **a linha `taxIdType:
+input.companyProfile?.taxIdType ?? "cnpj"` já existia em `routers-fluxo-v3.ts:467` desde
+PR #1308**. O sintoma SQL era real, mas a causa-raiz inferida estava errada (provável
+deploy lag). REGRA-ORQ-22 Nível 1 bloqueou corretamente o PR no-op antes da execução.
+Mesma classe da Lição #115: **script SQL revela o sintoma; só inspeção literal do código
+revela se a causa-raiz proposta é coerente.**
+
+## Lição #116 — Callsite audit obrigatório pós-migration
+
+**Data:** 29/05/2026 | **Origem:** despacho GOV-116 · padrão preventivo
+
+**Lição:** Declarar uma coluna no `drizzle/schema.ts` garante apenas que o ORM **conhece**
+a coluna — **não** garante que ela será setada em qualquer `db.insert(...).values({...})`
+existente. Drizzle ignora silenciosamente colunas que não estão no objeto passado a
+`.values()`, e o banco aplica o `DEFAULT` da coluna. Resultado: sintoma "coluna sempre
+com valor default" mesmo com schema correto, frontend correto e tipos corretos.
+
+**Regra:** Toda **nova coluna com semântica de negócio** (não cosmética) adicionada via
+migration DEVE ter seus callsites de INSERT auditados manualmente. Audit mínimo:
+
+```bash
+grep -n "db\.createProject\|db\.insert(projects" server/routers-fluxo-v3.ts server/db.ts
+```
+
+Para cada callsite identificado, confirmar que o objeto passado ao INSERT **inclui** a
+nova coluna (ou que o `DEFAULT` da coluna é semanticamente correto para o callsite —
+ex: scripts de seed legados que não precisam saber da coluna nova).
+
+**Quando aplicar:** imediatamente após mergear qualquer migration que adicione coluna
+com semântica de negócio. NÃO depois de bug em produção.
+
+**Anti-padrão:**
+
+```
+1. Adicionar migration: ALTER TABLE x ADD COLUMN y NOT NULL DEFAULT 'a'
+2. Adicionar declaração no schema.ts (Drizzle conhece y)
+3. Esquecer de auditar db.insert(x).values({...}) — ninguém seta y
+4. Produção: coluna y sempre = 'a' (DEFAULT), independente do payload
+5. Bug só aparece quando alguém roda SELECT y FROM x WHERE ... e estranha
+```
+
+**Pattern correto:**
+
+```
+1. Adicionar migration
+2. Adicionar declaração no schema.ts
+3. grep todos os callsites de db.insert(<tabela>)
+4. Para cada callsite: confirmar que objeto .values({...}) seta a nova coluna
+   (ou registrar exceção justificada se DEFAULT é correto para aquele caller)
+5. CI: snapshot tests dos callsites podem ajudar a manter sincronização
+```
+
+**Lição preventiva — sem caso canônico real nesta sessão.** O episódio BUG-TAX-ID-SQL
+do mesmo dia **não é** caso canônico desta lição: o callsite em `routers-fluxo-v3.ts:467`
+**já estava** auditado e setando `taxIdType` corretamente desde PR #1308. O bug observado
+em 4500032 teve **outra** causa-raiz (provável deploy lag). Caso canônico desta Lição
+fica em aberto até emergir cenário real.
+
+**Vinculadas:**
+- REGRA-ORQ-27 (assemble ≠ consumption — pai conceitual)
+- Lição #65 (writers/readers end-to-end)
+- Lição #93 (mecanismo verificado, não inferido)
+- Lição #113 (UI mostra X ≠ DB persiste X)
+- Lição #115 (script passa ≠ UI funciona)
+- Migration 0119 + PR #1308 (cenário preventivo — callsite estava auditado)
