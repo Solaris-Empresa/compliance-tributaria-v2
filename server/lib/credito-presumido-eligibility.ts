@@ -23,6 +23,34 @@ export interface CreditoPresumidoEligibility {
 }
 
 /**
+ * FEAT-SOL-UX-01 PR-B2 (30/05/2026): coerção dual-column conservadora.
+ *
+ * Prioriza a coluna estruturada `resposta_opcao` (UX nova com radio).
+ * Fallback para `resposta` (text — histórico texto-livre).
+ *
+ * Regra (conservadora — Lição #66 / Lição #67):
+ *   - `respostaOpcao === 'sim'`            → "sim"  (caminho positivo)
+ *   - `respostaOpcao === 'nao'`            → "nao"  (negativa explícita)
+ *   - `respostaOpcao === 'nao_sei'`        → "nao"  (conservador — equivale a negar)
+ *   - `respostaOpcao === 'nao_se_aplica'`  → "na"   (a função pura só aceita startsWith("sim"))
+ *   - `respostaOpcao` ausente              → usa `resposta` (texto livre) inalterada
+ *
+ * Mantém a função pura `evaluateCreditoPresumidoEligibility` intocada — a coerção
+ * acontece no orquestrador (única função que toca o DB).
+ */
+export function coerceOnda1AnswerToGateText(a: {
+  resposta?: string | null;
+  respostaOpcao?: "sim" | "nao" | "nao_sei" | "nao_se_aplica" | null;
+}): string {
+  const opcao = a.respostaOpcao ?? null;
+  if (opcao === "sim") return "sim";
+  if (opcao === "nao" || opcao === "nao_sei") return "nao";
+  if (opcao === "nao_se_aplica") return "na";
+  // Fallback histórico — texto livre preservado.
+  return a.resposta ?? "";
+}
+
+/**
  * FUNÇÃO PURA — decide a elegibilidade a partir dos codigos-gate, das respostas
  * (map codigo→resposta) e do regime. Sem DB, sem CNAE, sem LIKE.
  */
@@ -59,8 +87,22 @@ export async function isCreditoPresumidoArt168Eligible(
   const gateCodigos = await getCreditoPresumidoGateCodigos();
   const answers = await getOnda1Answers(projectId);
   const map = new Map<string, string>();
-  for (const a of answers as Array<{ codigo?: string | null; resposta?: string | null }>) {
-    if (a.codigo) map.set(a.codigo, a.resposta ?? "");
+  // FEAT-SOL-UX-01 PR-B2: usa coerção dual-column — prioriza resposta_opcao (UX nova),
+  // mantém resposta texto-livre como fallback histórico.
+  for (const a of answers as Array<{
+    codigo?: string | null;
+    resposta?: string | null;
+    respostaOpcao?: "sim" | "nao" | "nao_sei" | "nao_se_aplica" | null;
+  }>) {
+    if (a.codigo) {
+      map.set(
+        a.codigo,
+        coerceOnda1AnswerToGateText({
+          resposta: a.resposta,
+          respostaOpcao: a.respostaOpcao,
+        }),
+      );
+    }
   }
   return evaluateCreditoPresumidoEligibility(gateCodigos, map, regime);
 }

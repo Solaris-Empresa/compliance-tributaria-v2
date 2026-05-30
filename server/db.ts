@@ -1397,12 +1397,29 @@ export async function getOnda1Questions(cnaeCode?: string): Promise<SolarisQuest
 }
 
 /**
+ * Valor discreto da nova UX FEAT-SOL-UX-01 (radio: Sim/Não/Não sei/N.A.).
+ * Persistido em `solaris_answers.resposta_opcao` (migration 0120) ao lado
+ * da coluna existente `resposta` (text — preserva justificativa/complemento).
+ */
+export type RespostaOpcao = "sim" | "nao" | "nao_sei" | "nao_se_aplica";
+
+/**
  * Salva as respostas da Onda 1 (SOLARIS) para um projeto.
  * Usa INSERT ... ON DUPLICATE KEY UPDATE para idempotência.
+ *
+ * FEAT-SOL-UX-01 PR-B (30/05/2026): aceita `respostaOpcao` opcional — coluna
+ * estruturada nova (ENUM nullable). `resposta` (text) preservada como justificativa.
+ * Quando o callsite omite `respostaOpcao` (incl. PRs antigos), grava NULL e mantém
+ * compatibilidade total com o fluxo pré-FEAT-SOL-UX-01.
  */
 export async function saveOnda1Answers(
   projectId: number,
-  answers: Array<{ questionId: number; codigo: string; resposta: string }>
+  answers: Array<{
+    questionId: number;
+    codigo: string;
+    resposta: string;
+    respostaOpcao?: RespostaOpcao | null;
+  }>
 ): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -1411,11 +1428,13 @@ export async function saveOnda1Answers(
 
   // Salvar em lote — upsert por (projectId, questionId)
   for (const a of answers) {
+    const opcao = a.respostaOpcao ?? null;
     const row: InsertSolarisAnswer = {
       projectId,
       questionId: a.questionId,
       codigo: a.codigo,
       resposta: a.resposta,
+      respostaOpcao: opcao,
       fonte: 'solaris',
       createdAt: now,
       updatedAt: now,
@@ -1426,6 +1445,7 @@ export async function saveOnda1Answers(
       .onDuplicateKeyUpdate({
         set: {
           resposta: a.resposta,
+          respostaOpcao: opcao,
           updatedAt: now,
         },
       });
