@@ -217,7 +217,7 @@ export const solarisAdminRouter = router({
         const [rows] = await conn.execute(
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
                   vigencia_inicio, upload_batch_id, ativo, criado_em,
-                  risk_category_code
+                  risk_category_code, topicos, classification_scope
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
            LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
@@ -229,7 +229,8 @@ export const solarisAdminRouter = router({
             id: number; codigo: string; titulo: string; texto: string;
             categoria: string; severidade_base: string | null;
             vigencia_inicio: number | null; upload_batch_id: string | null;
-            risk_category_code: string | null;
+            risk_category_code: string | null; topicos: string | null;
+            classification_scope: string | null;
             ativo: number; criado_em: number;
           }[],
           total,
@@ -475,5 +476,121 @@ export const solarisAdminRouter = router({
         errors: [...errors, ...importErrors],
         preview: [],
       };
+    }),
+
+  // ── Edição individual de pergunta ──────────────────────────────────────────
+  updateQuestion: protectedProcedure
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+        titulo: z.string().min(1).optional(),
+        texto: z.string().min(1).optional(),
+        categoria: z.enum(AREA_VALUES).optional(),
+        severidade_base: z.enum(SEVERIDADE_VALUES).optional(),
+        vigencia_inicio: z.string().optional(),
+        topicos: z.string().optional(),
+        risk_category_code: z.string().optional(),
+        classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { id, ...fields } = input;
+      const setClauses: string[] = [];
+      const params: unknown[] = [];
+
+      if (fields.titulo !== undefined) { setClauses.push("titulo = ?"); params.push(fields.titulo); }
+      if (fields.texto !== undefined) { setClauses.push("texto = ?"); params.push(fields.texto); }
+      if (fields.categoria !== undefined) { setClauses.push("categoria = ?"); params.push(fields.categoria); }
+      if (fields.severidade_base !== undefined) { setClauses.push("severidade_base = ?"); params.push(fields.severidade_base); }
+      if (fields.vigencia_inicio !== undefined) { setClauses.push("vigencia_inicio = ?"); params.push(fields.vigencia_inicio || null); }
+      if (fields.topicos !== undefined) { setClauses.push("topicos = ?"); params.push(fields.topicos); }
+      if (fields.risk_category_code !== undefined) { setClauses.push("risk_category_code = ?"); params.push(fields.risk_category_code || null); }
+      if (fields.classification_scope !== undefined) { setClauses.push("classification_scope = ?"); params.push(fields.classification_scope); }
+
+      if (setClauses.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Nenhum campo para atualizar" });
+      }
+
+      setClauses.push("atualizado_em = ?");
+      params.push(Date.now());
+      params.push(id);
+
+      const conn = await mysql.createConnection(ENV.databaseUrl);
+      try {
+        const [result] = await conn.execute(
+          `UPDATE solaris_questions SET ${setClauses.join(", ")} WHERE id = ?`,
+          params
+        );
+        const affected = (result as any).affectedRows;
+        if (affected === 0) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Pergunta não encontrada" });
+        }
+        return { success: true };
+      } finally {
+        await conn.end();
+      }
+    }),
+
+  createQuestion: protectedProcedure
+    .input(
+      z.object({
+        titulo: z.string().min(1),
+        texto: z.string().min(1),
+        categoria: z.enum(AREA_VALUES),
+        severidade_base: z.enum(SEVERIDADE_VALUES).optional(),
+        vigencia_inicio: z.string().optional(),
+        topicos: z.string().optional(),
+        risk_category_code: z.string().optional(),
+        classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
+        cnae_groups: z.string().optional(), // JSON array string or empty
+      })
+    )
+    .mutation(async ({ input }) => {
+      const conn = await mysql.createConnection(ENV.databaseUrl);
+      try {
+        // Auto-generate next SOL-NNN codigo
+        const [rows] = await conn.execute(
+          `SELECT codigo FROM solaris_questions WHERE codigo LIKE 'SOL-%' ORDER BY CAST(SUBSTRING(codigo, 5) AS UNSIGNED) DESC LIMIT 1`
+        );
+        const lastCodigo = (rows as { codigo: string }[])[0]?.codigo;
+        let nextNum = 1;
+        if (lastCodigo) {
+          const match = lastCodigo.match(/SOL-(\d+)/);
+          if (match) nextNum = parseInt(match[1], 10) + 1;
+        }
+        const codigo = `SOL-${String(nextNum).padStart(3, "0")}`;
+
+        const now = Date.now();
+        const cnaeGroupsJson = input.cnae_groups && input.cnae_groups.trim()
+          ? input.cnae_groups.trim()
+          : null;
+        const scope = input.classification_scope || "risk_engine";
+
+        const [result] = await conn.execute(
+          `INSERT INTO solaris_questions
+            (texto, categoria, cnae_groups, obrigatorio, ativo, fonte,
+             criado_em, atualizado_em, codigo,
+             titulo, topicos, severidade_base, vigencia_inicio,
+             risk_category_code, classification_scope)
+          VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            input.texto,
+            input.categoria,
+            cnaeGroupsJson,
+            now, now, codigo,
+            input.titulo,
+            input.topicos || null,
+            input.severidade_base || null,
+            input.vigencia_inicio && input.vigencia_inicio.trim() !== "" ? input.vigencia_inicio : null,
+            input.risk_category_code || null,
+            scope,
+          ]
+        );
+
+        const insertId = (result as any).insertId;
+        return { success: true, id: insertId, codigo };
+      } finally {
+        await conn.end();
+      }
     }),
 });
