@@ -3166,3 +3166,63 @@ fica em aberto até emergir cenário real.
 - Lição #113 (UI mostra X ≠ DB persiste X)
 - Lição #115 (script passa ≠ UI funciona)
 - Migration 0119 + PR #1308 (cenário preventivo — callsite estava auditado)
+
+## Lição #117 — Registrar lição em governance.md ≠ aplicar fix no código
+
+**Data:** 29/05/2026 | **Origem:** BUG-PAYLOAD-CPF — gap operacional entre registro e aplicação
+
+**Regra:**
+Toda Lição com **caso canônico real em código** DEVE ter PR de fix vinculado, não
+apenas registro documental em `governance.md`. Registrar a lição educa o futuro,
+mas **não corrige o bug presente**. Sem PR de fix vinculado, o bug continua exposto
+em produção mesmo após o registro formal.
+
+**Caso canônico — Lição #115 vs PR #1314 (29/05/2026):**
+
+| Evento | Timestamp | Estado do produto |
+|---|---|---|
+| **Bug existente em produção** | < 21:12 BRT | `NovoProjeto.tsx:269-278` não mapeia `taxIdType`/`cpf` → usuário PF recebe 5 erros 400 |
+| **PR #1312 mergeado** — registra Lição #115 ("script ≠ realidade UI") | 21:12 BRT | Bug **continua exposto** — Lição é apenas documental |
+| **Bug reportado pelo P.O.** após teste E2E | ~22:00 BRT | "Erro ao criar projeto: ..." |
+| **PR #1314 aberto** — fix de 2 linhas | 22:10 BRT | Fix entra em código |
+| **Janela de produção exposta** | ~58 minutos | Lição registrada mas bug ativo |
+
+A Lição #115 foi registrada com texto "fix em código" mas o PR vinculado **nunca foi aberto**. Resultado: 58 minutos de produção exposta entre o registro formal e o fix real.
+
+**Anti-padrão:**
+
+```
+1. Bug observado em código real
+2. Análise produz Lição genérica
+3. PR docs-only registra Lição em governance.md
+4. Tarefa "fechada" no board
+5. Bug ORIGINAL continua exposto em produção
+6. Bug reaparece em E2E → re-investigação → PR de fix tardio
+```
+
+**Pattern correto:**
+
+```
+1. Bug observado em código real
+2. Análise produz Lição
+3. Imediatamente: 2 PRs em paralelo (ou sequenciais, mas ambos):
+   (a) chore/licao-N — registra Lição em governance.md
+   (b) fix/bug-N — corrige o bug no código
+4. Tarefa só fecha quando AMBOS estão merged
+5. Bug eliminado de produção; Lição preserva o aprendizado
+```
+
+**Critério de aplicação:**
+
+Aplica-se quando a Lição tem **caso canônico real, atualmente exposto em código**.
+
+NÃO se aplica a:
+- Lições preventivas (ex: Lição #116, marcada explicitamente "sem caso canônico real")
+- Lições retroativas (caso canônico já resolvido em PR anterior)
+- Lições de processo/governança puro (não tem código a corrigir)
+
+**Vinculadas:**
+- Lição #115 (script ≠ realidade UI — Lição que motivou o gap)
+- BUG-PAYLOAD-CPF (PR #1314, 22:10 BRT — fix tardio que motivou esta Lição)
+- REGRA-ORQ-27 (assemble ≠ consumption — pai conceitual: "registrar ≠ aplicar" é manifestação)
+- REGRA-ORQ-17 (PRE-CLOSE-CHECKLIST — gates de fechamento devem incluir "Lição com caso canônico real tem fix PR aberto?")
