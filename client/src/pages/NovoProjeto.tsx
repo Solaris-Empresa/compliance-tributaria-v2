@@ -16,9 +16,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import {
-  ArrowLeft, ArrowRight, Building2, Loader2, Plus, Sparkles, CheckCircle2,
+  ArrowLeft, ArrowRight, Loader2, Plus, Sparkles, CheckCircle2,
   Edit2, AlertCircle, ChevronRight, Search, X, RefreshCw, MessageSquare,
-  Lock, ShieldAlert, ShieldCheck, ShieldX, Brain, Info, AlertTriangle
+  Lock, ShieldAlert, ShieldCheck, ShieldX, Brain, Info
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -72,57 +72,10 @@ function maskCnpj(value: string): string {
   return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
 }
 
-function NovoClienteModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (id: number, name: string) => void; }) {
-  const [companyName, setCompanyName] = useState("");
-  const [cnpj, setCnpj] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const cnpjDigits = cnpj.replace(/\D/g, "");
-  const cnpjValid = cnpjDigits.length === 0 || cnpjDigits.length === 14;
-  const createClient = trpc.fluxoV3.createClientOnTheFly.useMutation({
-    onSuccess: (data) => { toast.success(`Cliente criado!`); onCreated(data.userId, data.companyName); onClose(); setCompanyName(""); setCnpj(""); setEmail(""); setPhone(""); },
-    onError: (err) => toast.error(`Erro: ${err.message}`),
-  });
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><Building2 className="h-5 w-5 text-primary" />Novo Cliente</DialogTitle>
-          <DialogDescription>Cadastre rapidamente um novo cliente para vincular ao projeto.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-2">
-          <div className="space-y-1.5">
-            <Label>Razão Social <span className="text-destructive">*</span></Label>
-            <Input placeholder="Ex: Empresa ABC Ltda" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>CNPJ</Label>
-            <Input
-              placeholder="00.000.000/0000-00"
-              value={cnpj}
-              onChange={(e) => setCnpj(maskCnpj(e.target.value))}
-              maxLength={18}
-              className={!cnpjValid ? "border-destructive focus-visible:ring-destructive" : ""}
-            />
-            {!cnpjValid && (
-              <p className="text-xs text-destructive">CNPJ deve ter 14 dígitos (ex: 11.222.333/0001-81)</p>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label>E-mail</Label><Input type="email" placeholder="contato@empresa.com" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-            <div className="space-y-1.5"><Label>Telefone</Label><Input placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={() => createClient.mutate({ companyName, cnpj: cnpj || undefined, email: email || undefined, phone: phone || undefined })} disabled={!companyName.trim() || createClient.isPending || !cnpjValid}>
-            {createClient.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}Criar Cliente
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// EXCLUIR-CLIENTE-PROJETO (29/05/2026) — componente NovoClienteModal removido
+// junto com o campo "Cliente Vinculado" da página /projetos/novo. Cliente passa
+// a ser auto-derivado de ctx.user.id no backend (routers-fluxo-v3.ts:442).
+// Histórico de 1.464 projetos com clientId ≠ createdById preservado.
 
 function EditCnaeModal({ cnae, onSave, onClose }: { cnae: Cnae | null; onSave: (updated: Cnae) => void; onClose: () => void; }) {
   const [code, setCode] = useState(cnae?.code || "");
@@ -154,16 +107,14 @@ export default function NovoProjeto() {
   const [, setLocation] = useLocation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [clientId, setClientId] = useState<number | null>(null);
-  const [clientSearch, setClientSearch] = useState("");
-  const [pendingClientName, setPendingClientName] = useState<string | null>(null);
+  // EXCLUIR-CLIENTE-PROJETO — state cliente removido; backend deriva clientId = ctx.user.id.
   const [projectId, setProjectId] = useState<number | null>(null);
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [draftSavedAt, setDraftSavedAt] = useState<number>(0);
 
   // Verificar rascunho salvo ao montar
   useEffect(() => {
-    const saved = loadTempData<{ name?: string; description?: string; clientId?: number }>(DRAFT_PROJECT_ID, 'etapa1');
+    const saved = loadTempData<{ name?: string; description?: string }>(DRAFT_PROJECT_ID, 'etapa1');
     if (saved && (saved.data?.name || saved.data?.description)) {
       setDraftSavedAt(saved.savedAt);
       setShowResumeBanner(true);
@@ -171,11 +122,11 @@ export default function NovoProjeto() {
   }, []);
 
   const handleResumeDraft = () => {
-    const saved = loadTempData<{ name?: string; description?: string; clientId?: number }>(DRAFT_PROJECT_ID, 'etapa1');
+    // EXCLUIR-CLIENTE-PROJETO — clientId removido do rascunho persistido.
+    const saved = loadTempData<{ name?: string; description?: string }>(DRAFT_PROJECT_ID, 'etapa1');
     if (saved?.data) {
       setName(saved.data.name || '');
       setDescription(saved.data.description || '');
-      if (saved.data.clientId) setClientId(saved.data.clientId);
     }
     setShowResumeBanner(false);
   };
@@ -186,7 +137,6 @@ export default function NovoProjeto() {
   };
 
   const [showCnaeModal, setShowCnaeModal] = useState(false);
-  const [showNewClientModal, setShowNewClientModal] = useState(false);
   const [editingCnae, setEditingCnae] = useState<Cnae | null>(null);
   const [suggestedCnaes, setSuggestedCnaes] = useState<Cnae[]>([]);
   const [isCnaeFallback, setIsCnaeFallback] = useState(false);
@@ -218,7 +168,8 @@ export default function NovoProjeto() {
   // Ref para capturar description no momento do submit — evita closure stale no onSuccess
   const descriptionRef = useRef<string>("");
 
-  const { data: clients, refetch: refetchClients } = trpc.users.listClients.useQuery();
+  // EXCLUIR-CLIENTE-PROJETO — query trpc.users.listClients removida; clientId é
+  // derivado de ctx.user.id no backend.
 
   const createProject = trpc.fluxoV3.createProject.useMutation({
     onSuccess: (data) => {
@@ -298,7 +249,8 @@ export default function NovoProjeto() {
   });
 
   // Auto-save no localStorage a cada 500ms de inatividade
-  useAutoSave(DRAFT_PROJECT_ID, 'etapa1', { name, description, clientId }, 500);
+  // EXCLUIR-CLIENTE-PROJETO — clientId removido do payload do rascunho.
+  useAutoSave(DRAFT_PROJECT_ID, 'etapa1', { name, description }, 500);
 
   // v6.0: Computed validation via calcProfileScore
   const profileScore = calcProfileScore(perfilData);
@@ -307,7 +259,8 @@ export default function NovoProjeto() {
   const handleSubmit = () => {
     if (!name.trim()) return toast.error("Informe o nome do projeto");
     if (description.trim().length < 100) return toast.error("A descrição deve ter pelo menos 100 caracteres");
-    if (!clientId) return toast.error("Selecione um cliente");
+    // EXCLUIR-CLIENTE-PROJETO — gate "Selecione um cliente" removido. Backend
+    // auto-deriva clientId de ctx.user.id quando ausente.
     if (!profileValid) {
       const missing = profileScore.missingRequired.join(", ");
       return toast.error(`Preencha os campos obrigatórios: ${missing}`);
@@ -355,7 +308,8 @@ export default function NovoProjeto() {
     const payload = {
       name: name.trim(),
       description: description.trim(),
-      clientId,
+      // EXCLUIR-CLIENTE-PROJETO — clientId NÃO é mais enviado. Backend resolve
+      // via `input.clientId ?? ctx.user.id` no INSERT (routers-fluxo-v3.ts:442).
       companyProfile,
       operationProfile,
       taxComplexity,
@@ -439,12 +393,7 @@ export default function NovoProjeto() {
     }
   };
 
-  const filteredClients = clients?.filter(c =>
-    c.name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
-    c.companyName?.toLowerCase().includes(clientSearch.toLowerCase())
-  );
-  const selectedClient = clients?.find(c => c.id === clientId) ||
-    (clientId && pendingClientName ? { id: clientId, name: pendingClientName, companyName: pendingClientName, cnpj: undefined } : undefined);
+  // EXCLUIR-CLIENTE-PROJETO — filteredClients + selectedClient removidos.
   const allCnaes = [...suggestedCnaes, ...customCnaes];
   const selectedCount = allCnaes.filter(c => selectedCnaes.has(c.code)).length;
   const descLength = description.trim().length;
@@ -514,61 +463,9 @@ export default function NovoProjeto() {
               )}
             </div>
 
-            <Separator />
-
-            <div className={`space-y-2 rounded-lg p-3 -mx-3 transition-colors ${profileValid && !clientId ? 'bg-amber-500/5 ring-1 ring-amber-500/30' : ''}`}>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Cliente Vinculado <span className="text-destructive">*</span>{profileValid && !clientId && <span className="ml-2 text-xs font-normal text-amber-600 dark:text-amber-400">(obrigatório)</span>}</Label>
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary" onClick={() => setShowNewClientModal(true)}>
-                  <Plus className="h-3.5 w-3.5 mr-1" />Novo Cliente
-                </Button>
-              </div>
-              {selectedClient ? (
-                <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5 border-primary/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="h-4 w-4 text-primary" /></div>
-                    <div>
-                      <p className="text-sm font-semibold">{selectedClient.companyName || selectedClient.name}</p>
-                      {selectedClient.cnpj && <p className="text-xs text-muted-foreground">{selectedClient.cnpj}</p>}
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setClientId(null); setClientSearch(""); }}><X className="h-4 w-4" /></Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Buscar cliente por nome ou empresa..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-9" />
-                  </div>
-                  {clientSearch && (
-                    <div className="border rounded-lg divide-y max-h-48 overflow-y-auto shadow-sm">
-                      {filteredClients && filteredClients.length > 0 ? (
-                        filteredClients.map(client => (
-                          <button key={client.id} className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left" onClick={() => { setClientId(client.id); setClientSearch(""); }}>
-                            <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div>
-                              <p className="text-sm font-medium">{client.companyName || client.name}</p>
-                              {client.cnpj && <p className="text-xs text-muted-foreground">{client.cnpj}</p>}
-                            </div>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="p-4 text-center text-sm text-muted-foreground">
-                          Nenhum cliente encontrado.{" "}
-                          <button className="text-primary hover:underline" onClick={() => setShowNewClientModal(true)}>Criar novo cliente</button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {!clientSearch && (
-                    <p className="text-xs text-muted-foreground">
-                      Digite para buscar ou{" "}
-                      <button className="text-primary hover:underline" onClick={() => setShowNewClientModal(true)}>crie um novo cliente</button>
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
+            {/* EXCLUIR-CLIENTE-PROJETO (29/05/2026) — bloco "Cliente Vinculado"
+                removido. Cliente do projeto = usuário logado (backend deriva
+                clientId = ctx.user.id em routers-fluxo-v3.ts:442). */}
           </CardContent>
         </Card>
 
@@ -594,16 +491,7 @@ export default function NovoProjeto() {
         </div>
 
 
-        {/* Gate de validação do cliente — aparece quando perfil está ok mas cliente não foi selecionado */}
-        {profileValid && !clientId && (
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/40">
-            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Selecione um cliente para continuar.</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Busque um cliente existente ou <button className="text-primary hover:underline font-medium" onClick={() => setShowNewClientModal(true)}>crie um novo cliente</button> antes de avançar.</p>
-            </div>
-          </div>
-        )}
+        {/* EXCLUIR-CLIENTE-PROJETO — banner "Selecione um cliente" removido. */}
 
         {/* Gate de validação do perfil */}
         {!profileValid && (
@@ -634,7 +522,6 @@ export default function NovoProjeto() {
             isLoading ||
             !name.trim() ||
             descLength < 100 ||
-            !clientId ||
             !profileValid
           } className="min-w-[220px]">
             {isLoading ? (
@@ -797,7 +684,7 @@ export default function NovoProjeto() {
         </DialogContent>
       </Dialog>
 
-      <NovoClienteModal open={showNewClientModal} onClose={() => setShowNewClientModal(false)} onCreated={(id, name) => { setClientId(id); setPendingClientName(name); refetchClients(); }} />
+      {/* EXCLUIR-CLIENTE-PROJETO — NovoClienteModal removido. */}
       <EditCnaeModal cnae={editingCnae} onSave={handleEditCnae} onClose={() => setEditingCnae(null)} />
 
     </ComplianceLayout>
