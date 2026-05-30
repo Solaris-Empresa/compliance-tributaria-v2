@@ -267,6 +267,15 @@ export default function NovoProjeto() {
     }
     // fix(z22) Wave A.2+B: gate CPIE v2 removido. Qualquer perfil válido passa direto para createProject.
     const companyProfile = {
+      // BUG-PAYLOAD-CPF (29/05/2026) — discriminador (taxIdType) + campo PF (cpf)
+      // estavam ausentes do payload, causando 5 erros 400 ao submeter projeto PF.
+      // perfilData.taxIdType era setado corretamente pelo PerfilEmpresaIntelligente
+      // mas handleSubmit não mapeava → backend recebia undefined → .default("cnpj")
+      // do schema → branch PJ do superRefine executava → 4 erros "obrigatório para PJ"
+      // + 1 erro de taxId inválido. Lição #115 (caso canônico real, ~1h após registro
+      // formal da Lição em PR #1312).
+      taxIdType: perfilData.taxIdType,       // discriminador — backend defaulta se undefined
+      cpf: perfilData.cpf || undefined,      // padrão || undefined já em uso L273
       cnpj: perfilData.cnpj,
       companyType: perfilData.companyType,
       companySize: perfilData.companySize,
