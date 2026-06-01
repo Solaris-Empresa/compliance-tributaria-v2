@@ -1,113 +1,139 @@
 /**
- * iagen-gap-analyzer.ts — Sprint S Lote A
+ * iagen-gap-analyzer.ts — ARQUITETURA MAX (FIX-09, FASE C)
  *
  * Converte iagen_answers (Onda 2 IA Generativa) em gaps em project_gaps_v3.
- * Padrão idêntico ao solaris-gap-analyzer.ts (DELETE + INSERT atômico).
  *
- * Lógica de detecção (fix/iagen-gap-logic — Sprint S):
- *   - resposta.startsWith('não') ou 'nao' → não-conformidade → gap (padrão G17)
- *   - Padrões de incerteza ('não sei', 'depende', 'verificar') → gap de incerteza
+ * ─────────────────────────────────────────────────────────────────────────────
+ * FIX-09 (FASE C, 2026-06-01): elimina KEYWORD_TO_TOPIC + SOLARIS_GAPS_MAP lookup.
+ *
+ * Antes (legado pré-FIX-09):
+ *   1. iagen_answers.riskCategoryCode preenchido (DEC-Z11-ARCH-03) → usar direto
+ *   2. Senão: extractTopicsFromQuestion(questionText) via KEYWORD_TO_TOPIC (35 keywords hardcoded)
+ *   3. Senão: fallback SOLARIS_GAPS_MAP['risco_sistemico']
+ *   ❌ Pergunta com palavras-chave fora do KEYWORD_TO_TOPIC → cai em risco_sistemico genérico
+ *   ❌ Hardcode de keywords viola REGRA-ORQ-32 (no hardcode — visão sistêmica)
+ *
+ * Agora (FIX-09 — arquitetura Max):
+ *   1. iagen_answers.riskCategoryCode preenchido → gap direto (fonte canônica única)
+ *   2. iagen_answers.riskCategoryCode NULL → skip + warn (REGRA-ORQ-29)
+ *   ✅ Zero dicionários intermediários
+ *   ✅ Cobertura determinística — depende apenas de o LLM ter atribuído risk_category_code
+ *   ✅ Quando categoryAssignmentMode='llm_assigned', LLM já fez o trabalho na geração
+ *
+ * Diferença vs SOLARIS (FIX-08):
+ *   - SOLARIS: metadados curados pelo advogado (titulo, categoria, severidade_base,
+ *     risk_category_code, gap_descricao) via UI admin
+ *   - IAGEN: questões DINÂMICAS geradas pelo LLM; apenas risk_category_code é
+ *     atribuído na geração (categoryAssignmentMode = 'llm_assigned' | 'human_validated')
+ *   - Por isso categoria/severidade são DEFAULTS conservadores aqui ('compliance'/'alta')
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Detecção negativa (preservada do legado):
  *   - resposta.startsWith('sim') → empresa tem controle → sem gap
- *   - confidence_score NÃO é usado para detectar gap (era o bug anterior)
- *   - Palavras-chave no question_text mapeiam para tópicos do SOLARIS_GAPS_MAP
- *   - Fallback: se nenhum tópico mapeado, usa gap genérico de risco_sistemico
+ *   - resposta.startsWith('não'|'nao') → gap
+ *   - Incerteza ('não sei', 'depende', 'verificar', etc.) → gap (conservador)
+ *   - Ambíguo (fallback) → gap por precaução
  *
- * Idempotência: DELETE source='iagen' antes de INSERT (igual ao G17).
+ * Idempotência: DELETE source='iagen' antes de INSERT.
  */
 import mysql from 'mysql2/promise';
-import { SOLARIS_GAPS_MAP } from '../config/solaris-gaps-map';
-// M3.10 Fix B: para tópicos derivados de KEYWORD_TO_TOPIC ou risco_sistemico,
-// derivar categoria via mapping. Quando riskCategoryCode (de iagen_answers) já
-// existe, usar direto (já é categoria canônica por contrato Z-11).
-// Ver post-mortem: docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md
-import { mapTopicToCategory } from '../config/topico-to-categoria';
 
-// Mapeamento de palavras-chave do question_text → tópicos do SOLARIS_GAPS_MAP
-const KEYWORD_TO_TOPIC: Record<string, string> = {
-  'nf-e': 'nfe',
-  'nota fiscal': 'nfe',
-  'nota fiscal eletrônica': 'nfe',
-  'nfe': 'nfe',
-  'ibs': 'cgibs',
-  'cbs': 'cgibs',
-  'cgibs': 'cgibs',
-  'confissão': 'confissao_automatica',
-  'confissao': 'confissao_automatica',
-  'inércia': 'confissao_automatica',
-  'inercia': 'confissao_automatica',
-  'crédito': 'cgibs',
-  'credito': 'cgibs',
-  'benefício fiscal': 'risco_sistemico',
-  'beneficio fiscal': 'risco_sistemico',
-  'guerra fiscal': 'risco_sistemico',
-  'interestadual': 'risco_sistemico',
-  'lucro real': 'parametrizacao',
-  'lucro presumido': 'parametrizacao',
-  'simples nacional': 'parametrizacao',
-  'regime tributário': 'parametrizacao',
-  'regime tributario': 'parametrizacao',
-  'erp': 'erp',
-  'sistema': 'erp',
-  'parametrização': 'parametrizacao',
-  'parametrizacao': 'parametrizacao',
-  'alíquota': 'cgibs',
-  'aliquota': 'cgibs',
-  'transição': 'risco_sistemico',
-  'transicao': 'risco_sistemico',
-  'reforma tributária': 'risco_sistemico',
-  'reforma tributaria': 'risco_sistemico',
-};
+// FIX-09: REMOVE imports SOLARIS_GAPS_MAP + mapTopicToCategory + KEYWORD_TO_TOPIC.
+// Arquitetura Max — fonte canônica única: iagen_answers.risk_category_code.
 
-/**
- * Extrai tópicos do SOLARIS_GAPS_MAP a partir do texto da pergunta.
- * Retorna array de tópicos únicos encontrados.
- */
-function extractTopicsFromQuestion(questionText: string): string[] {
-  const lower = questionText.toLowerCase();
-  const found = new Set<string>();
-  for (const [keyword, topic] of Object.entries(KEYWORD_TO_TOPIC)) {
-    if (lower.includes(keyword) && SOLARIS_GAPS_MAP[topic]) {
-      found.add(topic);
-    }
-  }
-  return Array.from(found);
+// ─── Tipos e helpers puros (testáveis sem DB) ─────────────────────────────────
+
+/** Severidade base do gap iagen (default conservador — sem curadoria humana). */
+export type IagenSeveridade = "baixa" | "media" | "alta" | "critica";
+
+/** Subconjunto enriquecido de `iagen_answers` consumido pelo analyzer. */
+export interface IagenAnswerMetadata {
+  id: number;
+  question_text: string;
+  resposta: string;
+  risk_category_code: string | null;
+}
+
+/** Forma intermediária do gap antes do INSERT. */
+export interface IagenGapToInsert {
+  gap_descricao: string;
+  area: string;
+  severidade: IagenSeveridade;
+  risk_category_code: string;
+  source_reference: string;
+  answer_value_preview: string;
 }
 
 /**
- * Determina se uma resposta iagen indica não-conformidade (gap de compliance).
+ * FIX-09 — Determina se uma resposta iagen indica não-conformidade.
  *
- * Padrão G17 (solaris-gap-analyzer): usa conteúdo da resposta, NÃO confidence_score.
- * confidence_score mede a certeza do LLM na interpretação — não o status de compliance.
+ * IAGEN é mais conservador que SOLARIS:
+ *   - 'sim' → sem gap (único caminho positivo)
+ *   - tudo o mais → gap (conservador — IA Gen reflete incerteza por design)
  *
- * Regras:
- *   1. 'não' / 'nao' → empresa não tem o controle → gap real
- *   2. Padrões de incerteza → empresa não sabe → gap de incerteza
- *   3. 'sim' → empresa tem o controle → sem gap
- *   4. Ambíguo (fallback) → gap de incerteza por precaução
+ * Padrão preservado do legado pré-FIX-09.
  */
-function isNonCompliantAnswer(resposta: string): boolean {
+export function isNonCompliantIagenAnswer(resposta: string): boolean {
   const r = resposta.toLowerCase().trim();
-  // Regra 3: 'sim' → empresa tem controle → sem gap
-  if (r.startsWith('sim')) return false;
-  // Regra 1: 'não' / 'nao' → não-conformidade → gap
-  if (r.startsWith('não') || r === 'nao') return true;
-  // Regra 2: incerteza explícita → gap de incerteza
-  if (r.includes('não sei') || r.includes('nao sei')) return true;
-  if (r.includes('depende') || r.includes('verificar')) return true;
-  if (r.includes('incerto') || r.includes('pode ser')) return true;
-  if (r.includes('não tenho certeza') || r.includes('nao tenho certeza')) return true;
-  // Regra 4: ambíguo → gap por precaução
+  // Regra única positiva: 'sim' → empresa tem controle
+  if (r.startsWith("sim")) return false;
+  // 'não' / 'nao' → não-conformidade explícita
+  if (r.startsWith("não") || r === "nao") return true;
+  // Incerteza explícita → gap de incerteza
+  if (r.includes("não sei") || r.includes("nao sei")) return true;
+  if (r.includes("depende") || r.includes("verificar")) return true;
+  if (r.includes("incerto") || r.includes("pode ser")) return true;
+  if (r.includes("não tenho certeza") || r.includes("nao tenho certeza")) return true;
+  // Ambíguo → gap por precaução (mais conservador que SOLARIS)
   return true;
 }
 
+/**
+ * FIX-09 — Helper puro testável: monta gap iagen a partir dos metadados.
+ * Retorna `null` quando `risk_category_code` for NULL (skip + warn no caller).
+ *
+ * Defaults conservadores:
+ *   - area: 'compliance' (sem categoria curada — não há iagen_questions)
+ *   - severidade: 'alta' (conservador — IAGEN é fonte secundária de evidência)
+ *
+ * gap_descricao gerada com base no questionText (truncado a 120 chars) para
+ * preservar contexto sem inflar o banco.
+ */
+export function buildIagenGapFromAnswer(
+  row: IagenAnswerMetadata,
+): IagenGapToInsert | null {
+  // Guard: sem risk_category_code → skip (REGRA-ORQ-29: sem requisito = sem gap).
+  // Quando categoryAssignmentMode='llm_assigned', LLM deveria ter preenchido;
+  // NULL indica problema de geração — não tente "adivinhar" o tópico.
+  const rcc = (row.risk_category_code ?? "").trim();
+  if (!rcc) return null;
+  // Preview da pergunta para rastreabilidade (truncado defensivamente)
+  const questionPreview = (row.question_text ?? "").trim().substring(0, 120);
+  const gapDescricao = questionPreview
+    ? `Gap categoria ${rcc} — pergunta IA Gen: "${questionPreview}${questionPreview.length === 120 ? "..." : ""}"`
+    : `Gap categoria ${rcc} — resposta Onda 2 IA Generativa`;
+  // answer_value_preview: 200 chars (preserva o que estava no SQL legado)
+  const answerPreview = (row.resposta ?? "").substring(0, 200);
+  return {
+    gap_descricao: gapDescricao,
+    area: "compliance", // default — não há iagen_questions com categoria curada
+    severidade: "alta", // default conservador — IAGEN é fonte LLM
+    risk_category_code: rcc,
+    source_reference: `IAGEN-${row.id}`,
+    answer_value_preview: answerPreview,
+  };
+}
+
+// ─── Procedure principal (I/O com DB) ─────────────────────────────────────────
+
 export async function analyzeIagenAnswers(
-  projectId: number
+  projectId: number,
 ): Promise<{ inserted: number }> {
-  console.log('[IAGEN-GAP] analyzeIagenAnswers iniciado — projectId:', projectId);
+  console.log('[IAGEN-MAX] analyzeIagenAnswers iniciado — projectId:', projectId);
   const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
   const conn = await pool.getConnection();
   try {
-    // 1. Buscar respostas da Onda 2 para o projeto (inclui risk_category_code Z-11)
+    // SELECT preservado — risk_category_code já era selecionado desde Z-11
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT id, question_text, resposta, confidence_score, risk_category_code
        FROM iagen_answers
@@ -115,94 +141,54 @@ export async function analyzeIagenAnswers(
       [projectId]
     );
     if (!rows || rows.length === 0) {
-      console.warn('[IAGEN-GAP] Projeto sem iagen_answers — nenhum gap gerado');
+      console.warn('[IAGEN-MAX] Projeto sem iagen_answers — nenhum gap gerado');
       return { inserted: 0 };
     }
 
-    // 2. Mapear respostas incertas → gaps via SOLARIS_GAPS_MAP
-    // M3.10 Fix B: campo `risk_category_code` (categoria canônica) propagado
-    // separadamente de `topico_trigger` (rastreabilidade do tópico de origem).
-    const gapsToInsert: Array<{
-      gap_descricao: string;
-      area: string;
-      severidade: string;
-      topico_trigger: string;
-      risk_category_code: string | null; // M3.10 Fix B: categoria canônica derivada
-      question_text: string;
-      resposta: string;
-    }> = [];
+    // FIX-09: 1 resposta = 1 gap (era N tópicos no legado via KEYWORD_TO_TOPIC).
+    const gapsToInsert: IagenGapToInsert[] = [];
 
     for (const row of rows) {
       const resposta = String(row.resposta ?? '');
-      const questionText = String(row.question_text ?? '');
-      const riskCategoryCode = row.risk_category_code ? String(row.risk_category_code) : null;
+      if (!isNonCompliantIagenAnswer(resposta)) continue;
 
-      if (!isNonCompliantAnswer(resposta)) continue;
+      const gap = buildIagenGapFromAnswer({
+        id: Number(row.id),
+        question_text: String(row.question_text ?? ''),
+        resposta,
+        risk_category_code: row.risk_category_code
+          ? String(row.risk_category_code)
+          : null,
+      });
 
-      // Z-11 DEC-Z11-ARCH-03: risk_category_code preenchido → usar diretamente
-      // M3.10 Fix B: riskCategoryCode já é categoria canônica por contrato Z-11.
-      if (riskCategoryCode) {
-        gapsToInsert.push({
-          gap_descricao: `Gap na categoria ${riskCategoryCode} — resposta Onda 2`,
-          area: 'compliance',
-          severidade: 'alta',
-          topico_trigger: riskCategoryCode,
-          risk_category_code: riskCategoryCode, // M3.10 Fix B: persistir
-          question_text: questionText,
-          resposta,
-        });
+      if (gap === null) {
+        console.warn(
+          `[IAGEN-MAX] iagen_answer id=${row.id} sem risk_category_code — skip (REGRA-ORQ-29; verificar categoryAssignmentMode='llm_assigned')`,
+        );
         continue;
       }
-
-      // Fallback legado: risk_category_code NULL → KEYWORD_TO_TOPIC
-      const topics = extractTopicsFromQuestion(questionText);
-
-      if (topics.length === 0) {
-        // Fallback: gap genérico de risco sistêmico
-        const fallbackGaps = SOLARIS_GAPS_MAP['risco_sistemico'];
-        if (fallbackGaps) {
-          // M3.10 Fix B: derivar categoria do tópico fallback
-          const fallbackCategoria = mapTopicToCategory('risco_sistemico');
-          gapsToInsert.push(...fallbackGaps.map(g => ({
-            ...g,
-            topico_trigger: 'risco_sistemico',
-            risk_category_code: fallbackCategoria,
-            question_text: questionText,
-            resposta,
-          })));
-        }
-        continue;
-      }
-
-      for (const topic of topics) {
-        const gaps = SOLARIS_GAPS_MAP[topic];
-        if (!gaps) continue;
-        // M3.10 Fix B: derivar categoria do tópico extraído
-        const topicCategoria = mapTopicToCategory(topic);
-        gapsToInsert.push(...gaps.map(g => ({
-          ...g,
-          topico_trigger: topic,
-          risk_category_code: topicCategoria,
-          question_text: questionText,
-          resposta,
-        })));
-      }
+      gapsToInsert.push(gap);
     }
 
-    console.log('[IAGEN-GAP] gaps calculados:', gapsToInsert.length);
+    console.log('[IAGEN-MAX] gaps calculados:', gapsToInsert.length);
     if (gapsToInsert.length === 0) {
-      console.warn('[IAGEN-GAP] Nenhum gap gerado — todas as respostas indicam conformidade (sim)');
+      console.warn('[IAGEN-MAX] Nenhum gap gerado — todas respostas positivas ou sem risk_category_code');
+      // Ainda assim garantir idempotência: limpar gaps anteriores
+      await conn.execute(
+        'DELETE FROM project_gaps_v3 WHERE project_id = ? AND source = ?',
+        [projectId, 'iagen'],
+      );
       return { inserted: 0 };
     }
 
-    // 3. DELETE + INSERT em transação atômica
+    // DELETE + INSERT em transação atômica
     await conn.beginTransaction();
     try {
       const [delResult] = await conn.execute(
         'DELETE FROM project_gaps_v3 WHERE project_id = ? AND source = ?',
         [projectId, 'iagen']
       ) as any;
-      console.log('[IAGEN-GAP] DELETE gaps iagen anteriores:', delResult.affectedRows);
+      console.log('[IAGEN-MAX] DELETE gaps iagen anteriores:', delResult.affectedRows);
 
       const now = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
 
@@ -227,10 +213,10 @@ export async function analyzeIagenAnswers(
               'operacional', 'normativo', 'nao_atendido', 'ausente',
               'baixa', 70, 'alto', 70,
               1, 'imediata', 30,
-              'Resposta incerta na Onda 2 IA Generativa', NULL,
-              'Critério não confirmado: resposta com baixa confiança na Onda 2',
+              'Resposta incerta na Onda 2 IA Gen (IAGEN-MAX)', NULL,
+              'Critério não confirmado: resposta com baixa conformidade na Onda 2',
               'Revisar e confirmar conformidade conforme LC 214/2025', 0, NULL,
-              0.7, 'Detectado por resposta incerta na Onda 2 iagen',
+              0.7, 'Detectado por resposta não-conforme na Onda 2 iagen — IAGEN-MAX',
               0, ?, ?,
               ?)`,
           [
@@ -240,9 +226,9 @@ export async function analyzeIagenAnswers(
             gap.severidade,
             now, now,
             gap.gap_descricao,
-            gap.resposta?.substring(0, 200) ?? 'incerto',
-            gap.topico_trigger,
-            gap.risk_category_code, // M3.10 Fix B: pode ser null se tópico não mapeado
+            gap.answer_value_preview,
+            gap.source_reference,
+            gap.risk_category_code,
           ]
         );
       }
@@ -254,11 +240,11 @@ export async function analyzeIagenAnswers(
       ) as any;
       const insertedConfirmado: number = countResult[0]?.total ?? 0;
       await conn.commit();
-      console.log('[IAGEN-GAP] inserted confirmado no banco:', insertedConfirmado);
+      console.log('[IAGEN-MAX] inserted confirmado no banco:', insertedConfirmado);
       return { inserted: insertedConfirmado };
     } catch (err) {
       await conn.rollback();
-      console.error('[IAGEN-GAP] ROLLBACK — projectId:', projectId);
+      console.error('[IAGEN-MAX] ROLLBACK — projectId:', projectId);
       throw err;
     }
   } finally {
