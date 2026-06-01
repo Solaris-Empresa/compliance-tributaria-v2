@@ -34,28 +34,33 @@ describe("G17 — SOLARIS Gaps Map", () => {
     expect(gaps[0].severidade).toBe("critica");
   });
 
-  it("Caso 3 — Todas as respostas positivas → 0 gaps SOLARIS gerados", () => {
-    // Simular: resposta "Sim" → isNegative = false → nenhum gap
-    const resposta = "Sim";
-    const isNegative = resposta.trim().toLowerCase().startsWith("não") || resposta.trim().toLowerCase() === "nao";
+  it("Caso 3 — Todas as respostas positivas → 0 gaps SOLARIS gerados", async () => {
+    // FIX-01: agora via helper puro classifyForGap (dual-column)
+    const { classifyForGap } = await import("../lib/solaris-gap-analyzer");
+    const { isNegative, isExcluded } = classifyForGap(null, "Sim");
     expect(isNegative).toBe(false);
+    expect(isExcluded).toBe(false);
   });
 
-  it("D2 — Detecção conservadora: 'Não aplicável' dispara gap (comportamento atual documentado)", () => {
-    // startsWith('não') = true para "não aplicável"
-    // Comportamento atual documentado para revisão futura (G17.1)
-    const resposta = "Não aplicável";
-    const r = resposta.trim().toLowerCase();
-    const isNegative = r.startsWith("não") || r === "nao";
-    expect(isNegative).toBe(true); // comportamento atual — documentado
+  it("D2 — FIX-01: 'Não aplicável' agora vira EXCLUSÃO (não gap) — corrige BUG B4", async () => {
+    // PRÉ-FIX-01: "não aplicável".startsWith('não') = true → era classificado como gap (BUG B4)
+    // PÓS-FIX-01: regra de exclusão explícita ANTES do prefix-match → isExcluded=true
+    const { classifyForGap } = await import("../lib/solaris-gap-analyzer");
+    const r1 = classifyForGap(null, "Não aplicável");
+    expect(r1.isNegative).toBe(false);
+    expect(r1.isExcluded).toBe(true);
+    const r2 = classifyForGap(null, "Não se aplica.");
+    expect(r2.isNegative).toBe(false);
+    expect(r2.isExcluded).toBe(true);
   });
 
-  it("D2 — 'Não' exato e variações disparam gap", () => {
+  it("D2 — 'Não' exato e variações disparam gap (preservado pelo fallback legado pós-FIX-01)", async () => {
+    const { classifyForGap } = await import("../lib/solaris-gap-analyzer");
     const negativos = ["Não", "não", "NÃO", "nao", "Não.", "não "];
     for (const resposta of negativos) {
-      const r = resposta.trim().toLowerCase();
-      const isNegative = r.startsWith("não") || r === "nao";
-      expect(isNegative).toBe(true);
+      const { isNegative, isExcluded } = classifyForGap(null, resposta);
+      expect(isNegative, `resposta="${resposta}" devia gerar gap`).toBe(true);
+      expect(isExcluded, `resposta="${resposta}" não devia ser excluído`).toBe(false);
     }
   });
 

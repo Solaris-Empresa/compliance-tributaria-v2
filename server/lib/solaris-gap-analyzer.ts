@@ -3,9 +3,20 @@
  * Módulo puro — sem side effects de router tRPC
  * Usado por: server/routers-fluxo-v3.ts (fire-and-forget) e scripts/g17-backfill.ts
  *
- * Padrão de detecção negativa (D2 — conservador):
- *   resposta.trim().toLowerCase().startsWith('não') || === 'nao'
- *   "Não aplicável", "Não sei" → NÃO disparam gap
+ * FIX-01 (FEAT-SOL-UX-01 follow-up, 2026-06-01): G17 agora lê `resposta_opcao`
+ * (ENUM dual-column da migration 0120) como fonte canônica. Texto livre
+ * permanece como fallback legado para projetos pré-PR-C (resposta_opcao=null).
+ *
+ * Decisão por opção (canônica — quando resposta_opcao IS NOT NULL):
+ *   - sim           → sem gap
+ *   - nao           → gap
+ *   - nao_sei       → gap (conservador — produto jurídico)
+ *   - nao_se_aplica → exclusão (distinto de "atendido", não gera gap)
+ *
+ * Fallback legado (resposta_opcao IS NULL — pré-PR-C):
+ *   - "não se aplica", "não aplicável", "n/a", "na" → exclusão (corrige B4)
+ *   - startsWith("não") || === "nao"               → gap
+ *   - resto                                         → sem gap
  *
  * Idempotência: DELETE source='solaris' antes de INSERT (D4).
  * Compatibilidade V1: projeto sem solaris_answers → retorna { inserted: 0 }.
@@ -19,6 +30,49 @@ import { SOLARIS_GAPS_MAP } from '../config/solaris-gaps-map';
 // Ver post-mortem: docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md
 import { mapTopicToCategory } from '../config/topico-to-categoria';
 
+/** Valores discretos persistidos em solaris_answers.resposta_opcao (migration 0120). */
+export type RespostaOpcao = "sim" | "nao" | "nao_sei" | "nao_se_aplica";
+
+/** Classificação determinística da resposta para o pipeline de gap. */
+export interface GapClassification {
+  /** true → resposta gera gaps via SOLARIS_GAPS_MAP */
+  isNegative: boolean;
+  /** true → resposta marca exclusão explícita (não-aplicabilidade), NÃO gera gap */
+  isExcluded: boolean;
+}
+
+/**
+ * FIX-01 — Função pura testável (padrão `credito-presumido-eligibility.ts`).
+ * Implementa a regra de classificação dual-column descrita no header do módulo.
+ * Não toca DB, não faz I/O — apenas decide o destino da resposta.
+ */
+export function classifyForGap(
+  opcao: RespostaOpcao | null,
+  resposta: string,
+): GapClassification {
+  // Fonte canônica: resposta_opcao (radio button) quando presente
+  if (opcao !== null) {
+    return {
+      isNegative: opcao === "nao" || opcao === "nao_sei",
+      isExcluded: opcao === "nao_se_aplica",
+      // opcao === "sim" → ambos false → sem gap (correto)
+    };
+  }
+  // Fallback legado (resposta_opcao IS NULL — projetos pré-PR-C)
+  const r = resposta.trim().toLowerCase();
+  // Exclusão explícita ANTES do prefix-match (corrige bug B4 — "não se aplica" vinha como gap)
+  if (
+    r.startsWith("não se aplica") ||
+    r.startsWith("não aplicável") ||
+    r === "n/a" ||
+    r === "na"
+  ) {
+    return { isNegative: false, isExcluded: true };
+  }
+  const isNegative = r.startsWith("não") || r === "nao";
+  return { isNegative, isExcluded: false };
+}
+
 export async function analyzeSolarisAnswers(
   projectId: number
 ): Promise<{ inserted: number }> {
@@ -29,8 +83,9 @@ export async function analyzeSolarisAnswers(
 
   try {
     // 1. Buscar respostas da Onda 1 com dados da pergunta (topicos, codigo)
+    // FIX-01: incluir resposta_opcao no SELECT (coluna ENUM da migration 0120)
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
-      `SELECT sa.resposta, sq.topicos, sq.codigo
+      `SELECT sa.resposta, sa.resposta_opcao, sq.topicos, sq.codigo
        FROM solaris_answers sa
        LEFT JOIN solaris_questions sq ON sq.id = sa.question_id
        WHERE sa.project_id = ? AND sq.ativo = 1`,
@@ -51,9 +106,11 @@ export async function analyzeSolarisAnswers(
     }> = [];
 
     for (const row of rows) {
-      const resposta = (row.resposta as string)?.trim().toLowerCase() ?? '';
-      // D2: detecção conservadora — apenas "não" exato ou startsWith('não')
-      const isNegative = resposta.startsWith('não') || resposta === 'nao';
+      // FIX-01: classificação via helper puro `classifyForGap` — dual-column com fallback legado
+      const opcao = (row.resposta_opcao as RespostaOpcao | null) ?? null;
+      const resposta = (row.resposta as string) ?? '';
+      const { isNegative, isExcluded } = classifyForGap(opcao, resposta);
+      if (isExcluded) continue;
       if (!isNegative) continue;
 
       // D6: normalizar tópicos com trim + toLowerCase
