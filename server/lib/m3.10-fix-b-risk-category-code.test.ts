@@ -234,44 +234,57 @@ describe("FIX-08 (substitui M3.10 Fix B) — solaris-gap-analyzer: risk_category
 
 // ---------------------------------------------------------------------------
 // iagen-gap-analyzer.ts — INSERT inclui risk_category_code
+//
+// FIX-09 (FASE C, 2026-06-01): arquitetura mudou — IAGEN agora usa
+// EXCLUSIVAMENTE `iagen_answers.risk_category_code` (atribuído pelo LLM na
+// geração — categoryAssignmentMode='llm_assigned'). KEYWORD_TO_TOPIC e
+// SOLARIS_GAPS_MAP fallback REMOVIDOS. mapTopicToCategory também removido.
+// Tests atualizados para refletir a nova arquitetura:
+//   - import de mapTopicToCategory → REMOVIDO no iagen
+//   - import de SOLARIS_GAPS_MAP → REMOVIDO no iagen
+//   - KEYWORD_TO_TOPIC dict (35 keywords hardcoded) → REMOVIDO
+//   - O path Z-11 risk_category_code direto VIROU O ÚNICO caminho (sem fallback)
+//   - Skip + warn quando risk_category_code NULL (REGRA-ORQ-29)
 // ---------------------------------------------------------------------------
-describe("M3.10 Fix B — iagen-gap-analyzer INSERT inclui risk_category_code", () => {
-  it("import de mapTopicToCategory presente", () => {
-    expect(IAGEN_SRC).toMatch(
+describe("FIX-09 (substitui M3.10 Fix B IAGEN) — iagen-gap-analyzer: risk_category_code direto", () => {
+  it("import de mapTopicToCategory REMOVIDO (arquitetura Max sem dicionários)", () => {
+    expect(IAGEN_SRC).not.toMatch(
       /import\s+\{\s*mapTopicToCategory\s*\}\s+from\s+['"][./]+config\/topico-to-categoria['"]/,
     );
   });
 
-  it("tipo gapsToInsert tem campo risk_category_code", () => {
-    expect(IAGEN_SRC).toMatch(/risk_category_code:\s*string\s*\|\s*null/);
-  });
-
-  it("path Z-11 (riskCategoryCode existe) propaga para risk_category_code", () => {
-    expect(IAGEN_SRC).toMatch(
-      /risk_category_code:\s*riskCategoryCode,?\s*\/\/\s*M3\.10/,
+  it("import de SOLARIS_GAPS_MAP REMOVIDO (sem fallback via keyword)", () => {
+    expect(IAGEN_SRC).not.toMatch(
+      /import\s+\{\s*SOLARIS_GAPS_MAP\s*\}\s+from/,
     );
   });
 
-  it("path fallback risco_sistemico usa mapTopicToCategory", () => {
-    expect(IAGEN_SRC).toMatch(
-      /mapTopicToCategory\(\s*['"]risco_sistemico['"]\s*\)/,
-    );
+  it("KEYWORD_TO_TOPIC dict REMOVIDO (35 keywords hardcoded eliminadas — REGRA-ORQ-32)", () => {
+    expect(IAGEN_SRC).not.toMatch(/const\s+KEYWORD_TO_TOPIC\s*:/);
   });
 
-  it("path KEYWORD_TO_TOPIC usa mapTopicToCategory(topic)", () => {
-    expect(IAGEN_SRC).toMatch(/mapTopicToCategory\(\s*topic\s*\)/);
+  it("helper buildIagenGapFromAnswer exportado (testável sem DB)", () => {
+    expect(IAGEN_SRC).toMatch(/export\s+function\s+buildIagenGapFromAnswer/);
   });
 
-  it("INSERT inclui coluna risk_category_code", () => {
+  it("tipo IagenGapToInsert tem campo risk_category_code obrigatório (não nullable)", () => {
+    expect(IAGEN_SRC).toMatch(/risk_category_code:\s*string;/);
+  });
+
+  it("INSERT inclui coluna risk_category_code (preservado)", () => {
     expect(IAGEN_SRC).toMatch(/source_reference[\s\S]{0,80}risk_category_code/);
   });
 
-  it("INSERT inclui gap.risk_category_code no array de valores", () => {
-    expect(IAGEN_SRC).toMatch(/gap\.risk_category_code,?\s*\/\/\s*M3\.10/);
+  it("INSERT bind do risk_category_code vem de gap.risk_category_code (já normalizado pelo helper)", () => {
+    expect(IAGEN_SRC).toMatch(/gap\.risk_category_code,?\s*\n?\s*\]/);
   });
 
-  it("comentário inline documenta M3.10 Fix B", () => {
-    expect(IAGEN_SRC).toMatch(/M3\.10 Fix B/);
+  it("comentário inline documenta FIX-09 (substituiu M3.10 Fix B do IAGEN)", () => {
+    expect(IAGEN_SRC).toMatch(/FIX-09/);
+  });
+
+  it("guard: skip + warn quando risk_category_code NULL (REGRA-ORQ-29)", () => {
+    expect(IAGEN_SRC).toMatch(/REGRA-ORQ-29/);
   });
 });
 
