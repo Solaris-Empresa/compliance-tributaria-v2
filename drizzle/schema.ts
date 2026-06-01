@@ -1745,6 +1745,13 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
   leiRef: varchar("lei_ref", { length: 20 }),
   /** Artigo específico — ex: "Art. 14-A" — null se desconhecido */
   artigoRef: varchar("artigo_ref", { length: 50 }),
+  /**
+   * FIX-05 (FASE A, 2026-06-01, migration 0121): descrição curada do gap
+   * quando a resposta é negativa. Substitui o lookup em SOLARIS_GAPS_MAP
+   * (sprint posterior). NULL → G17 usa fallback "Ausência: {titulo}".
+   * Permite ao advogado controlar o texto do gap diretamente na curadoria.
+   */
+  gapDescricao: text("gap_descricao"),
 });
 
 export type SolarisQuestion = typeof solarisQuestions.$inferSelect;
