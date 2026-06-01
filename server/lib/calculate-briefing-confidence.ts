@@ -76,6 +76,17 @@ export interface BriefingConfidenceSignals {
   /** Q1 SOLARIS — respostas do projeto vs perguntas elegíveis por CNAE. */
   q1Respostas: number;
   q1TotalPerguntas: number;
+  /**
+   * FIX-12 (FASE C, 2026-06-01): respostas a perguntas com `risk_category_code`
+   * curado (que efetivamente chegam ao engine de gap — buildGapFromQuestion
+   * skip + warn quando NULL). Métrica de PARTICIPAÇÃO DIAGNÓSTICA, não simples
+   * completude. Quando ausente, fallback para `q1Respostas` (back-compat).
+   *
+   * Endereça B8 do diagnóstico SOLARIS (Manus 2026-06-01): "métrica de confiança
+   * mede completude, não qualidade diagnóstica" — inflação de ~14% no projeto
+   * 4920001 (13/13 respondidas mas 0 gaps gerados pré-FIX-08).
+   */
+  q1RespostasComCategoria?: number;
 
   /** Q2 IA Gen — binário. Se respostas > 0 → 1, senão 0. Total ignorado. */
   q2Respostas: number;
@@ -196,7 +207,12 @@ export function calculateBriefingConfidenceWithBreakdown(
   const incluiServicos = tipo === "servico" || tipo === "mista";
 
   const cPerfil = clamp01(signals.perfilCompletude);
-  const cQ1 = ratio(signals.q1Respostas, signals.q1TotalPerguntas);
+  // FIX-12 (FASE C): cQ1 = ratio(respostas-com-categoria-curada, elegíveis).
+  // Fallback para q1Respostas quando q1RespostasComCategoria ausente (back-compat
+  // com fixtures legados). Em runtime real, computeBriefingConfidenceSignals
+  // sempre popula q1RespostasComCategoria via SQL JOIN com solaris_questions.
+  const q1ContaParaScore = signals.q1RespostasComCategoria ?? signals.q1Respostas;
+  const cQ1 = ratio(q1ContaParaScore, signals.q1TotalPerguntas);
   const cQ2 = signals.q2Respostas > 0 ? 1 : 0; // binário
   const cQ3Cnae = ratio(signals.q3CnaeRespostas, signals.q3CnaeTotalPerguntas);
   const cQ3P = q3CompostoCompletude(
@@ -286,11 +302,21 @@ export function calculateBriefingConfidenceWithBreakdown(
       key: "q1",
       label: LABEL_PILAR.q1,
       peso: P.q1,
-      respostas: Math.max(0, signals.q1Respostas),
+      // FIX-12 (FASE C): respostas exibidas no breakdown refletem o que
+      // efetivamente conta para o score (qualidade, não simples completude).
+      respostas: Math.max(0, q1ContaParaScore),
       total: signals.q1TotalPerguntas > 0 ? signals.q1TotalPerguntas : null,
       completude: cQ1,
       contribuicao: P.q1 * cQ1,
       aplicavel: true,
+      detalhe: signals.q1RespostasComCategoria !== undefined
+        ? {
+            // Transparência: usuário pode ver "13 respondidas | 8 com categoria
+            // curada" — explica por que o score Q1 não é simplesmente 13/13.
+            respostasTotais: signals.q1Respostas,
+            respostasComCategoria: signals.q1RespostasComCategoria,
+          } as any
+        : undefined,
     },
     {
       key: "q2",

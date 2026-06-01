@@ -17,7 +17,7 @@
  * Determinístico: mesmo estado do projeto → mesmos signals.
  */
 
-import { eq } from "drizzle-orm";
+import { eq, and, isNotNull, ne } from "drizzle-orm";
 import * as schema from "../../drizzle/schema";
 import * as db from "../db";
 import { inferCompanyType } from "./completeness";
@@ -157,6 +157,48 @@ export function computePerfilCompleteness(input: {
  * Elegível = ativo=1 AND (cnaeGroups NULL OR contém algum CNAE do projeto).
  * Match: prefix-match bidirecional (ex: group "11" match CNAE "1113-5").
  */
+/**
+ * FIX-12 (FASE C, 2026-06-01): conta respostas SOLARIS a perguntas que TÊM
+ * `risk_category_code` curado. Essas são as respostas que efetivamente chegam
+ * ao engine de gap (buildGapFromQuestion skip + warn quando NULL).
+ *
+ * Métrica de PARTICIPAÇÃO DIAGNÓSTICA (B8) — substitui completude simples
+ * (countOnda1Answers) no cálculo de cQ1.
+ *
+ * Query: JOIN solaris_answers com solaris_questions, filtrar por:
+ *   - ativo = 1 (pergunta ativa)
+ *   - risk_category_code IS NOT NULL E não vazio
+ *
+ * Retorna 0 se DB indisponível (degradação graciosa — fallback no caller usa
+ * q1Respostas tradicional via `q1RespostasComCategoria ?? q1Respostas`).
+ */
+export async function countQ1SolarisAnsweredWithCategory(
+  projectId: number,
+): Promise<number> {
+  const database = await db.getDb();
+  if (!database) return 0;
+  const rows = await database
+    .select({
+      questionId: schema.solarisAnswers.questionId,
+    })
+    .from(schema.solarisAnswers)
+    .innerJoin(
+      schema.solarisQuestions,
+      eq(schema.solarisQuestions.id, schema.solarisAnswers.questionId),
+    )
+    .where(
+      and(
+        eq(schema.solarisAnswers.projectId, projectId),
+        eq(schema.solarisQuestions.ativo, 1),
+        isNotNull(schema.solarisQuestions.riskCategoryCode),
+        ne(schema.solarisQuestions.riskCategoryCode, ""),
+      ),
+    );
+  // DISTINCT em memória (Drizzle não tem .distinct() universal em todos os dialetos)
+  const uniqueQuestionIds = new Set(rows.map((r) => r.questionId));
+  return uniqueQuestionIds.size;
+}
+
 export async function countQ1SolarisEligible(cnaes: string[]): Promise<number> {
   const database = await db.getDb();
   if (!database) return 0;
@@ -303,6 +345,10 @@ export async function computeConfidenceSignals(
   // Q1 SOLARIS
   const q1Respostas = await db.countOnda1Answers(input.projectId);
   const q1Total = await countQ1SolarisEligible(input.cnaesConfirmados);
+  // FIX-12 (FASE C, 2026-06-01): métrica de PARTICIPAÇÃO DIAGNÓSTICA.
+  // Conta respostas a perguntas com risk_category_code curado — substitui
+  // simples completude (q1Respostas) no cálculo de cQ1. Endereça B8.
+  const q1RespostasComCategoria = await countQ1SolarisAnsweredWithCategory(input.projectId);
 
   // Q2 IA Gen — binário (schema atual só grava quando responde).
   const q2Respostas = await db.countOnda2Answers(input.projectId);
@@ -348,6 +394,8 @@ export async function computeConfidenceSignals(
     perfilOpcionaisTotais: perfil.opcionaisTotais,
     q1Respostas,
     q1TotalPerguntas: q1Total,
+    q1RespostasComCategoria, // FIX-12: usado por calculate-briefing-confidence
+
     q2Respostas,
     q3CnaeRespostas,
     q3CnaeTotalPerguntas: q3CnaeTotal,
