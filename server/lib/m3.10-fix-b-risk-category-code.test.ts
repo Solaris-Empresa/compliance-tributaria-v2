@@ -191,31 +191,44 @@ describe("M3.10 Fix B — TOPICO_TO_CATEGORIA contém os 15 do dry-run", () => {
 
 // ---------------------------------------------------------------------------
 // solaris-gap-analyzer.ts — INSERT inclui risk_category_code
+//
+// FIX-08 (FASE B, 2026-06-01): arquitetura mudou — `mapTopicToCategory` foi
+// REMOVIDO do solaris-gap-analyzer.ts. Agora `risk_category_code` vem direto
+// dos metadados da pergunta (sq.risk_category_code, tornado obrigatório no
+// FIX-06 PR #1324). Testes atualizados para refletir a nova arquitetura:
+//   - import de mapTopicToCategory → REMOVIDO no solaris (preservado no iagen-gap-analyzer)
+//   - riskCategoryCode = mapTopicToCategory(gap.topico_trigger) → SUBSTITUÍDO por
+//     gap.risk_category_code direto do SELECT enriquecido
+//   - SELECT enriquecido inclui sq.risk_category_code + sq.gap_descricao + sq.categoria
+//   - O contrato "INSERT inclui coluna risk_category_code" PERMANECE (Fix B downstream OK)
 // ---------------------------------------------------------------------------
-describe("M3.10 Fix B — solaris-gap-analyzer INSERT inclui risk_category_code", () => {
-  it("import de mapTopicToCategory presente", () => {
-    expect(SOLARIS_SRC).toMatch(
+describe("FIX-08 (substitui M3.10 Fix B) — solaris-gap-analyzer: risk_category_code direto da pergunta", () => {
+  it("import de mapTopicToCategory REMOVIDO (substituído por leitura direta da pergunta)", () => {
+    expect(SOLARIS_SRC).not.toMatch(
       /import\s+\{\s*mapTopicToCategory\s*\}\s+from\s+['"][./]+config\/topico-to-categoria['"]/,
     );
   });
 
-  it("variável riskCategoryCode é derivada via mapTopicToCategory", () => {
-    expect(SOLARIS_SRC).toMatch(
-      /const\s+riskCategoryCode\s*=\s*mapTopicToCategory\(\s*gap\.topico_trigger\s*\)/,
-    );
+  it("SELECT enriquecido inclui sq.risk_category_code (vem direto da pergunta — FIX-08)", () => {
+    // FIX-08: SELECT traz risk_category_code da JOIN com solaris_questions
+    expect(SOLARIS_SRC).toMatch(/sq\.risk_category_code/);
   });
 
-  it("INSERT inclui coluna risk_category_code na lista de colunas", () => {
-    // Match: source_reference, depois risk_category_code (após M3.10 Fix B)
+  it("SELECT enriquecido inclui sq.gap_descricao + sq.categoria (FIX-05/06 metadados)", () => {
+    expect(SOLARIS_SRC).toMatch(/sq\.gap_descricao/);
+    expect(SOLARIS_SRC).toMatch(/sq\.categoria/);
+  });
+
+  it("INSERT inclui coluna risk_category_code na lista de colunas (preservado)", () => {
     expect(SOLARIS_SRC).toMatch(/source_reference[\s\S]{0,80}risk_category_code/);
   });
 
-  it("INSERT inclui parâmetro riskCategoryCode no array de valores", () => {
-    expect(SOLARIS_SRC).toMatch(/riskCategoryCode,?\s*\/\/\s*M3\.10/);
+  it("INSERT bind do risk_category_code agora vem de gap.risk_category_code (não mais de variável derivada via MAP)", () => {
+    expect(SOLARIS_SRC).toMatch(/gap\.risk_category_code/);
   });
 
-  it("comentário inline documenta M3.10 Fix B", () => {
-    expect(SOLARIS_SRC).toMatch(/M3\.10 Fix B/);
+  it("comentário inline documenta FIX-08 (substituiu M3.10 Fix B)", () => {
+    expect(SOLARIS_SRC).toMatch(/FIX-08/);
   });
 });
 
