@@ -287,14 +287,25 @@ function TabLista({
       toast.error("Título e Texto são obrigatórios");
       return;
     }
+    // FIX-06 (2026-06-01): severidade_base e risk_category_code agora são
+    // obrigatórios no backend Zod. Validação client-side em paralelo evita
+    // round-trip de rede com mensagem de erro melhor para o usuário.
+    if (!createForm.severidade_base) {
+      toast.error("Severidade base é obrigatória");
+      return;
+    }
+    if (!createForm.risk_category_code?.trim()) {
+      toast.error("Categoria de risco (risk_category_code) é obrigatória");
+      return;
+    }
     createMutation.mutate({
       titulo: createForm.titulo,
       texto: createForm.texto,
       categoria: createForm.categoria as "contabilidade_fiscal" | "negocio" | "ti" | "juridico",
-      severidade_base: (createForm.severidade_base || undefined) as "critica" | "alta" | "media" | "baixa" | undefined,
+      severidade_base: createForm.severidade_base as "critica" | "alta" | "media" | "baixa",
       vigencia_inicio: createForm.vigencia_inicio || undefined,
       topicos: createForm.topicos || undefined,
-      risk_category_code: createForm.risk_category_code || undefined,
+      risk_category_code: createForm.risk_category_code,
       classification_scope: (createForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
       cnae_groups: createForm.cnae_groups || undefined,
     });

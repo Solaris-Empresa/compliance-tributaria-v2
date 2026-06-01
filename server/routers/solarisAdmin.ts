@@ -44,6 +44,9 @@ const AREA_VALUES = ["contabilidade_fiscal", "negocio", "ti", "juridico"] as con
 const SEVERIDADE_VALUES = ["baixa", "media", "alta", "critica"] as const;
 const CLASSIFICATION_SCOPE_VALUES = ["risk_engine", "diagnostic_only"] as const;
 
+// FIX-06 (FASE A, 2026-06-01): risk_category_code agora obrigatório (era opcional);
+// severidade_base ganha errorMap em PT-BR; campo novo gap_descricao adicionado
+// (persistido via coluna criada na migration 0121 — PR-FIX-05 #1323).
 const CsvRowSchema = z.object({
   titulo: z.string().min(1, "Campo 'titulo' é obrigatório"),
   conteudo: z.string().min(1, "Campo 'conteudo' é obrigatório"),
@@ -52,11 +55,17 @@ const CsvRowSchema = z.object({
   lei: z.literal("solaris"),
   artigo: z.string().min(1, "Campo 'artigo' é obrigatório (ex: SOL-001)"),
   categoria: z.enum(AREA_VALUES),
-  severidade_base: z.enum(SEVERIDADE_VALUES),
+  severidade_base: z.enum(SEVERIDADE_VALUES, {
+    message: "Campo 'severidade_base' é obrigatório (baixa/media/alta/critica)",
+  }),
   vigencia_inicio: z.string().optional(),
-  // Z-11 ENTREGA 2 — campos opcionais novos
-  risk_category_code: z.string().optional(),
+  // FIX-06: risk_category_code passa de opcional a OBRIGATÓRIO em CREATE/CSV.
+  // UPDATE individual (updateQuestion) preserva .optional() para edição parcial.
+  risk_category_code: z.string().min(1, "Campo 'risk_category_code' é obrigatório (FK risk_categories.codigo)"),
   classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
+  // FIX-06: gap_descricao curado pelo advogado — usado por G17 (FIX-07 futuro) como
+  // gap_descricao do gap gerado. Opcional: NULL → G17 usa fallback "Ausência: {titulo}".
+  gap_descricao: z.string().nullable().optional(),
 });
 
 type CsvRow = z.infer<typeof CsvRowSchema>;
@@ -426,7 +435,8 @@ export const solarisAdminRouter = router({
                   texto = ?, categoria = ?, cnae_groups = ?,
                   titulo = ?, topicos = ?, severidade_base = ?,
                   vigencia_inicio = ?, upload_batch_id = ?, atualizado_em = ?,
-                  risk_category_code = ?, classification_scope = ?
+                  risk_category_code = ?, classification_scope = ?,
+                  gap_descricao = ?
                 WHERE codigo = ?`,
                 [
                   r.conteudo, r.categoria, cnaeGroupsJson,
@@ -434,6 +444,7 @@ export const solarisAdminRouter = router({
                   (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null),
                   batchId, now,
                   rcc, scope,
+                  r.gap_descricao ?? null, // FIX-06: persiste descrição curada (NULL se ausente)
                   r.artigo,
                 ]
               );
@@ -444,14 +455,16 @@ export const solarisAdminRouter = router({
                   (texto, categoria, cnae_groups, obrigatorio, ativo, fonte,
                    criado_em, atualizado_em, upload_batch_id, codigo,
                    titulo, topicos, severidade_base, vigencia_inicio,
-                   risk_category_code, classification_scope)
-                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                   risk_category_code, classification_scope,
+                   gap_descricao)
+                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                   r.conteudo, r.categoria, cnaeGroupsJson,
                   now, now, batchId, r.artigo,
                   r.titulo, r.topicos, r.severidade_base,
                   (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null),
                   rcc, scope,
+                  r.gap_descricao ?? null, // FIX-06: persiste descrição curada (NULL se ausente)
                 ]
               );
               inserted++;
@@ -481,6 +494,9 @@ export const solarisAdminRouter = router({
   // ── Edição individual de pergunta ──────────────────────────────────────────
   updateQuestion: protectedProcedure
     .input(
+      // FIX-06: edição PARCIAL — todos .optional() (despacho exige preservar UX
+      // de edição inline da UI admin PR #1319). Adicionado gap_descricao
+      // (coluna criada na migration 0121 — FIX-05).
       z.object({
         id: z.number().int().positive(),
         titulo: z.string().min(1).optional(),
@@ -491,6 +507,7 @@ export const solarisAdminRouter = router({
         topicos: z.string().optional(),
         risk_category_code: z.string().optional(),
         classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
+        gap_descricao: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -506,6 +523,8 @@ export const solarisAdminRouter = router({
       if (fields.topicos !== undefined) { setClauses.push("topicos = ?"); params.push(fields.topicos); }
       if (fields.risk_category_code !== undefined) { setClauses.push("risk_category_code = ?"); params.push(fields.risk_category_code || null); }
       if (fields.classification_scope !== undefined) { setClauses.push("classification_scope = ?"); params.push(fields.classification_scope); }
+      // FIX-06: persiste gap_descricao quando editado. Coluna criada na migration 0121 (FIX-05).
+      if (fields.gap_descricao !== undefined) { setClauses.push("gap_descricao = ?"); params.push(fields.gap_descricao || null); }
 
       if (setClauses.length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Nenhum campo para atualizar" });
@@ -533,16 +552,22 @@ export const solarisAdminRouter = router({
 
   createQuestion: protectedProcedure
     .input(
+      // FIX-06 (FASE A, 2026-06-01): regras de obrigatoriedade alinhadas com CsvRowSchema.
+      // severidade_base e risk_category_code passam a ser obrigatórios em CREATE.
+      // gap_descricao novo (opcional — coluna criada na migration 0121).
       z.object({
         titulo: z.string().min(1),
         texto: z.string().min(1),
         categoria: z.enum(AREA_VALUES),
-        severidade_base: z.enum(SEVERIDADE_VALUES).optional(),
+        severidade_base: z.enum(SEVERIDADE_VALUES, {
+          message: "Campo 'severidade_base' é obrigatório (baixa/media/alta/critica)",
+        }),
         vigencia_inicio: z.string().optional(),
         topicos: z.string().optional(),
-        risk_category_code: z.string().optional(),
+        risk_category_code: z.string().min(1, "Campo 'risk_category_code' é obrigatório (FK risk_categories.codigo)"),
         classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
         cnae_groups: z.string().optional(), // JSON array string or empty
+        gap_descricao: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -571,8 +596,9 @@ export const solarisAdminRouter = router({
             (texto, categoria, cnae_groups, obrigatorio, ativo, fonte,
              criado_em, atualizado_em, codigo,
              titulo, topicos, severidade_base, vigencia_inicio,
-             risk_category_code, classification_scope)
-          VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             risk_category_code, classification_scope,
+             gap_descricao)
+          VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             input.texto,
             input.categoria,
@@ -580,10 +606,11 @@ export const solarisAdminRouter = router({
             now, now, codigo,
             input.titulo,
             input.topicos || null,
-            input.severidade_base || null,
+            input.severidade_base,                   // FIX-06: obrigatório no Zod (sem || null)
             input.vigencia_inicio && input.vigencia_inicio.trim() !== "" ? input.vigencia_inicio : null,
-            input.risk_category_code || null,
+            input.risk_category_code,                // FIX-06: obrigatório no Zod (sem || null)
             scope,
+            input.gap_descricao ?? null,             // FIX-06: persiste descrição curada (NULL se ausente)
           ]
         );
 
