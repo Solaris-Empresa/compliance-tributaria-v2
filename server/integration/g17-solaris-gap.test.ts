@@ -12,30 +12,29 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// ── Testes do SOLARIS_GAPS_MAP ──────────────────────────────────────────────
+// ── FIX-10: tests do SOLARIS_GAPS_MAP REMOVIDOS ─────────────────────────────
+// O arquivo `server/config/solaris-gaps-map.ts` foi DELETADO em FIX-10
+// (FASE C, 2026-06-01). Arquitetura Max (FIX-08/FIX-09) eliminou o dicionário:
+// agora cada pergunta SOLARIS carrega seus próprios metadados (risk_category_code,
+// gap_descricao, severidade_base) curados pelo advogado via UI admin.
+//
+// Tests removidos (que dependiam de SOLARIS_GAPS_MAP):
+//   - "Caso 1 — SOL-002 = 'Não' → gap confissão" (testava entrada do MAP)
+//   - "Caso 4 — SOL-001 = 'Não' → gap NF-e" (testava entrada do MAP)
+//   - "D6 — Normalização de tópicos" (testava lookup no MAP)
+//   - describe "cobertura de tópicos" inteiro (3 tests sobre estrutura do MAP)
+//
+// Tests PRESERVADOS (não dependem do MAP — testam classifyForGap FIX-01):
+//   - Caso 3 — Resposta positiva
+//   - D2 — "Não aplicável" → exclusão (FIX-01 B4)
+//   - D2 — "Não" e variações → gap
+//   - Caso 5 — Idempotência (verificação via inspeção)
+//   - Caso 2 — Projeto V1 sem solaris_answers → { inserted: 0 }
+//   - describe "G17 — analyzeSolarisAnswers — módulo lib"
+// ─────────────────────────────────────────────────────────────────────────────
 
-describe("G17 — SOLARIS Gaps Map", () => {
-  it("Caso 1 — SOL-002 = 'Não' → gap confissão por inércia no mapa", async () => {
-    const { SOLARIS_GAPS_MAP } = await import("../config/solaris-gaps-map");
-    const gaps = SOLARIS_GAPS_MAP["confissao_automatica"];
-    expect(gaps).toBeDefined();
-    expect(gaps.length).toBeGreaterThan(0);
-    expect(gaps[0].gap_descricao).toContain("confissão");
-    expect(gaps[0].severidade).toBe("critica");
-    expect(gaps[0].area).toBe("contabilidade_fiscal");
-  });
-
-  it("Caso 4 — SOL-001 = 'Não' → gap NF-e no mapa", async () => {
-    const { SOLARIS_GAPS_MAP } = await import("../config/solaris-gaps-map");
-    const gaps = SOLARIS_GAPS_MAP["nfe"];
-    expect(gaps).toBeDefined();
-    expect(gaps.length).toBeGreaterThan(0);
-    expect(gaps[0].gap_descricao).toContain("NF-e");
-    expect(gaps[0].severidade).toBe("critica");
-  });
-
-  it("Caso 3 — Todas as respostas positivas → 0 gaps SOLARIS gerados", async () => {
-    // FIX-01: agora via helper puro classifyForGap (dual-column)
+describe("G17 — Classificação de resposta (helper puro classifyForGap — FIX-01)", () => {
+  it("Caso 3 — Resposta 'Sim' → sem gap (FIX-01: classifyForGap dual-column)", async () => {
     const { classifyForGap } = await import("../lib/solaris-gap-analyzer");
     const { isNegative, isExcluded } = classifyForGap(null, "Sim");
     expect(isNegative).toBe(false);
@@ -43,8 +42,6 @@ describe("G17 — SOLARIS Gaps Map", () => {
   });
 
   it("D2 — FIX-01: 'Não aplicável' agora vira EXCLUSÃO (não gap) — corrige BUG B4", async () => {
-    // PRÉ-FIX-01: "não aplicável".startsWith('não') = true → era classificado como gap (BUG B4)
-    // PÓS-FIX-01: regra de exclusão explícita ANTES do prefix-match → isExcluded=true
     const { classifyForGap } = await import("../lib/solaris-gap-analyzer");
     const r1 = classifyForGap(null, "Não aplicável");
     expect(r1.isNegative).toBe(false);
@@ -64,66 +61,14 @@ describe("G17 — SOLARIS Gaps Map", () => {
     }
   });
 
-  it("D6 — Normalização de tópicos: trim + toLowerCase antes do lookup", async () => {
-    const { SOLARIS_GAPS_MAP } = await import("../config/solaris-gaps-map");
-    // Simular tópico com espaços e case diferente
-    const topicosRaw = " Confissao_automatica , NF-e , CGIBS ";
-    const topicos = topicosRaw
-      .split(",")
-      .map((t) => t.trim().toLowerCase())
-      .filter(Boolean);
-    expect(topicos).toEqual(["confissao_automatica", "nf-e", "cgibs"]);
-    // Nota: 'nf-e' não existe no mapa (chave correta: 'nfe') — apenas 'confissao_automatica' e 'cgibs' são verificados
-    const topicosValidos = ["confissao_automatica", "cgibs"];
-    // Verificar que os tópicos válidos têm mapeamento após normalização
-    for (const topico of topicosValidos) {
-      expect(SOLARIS_GAPS_MAP[topico]).toBeDefined();
-    }
-  });
-
-  it("Caso 5 — Idempotência: DELETE source='solaris' antes de INSERT", () => {
-    // Verificação via inspeção de código (lógica garantida pela implementação):
-    // 1. DELETE FROM project_gaps_v3 WHERE project_id = ? AND source = 'solaris'
-    // 2. INSERT INTO project_gaps_v3 ... source = 'solaris'
-    // A ordem é garantida pelo código sequencial em solaris-gap-analyzer.ts
-    expect(true).toBe(true); // Lógica verificada na revisão de código
+  it("Caso 5 — Idempotência: DELETE source='solaris' antes de INSERT (inspeção)", () => {
+    expect(true).toBe(true);
   });
 
   it("Caso 2 — Projeto V1 sem solaris_answers → retorna { inserted: 0 } sem erro", () => {
-    // Simular: rows = [] → função retorna cedo sem inserir nada
     const rows: unknown[] = [];
     const shouldReturn = !rows || rows.length === 0;
     expect(shouldReturn).toBe(true);
-  });
-});
-
-describe("G17 — SOLARIS Gaps Map — cobertura de tópicos", () => {
-  it("Todos os tópicos do mapa têm campos obrigatórios preenchidos", async () => {
-    const { SOLARIS_GAPS_MAP } = await import("../config/solaris-gaps-map");
-    for (const [topico, gaps] of Object.entries(SOLARIS_GAPS_MAP)) {
-      expect(gaps.length).toBeGreaterThan(0);
-      for (const gap of gaps) {
-        expect(gap.gap_descricao, `topico: ${topico}`).toBeTruthy();
-        expect(gap.area, `topico: ${topico}`).toBeTruthy();
-        expect(["critica", "alta", "media"]).toContain(gap.severidade);
-        expect(gap.topico_trigger, `topico: ${topico}`).toBeTruthy();
-      }
-    }
-  });
-
-  it("Mapa tem pelo menos 6 tópicos mapeados (SOL-001..SOL-012 cobertura mínima)", async () => {
-    const { SOLARIS_GAPS_MAP } = await import("../config/solaris-gaps-map");
-    expect(Object.keys(SOLARIS_GAPS_MAP).length).toBeGreaterThanOrEqual(6);
-  });
-
-  it("Enums de area são válidos (contabilidade_fiscal | juridico | ti | governanca | operacional)", async () => {
-    const { SOLARIS_GAPS_MAP } = await import("../config/solaris-gaps-map");
-    const areasValidas = ["contabilidade_fiscal", "juridico", "ti", "governanca", "operacional", "negocio"];
-    for (const [topico, gaps] of Object.entries(SOLARIS_GAPS_MAP)) {
-      for (const gap of gaps) {
-        expect(areasValidas, `topico: ${topico} area inválida: ${gap.area}`).toContain(gap.area);
-      }
-    }
   });
 });
 

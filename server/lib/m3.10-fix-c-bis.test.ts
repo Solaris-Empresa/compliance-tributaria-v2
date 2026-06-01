@@ -283,12 +283,11 @@ describe("M3.10 Fix C-bis — SOURCE_LABELS cobertura completa", () => {
 // Compat — pré-requisitos da Sprint M3.10 mantidos
 // ---------------------------------------------------------------------------
 describe("M3.10 Fix C-bis — pré-requisitos das sprints anteriores preservados", () => {
-  it("Fix B (PR #976): topico-to-categoria existe", () => {
-    const TOPICO_SRC = readFileSync(
-      path.resolve(__dirname, "../config/topico-to-categoria.ts"),
-      "utf-8",
-    );
-    expect(TOPICO_SRC).toMatch(/export\s+function\s+mapTopicToCategory/);
+  // FIX-10 (FASE C, 2026-06-01): arquivo `topico-to-categoria.ts` DELETADO.
+  // Substituído pela arquitetura Max (FIX-08/FIX-09) — risk_category_code
+  // vem direto dos metadados da pergunta SOLARIS/IAGEN, sem dicionário.
+  it.skip("REMOVIDO FIX-10: topico-to-categoria.ts não existe mais (arquivo deletado)", () => {
+    // Documentação intencional da remoção (test obsoleto pela arquitetura Max).
   });
 
   it("Fix A1 (PR #977): generateRisksAllSources procedure existe", () => {

@@ -248,13 +248,11 @@ describe("M3.10 Fix A1 — frontend RiskDashboardV4 usa pipeline unificado", () 
 // Sanidade — Fix A1 depende de Fix B
 // ---------------------------------------------------------------------------
 describe("M3.10 Fix A1 — pré-requisito Fix B (PR #976)", () => {
-  it("Fix B mergeado: TOPICO_TO_CATEGORIA existe no repo", () => {
-    const TOPICO_SRC = readFileSync(
-      path.resolve(__dirname, "../config/topico-to-categoria.ts"),
-      "utf-8",
-    );
-    expect(TOPICO_SRC).toMatch(/export\s+const\s+TOPICO_TO_CATEGORIA/);
-    expect(TOPICO_SRC).toMatch(/export\s+function\s+mapTopicToCategory/);
+  // FIX-10 (FASE C, 2026-06-01): arquivo `topico-to-categoria.ts` DELETADO.
+  // Arquitetura Max (FIX-08/FIX-09) substitui o lookup intermediário —
+  // risk_category_code vem direto dos metadados da pergunta SOLARIS/IAGEN.
+  it.skip("REMOVIDO FIX-10: TOPICO_TO_CATEGORIA não existe mais (arquivo deletado)", () => {
+    // Documentação intencional da remoção.
   });
 
   it("Fix B mergeado: solaris-gap-analyzer popula risk_category_code no INSERT", () => {

@@ -57,10 +57,10 @@ import {
 import type { ConfiancaBreakdown } from "./lib/calculate-briefing-confidence";
 // Issue #1048: detalhe de pilar Q3 (NCM/NBS) extraído para função pura testável
 import { formatQ3PilarDetalhe } from "./lib/format-confidence-breakdown";
-import {
-  SOLARIS_GAPS_MAP,
-  type SolarisGapDefinition,
-} from "./config/solaris-gaps-map";
+// FIX-10 (FASE C, 2026-06-01): import de SOLARIS_GAPS_MAP + SolarisGapDefinition
+// REMOVIDO — arquivo `server/config/solaris-gaps-map.ts` DELETADO neste PR.
+// Tipos/dicionários eram dead imports (apenas declarados, nunca usados).
+// Arquitetura Max (FIX-08): G17 monta gap diretamente dos metadados da pergunta.
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
 import { getArchetypeContext } from "./lib/archetype/getArchetypeContext";
 import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
