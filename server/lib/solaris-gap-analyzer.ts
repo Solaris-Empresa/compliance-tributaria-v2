@@ -1,11 +1,31 @@
 /**
- * G17 — Analisador de gaps da Onda 1 SOLARIS
+ * G17 — Analisador de gaps da Onda 1 SOLARIS — ARQUITETURA MAX (FIX-08)
  * Módulo puro — sem side effects de router tRPC
  * Usado por: server/routers-fluxo-v3.ts (fire-and-forget) e scripts/g17-backfill.ts
  *
- * FIX-01 (FEAT-SOL-UX-01 follow-up, 2026-06-01): G17 agora lê `resposta_opcao`
- * (ENUM dual-column da migration 0120) como fonte canônica. Texto livre
- * permanece como fallback legado para projetos pré-PR-C (resposta_opcao=null).
+ * ─────────────────────────────────────────────────────────────────────────────
+ * FIX-08 (FASE B, 2026-06-01): arquitetura Max — zero dicionários intermediários.
+ *
+ * Antes (legado pré-FIX-08):
+ *   pergunta.topicos → split(";") → SOLARIS_GAPS_MAP[topico] → gap
+ *                                    mapTopicToCategory(topico) → risk_category_code
+ *   ❌ Tópico novo sem entrada no MAP → gap perdido silenciosamente (B9)
+ *
+ * Agora (FIX-08):
+ *   resposta negativa → gap direto montado a partir dos metadados da pergunta
+ *     gap_descricao      = pergunta.gap_descricao (curado) ?? "Ausência: {titulo}"
+ *     area               = pergunta.categoria (obrigatório no Zod do upload)
+ *     severidade         = pergunta.severidade_base ?? 'media' (fallback defensivo)
+ *     risk_category_code = pergunta.risk_category_code (obrigatório em CREATE — FIX-06)
+ *     source_reference   = pergunta.codigo (SOL-NNN)
+ *   ✅ 100% cobertura — sem dicionário de tradução, sem curadoria recorrente
+ *
+ * Dependências (todas mergeadas em main):
+ *   - PR #1316 (FEAT-SOL-UX-01 PR-A): coluna resposta_opcao
+ *   - PR #1321 (FIX-01): helper classifyForGap dual-column
+ *   - PR #1323 (FIX-05): coluna gap_descricao
+ *   - PR #1324 (FIX-06): risk_category_code obrigatório em CREATE
+ * ─────────────────────────────────────────────────────────────────────────────
  *
  * Decisão por opção (canônica — quando resposta_opcao IS NOT NULL):
  *   - sim           → sem gap
@@ -14,31 +34,57 @@
  *   - nao_se_aplica → exclusão (distinto de "atendido", não gera gap)
  *
  * Fallback legado (resposta_opcao IS NULL — pré-PR-C):
- *   - "não se aplica", "não aplicável", "n/a", "na" → exclusão (corrige B4)
+ *   - "não se aplica", "não aplicável", "n/a", "na" → exclusão
  *   - startsWith("não") || === "nao"               → gap
  *   - resto                                         → sem gap
  *
  * Idempotência: DELETE source='solaris' antes de INSERT (D4).
  * Compatibilidade V1: projeto sem solaris_answers → retorna { inserted: 0 }.
  * Driver único: mysql2 pool raw (Opção A) — sem mistura Drizzle + raw.
+ *
+ * NOTA cross-domain: `server/lib/iagen-gap-analyzer.ts` ainda importa
+ * SOLARIS_GAPS_MAP + mapTopicToCategory — esses dicionários NÃO foram deletados
+ * neste PR. Migração do IAGEN para o mesmo padrão = sprint futura.
  */
 
 import mysql from 'mysql2/promise';
-import { SOLARIS_GAPS_MAP } from '../config/solaris-gaps-map';
-// M3.10 Fix B: mapping topico → risk_category_code para evitar NULL em project_gaps_v3.
-// Sem isso, gaps SOLARIS cairiam em "unmapped" no GapToRuleMapper.
-// Ver post-mortem: docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md
-import { mapTopicToCategory } from '../config/topico-to-categoria';
+
+// ─── Tipos e helpers puros (testáveis sem DB) ─────────────────────────────────
 
 /** Valores discretos persistidos em solaris_answers.resposta_opcao (migration 0120). */
 export type RespostaOpcao = "sim" | "nao" | "nao_sei" | "nao_se_aplica";
 
+/** Severidade base persistida em solaris_questions.severidade_base. */
+export type Severidade = "baixa" | "media" | "alta" | "critica";
+
 /** Classificação determinística da resposta para o pipeline de gap. */
 export interface GapClassification {
-  /** true → resposta gera gaps via SOLARIS_GAPS_MAP */
+  /** true → resposta gera gap a partir dos metadados da pergunta */
   isNegative: boolean;
   /** true → resposta marca exclusão explícita (não-aplicabilidade), NÃO gera gap */
   isExcluded: boolean;
+}
+
+/**
+ * Subconjunto enriquecido de `solaris_questions` consumido pelo G17 (FIX-08).
+ * Todos os campos opcionais → tratados defensivamente em `buildGapFromQuestion`.
+ */
+export interface QuestionMetadata {
+  codigo: string;
+  titulo: string | null;
+  categoria: string | null;
+  severidade_base: string | null;
+  risk_category_code: string | null;
+  gap_descricao: string | null;
+}
+
+/** Forma intermediária do gap antes do INSERT — testável sem DB. */
+export interface GapToInsert {
+  gap_descricao: string;
+  area: string;
+  severidade: Severidade;
+  risk_category_code: string;
+  source_reference: string;
 }
 
 /**
@@ -73,19 +119,63 @@ export function classifyForGap(
   return { isNegative, isExcluded: false };
 }
 
+/**
+ * FIX-08 — Função pura testável: monta o gap a partir dos metadados da pergunta.
+ * Retorna `null` quando a pergunta não tem `risk_category_code` (skip + warn).
+ *
+ * Esta é a essência da "arquitetura Max": substitui o lookup em
+ * SOLARIS_GAPS_MAP + topico-to-categoria por leitura direta dos metadados
+ * que o advogado curou no momento do upload/criação (FIX-06).
+ */
+export function buildGapFromQuestion(
+  row: QuestionMetadata,
+): GapToInsert | null {
+  // Guard: sem risk_category_code → não há mapeamento determinístico → skip
+  // (REGRA-ORQ-29: sem requisito = sem gap). FIX-06 torna obrigatório em CREATE;
+  // perguntas legadas com risk_category_code=NULL caem aqui até serem curadas.
+  if (!row.risk_category_code || row.risk_category_code.trim() === "") {
+    return null;
+  }
+  // gap_descricao curado → preferido; fallback "Ausência: {titulo}" → fallback "Ausência: {codigo}"
+  const gapDescricao = row.gap_descricao?.trim()
+    ? row.gap_descricao.trim()
+    : `Ausência: ${row.titulo?.trim() || row.codigo}`;
+  // Defensivo: categoria nullable no schema atual → fallback contabilidade_fiscal
+  const area = row.categoria?.trim() || "contabilidade_fiscal";
+  // Defensivo: severidade_base nullable → fallback "media"
+  const sev = (row.severidade_base?.trim() as Severidade | undefined) ?? "media";
+  const severidade: Severidade = (["baixa", "media", "alta", "critica"] as const).includes(
+    sev as Severidade,
+  )
+    ? sev as Severidade
+    : "media";
+  return {
+    gap_descricao: gapDescricao,
+    area,
+    severidade,
+    risk_category_code: row.risk_category_code.trim(),
+    source_reference: row.codigo,
+  };
+}
+
+// ─── Procedure principal (I/O com DB) ─────────────────────────────────────────
+
 export async function analyzeSolarisAnswers(
-  projectId: number
+  projectId: number,
 ): Promise<{ inserted: number }> {
-  console.log('[G17] analyzeSolarisAnswers iniciado — projectId:', projectId);
+  console.log('[G17-MAX] analyzeSolarisAnswers iniciado — projectId:', projectId);
 
   const pool = mysql.createPool(process.env.DATABASE_URL ?? '');
   const conn = await pool.getConnection();
 
   try {
-    // 1. Buscar respostas da Onda 1 com dados da pergunta (topicos, codigo)
-    // FIX-01: incluir resposta_opcao no SELECT (coluna ENUM da migration 0120)
+    // FIX-08: SELECT enriquecido — traz todos os metadados que `buildGapFromQuestion`
+    // precisa (categoria, severidade_base, risk_category_code, gap_descricao, titulo).
+    // ELIMINA: sq.topicos (não mais consumido — substituído por risk_category_code direto).
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
-      `SELECT sa.resposta, sa.resposta_opcao, sq.topicos, sq.codigo
+      `SELECT sa.resposta, sa.resposta_opcao,
+              sq.codigo, sq.titulo, sq.categoria, sq.severidade_base,
+              sq.risk_category_code, sq.gap_descricao
        FROM solaris_answers sa
        LEFT JOIN solaris_questions sq ON sq.id = sa.question_id
        WHERE sa.project_id = ? AND sq.ativo = 1`,
@@ -93,68 +183,67 @@ export async function analyzeSolarisAnswers(
     );
 
     if (!rows || rows.length === 0) {
-      console.warn('[G17] Projeto sem solaris_answers (V1 legado ou vazio) — degradando graciosamente');
+      console.warn('[G17-MAX] Projeto sem solaris_answers (V1 legado ou vazio) — degradando graciosamente');
       return { inserted: 0 };
     }
 
-    // 2. Mapear respostas negativas → gaps via SOLARIS_GAPS_MAP
-    const gapsToInsert: Array<{
-      gap_descricao: string;
-      area: string;
-      severidade: string;
-      topico_trigger: string;
-    }> = [];
+    // FIX-08: 1 resposta negativa = 1 gap (era N tópicos → N gaps no legado).
+    // Granularidade simplificada — cada pergunta carrega 1 risk_category_code
+    // e 1 gap_descricao curada (sem multiplicação).
+    const gapsToInsert: GapToInsert[] = [];
 
     for (const row of rows) {
-      // FIX-01: classificação via helper puro `classifyForGap` — dual-column com fallback legado
       const opcao = (row.resposta_opcao as RespostaOpcao | null) ?? null;
       const resposta = (row.resposta as string) ?? '';
       const { isNegative, isExcluded } = classifyForGap(opcao, resposta);
       if (isExcluded) continue;
       if (!isNegative) continue;
 
-      // D6: normalizar tópicos com trim + toLowerCase
-      const topicos = (row.topicos as string | null)
-        ?.split(/[;,]/)
-        .map((t: string) => t.trim().toLowerCase())
-        .filter(Boolean) ?? [];
+      const gap = buildGapFromQuestion({
+        codigo: row.codigo as string,
+        titulo: (row.titulo as string | null) ?? null,
+        categoria: (row.categoria as string | null) ?? null,
+        severidade_base: (row.severidade_base as string | null) ?? null,
+        risk_category_code: (row.risk_category_code as string | null) ?? null,
+        gap_descricao: (row.gap_descricao as string | null) ?? null,
+      });
 
-      for (const topico of topicos) {
-        const gaps = SOLARIS_GAPS_MAP[topico];
-        if (!gaps) {
-          console.warn(`[G17] Tópico sem mapeamento: "${topico}" (${row.codigo})`);
-          continue;
-        }
-        gapsToInsert.push(...gaps);
+      if (gap === null) {
+        console.warn(
+          `[G17-MAX] ${row.codigo} sem risk_category_code — skip (curadoria pendente — REGRA-ORQ-29)`,
+        );
+        continue;
       }
+
+      gapsToInsert.push(gap);
     }
 
-    console.log('[G17] gaps calculados:', gapsToInsert.length);
+    console.log('[G17-MAX] gaps calculados:', gapsToInsert.length);
 
     if (gapsToInsert.length === 0) {
-      console.warn('[G17] Nenhum gap gerado — verificar respostas e SOLARIS_GAPS_MAP');
+      console.warn('[G17-MAX] Nenhum gap gerado — todas respostas positivas/exclusão ou perguntas sem risk_category_code');
+      // Ainda assim, garantir idempotência: deletar gaps anteriores
+      await conn.execute(
+        'DELETE FROM project_gaps_v3 WHERE project_id = ? AND source = ?',
+        [projectId, 'solaris'],
+      );
       return { inserted: 0 };
     }
 
-    // 3. DELETE + INSERT em transação atômica (Opção A — raw MySQL)
+    // DELETE + INSERT em transação atômica (Opção A — raw MySQL)
     await conn.beginTransaction();
 
     try {
       // Idempotência: deletar gaps SOLARIS anteriores para este projeto
       const [delResult] = await conn.execute(
         'DELETE FROM project_gaps_v3 WHERE project_id = ? AND source = ?',
-        [projectId, 'solaris']
+        [projectId, 'solaris'],
       ) as any;
-      console.log('[G17] DELETE gaps SOLARIS anteriores:', delResult.affectedRows);
+      console.log('[G17-MAX] DELETE gaps SOLARIS anteriores:', delResult.affectedRows);
 
       const now = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
 
       for (const gap of gapsToInsert) {
-        // M3.10 Fix B: derivar risk_category_code a partir do tópico.
-        // Tópicos não mapeados → null (gap fica sem categoria, será tratado como
-        // "unmapped" downstream). Curadoria deve expandir TOPICO_TO_CATEGORIA.
-        const riskCategoryCode = mapTopicToCategory(gap.topico_trigger);
-
         await conn.execute(
           `INSERT INTO project_gaps_v3
              (project_id, gap_description, domain, criticality, analysis_version,
@@ -175,10 +264,10 @@ export async function analyzeSolarisAnswers(
               'operacional', 'normativo', 'nao_atendido', 'ausente',
               'baixa', 80, 'alto', 80,
               1, 'imediata', 30,
-              'Resposta negativa na Onda 1 SOLARIS', NULL,
+              'Resposta negativa na Onda 1 SOLARIS (G17-MAX)', NULL,
               'Critério não atendido: resposta negativa na Onda 1 SOLARIS',
               'Implementar controle conforme LC 214/2025', 0, NULL,
-              0.9, 'Detectado por resposta negativa SOLARIS',
+              0.9, 'Detectado por resposta negativa SOLARIS — G17-MAX',
               0, 'não', ?,
               ?)`,
           [
@@ -188,8 +277,8 @@ export async function analyzeSolarisAnswers(
             gap.severidade,
             now, now,
             gap.gap_descricao,
-            gap.topico_trigger,
-            riskCategoryCode, // M3.10 Fix B: pode ser null se tópico não mapeado
+            gap.source_reference,
+            gap.risk_category_code,
           ]
         );
       }
@@ -197,18 +286,18 @@ export async function analyzeSolarisAnswers(
       // Confirmar no banco — não confiar só em gapsToInsert.length
       const [countResult] = await conn.execute(
         'SELECT COUNT(*) as total FROM project_gaps_v3 WHERE project_id = ? AND source = ?',
-        [projectId, 'solaris']
+        [projectId, 'solaris'],
       ) as any;
       const insertedConfirmado: number = countResult[0]?.total ?? 0;
 
       await conn.commit();
-      console.log('[G17] inserted confirmado no banco:', insertedConfirmado);
+      console.log('[G17-MAX] inserted confirmado no banco:', insertedConfirmado);
       return { inserted: insertedConfirmado };
 
     } catch (err) {
       await conn.rollback();
-      console.error('[G17] ROLLBACK — projectId:', projectId);
-      console.error('[G17] Erro completo:', JSON.stringify(err, null, 2));
+      console.error('[G17-MAX] ROLLBACK — projectId:', projectId);
+      console.error('[G17-MAX] Erro completo:', JSON.stringify(err, null, 2));
       throw err;
     }
 
