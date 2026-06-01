@@ -1668,10 +1668,20 @@ Gere as perguntas no formato:
         solarisAnswersForPrompt.length > 0
       ) {
         additionalSourcesContext.push("<respostas_solaris_onda1>");
+        // FIX-04 (FEAT-SOL-UX-01 follow-up, 2026-06-01): filtro dual-column.
+        // Pré-fix: só incluía respostas com texto livre — descartava ~77% das
+        // respostas pós-PR-C (radio button sem texto). Resultado: briefing LLM
+        // não citava SOLARIS (auditoria Manus projeto 4920001).
+        // Pós-fix: inclui também respostas com resposta_opcao (radio button) —
+        // quando texto vazio, serializa a opção discreta para o prompt LLM.
         solarisAnswersForPrompt
-          .filter((a: any) => a?.resposta)
+          .filter((a: any) => a?.resposta || a?.respostaOpcao)
           .forEach((a: any) => {
-            additionalSourcesContext.push(`${a.codigo}: ${a.resposta}`);
+            const texto = (a.resposta as string | null)?.trim();
+            const label = texto && texto.length > 0
+              ? texto
+              : `[opção: ${a.respostaOpcao}]`;
+            additionalSourcesContext.push(`${a.codigo}: ${label}`);
           });
         additionalSourcesContext.push("</respostas_solaris_onda1>");
       }
