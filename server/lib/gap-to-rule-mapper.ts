@@ -282,5 +282,9 @@ function toGapRule(
     answerValue: gap.answerValue ?? null,
     gapId: gap.gapId ?? null,
     questionSource: gap.questionSource ?? null,
+    // Sprint 3 (FIX-VIS-U1 + U5): passthrough do texto curado do gap.
+    // GapInput.descricao já existia em GapInputSchema (gap-risk.schemas.ts:80) e
+    // db-queries-risks-v4.ts:1044 populava do banco — só faltava propagar adiante.
+    descricao: gap.descricao ?? null,
   };
 }

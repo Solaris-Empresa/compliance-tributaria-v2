@@ -58,6 +58,11 @@ export interface GapRule {
   answerValue?: string | null;
   gapId?: number | null;
   questionSource?: "solaris" | "iagen" | "qa_v3" | "engine" | "cnae" | "v1" | null;
+  // Sprint 3 (FIX-VIS-U1 + U5): texto curado do gap propagado de GapInput.descricao
+  // → toGapRule (gap-to-rule-mapper.ts:265) → mapGapToEvidence → EvidenceItem.
+  // Antes do fix esse campo era dead-read parcial: db-queries-risks-v4.ts:1044 lia
+  // do banco mas toGapRule descartava, e a UI só via "[ruleId] SOL-049" sem texto.
+  descricao?: string | null;
 }
 
 export interface RiskV4 {
@@ -254,6 +259,10 @@ export interface EvidenceItem {
   answerValue?: string | null;
   gapId?: number | null;
   questionSource?: "solaris" | "iagen" | "qa_v3" | "engine" | "cnae" | "v1" | null;
+  // Sprint 3 (FIX-VIS-U1 + U5): texto curado da pergunta/gap para exibição UI.
+  // Carregado em db-queries-risks-v4.ts:1044 (GapInput.descricao) → GapRule.descricao →
+  // aqui via mapGapToEvidence. Sem este campo, UI exibia só "[ruleId] SOL-049" (opaco).
+  gapDescription?: string | null;
 }
 
 export interface ConsolidatedEvidence {
@@ -314,6 +323,11 @@ function mapGapToEvidence(gap: GapRule): EvidenceItem {
     answerValue: gap.answerValue ?? null,
     gapId: gap.gapId ?? null,
     questionSource: gap.questionSource ?? null,
+    // Sprint 3 (FIX-VIS-U1 + U5): propagar gap.descricao (carregado em
+    // db-queries-risks-v4.ts:1044 como gap_description → descricao). Antes
+    // do fix esse campo era dead-read parcial — chegava ao GapInput mas
+    // mapGapToEvidence o descartava, deixando a UI sem texto descritivo.
+    gapDescription: gap.descricao ?? null,
   };
 }
 

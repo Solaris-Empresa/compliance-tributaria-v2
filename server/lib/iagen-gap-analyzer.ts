@@ -56,6 +56,11 @@ export interface IagenAnswerMetadata {
 
 /** Forma intermediária do gap antes do INSERT. */
 export interface IagenGapToInsert {
+  /** Sprint 3 (FIX-VIS-U4 paridade): id da resposta iagen — IAGEN não tem
+   *  tabela `iagen_questions` (perguntas são dinâmicas LLM, persistidas inline),
+   *  então a unidade rastreável é `iagen_answers.id`. Substitui o literal 0
+   *  hardcoded em project_gaps_v3.question_id pré-Sprint 3. */
+  iagen_answer_id: number;
   gap_descricao: string;
   area: string;
   severidade: IagenSeveridade;
@@ -115,6 +120,7 @@ export function buildIagenGapFromAnswer(
   // answer_value_preview: 200 chars (preserva o que estava no SQL legado)
   const answerPreview = (row.resposta ?? "").substring(0, 200);
   return {
+    iagen_answer_id: row.id, // Sprint 3 (FIX-VIS-U4 paridade)
     gap_descricao: gapDescricao,
     area: "compliance", // default — não há iagen_questions com categoria curada
     severidade: "alta", // default conservador — IAGEN é fonte LLM
@@ -217,8 +223,10 @@ export async function analyzeIagenAnswers(
               'Critério não confirmado: resposta com baixa conformidade na Onda 2',
               'Revisar e confirmar conformidade conforme LC 214/2025', 0, NULL,
               0.7, 'Detectado por resposta não-conforme na Onda 2 iagen — IAGEN-MAX',
-              0, ?, ?,
+              ?, ?, ?,
               ?)`,
+          // Sprint 3 (FIX-VIS-U4 paridade): substituído literal `0` por
+          // placeholder `?` para persistir iagen_answers.id real em question_id.
           [
             projectId,
             gap.gap_descricao,
@@ -226,6 +234,7 @@ export async function analyzeIagenAnswers(
             gap.severidade,
             now, now,
             gap.gap_descricao,
+            gap.iagen_answer_id,         // FIX-VIS-U4: era literal 0
             gap.answer_value_preview,
             gap.source_reference,
             gap.risk_category_code,

@@ -70,6 +70,9 @@ export interface GapClassification {
  * Todos os campos opcionais → tratados defensivamente em `buildGapFromQuestion`.
  */
 export interface QuestionMetadata {
+  /** Sprint 3 (FIX-VIS-U4): ID real da pergunta para persistir em project_gaps_v3.question_id
+   *  (substitui o literal 0 que era hardcoded no SQL INSERT pré-Sprint 3). */
+  id: number;
   codigo: string;
   titulo: string | null;
   categoria: string | null;
@@ -80,6 +83,13 @@ export interface QuestionMetadata {
 
 /** Forma intermediária do gap antes do INSERT — testável sem DB. */
 export interface GapToInsert {
+  /** Sprint 3 (FIX-VIS-U4): question_id real (solaris_questions.id). */
+  question_id: number;
+  /** Sprint 3 (FIX-VIS-U6 — opção c híbrido autorizada P.O.):
+   *  - resposta_opcao disponível → 'nao' / 'nao_sei' (ENUM canônico Sprint 1)
+   *  - legado (resposta_opcao NULL) → fallback para resposta texto truncado a 200 chars
+   *  UI mapeia 'nao' → "Não" · 'nao_sei' → "Não sei" no parseEvidence/render. */
+  answer_value: string;
   gap_descricao: string;
   area: string;
   severidade: Severidade;
@@ -120,15 +130,41 @@ export function classifyForGap(
 }
 
 /**
+ * Sprint 3 (FIX-VIS-U6) — opção (c) híbrida autorizada P.O.: deriva o valor a
+ * persistir em project_gaps_v3.answer_value a partir do par (opcao, resposta).
+ *
+ * - `opcao` preenchida (radio button — Sprint 1 PR #1316) → persistir o ENUM
+ *   canônico (`'nao'` / `'nao_sei'`). UI mapeia downstream.
+ * - `opcao` NULL (legado pré-PR-C) → fallback para `resposta` texto truncado
+ *   a 200 chars (padrão IAGEN — Lição #59 evita verbosidade no banco).
+ *
+ * Função pura, testável sem DB.
+ */
+export function deriveAnswerValueCanonical(
+  opcao: RespostaOpcao | null,
+  resposta: string,
+): string {
+  if (opcao !== null) return opcao; // 'sim' | 'nao' | 'nao_sei' | 'nao_se_aplica'
+  // Fallback legado: truncar a 200 chars (paridade com IAGEN preview)
+  return (resposta ?? "").substring(0, 200);
+}
+
+/**
  * FIX-08 — Função pura testável: monta o gap a partir dos metadados da pergunta.
  * Retorna `null` quando a pergunta não tem `risk_category_code` (skip + warn).
  *
  * Esta é a essência da "arquitetura Max": substitui o lookup em
  * SOLARIS_GAPS_MAP + topico-to-categoria por leitura direta dos metadados
  * que o advogado curou no momento do upload/criação (FIX-06).
+ *
+ * Sprint 3 (FIX-VIS-U4 + U6): recebe agora `answer_value_canonical` (string já
+ * derivada pelo caller via `deriveAnswerValueCanonical`) e propaga junto com
+ * `question_id` (row.id) — substitui os literais `0` e `'não'` que eram
+ * hardcoded no SQL INSERT da arquitetura legada.
  */
 export function buildGapFromQuestion(
   row: QuestionMetadata,
+  answer_value_canonical: string,
 ): GapToInsert | null {
   // Guard: sem risk_category_code → não há mapeamento determinístico → skip
   // (REGRA-ORQ-29: sem requisito = sem gap). FIX-06 torna obrigatório em CREATE;
@@ -150,6 +186,8 @@ export function buildGapFromQuestion(
     ? sev as Severidade
     : "media";
   return {
+    question_id: row.id,
+    answer_value: answer_value_canonical,
     gap_descricao: gapDescricao,
     area,
     severidade,
@@ -172,8 +210,13 @@ export async function analyzeSolarisAnswers(
     // FIX-08: SELECT enriquecido — traz todos os metadados que `buildGapFromQuestion`
     // precisa (categoria, severidade_base, risk_category_code, gap_descricao, titulo).
     // ELIMINA: sq.topicos (não mais consumido — substituído por risk_category_code direto).
+    //
+    // Sprint 3 (FIX-VIS-U4): adicionado `sq.id AS question_id_real` — substitui o
+    // literal 0 hardcoded no SQL INSERT. Habilita rastreabilidade end-to-end
+    // Risco → Pergunta SOLARIS no frontend.
     const [rows] = await conn.execute<mysql.RowDataPacket[]>(
       `SELECT sa.resposta, sa.resposta_opcao,
+              sq.id AS question_id_real,
               sq.codigo, sq.titulo, sq.categoria, sq.severidade_base,
               sq.risk_category_code, sq.gap_descricao
        FROM solaris_answers sa
@@ -199,14 +242,22 @@ export async function analyzeSolarisAnswers(
       if (isExcluded) continue;
       if (!isNegative) continue;
 
-      const gap = buildGapFromQuestion({
-        codigo: row.codigo as string,
-        titulo: (row.titulo as string | null) ?? null,
-        categoria: (row.categoria as string | null) ?? null,
-        severidade_base: (row.severidade_base as string | null) ?? null,
-        risk_category_code: (row.risk_category_code as string | null) ?? null,
-        gap_descricao: (row.gap_descricao as string | null) ?? null,
-      });
+      // Sprint 3 (FIX-VIS-U6): derivar valor canônico antes do INSERT.
+      const answerValueCanonical = deriveAnswerValueCanonical(opcao, resposta);
+
+      const gap = buildGapFromQuestion(
+        {
+          // Sprint 3 (FIX-VIS-U4): id real (alias SQL: question_id_real)
+          id: row.question_id_real as number,
+          codigo: row.codigo as string,
+          titulo: (row.titulo as string | null) ?? null,
+          categoria: (row.categoria as string | null) ?? null,
+          severidade_base: (row.severidade_base as string | null) ?? null,
+          risk_category_code: (row.risk_category_code as string | null) ?? null,
+          gap_descricao: (row.gap_descricao as string | null) ?? null,
+        },
+        answerValueCanonical,
+      );
 
       if (gap === null) {
         console.warn(
@@ -268,8 +319,10 @@ export async function analyzeSolarisAnswers(
               'Critério não atendido: resposta negativa na Onda 1 SOLARIS',
               'Implementar controle conforme LC 214/2025', 0, NULL,
               0.9, 'Detectado por resposta negativa SOLARIS — G17-MAX',
-              0, 'não', ?,
+              ?, ?, ?,
               ?)`,
+          // Sprint 3 (FIX-VIS-U4 + U6): substituídos literais `0, 'não'` por
+          // placeholders dinâmicos `?, ?` (question_id real + answer_value canônico).
           [
             projectId,
             gap.gap_descricao,
@@ -277,6 +330,8 @@ export async function analyzeSolarisAnswers(
             gap.severidade,
             now, now,
             gap.gap_descricao,
+            gap.question_id,        // FIX-VIS-U4: ID real (era literal 0)
+            gap.answer_value,       // FIX-VIS-U6: 'nao'/'nao_sei' canônico ou texto legado
             gap.source_reference,
             gap.risk_category_code,
           ]

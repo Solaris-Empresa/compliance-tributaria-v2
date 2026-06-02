@@ -1925,16 +1925,28 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
   - "rag"           → o gap foi derivado diretamente do regulatoryContext (chunk do RAG citando o artigo/LC)
   - "cnae"          → o gap foi derivado do CNAE principal confirmado (característica estrutural da atividade)
   - "descricao"     → o gap foi derivado da "DESCRIÇÃO" textual do negócio (sinal lexical — ex.: "exportação", "cesta básica")
-  - "questionario"  → o gap foi derivado de uma resposta específica nos questionários (Onda 1, Onda 2, CNAE, Produtos ou Serviços)
+  - "solaris"       → o gap foi derivado de uma resposta no questionário SOLARIS (Onda 1) — use SEMPRE que o source_reference começar com "SOL-"
+  - "questionario"  → o gap foi derivado de uma resposta nos questionários CNAE, Produtos ou Serviços (NÃO use para SOLARIS — use "solaris")
   - "iagen"         → o gap foi derivado de pergunta da IA Gen (Onda 2) e a resposta correlata
   - "regra_semantica" → o gap foi derivado das REGRAS DE ARTIGOS CRÍTICOS (gatilhos semânticos declarados acima)
 - "source_reference" é uma string curta identificando a fonte:
   - RAG: "chunk_id:XXX" ou "Art. X §Y LC 214/2025"
   - CNAE: o código CNAE confirmado (ex.: "4632-0/03")
   - Descrição: trecho curto entre aspas da descrição que disparou o gap (ex.: "\"exportamos para Bolívia\"")
-  - Questionário: "questao_id:ABC" ou nome curto da pergunta (ex.: "P3 Onda 1 — operação interestadual")
+  - SOLARIS: código da pergunta (ex.: "SOL-049") + título curto entre aspas
+  - Questionário: "questao_id:ABC" ou nome curto da pergunta (ex.: "P3 Onda 2 — partes relacionadas")
   - IA Gen: "pergunta IA Gen: [título curto]"
   - Regra semântica: número da regra acima (ex.: "Gatilho #2 — cesta básica")
+
+REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2):
+- Se houver QUALQUER resposta negativa ("não" / "não sei") no bloco <respostas_solaris_onda1>,
+  você DEVE incluir pelo menos 1 gap em "principais_gaps" com:
+  - "source_type": "solaris"
+  - "source_reference": "SOL-NNN" (código da pergunta correlata)
+- Esta regra é INVIOLÁVEL — o questionário SOLARIS é a fonte primária de evidência
+  curada pelo advogado tributarista. Ignorar respostas negativas SOLARIS quebra a
+  rastreabilidade end-to-end exigida pelo produto (parecer jurídico — meta 98%).
+
 - NUNCA invente source_reference. Se o gap não tem fonte clara identificável, use source_type="rag" e source_reference="Reforma Tributária — LC 214/2025" como fallback genérico — mas ISSO reduz a qualidade do diagnóstico, evite quando houver alternativa precisa.`,
           },
         ],
@@ -4448,9 +4460,13 @@ REGRA TOP 3 AÇÕES (issue #810, fix UAT 2026-04-21):
 
 REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra #1):
 - Cada gap em "principais_gaps" DEVE vir com "source_type" + "source_reference".
-- source_type: "rag" | "cnae" | "descricao" | "questionario" | "iagen" | "regra_semantica".
-- source_reference: identificador curto (chunk_id, CNAE, trecho em aspas, nome da pergunta, gatilho semântico).
-- Fallback genérico só quando não houver alternativa: source_type="rag", source_reference="Reforma Tributária — LC 214/2025".`,
+- source_type: "rag" | "cnae" | "descricao" | "solaris" | "questionario" | "iagen" | "regra_semantica".
+- "solaris" → use SEMPRE que o source_reference começar com "SOL-" (questionário SOLARIS Onda 1). "questionario" cobre CNAE/Produtos/Serviços, NÃO SOLARIS.
+- source_reference: identificador curto (chunk_id, CNAE, "SOL-NNN", trecho em aspas, nome da pergunta, gatilho semântico).
+- Fallback genérico só quando não houver alternativa: source_type="rag", source_reference="Reforma Tributária — LC 214/2025".
+
+REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2):
+- Se houver respostas negativas SOLARIS (Onda 1), incluir pelo menos 1 gap com source_type="solaris" + source_reference="SOL-NNN". Esta regra é inviolável (rastreabilidade do parecer jurídico).`,
           },
         ],
         BriefingStructuredSchema,

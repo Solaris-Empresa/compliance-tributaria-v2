@@ -17,6 +17,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildGapFromQuestion,
   classifyForGap,
+  deriveAnswerValueCanonical,
   type GapToInsert,
   type QuestionMetadata,
 } from "../lib/solaris-gap-analyzer";
@@ -25,6 +26,7 @@ import {
 
 function makeQ(overrides: Partial<QuestionMetadata>): QuestionMetadata {
   return {
+    id: 1, // Sprint 3 (FIX-VIS-U4): question_id real (era literal 0 hardcoded pré-Sprint 3)
     codigo: "SOL-001",
     titulo: "Título padrão",
     categoria: "contabilidade_fiscal",
@@ -33,6 +35,12 @@ function makeQ(overrides: Partial<QuestionMetadata>): QuestionMetadata {
     gap_descricao: null,
     ...overrides,
   };
+}
+
+/** Sprint 3: helper local para reduzir verbosidade nos testes — passa string vazia
+ *  como answer_value_canonical (o helper não muda a lógica de retorno do build). */
+function buildGap(q: QuestionMetadata, answer = "nao") {
+  return buildGapFromQuestion(q, answer);
 }
 
 // ─── Cenários T-01..T-08 do despacho FIX-08 ───────────────────────────────────
@@ -46,7 +54,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         gap_descricao:
           "Ausência de controle de débitos constituídos por confissão — risco de execução fiscal automática (Art. 45 LC 214/2025)",
       });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap).not.toBeNull();
       expect(gap!.gap_descricao).toBe(
         "Ausência de controle de débitos constituídos por confissão — risco de execução fiscal automática (Art. 45 LC 214/2025)",
@@ -63,7 +71,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         titulo: "Possui controle de operações com produtor rural?",
         gap_descricao: null,
       });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap).not.toBeNull();
       expect(gap!.gap_descricao).toBe(
         "Ausência: Possui controle de operações com produtor rural?",
@@ -76,7 +84,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         titulo: null,
         gap_descricao: null,
       });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap).not.toBeNull();
       expect(gap!.gap_descricao).toBe("Ausência: SOL-099");
     });
@@ -87,7 +95,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         titulo: "Titulo X",
         gap_descricao: "   ",
       });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap!.gap_descricao).toBe("Ausência: Titulo X");
     });
   });
@@ -98,7 +106,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         codigo: "SOL-099",
         risk_category_code: null,
       });
-      expect(buildGapFromQuestion(q)).toBeNull();
+      expect(buildGap(q)).toBeNull();
     });
 
     it("risk_category_code='' (string vazia) → null", () => {
@@ -106,7 +114,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         codigo: "SOL-100",
         risk_category_code: "",
       });
-      expect(buildGapFromQuestion(q)).toBeNull();
+      expect(buildGap(q)).toBeNull();
     });
 
     it("risk_category_code='   ' (whitespace) → null", () => {
@@ -114,27 +122,27 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         codigo: "SOL-101",
         risk_category_code: "   ",
       });
-      expect(buildGapFromQuestion(q)).toBeNull();
+      expect(buildGap(q)).toBeNull();
     });
   });
 
   describe("T-04 — severidade_base NULL: fallback 'media'", () => {
     it("severidade_base=null → severidade='media' (defensivo)", () => {
       const q = makeQ({ severidade_base: null });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap!.severidade).toBe("media");
     });
 
     it("severidade_base inválido → fallback 'media'", () => {
       const q = makeQ({ severidade_base: "extrema" });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap!.severidade).toBe("media");
     });
 
     it("severidade_base válido preservado", () => {
       for (const sev of ["baixa", "media", "alta", "critica"] as const) {
         const q = makeQ({ severidade_base: sev });
-        const gap = buildGapFromQuestion(q);
+        const gap = buildGap(q);
         expect(gap!.severidade).toBe(sev);
       }
     });
@@ -143,13 +151,13 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
   describe("Categoria (area) — fallback defensivo", () => {
     it("categoria=null → fallback 'contabilidade_fiscal'", () => {
       const q = makeQ({ categoria: null });
-      const gap = buildGapFromQuestion(q);
+      const gap = buildGap(q);
       expect(gap!.area).toBe("contabilidade_fiscal");
     });
 
     it("categoria='juridico' preservada", () => {
       const q = makeQ({ categoria: "juridico" });
-      expect(buildGapFromQuestion(q)!.area).toBe("juridico");
+      expect(buildGap(q)!.area).toBe("juridico");
     });
   });
 
@@ -177,8 +185,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
       const { isNegative, isExcluded } = classifyForGap(opcao, resposta);
       expect(isExcluded).toBe(false);
       expect(isNegative).toBe(true);
-      const gap = buildGapFromQuestion(
-        makeQ({
+      const gap = buildGap(makeQ({
           codigo: "SOL-015",
           risk_category_code: "confissao_automatica",
           severidade_base: "critica",
@@ -198,8 +205,7 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
       const { isNegative, isExcluded } = classifyForGap("nao_sei", "");
       expect(isNegative).toBe(true);
       expect(isExcluded).toBe(false);
-      const gap = buildGapFromQuestion(
-        makeQ({
+      const gap = buildGap(makeQ({
           codigo: "SOL-042",
           titulo: "Possui controle de obrigações acessórias?",
           severidade_base: null, // fallback
@@ -213,11 +219,15 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
     });
   });
 
-  describe("Garantia tipo: GapToInsert é completo (todas as 5 chaves)", () => {
-    it("retorno tem exatamente as 5 chaves esperadas — sem fields extras vazando", () => {
-      const gap = buildGapFromQuestion(makeQ({}));
+  describe("Garantia tipo: GapToInsert é completo (todas as 7 chaves)", () => {
+    it("retorno tem exatamente as 7 chaves esperadas — sem fields extras vazando", () => {
+      // Sprint 3 (FIX-VIS-U4 + U6): GapToInsert ampliado com question_id + answer_value
+      // para substituir os literais 0 e 'não' que eram hardcoded no SQL INSERT.
+      const gap = buildGap(makeQ({}));
       expect(gap).not.toBeNull();
       const keys: Array<keyof GapToInsert> = [
+        "question_id",
+        "answer_value",
         "gap_descricao",
         "area",
         "severidade",
@@ -229,6 +239,38 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
       }
       expect(Object.keys(gap!).sort()).toEqual([...keys].sort());
     });
+
+    it("Sprint 3 (FIX-VIS-U4): question_id propagado do row.id", () => {
+      const gap = buildGap(makeQ({ id: 42 }));
+      expect(gap!.question_id).toBe(42);
+    });
+
+    it("Sprint 3 (FIX-VIS-U6): answer_value passa pelo helper sem transformar", () => {
+      const gap = buildGap(makeQ({}), "nao_sei");
+      expect(gap!.answer_value).toBe("nao_sei");
+    });
+  });
+
+  describe("Sprint 3 — deriveAnswerValueCanonical (FIX-VIS-U6 opção c híbrido)", () => {
+    it("opcao preenchida → retorna a opção canônica (ENUM Sprint 1)", () => {
+      // Lazy require para evitar mover import principal
+expect(deriveAnswerValueCanonical("nao", "qualquer texto")).toBe("nao");
+      expect(deriveAnswerValueCanonical("nao_sei", "")).toBe("nao_sei");
+      expect(deriveAnswerValueCanonical("sim", "")).toBe("sim");
+      expect(deriveAnswerValueCanonical("nao_se_aplica", "")).toBe("nao_se_aplica");
+    });
+
+    it("opcao NULL → fallback para resposta texto truncada a 200 chars", () => {
+expect(deriveAnswerValueCanonical(null, "Não, não tenho controle")).toBe(
+        "Não, não tenho controle",
+      );
+      const long = "x".repeat(300);
+      expect(deriveAnswerValueCanonical(null, long).length).toBe(200);
+    });
+
+    it("opcao NULL + resposta vazia/null → string vazia", () => {
+expect(deriveAnswerValueCanonical(null, "")).toBe("");
+    });
   });
 
   describe("Determinismo (idempotência conceitual)", () => {
@@ -237,8 +279,8 @@ describe("FIX-08 — buildGapFromQuestion: zero dicionários, metadados na pergu
         codigo: "SOL-046",
         gap_descricao: "Split payment não implementado",
       });
-      const a = buildGapFromQuestion(q);
-      const b = buildGapFromQuestion(q);
+      const a = buildGap(q);
+      const b = buildGap(q);
       expect(a).toEqual(b);
     });
   });
