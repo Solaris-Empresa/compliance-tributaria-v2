@@ -24,7 +24,21 @@ import { isCreditoPresumidoArt168Eligible } from "./credito-presumido-eligibilit
 // Types
 // ---------------------------------------------------------------------------
 
+/**
+ * N1 (Sprint 5, 2026-06-02): ampliado de 11 → 23 valores para cobrir todas as
+ * categorias ativas em `risk_categories` (status='ativo'). 12 novas categorias
+ * vinham gerando type-cast errors silenciosos (`as Categoria`) porque o type
+ * TS estava em drift com a fonte de verdade do banco.
+ *
+ * Lista canônica via SQL: `SELECT codigo FROM risk_categories WHERE status='ativo' ORDER BY codigo`
+ * (snapshot Manus 2026-06-02 — Board Sprint 5 M-1).
+ *
+ * SEVERITY_TABLE agora é Partial<Record<Categoria, ...>> — fallback gracioso
+ * preservado nas linhas 218-220, 358-360, 626-627. Em produção, `getRiskCategories()`
+ * (dinâmico do banco, Sprint Z-09 / ADR-0025) é a fonte canônica.
+ */
 export type Categoria =
+  // ─── 11 categorias originais ───
   | "imposto_seletivo"
   | "confissao_automatica"
   | "split_payment"
@@ -35,7 +49,20 @@ export type Categoria =
   | "aliquota_zero"
   | "aliquota_reduzida"
   | "credito_presumido"
-  | "enquadramento_geral"; // Hotfix v2.1 — fallback do gate de elegibilidade (downgrade_to)
+  | "enquadramento_geral" // Hotfix v2.1 — fallback do gate de elegibilidade (downgrade_to)
+  // ─── 12 categorias adicionadas N1 Sprint 5 (drift type vs DB resolvido) ───
+  | "credito_presumido_bens_usados"
+  | "credito_presumido_reciclagem"
+  | "regime_diferenciado_aliquota_reduzida_30"
+  | "regime_diferenciado_aliquota_reduzida_60"
+  | "regime_diferenciado_aliquota_zero"
+  | "regime_diferenciado_produtor_rural"
+  | "regime_diferenciado_produtor_rural_credito"
+  | "regime_diferenciado_reabilitacao_urbana"
+  | "regime_diferenciado_transporte"
+  | "regime_especifico_imoveis"
+  | "regime_especifico_imoveis_locacao"
+  | "risco_art_269_270";
 
 export type Severity = "alta" | "media" | "oportunidade";
 export type Urgency = "imediata" | "curto_prazo" | "medio_prazo";
@@ -95,7 +122,25 @@ export interface ActionPlanV4 {
 // Constantes determinísticas
 // ---------------------------------------------------------------------------
 
-export const SEVERITY_TABLE: Record<Categoria, { severity: Severity; urgency: Urgency }> = {
+/**
+ * N1 (Sprint 5): mudado de `Record<Categoria>` para `Partial<Record<Categoria>>`.
+ *
+ * Justificativa: type `Categoria` foi ampliado de 11 → 23 valores. Manter
+ * `Record<Categoria>` exigiria hardcode de severity/urgency para 12 novas
+ * categorias — duplicando dados que JÁ EXISTEM em `risk_categories` (banco) via
+ * `getRiskCategories()` dinâmico (Sprint Z-09 / ADR-0025). REGRA-ORQ-32 (no
+ * hardcode — visão sistêmica): banco é fonte canônica.
+ *
+ * Comportamento preservado: os 3 callsites de SEVERITY_TABLE (linhas 218, 358,
+ * 626) já têm fallback gracioso `entry?.severity ?? "media"` — para categorias
+ * não-hardcoded aqui, o fallback "media" + "curto_prazo" é assumido (ou DB-first
+ * tenta `getCategoryByCode` antes — ver consolidateRisks linha 613).
+ *
+ * Quando adicionar entrada aqui: apenas categorias cuja severity/urgency
+ * deve ser explicitamente sobrescrita do default. As 11 originais foram
+ * preservadas para preservar comportamento histórico.
+ */
+export const SEVERITY_TABLE: Partial<Record<Categoria, { severity: Severity; urgency: Urgency }>> = {
   imposto_seletivo:    { severity: "alta",         urgency: "imediata" },
   confissao_automatica:{ severity: "alta",         urgency: "imediata" },
   split_payment:       { severity: "alta",         urgency: "imediata" },

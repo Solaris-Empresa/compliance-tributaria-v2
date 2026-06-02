@@ -128,21 +128,8 @@ function formatVersaoDate(ts: string | number | Date | undefined): string | null
   }
 }
 
-const CATEGORIA_LABELS: Record<string, string> = {
-  imposto_seletivo: "Imposto Seletivo",
-  confissao_automatica: "Confissão Automática",
-  split_payment: "Split Payment",
-  inscricao_cadastral: "Inscrição Cadastral",
-  regime_diferenciado: "Regime Diferenciado",
-  transicao_iss_ibs: "Transição ISS/IBS",
-  obrigacao_acessoria: "Obrigação Acessória",
-  aliquota_zero: "Alíquota Zero",
-  aliquota_reduzida: "Alíquota Reduzida",
-  credito_presumido: "Crédito Presumido",
-  regime_especifico_imoveis: "Regime Específico de Imóveis",
-  regime_especifico_imoveis_locacao: "Regime Específico de Imóveis — Locação (70%)",
-  risco_art_269_270: "Obrigação — Cadastro e Apuração por Empreendimento",
-};
+// F0-3 (Sprint 5, 2026-06-02): consolidação 5 cópias → 1 import.
+import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 
 export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });

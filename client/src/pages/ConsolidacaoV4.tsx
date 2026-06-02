@@ -53,21 +53,8 @@ function safeStr(val: unknown): string {
 
 const DISCLAIMER = `AVISO LEGAL: Este diagnóstico é uma ferramenta de apoio à decisão tributária elaborada com base nas informações fornecidas pela empresa. Os resultados apresentados — incluindo a identificação de riscos, oportunidades e planos de ação — NÃO constituem parecer jurídico. Toda classificação e recomendação deve ser validada por advogado tributarista ou contador habilitado antes de qualquer ação fiscal, contábil ou de compliance. A severidade dos riscos é determinística (baseada em tabelas normativas), mas a aplicabilidade ao caso concreto depende de análise humana qualificada. IA SOLARIS não se responsabiliza por decisões tomadas sem a devida validação profissional.`;
 
-const CATEGORIA_LABELS: Record<string, string> = {
-  imposto_seletivo: "Imposto Seletivo",
-  confissao_automatica: "Confissão Automática",
-  split_payment: "Split Payment",
-  inscricao_cadastral: "Inscrição Cadastral",
-  regime_diferenciado: "Regime Diferenciado",
-  transicao_iss_ibs: "Transição ISS/IBS",
-  obrigacao_acessoria: "Obrigação Acessória",
-  aliquota_zero: "Alíquota Zero",
-  aliquota_reduzida: "Alíquota Reduzida",
-  credito_presumido: "Crédito Presumido",
-  regime_especifico_imoveis: "Regime Específico de Imóveis",
-  regime_especifico_imoveis_locacao: "Regime Específico de Imóveis — Locação (70%)",
-  risco_art_269_270: "Obrigação — Cadastro e Apuração por Empreendimento",
-};
+// F0-3 (Sprint 5, 2026-06-02): consolidação 5 cópias → 1 import.
+import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 
 const SOURCE_LABELS: Record<string, string> = {
   cnae: "CNAE",
