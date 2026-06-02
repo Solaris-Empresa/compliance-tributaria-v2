@@ -7,28 +7,9 @@
 // + CATEGORIA_LABELS local em PT-BR.
 
 import type { RiskV4, ActionPlanV4 } from "./risk-engine-v4";
-
-// ─── CATEGORIA_LABELS (sync com 4 cópias frontend — Sprint 5: consolidar) ────
-// Sync com:
-//   - client/src/pages/ActionPlanPage.tsx:72
-//   - client/src/components/RiskDashboardV4.tsx:162
-//   - client/src/lib/generateDiagnosticoPDF.ts:131
-//   - client/src/pages/ConsolidacaoV4.tsx:56
-// Backlog Sprint 5 (F0-3): consolidar em shared/categoria-labels.ts.
-// Mantido local por agora para evitar refactor cross-cutting num PR cirúrgico.
-const CATEGORIA_LABELS: Record<string, string> = {
-  imposto_seletivo: "Imposto Seletivo",
-  confissao_automatica: "Confissão Automática",
-  split_payment: "Split Payment",
-  inscricao_cadastral: "Inscrição Cadastral",
-  regime_diferenciado: "Regime Diferenciado",
-  transicao_iss_ibs: "Transição ISS → IBS",
-  obrigacao_acessoria: "Obrigação Acessória",
-  aliquota_zero: "Alíquota Zero",
-  aliquota_reduzida: "Alíquota Reduzida",
-  credito_presumido: "Crédito Presumido",
-  enquadramento_geral: "Enquadramento Geral",
-};
+// F0-3 (Sprint 5, 2026-06-02): consolidação de 5 cópias duplicadas.
+// Era cópia local com comentário "sync com 4 cópias frontend"; agora ÚNICO em shared/.
+import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 
 // ─── Catálogo canônico de planos por ruleId ─────────────────────────────────
 

@@ -159,21 +159,9 @@ const URGENCIA_LABELS: Record<string, string> = {
   medio_prazo: "Médio Prazo",
 };
 
-const CATEGORIA_LABELS: Record<string, string> = {
-  imposto_seletivo: "Imposto Seletivo",
-  confissao_automatica: "Confissão Automática",
-  split_payment: "Split Payment",
-  inscricao_cadastral: "Inscrição Cadastral",
-  regime_diferenciado: "Regime Diferenciado",
-  transicao_iss_ibs: "Transição ISS/IBS",
-  obrigacao_acessoria: "Obrigação Acessória",
-  aliquota_zero: "Alíquota Zero",
-  aliquota_reduzida: "Alíquota Reduzida",
-  credito_presumido: "Crédito Presumido",
-  regime_especifico_imoveis: "Regime Específico de Imóveis",
-  regime_especifico_imoveis_locacao: "Regime Específico de Imóveis — Locação (70%)",
-  risco_art_269_270: "Obrigação — Cadastro e Apuração por Empreendimento",
-};
+// F0-3 (Sprint 5, 2026-06-02): consolidação 5 cópias → 1 import.
+// Era cópia local com 13 entries; agora 23 entries canônicas em shared/.
+import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 
 // Issue #1069: CATEGORIA_ARTIGOS movido para client/src/lib/categoria-artigos.ts
 // com valores CORRETOS (4 valores estavam errados: split_payment, inscricao_cadastral,
