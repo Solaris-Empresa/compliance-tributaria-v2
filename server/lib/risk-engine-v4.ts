@@ -408,7 +408,30 @@ function parseNormativeBundle(
   };
 }
 
-/** Range compacto "Arts. min-max LEI" (ou "Art. N LEI" para 1 artigo); "" se vazio. */
+/**
+ * BUG-RAG-ARTIGO-RANGE (2026-06-02 · Opção D autorizada P.O.):
+ *
+ * Formata array de artigos curados pelo bundle normativo. ANTES da Opção D,
+ * SEMPRE produzia range compacto "Arts. MIN-MAX LEI" — incluindo quando o
+ * conjunto era discreto (ex: `[200, 201, 203, 245]` → `"Arts. 200-245"`,
+ * representando span artificial de 46 artigos, incluindo 202, 204..244 que
+ * NÃO estavam no bundle).
+ *
+ * Acoplamento downstream: `articleMatches` (rag-risk-validator.ts) usava
+ * regex de range para validar chunks RAG. Bundle discreto colapsado em range
+ * fazia chunks INTERMEDIÁRIOS (ex: Art. 204 administração de consórcio LC 214)
+ * serem aceitos como "match válido" para a categoria — falso positivo
+ * semântico reportado no projeto 5370032 (CNAE 4623-1/99 agronegocio).
+ *
+ * Opção D (cirúrgica): detectar consecutividade.
+ *   - Consecutivos: comportamento legado (`"Arts. 6-12 LEI"`).
+ *   - Discretos: lista por vírgulas (`"Arts. 200, 201, 203, 245 LEI"`) que o
+ *     `articleMatches` reconhece via novo caso de regex `arts?\.\s*([\d,\s]+)`.
+ *
+ * Auditoria empírica Manus (2026-06-02): 13/21 categorias afetadas (62%),
+ * pior caso `obrigacao_acessoria` com range 104-575 = 459 falsos positivos
+ * potenciais antes do fix.
+ */
 function formatArticleRange(artigos: string[] | null | undefined, lei: string): string {
   if (!artigos?.length) return "";
   const nums = artigos
@@ -417,7 +440,13 @@ function formatArticleRange(artigos: string[] | null | undefined, lei: string): 
     .sort((a, b) => a - b);
   if (nums.length === 0) return "";
   if (nums.length === 1) return `Art. ${nums[0]} ${lei}`;
-  return `Arts. ${nums[0]}-${nums[nums.length - 1]} ${lei}`;
+  // Opção D: detectar consecutividade — só usa range compacto se artigos REALMENTE consecutivos
+  const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+  if (isConsecutive) {
+    return `Arts. ${nums[0]}-${nums[nums.length - 1]} ${lei}`;
+  }
+  // Conjunto discreto: lista explícita por vírgulas (pareado com articleMatches)
+  return `Arts. ${nums.join(", ")} ${lei}`;
 }
 
 /**

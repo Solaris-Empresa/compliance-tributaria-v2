@@ -289,4 +289,111 @@ describe("rag-risk-validator — Issue #1044 — rag_artigo_exato Opção B", ()
       );
     });
   });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // BUG-RAG-ARTIGO-RANGE (2026-06-02 · Opção D autorizada P.O.)
+  // Test contracts conforme REGRA-ORQ-34 Protocolo 4 — 3 cenários ortogonais:
+  //   (a) Range consecutivo real — preserva comportamento legado
+  //   (b) Conjunto discreto — caso canônico 5370032 (auditoria Manus)
+  //   (c) Edge cases — 1 artigo, vazio
+  // Pareado com `formatArticleRange` em `risk-engine-v4.ts:412` (Opção D).
+  // ───────────────────────────────────────────────────────────────────────────
+  describe("BUG-RAG-ARTIGO-RANGE — Opção D — lista discreta de artigos", () => {
+    describe("Cenário (a): range consecutivo real preserva comportamento legado", () => {
+      it("Arts. 6-12 (consecutivos) — chunk Art. 9 → match TRUE", () => {
+        expect(articleMatches("Art. 9", "Arts. 6-12 LC 214/2025")).toBe(true);
+      });
+      it("Arts. 6-12 (consecutivos) — chunk Art. 6 (boundary) → match TRUE", () => {
+        expect(articleMatches("Art. 6", "Arts. 6-12 LC 214/2025")).toBe(true);
+      });
+      it("Arts. 6-12 (consecutivos) — chunk Art. 12 (boundary) → match TRUE", () => {
+        expect(articleMatches("Art. 12", "Arts. 6-12 LC 214/2025")).toBe(true);
+      });
+      it("Arts. 6-12 (consecutivos) — chunk Art. 13 (fora) → match FALSE", () => {
+        expect(articleMatches("Art. 13", "Arts. 6-12 LC 214/2025")).toBe(false);
+      });
+    });
+
+    describe("Cenário (b): conjunto discreto — caso canônico 5370032 (auditoria Manus)", () => {
+      // Bundle real: ["Art. 200", "Art. 201", "Art. 203", "Art. 245"]
+      // formatArticleRange Opção D produz: "Arts. 200, 201, 203, 245 Decreto 12.955/2026"
+      const riskArtigo = "Arts. 200, 201, 203, 245 Decreto 12.955/2026";
+
+      it("Art. 200 (no bundle) → match TRUE", () => {
+        expect(articleMatches("Art. 200", riskArtigo)).toBe(true);
+      });
+      it("Art. 201 (no bundle) → match TRUE", () => {
+        expect(articleMatches("Art. 201", riskArtigo)).toBe(true);
+      });
+      it("Art. 203 (no bundle) → match TRUE", () => {
+        expect(articleMatches("Art. 203", riskArtigo)).toBe(true);
+      });
+      it("Art. 245 (no bundle) → match TRUE", () => {
+        expect(articleMatches("Art. 245", riskArtigo)).toBe(true);
+      });
+
+      // O bug original — Art. 204 (administração de consórcio) NÃO está no bundle
+      // mas era aceito porque range "Arts. 200-245" expandia para [200..245].
+      it("Art. 204 (FORA do bundle — bug original 5370032) → match FALSE", () => {
+        expect(articleMatches("Art. 204", riskArtigo)).toBe(false);
+      });
+      it("Art. 202 (FORA do bundle) → match FALSE", () => {
+        expect(articleMatches("Art. 202", riskArtigo)).toBe(false);
+      });
+      it("Art. 244 (FORA do bundle) → match FALSE", () => {
+        expect(articleMatches("Art. 244", riskArtigo)).toBe(false);
+      });
+      it("Art. 199 (antes do bundle) → match FALSE", () => {
+        expect(articleMatches("Art. 199", riskArtigo)).toBe(false);
+      });
+      it("Art. 246 (depois do bundle) → match FALSE", () => {
+        expect(articleMatches("Art. 246", riskArtigo)).toBe(false);
+      });
+    });
+
+    describe("Cenário (c): edge cases", () => {
+      it("Lista com 2 artigos consecutivos → ainda usa lista (comportamento determinístico)", () => {
+        // "Arts. 10, 11 LEI" — 2 itens, lista por vírgulas; ambos match
+        expect(articleMatches("Art. 10", "Arts. 10, 11 LEI")).toBe(true);
+        expect(articleMatches("Art. 11", "Arts. 10, 11 LEI")).toBe(true);
+        expect(articleMatches("Art. 12", "Arts. 10, 11 LEI")).toBe(false);
+      });
+
+      it("Lista com salto duplo → cada item match TRUE, intermediários FALSE", () => {
+        const r = "Arts. 5, 10, 15 LEI";
+        expect(articleMatches("Art. 5", r)).toBe(true);
+        expect(articleMatches("Art. 10", r)).toBe(true);
+        expect(articleMatches("Art. 15", r)).toBe(true);
+        expect(articleMatches("Art. 7", r)).toBe(false);
+        expect(articleMatches("Art. 12", r)).toBe(false);
+      });
+
+      it("Empty riskArtigo → match FALSE (não crasha)", () => {
+        expect(articleMatches("Art. 9", "")).toBe(false);
+      });
+
+      it("riskArtigo só com 1 artigo (sem vírgula) → exige match exato (caso #1 anterior)", () => {
+        // "Art. 29 LEI" não é range nem lista → match exato após normalização
+        expect(articleMatches("Art. 29", "Art. 29 LC 214/2025")).toBe(true);
+        expect(articleMatches("Art. 30", "Art. 29 LC 214/2025")).toBe(false);
+      });
+    });
+
+    describe("selectBestArtigo integração — descarta chunks fora da lista discreta", () => {
+      // Cenário canônico 5370032: chunks contêm Art. 204 (top score, mas fora) + Art. 201 (no bundle)
+      it("Chunks=[Art. 204, Art. 201] + bundle discreto → Art. 201 (não Art. 204)", () => {
+        const docs = [chunk("Art. 204", "consórcio"), chunk("Art. 201", "regime_diferenciado")];
+        const result = selectBestArtigo(docs, "Arts. 200, 201, 203, 245 Decreto 12.955/2026");
+        expect(result.artigo).toBe("Art. 201");
+        expect(result.usedFallback).toBe(false);
+      });
+
+      it("Chunks=[Art. 204] (top score, mas fora do bundle) → fallback ao riskArtigo", () => {
+        const docs = [chunk("Art. 204", "consórcio")];
+        const result = selectBestArtigo(docs, "Arts. 200, 201, 203, 245 Decreto 12.955/2026");
+        expect(result.usedFallback).toBe(true);
+        expect(result.artigo).not.toBe("Art. 204");
+      });
+    });
+  });
 });
