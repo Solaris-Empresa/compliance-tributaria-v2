@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index, uniqueIndex, float } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, mediumtext, boolean, timestamp, mysqlEnum, decimal, json, bigint, tinyint, index, uniqueIndex, float } from "drizzle-orm/mysql-core";
 
 /**
  * Tabela de usuários - IA SOLARIS
@@ -375,7 +375,10 @@ export const riskMatrixVersions = mysqlTable("riskMatrixVersions", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   versionNumber: int("versionNumber").notNull(), // 1, 2, 3...
-  snapshotData: text("snapshotData").notNull(), // JSON string com array de riscos completo
+  // BUG-SNAPSHOT-OVERFLOW (2026-06-02): TEXT (65 KB) excedido após PR #1333
+  // (BUG-RAG-ARTIGO-RANGE) — listas discretas substituíram ranges compactos,
+  // inflando o JSON da matriz. Migration 0123 cristaliza ALTER aplicado em prod.
+  snapshotData: mediumtext("snapshotData").notNull(), // JSON string com array de riscos (MEDIUMTEXT = 16 MB)
   riskCount: int("riskCount").notNull(), // Número de riscos nesta versão
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   createdBy: int("createdBy").notNull(),

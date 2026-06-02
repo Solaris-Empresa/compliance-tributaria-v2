@@ -1,0 +1,36 @@
+-- Migration 0123 — HOTFIX P0: riskMatrixVersions.snapshotData TEXT → MEDIUMTEXT
+--
+-- BUG em produção (2026-06-02, descoberto via projeto 5370032 — DoD BUG-RAG-ARTIGO-RANGE):
+--   "Data too long for column 'snapshotData' at row 1"
+--
+-- Causa raiz (verificada empiricamente Manus):
+--   Coluna `snapshotData` era TEXT (limite 65.535 bytes = ~64 KB). O JSON
+--   serializado da matriz de riscos (snapshot completo) excedeu o limite
+--   após o fix BUG-RAG-ARTIGO-RANGE (PR #1333) aumentar o tamanho médio
+--   de strings de `risks_v4.artigo` (listas discretas substituíram ranges
+--   compactos para bundles não-consecutivos). Cenário canônico: projeto
+--   5370032 gerou 6 riscos com snapshotData ~76 KB → INSERT rollback +
+--   inconsistência insertedIds=6 mas matriz vazia.
+--
+-- Aplicação em produção:
+--   Manus aplicou ALTER direto no banco em 2026-06-02 ~09:46Z após
+--   descobrir o bug no DoD de #1333. Schema Drizzle (este arquivo) e
+--   journal cristalizam o fix para ambientes novos.
+--
+-- Idempotência: MODIFY de MEDIUMTEXT → MEDIUMTEXT é no-op em MySQL/TiDB.
+-- Reversível: ALTER TABLE riskMatrixVersions MODIFY COLUMN snapshotData TEXT
+-- (mas voltar à coluna menor exige truncar/remover rows com snapshotData > 65 KB).
+--
+-- Testado em ambiente: Manus aplicou em produção 2026-06-02 com sucesso —
+-- pós-fix confirmou 6 riscos inseridos em risks_v4 + riskMatrixVersions
+-- version=1 row criada para projeto 5370032 sem erro.
+--
+-- Vinculadas:
+--   - PR #1333 (BUG-RAG-ARTIGO-RANGE — origem do snapshot maior)
+--   - PR #1331 (precedente do mesmo padrão de cristalização — rule_id VARCHAR 64→128)
+--   - REGRA-ORQ-25 (anti-drift SHA Manus.space)
+--   - REGRA-ORQ-26 (branch obrigatória source-controlled)
+--   - REGRA-ORQ-CI-01 (CI verde como pré-requisito de merge)
+
+ALTER TABLE `riskMatrixVersions`
+  MODIFY COLUMN `snapshotData` MEDIUMTEXT NOT NULL;

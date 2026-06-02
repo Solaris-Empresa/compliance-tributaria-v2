@@ -8,6 +8,20 @@
       "when": 1779219987556,
       "tag": "0000_baseline_onda2_reconciliation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748870400000,
+      "tag": "0122_risks_v4_rule_id_varchar128",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1748956800000,
+      "tag": "0123_riskmatrixversions_snapshotdata_mediumtext",
+      "breakpoints": true
     }
   ]
 }
