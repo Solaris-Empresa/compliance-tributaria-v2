@@ -92,8 +92,12 @@ export function normalizeArtigo(s: string): string {
  * Casos cobertos:
  *   1. Match exato após normalização: "Art. 9 LC 214/2025" === "Art. 9"
  *   2. Range no risk.artigo: "Arts. 6-12 LC 214/2025" inclui "Art. 9"
+ *   3. Lista discreta no risk.artigo: "Arts. 200, 201, 203, 245 LEI" inclui
+ *      Art. 200/201/203/245 mas NÃO Art. 202/204..244 — pareado com
+ *      `formatArticleRange` Opção D em `risk-engine-v4.ts:412`
+ *      (BUG-RAG-ARTIGO-RANGE, 2026-06-02).
  *
- * Issue #1044 Opção B (P.O. 2026-05-09).
+ * Issue #1044 Opção B (P.O. 2026-05-09) + Opção D ampliada (P.O. 2026-06-02).
  */
 export function articleMatches(chunkArtigo: string, riskArtigo: string): boolean {
   const chunkN = normalizeArtigo(chunkArtigo);
@@ -103,15 +107,30 @@ export function articleMatches(chunkArtigo: string, riskArtigo: string): boolean
 
   if (chunkN === riskN) return true;
 
-  // Range "arts. 6-12" ou "art. 6-12" no riskArtigo
+  const chunkNumMatch = chunkN.match(/art\.?\s*(\d+)/);
+  const chunkNum = chunkNumMatch ? parseInt(chunkNumMatch[1], 10) : null;
+
+  // Range "arts. 6-12" ou "art. 6-12" no riskArtigo (artigos consecutivos reais)
   const rangeMatch = riskN.match(/arts?\.\s*(\d+)\s*-\s*(\d+)/);
-  if (rangeMatch) {
+  if (rangeMatch && chunkNum !== null) {
     const start = parseInt(rangeMatch[1], 10);
     const end = parseInt(rangeMatch[2], 10);
-    const chunkNum = chunkN.match(/art\.?\s*(\d+)/);
-    if (chunkNum) {
-      const n = parseInt(chunkNum[1], 10);
-      return n >= start && n <= end;
+    return chunkNum >= start && chunkNum <= end;
+  }
+
+  // BUG-RAG-ARTIGO-RANGE Opção D (2026-06-02): lista discreta
+  // "arts. 200, 201, 203, 245" — formatArticleRange emite esse formato quando
+  // o bundle normativo tem artigos NÃO-consecutivos. Validamos `chunkNum`
+  // contra a lista literal (não expansão por range). Exige ≥2 entradas para
+  // não conflitar com o caso `chunkN === riskN` quando há vírgula trailing.
+  const listMatch = riskN.match(/arts?\.\s*([\d,\s]+)/);
+  if (listMatch && chunkNum !== null) {
+    const list = listMatch[1]
+      .split(",")
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !Number.isNaN(n));
+    if (list.length >= 2) {
+      return list.includes(chunkNum);
     }
   }
 
