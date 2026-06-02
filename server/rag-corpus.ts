@@ -45,6 +45,15 @@ export interface CorpusEntry {
     | "resolucao_cgsn_140"
     | "moc_cte_v4"
     | "moc_mdfe_v3"
+    // Corpus Onda 1 cristalização (FEAT-CORPUS-ONDA1-CGIBS-4-5-NTS, 2026-06-02):
+    // arquivos rag-corpus-resolucao-cgibs4.ts / -cgibs5.ts / -nt008-2026.ts /
+    // -nt2025002.ts já existiam no Manus.space mas eram órfãos do github/main
+    // (drift documentado em REGRA-ORQ-25). Tipos adicionados aqui para que tsc
+    // aceite os imports CorpusEntry[] dos 4 arquivos. DB enum pendente — código-only.
+    | "resolucao_cgibs_4"
+    | "resolucao_cgibs_5"
+    | "nt_008_2026"
+    | "nt_2025_002"
     // Corpus Onda 3 #A2: tabelas de referência NCM/NBS (row-chunker). DB enum
     // pendente migration aprovada pelo P.O. (código-only nesta sprint).
     | "tabela_ncm_completa"
