@@ -1,0 +1,35 @@
+-- Migration 0122 — HOTFIX P0: risks_v4.rule_id VARCHAR(64) → VARCHAR(128)
+--
+-- BUG em produção (2026-06-01, projeto 5280001):
+--   "Data too long for column 'rule_id' at row 1"
+--
+-- Causa raiz (verificada empiricamente):
+--   buildRiskKey(categoria, ctx) (server/lib/risk-engine-v4.ts:296-300) gera
+--   rule_id no formato `${categoria}::op:${op}::geo:${multi}`.
+--
+--   Pior caso na produção atual:
+--     categoria = 'regime_diferenciado_produtor_rural_credito'  (42 chars)
+--   + '::op:agronegocio::geo:mono'                              (27 chars)
+--   = 69 chars  →  ESTOURA  VARCHAR(64)  por 5 chars
+--
+--   Categoria foi inserida na migration 0112_bug_ibs_fase4_6cats.sql.
+--   Limite original de risks_v4.rule_id VARCHAR(64) (migration 0064) não
+--   foi atualizado quando a categoria longa foi adicionada.
+--
+-- Estado em produção no momento desta migration:
+--   Manus aplicou ALTER direto (~22h UTC 01/06/2026) — banco já em VARCHAR(128).
+--   git e schema.ts não tinham migration → drift REGRA-ORQ-CI-01.
+--   Esta migration CRISTALIZA o fix para:
+--     - Ambientes novos (staging, dev) que serão criados após esta data
+--     - Rollback documentado em git
+--     - Lição #65 (rastrear fluxo end-to-end git ↔ banco)
+--
+-- Idempotência: MODIFY de VARCHAR(128) → VARCHAR(128) é no-op em MySQL/TiDB.
+-- Reversível: ALTER TABLE risks_v4 MODIFY COLUMN rule_id VARCHAR(64) NOT NULL
+-- (mas voltar à coluna menor exige truncar/remover rows com rule_id > 64 chars antes).
+--
+-- Testado em ambiente isolado: Manus aplicou em produção 2026-06-01 com sucesso —
+-- pós-fix confirmou 7 riscos inseridos no projeto 5280001 sem erro.
+
+ALTER TABLE `risks_v4`
+  MODIFY COLUMN `rule_id` VARCHAR(128) NOT NULL;
