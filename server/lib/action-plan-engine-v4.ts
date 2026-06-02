@@ -1,8 +1,34 @@
 // action-plan-engine-v4.ts — Engine determinístico de planos de ação (Sprint Z-07 / ADR-0022)
 // oportunidade → [] sempre. Função pura.
 // Sprint Z-14: catálogo PLANS por ruleId (RN_PLANOS_TAREFAS_V4.md)
+// BUG-PLAN-TITLE (2026-06-02): +4 entries no PLANS (confissao_automatica,
+// inscricao_cadastral, obrigacao_acessoria, regime_diferenciado) + defaultSuggestion
+// sem `${risk.artigo}` (que duplicava o badge verde em ActionPlanPage.tsx:556)
+// + CATEGORIA_LABELS local em PT-BR.
 
 import type { RiskV4, ActionPlanV4 } from "./risk-engine-v4";
+
+// ─── CATEGORIA_LABELS (sync com 4 cópias frontend — Sprint 5: consolidar) ────
+// Sync com:
+//   - client/src/pages/ActionPlanPage.tsx:72
+//   - client/src/components/RiskDashboardV4.tsx:162
+//   - client/src/lib/generateDiagnosticoPDF.ts:131
+//   - client/src/pages/ConsolidacaoV4.tsx:56
+// Backlog Sprint 5 (F0-3): consolidar em shared/categoria-labels.ts.
+// Mantido local por agora para evitar refactor cross-cutting num PR cirúrgico.
+const CATEGORIA_LABELS: Record<string, string> = {
+  imposto_seletivo: "Imposto Seletivo",
+  confissao_automatica: "Confissão Automática",
+  split_payment: "Split Payment",
+  inscricao_cadastral: "Inscrição Cadastral",
+  regime_diferenciado: "Regime Diferenciado",
+  transicao_iss_ibs: "Transição ISS → IBS",
+  obrigacao_acessoria: "Obrigação Acessória",
+  aliquota_zero: "Alíquota Zero",
+  aliquota_reduzida: "Alíquota Reduzida",
+  credito_presumido: "Crédito Presumido",
+  enquadramento_geral: "Enquadramento Geral",
+};
 
 // ─── Catálogo canônico de planos por ruleId ─────────────────────────────────
 
@@ -41,16 +67,49 @@ export const PLANS: Record<string, ActionPlanSuggestion[]> = {
   "transicao_iss_ibs": [
     { titulo: "Plano de transição ISS para IBS 2026 a 2032", responsavel: "juridico", prazo: "180_dias" },
   ],
+  // ─── BUG-PLAN-TITLE (2026-06-02): 4 categorias faltantes que caíam em ───
+  // defaultSuggestion (título genérico `Avaliar e mitigar: ${categoria} — ${artigo}`).
+  // PDF E2E projeto 5640001 evidenciou títulos ilegíveis em 4/6 planos. Estas
+  // são as únicas categorias do `Categoria` type (risk-engine-v4.ts:27-37) que
+  // gerariam plano (severity != oportunidade) e não tinham entrada no catálogo.
+  "confissao_automatica": [
+    { titulo: "Implantar controle preventivo de confissão automática de débitos",
+      responsavel: "advogado", prazo: "30_dias" },
+  ],
+  "inscricao_cadastral": [
+    { titulo: "Regularizar inscrição cadastral IBS/CBS",
+      responsavel: "advogado", prazo: "30_dias" },
+  ],
+  "obrigacao_acessoria": [
+    { titulo: "Mapear e adequar obrigações acessórias IBS/CBS",
+      responsavel: "gestor_fiscal", prazo: "60_dias" },
+  ],
+  "regime_diferenciado": [
+    { titulo: "Avaliar enquadramento em regime diferenciado aplicável",
+      responsavel: "advogado", prazo: "60_dias" },
+  ],
 };
 
-function defaultSuggestion(risk: RiskV4): ActionPlanSuggestion {
+/**
+ * BUG-PLAN-TITLE (2026-06-02): fallback usado quando categoria não tem entrada
+ * em PLANS. Anteriormente incluía `${risk.artigo}` no título — mas UI já
+ * renderiza badge verde separado com o artigo (ActionPlanPage.tsx:556),
+ * resultando em duplicação visual ilegível.
+ *
+ * Mudanças:
+ *   - Remove `${risk.artigo}` do título
+ *   - Usa CATEGORIA_LABELS (PT-BR) em vez de snake_case da categoria
+ *   - Exportada para test contract (era `function`, virou `export function`)
+ */
+export function defaultSuggestion(risk: RiskV4): ActionPlanSuggestion {
   const prazoMap: Record<string, "30_dias" | "60_dias" | "90_dias" | "180_dias"> = {
     imediata: "30_dias",
     curto_prazo: "60_dias",
     medio_prazo: "90_dias",
   };
+  const label = CATEGORIA_LABELS[risk.categoria] ?? risk.categoria;
   return {
-    titulo: `Avaliar e mitigar: ${risk.categoria} — ${risk.artigo}`,
+    titulo: `Avaliar e mitigar risco de ${label}`,
     responsavel: "advogado",
     prazo: prazoMap[risk.urgency] ?? "60_dias",
   };
