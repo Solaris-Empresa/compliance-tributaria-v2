@@ -299,7 +299,12 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
       startY: y,
       head: [["Risco", "Categoria", "Severidade", "Origem", "Base Legal", "RAG"]],
       body: data.risks.map((r) => [
-        r.titulo.length > 40 ? r.titulo.slice(0, 40) + "…" : r.titulo,
+        // F0-4 (Sprint 5, 2026-06-02): 40 → 60 chars. Acomoda títulos do PR #1339
+        // (BUG-PLAN-TITLE) sem perder a parte legível do artigo na tabela de Riscos.
+        // Backlog Sprint 6: 1 título tem 67 chars ("Implantar controle preventivo
+        // de confissão automática de débitos") — ainda truncado em 60. Considerar
+        // 80 chars ou quebra de linha.
+        r.titulo.length > 60 ? r.titulo.slice(0, 60) + "…" : r.titulo,
         CATEGORIA_LABELS[r.categoria] ?? r.categoria,
         r.severidade,
         r.source_priority?.toUpperCase() ?? "—",
@@ -352,7 +357,9 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
       // BUG-RASTREAB-01 (#1189): coluna "Risco (Art.)" — referência normativa do risco vinculado
       head: [["Plano", "Risco (Art.)", "Responsável", "Prazo", "Status"]],
       body: data.plans.map((p) => [
-        p.titulo.length > 40 ? p.titulo.slice(0, 40) + "…" : p.titulo,
+        // F0-4 (Sprint 5, 2026-06-02): 40 → 60 chars. Pareado com tabela de Riscos
+        // (L302). Mesmo limite garante consistência visual no PDF.
+        p.titulo.length > 60 ? p.titulo.slice(0, 60) + "…" : p.titulo,
         p.risco_artigo || "—",
         p.responsavel,
         p.prazo,
