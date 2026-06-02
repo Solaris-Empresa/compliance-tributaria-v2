@@ -285,8 +285,10 @@ export default function NovoProjeto() {
       isEconomicGroup: perfilData.isEconomicGroup,
       taxCentralization: perfilData.taxCentralization,
     };
+    // BUG-PF-FORM-SIMPLIFY (M4) — PF agro: operationType implícito, não coletado da UI.
+    const operationType = (perfilData.taxIdType === "cpf") ? "agronegocio" : perfilData.operationType;
     const operationProfile = {
-      operationType: perfilData.operationType,
+      operationType,
       clientType: perfilData.clientType,
       multiState: perfilData.multiState,
       // Bloco E (CNT-01c): NCM/NBS para o Decision Kernel
