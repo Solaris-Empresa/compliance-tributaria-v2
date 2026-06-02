@@ -190,7 +190,10 @@ export const BriefingStructuredSchema = z.object({
     ),
     // issue #811 — rastreabilidade de fonte (content engine regra #1).
     // Opcional + .catch para tolerar briefings legados e LLM que falhar em preencher.
-    source_type: z.enum(["rag", "cnae", "descricao", "questionario", "iagen", "regra_semantica"])
+    // Sprint 3 (FIX-VIS-U3): adicionar "solaris" ao enum para que o LLM possa
+    // classificar gaps derivados do questionário SOLARIS (Onda 1) explicitamente.
+    // Bump MINOR ADR-010 (aditivo). Operacionaliza ADR-0030 em runtime.
+    source_type: z.enum(["rag", "cnae", "descricao", "solaris", "questionario", "iagen", "regra_semantica"])
       .optional()
       .catch(undefined as any),
     source_reference: z.string().optional().catch(undefined as any),

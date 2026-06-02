@@ -1,9 +1,10 @@
 # ADR-010 — Arquitetura Canônica de Conteúdo Diagnóstico para Confiabilidade 98%
 
-**Status:** Aprovado com ajustes obrigatórios — gate B1 liberado para B2 após incorporação dos ajustes  
-**Data:** 2026-03-23  
-**Autores:** Manus AI / Equipe IA SOLARIS  
-**Issue:** [#63](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/63)  
+**Status:** Aprovado com ajustes obrigatórios — gate B1 liberado para B2 após incorporação dos ajustes
+**Versão:** v1.1 (Bump MINOR — Sprint 3 / 2026-06-01: adiciona `"solaris"` ao enum `source_type` da Regra 1, aditivo backward-compatible)
+**Data original:** 2026-03-23 (v1.0) · **Última revisão:** 2026-06-01 (v1.1)
+**Autores:** Manus AI / Equipe IA SOLARIS
+**Issue:** [#63](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/63)
 **Milestone:** [Sprint-98-Confidence-Content-Engine](https://github.com/Solaris-Empresa/compliance-tributaria-v2/milestone/7)
 
 ---
@@ -70,6 +71,8 @@ Perfil + CNAE
 ### 5 Regras fundamentais (invioláveis)
 
 **Regra 1 — Fonte obrigatória:** toda pergunta gerada deve ter `source_type`, `source_reference`, `requirement_id` e `confidence`. Perguntas sem fonte são bloqueadas pelo protocolo `NO_QUESTION`.
+
+> **Bump MINOR v1.1 (Sprint 3, 2026-06-01):** o enum `source_type` (aplicado tanto a perguntas quanto a `principais_gaps[*].source_type` no briefing LLM) foi ampliado de 6 → 7 valores. Adicionado **`"solaris"`** — gaps derivados de respostas no questionário SOLARIS (Onda 1) DEVEM usar `source_type="solaris"` + `source_reference="SOL-NNN"`. O valor `"questionario"` permanece para CNAE, Produtos e Serviços (NÃO para SOLARIS). Mudança aditiva (backward-compatible: registros pré-v1.1 com `source_type="questionario"` continuam válidos). Ver `ADR-0030-fonte-canonica-gap-solaris.md` para operacionalização em runtime e PR #1331 + AS-IS/TO-BE Sprint 3 para evidência empírica.
 
 **Regra 2 — Coverage total:** nenhum requisito aplicável pode ficar sem pergunta, resposta e avaliação de gap. `coverage < 100%` bloqueia a geração do briefing.
 

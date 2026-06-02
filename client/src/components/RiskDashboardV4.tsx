@@ -68,6 +68,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 interface EvidenceItem {
   fonte?: string;
   prioridade?: string;
+  /** Sprint 3 (FIX-VIS-U1): texto curado do gap propagado do backend
+   *  (risk-engine-v4.ts EvidenceItem.gapDescription). Quando preenchido,
+   *  UI exibe linha "G: {descricaoGap}" antes do código da pergunta. */
+  descricaoGap?: string;
   pergunta?: string;
   resposta?: string;
   confianca?: number;
@@ -87,6 +91,8 @@ interface ConsolidatedEvidenceGap {
   answerValue?: string | null;
   gapId?: number | null;
   questionSource?: string | null;
+  /** Sprint 3 (FIX-VIS-U1): texto curado do gap (risk-engine-v4.ts EvidenceItem). */
+  gapDescription?: string | null;
 }
 interface ConsolidatedEvidence {
   gaps?: ConsolidatedEvidenceGap[];
@@ -96,6 +102,7 @@ interface ConsolidatedEvidence {
   rag_trecho_legal?: string;
   archetype_context?: string;
 }
+
 
 interface RiskData {
   id: string;
@@ -228,6 +235,26 @@ function getSourceContributors(risk: RiskData): string[] {
   return [risk.source_priority];
 }
 
+/**
+ * Sprint 3 (FIX-VIS-U6 — opção c híbrido): mapeia valores canônicos do ENUM
+ * `solaris_answers.resposta_opcao` (Sprint 1 PR #1316) para labels legíveis.
+ *
+ * Backend persiste agora a opção canônica em `project_gaps_v3.answer_value`
+ * (era hardcoded `'não'` literal pré-Sprint 3). Para projetos legados sem
+ * resposta_opcao, o backend faz fallback para `resposta` texto livre — que
+ * passa direto por aqui sem mapeamento.
+ */
+function mapAnswerLabel(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  switch (value) {
+    case "sim": return "Sim";
+    case "nao": return "Não";
+    case "nao_sei": return "Não sei";
+    case "nao_se_aplica": return "Não se aplica";
+    default: return value; // legado ou IAGEN preview — exibir como veio
+  }
+}
+
 function parseEvidence(raw: EvidenceItem[] | string | ConsolidatedEvidence): EvidenceItem[] {
   // Case 1: already an array of EvidenceItem
   if (Array.isArray(raw)) return raw;
@@ -245,10 +272,15 @@ function parseEvidence(raw: EvidenceItem[] | string | ConsolidatedEvidence): Evi
     return obj.gaps.map((gap) => ({
       fonte: gap.fonte ?? undefined,
       prioridade: gap.gapClassification ?? undefined,
+      // Sprint 3 (FIX-VIS-U1 + U5): propaga texto curado do gap. Antes da Sprint 3
+      // este campo era dead-read parcial (lia do banco mas não chegava à UI).
+      descricaoGap: gap.gapDescription ?? undefined,
       pergunta: gap.sourceReference
         ? `[${gap.ruleId ?? "regra"}] ${gap.sourceReference}`
         : (gap.ruleId ?? undefined),
-      resposta: gap.answerValue ?? undefined,
+      // Sprint 3 (FIX-VIS-U6): mapeia ENUM canônico SOLARIS (Sprint 1 PR #1316) para
+      // label legível em português. Resposta legado (texto livre) passa direto.
+      resposta: mapAnswerLabel(gap.answerValue),
       confianca: gap.confidence ?? undefined,
     }));
   }
@@ -363,6 +395,14 @@ function EvidencePanel({ evidence }: { evidence: EvidenceItem[] }) {
               </span>
             )}
           </div>
+          {/* Sprint 3 (FIX-VIS-U1): texto curado do gap exibido ANTES do código —
+              advogado lê "G: ..." imediatamente sem precisar decifrar `[ruleId] SOL-049`.
+              Mostra descrição quando disponível (gaps SOLARIS/IAGEN/v1 com gap_description curado). */}
+          {ev.descricaoGap && (
+            <p className="text-muted-foreground" data-testid="evidence-gap-description">
+              <span className="font-medium text-foreground">G:</span> {ev.descricaoGap}
+            </p>
+          )}
           {ev.pergunta && <p className="text-muted-foreground"><span className="font-medium text-foreground">P:</span> {ev.pergunta}</p>}
           {ev.resposta && <p className="text-muted-foreground"><span className="font-medium text-foreground">R:</span> {ev.resposta}</p>}
         </div>

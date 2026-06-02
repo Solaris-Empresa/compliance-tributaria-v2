@@ -103,3 +103,32 @@ ADR-0027 permanece arquivado para rastreabilidade histórica (padrão do projeto
 - **Lição #117** (registrar lição ≠ aplicar fix) — caso canônico documentado: PR-A/B/C entregaram a coluna; G17 só consumiu após FIX-08
 - **Post-mortem** `docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md` — contexto histórico do M3.10 Fix B (intermediário entre arquitetura legada e arquitetura Max)
 - **Issue #964** (M3.9 Item 4) — alinhamento conceitual: Z-11 não era necessária
+
+---
+
+## Nota cruzada — Sprint 3 (FIX-VIS-01, 2026-06-01) · Operacionalização do enum em runtime
+
+ADR-010 v1.1 (bump MINOR, Sprint 3) amplia o enum `source_type` adicionando `"solaris"`. Esta ampliação **operacionaliza em runtime** a decisão arquitetural deste ADR-0030: gap escrito com `source='solaris'` em `project_gaps_v3` (pela arquitetura Max — `analyzeSolarisAnswers` G17-MAX) agora aparece como `source_type='solaris'` no `principais_gaps[*]` do briefing LLM e como badge "Solaris" (roxo) no `RiskDashboardV4`.
+
+**Cadeia agora simétrica end-to-end:**
+
+```
+solaris_answers (Onda 1, advogado curou perguntas)
+       ↓ G17-MAX (analyzeSolarisAnswers — esta ADR-0030)
+project_gaps_v3.source='solaris' + question_id real (Sprint 3 FIX-VIS-U4)
+                                + answer_value canônico (Sprint 3 FIX-VIS-U6 híbrido)
+                                + gap_description (FIX-08 / ADR-0030)
+       ↓ db-queries-risks-v4.ts:1044 + gap-to-rule-mapper.ts:265 (descricao propagada — Sprint 3 FIX-VIS-U1/U5)
+risks_v4.evidence.gaps[*] com fonte='solaris' + sourceReference='SOL-NNN' + gapDescription texto curado
+       ↓ briefing LLM principais_gaps (ADR-010 Regra 1 v1.1 — source_type='solaris' aceito)
+       ↓ frontend RiskDashboardV4 (badge "Solaris" roxo + linha "G: {descricao}" + "R: Não")
+Advogado tributarista lê parecer com rastreabilidade SOLARIS visível ✅
+```
+
+**Antes da Sprint 3** (ADR-0030 isolado): gap no banco tinha `source='solaris'` corretamente, mas:
+- Briefing LLM classificava como `"questionario"` ou `"regra_semantica"` (enum não tinha `"solaris"`)
+- UI exibia `[ruleId] SOL-049` opaco (sem `gapDescription`)
+- `answer_value='não'` literal hardcoded perdia nuance "não sei"
+- `question_id=0` literal quebrava rastreabilidade
+
+**Vinculadas:** ADR-010 v1.1 · AS-IS/TO-BE Sprint 3 (`docs/governance/relatorios/AS-IS-TO-BE-SOLARIS-UI-VISIBILITY-20260602.md`) · Verificações empíricas V1/V2/V3 (Manus 2026-06-01) · Lição #117 (sem o fix em código a lição era apenas documental).
