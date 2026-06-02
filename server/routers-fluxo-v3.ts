@@ -1938,14 +1938,25 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
   - IA Gen: "pergunta IA Gen: [título curto]"
   - Regra semântica: número da regra acima (ex.: "Gatilho #2 — cesta básica")
 
-REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2):
-- Se houver QUALQUER resposta negativa ("não" / "não sei") no bloco <respostas_solaris_onda1>,
-  você DEVE incluir pelo menos 1 gap em "principais_gaps" com:
+REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2 · refinada BUG-2 2026-06-02):
+- Para CADA risk_category_code DISTINTO com gap SOLARIS detectado (resposta "não" ou
+  "não sei" no bloco <respostas_solaris_onda1>), você DEVE incluir 1 entry SEPARADA
+  em "principais_gaps" com:
   - "source_type": "solaris"
-  - "source_reference": "SOL-NNN" (código da pergunta correlata)
+  - "source_reference": código EXATO da pergunta correlata (ex.: "SOL-044")
+- NUNCA use range narrativo (ex.: "SOL-044 a SOL-048") nem lista comprimida
+  (ex.: "SOL-044, SOL-045, SOL-046"). Cada entry SOLARIS deve referenciar UMA
+  pergunta única para preservar rastreabilidade atômica (drill-down briefing →
+  resposta original).
+- Se houver 5 categorias DISTINTAS afetadas, gere 5 entries SOLARIS (uma por
+  categoria). Se houver várias perguntas na MESMA categoria, escolha a mais
+  representativa (não consolide múltiplas perguntas em range).
 - Esta regra é INVIOLÁVEL — o questionário SOLARIS é a fonte primária de evidência
-  curada pelo advogado tributarista. Ignorar respostas negativas SOLARIS quebra a
-  rastreabilidade end-to-end exigida pelo produto (parecer jurídico — meta 98%).
+  curada pelo advogado tributarista. Ignorar respostas negativas SOLARIS ou
+  consolidá-las em range narrativo quebra a rastreabilidade end-to-end exigida
+  pelo produto (parecer jurídico — meta 98%).
+- Atenção ao limite total de "principais_gaps" (max 8 entries — schema Zod).
+  Priorize categorias com maior número de gaps SOLARIS quando o limite for atingido.
 
 - NUNCA invente source_reference. Se o gap não tem fonte clara identificável, use source_type="rag" e source_reference="Reforma Tributária — LC 214/2025" como fallback genérico — mas ISSO reduz a qualidade do diagnóstico, evite quando houver alternativa precisa.`,
           },
@@ -4465,8 +4476,13 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
 - source_reference: identificador curto (chunk_id, CNAE, "SOL-NNN", trecho em aspas, nome da pergunta, gatilho semântico).
 - Fallback genérico só quando não houver alternativa: source_type="rag", source_reference="Reforma Tributária — LC 214/2025".
 
-REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2):
-- Se houver respostas negativas SOLARIS (Onda 1), incluir pelo menos 1 gap com source_type="solaris" + source_reference="SOL-NNN". Esta regra é inviolável (rastreabilidade do parecer jurídico).`,
+REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2 · refinada BUG-2 2026-06-02):
+- Para CADA risk_category_code DISTINTO com gap SOLARIS detectado, incluir 1 entry
+  SEPARADA com source_type="solaris" + source_reference="SOL-NNN" (código EXATO,
+  nunca range "SOL-NNN a SOL-MMM" ou lista "SOL-NNN, SOL-MMM"). Cada entry deve
+  referenciar UMA pergunta para preservar rastreabilidade atômica.
+- Respeitar limite Zod de 8 entries totais em principais_gaps.
+- Esta regra é inviolável (rastreabilidade do parecer jurídico).`,
           },
         ],
         BriefingStructuredSchema,
