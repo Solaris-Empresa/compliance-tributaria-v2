@@ -520,10 +520,30 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
           </div>
           <p className="mt-1.5 text-sm font-medium text-foreground">{plan.titulo}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">Responsável: {plan.responsavel}</p>
-          {/* BUG-RASTREAB-01 (#1189): rastreabilidade Ação→Risco visível por plano */}
+          {/* BUG-RASTREAB-01 (#1189): rastreabilidade Ação→Risco visível por plano.
+              BUG-1 (2026-06-02): adicionado badge `plan-risk-source` antes da
+              categoria para completar a cadeia visual Ação → Fonte → Categoria →
+              Artigo → Título. Sem o badge, planos vindos de risco SOLARIS eram
+              indistinguíveis visualmente de planos regulatórios (caso canônico:
+              projeto 5520001 com 5/6 planos SOLARIS e 1/6 regulatório).
+              Paleta pareada com Breadcrumb4 de RiskDashboardV4.tsx. */}
           {plan._risk && (
             <div data-testid="plan-risk-trace" className="mt-1.5 flex items-center gap-1 flex-wrap">
               <span className="text-[11px] text-muted-foreground shrink-0">Risco:</span>
+              <span
+                data-testid="plan-risk-source"
+                className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                  plan._risk.source_priority === "solaris"
+                    ? "bg-purple-100 text-purple-700"
+                    : plan._risk.source_priority === "regulatorio"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-amber-100 text-amber-700"
+                }`}
+                title={`Fonte: ${SOURCE_LABELS[plan._risk.source_priority] ?? plan._risk.source_priority}`}
+              >
+                {SOURCE_LABELS[plan._risk.source_priority] ?? plan._risk.source_priority}
+              </span>
+              <span className="text-muted-foreground text-[10px]">›</span>
               <span
                 data-testid="plan-risk-categoria"
                 className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] bg-purple-100 text-purple-700"
