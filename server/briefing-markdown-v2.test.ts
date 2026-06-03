@@ -182,7 +182,7 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
         ],
       };
       const md = buildBriefingMarkdown(structured, META_BASE);
-      expect(md).toContain("**Fonte:** 📚 RAG (base regulatória) · Art. 15 LC 214/2025");
+      expect(md).toContain("**Fonte:** Norma aplicável identificada · Art. 15 LC 214/2025");
     });
 
     it("omite linha Fonte quando source_type ausente (graceful — briefings legados)", () => {
@@ -198,7 +198,7 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
         ],
       };
       const md = buildBriefingMarkdown(structured, META_BASE);
-      expect(md).toContain("**Fonte:** 🏷️ CNAE confirmado");
+      expect(md).toContain("**Fonte:** Incidência por atividade econômica (CNAE)");
       // Sem " · " de suffix
       const fonteLine = md.split("\n").find((l) => l.includes("**Fonte:**"));
       expect(fonteLine).not.toContain(" · ");
@@ -206,12 +206,13 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
 
     it("todos os source_type conhecidos renderizam com label canônico", () => {
       const types = [
-        { k: "rag", label: "📚 RAG (base regulatória)" },
-        { k: "cnae", label: "🏷️ CNAE confirmado" },
-        { k: "descricao", label: "📝 Descrição do negócio" },
-        { k: "questionario", label: "💬 Respostas do questionário" },
-        { k: "iagen", label: "🤖 IA Generativa (Onda 2)" },
-        { k: "regra_semantica", label: "⚙️ Regra semântica (gatilho)" },
+        { k: "rag", label: "Norma aplicável identificada" },
+        { k: "cnae", label: "Incidência por atividade econômica (CNAE)" },
+        { k: "descricao", label: "Sinal identificado na descrição da atividade" },
+        { k: "questionario", label: "Declaração do contribuinte" },
+        { k: "iagen", label: "Análise complementar por IA" },
+        { k: "regra_semantica", label: "Aplicação obrigatória por perfil" },
+        { k: "solaris", label: "Questionário de conformidade SOLARIS" },
       ];
       for (const t of types) {
         const md = buildBriefingMarkdown(

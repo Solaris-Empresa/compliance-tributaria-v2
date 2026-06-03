@@ -169,15 +169,21 @@ import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 // defensivo no header de grupo (linha 1417 abaixo).
 
 const SOURCE_LABELS: Record<string, string> = {
-  cnae: "CNAE",
-  ncm: "NCM",
-  nbs: "NBS",
-  solaris: "Solaris",
-  iagen: "IA Gen",
+  cnae: "Incidência por atividade econômica (CNAE)",
+  ncm: "Incidência por código de produto (NCM)",
+  nbs: "Incidência por código de serviço (NBS)",
+  solaris: "Questionário de conformidade SOLARIS",
+  iagen: "Análise complementar por IA",
   // M3.10 Fix C-bis: ampliação para refletir Fonte expandida (M3.8.1 Bug C +
   // PR #968 introduziram "regulatorio"; "inferred" vem de normative-inference).
-  regulatorio: "Regulatório",
-  inferred: "Inferido",
+  regulatorio: "Norma regulatória aplicável",
+  inferred: "Enquadramento inferido por perfil",
+  // UX-LABELS-01 (Opção C): chaves de source_type do briefing incluídas para
+  // mapa unificado de fonte nos 4 sites (server briefing + 3 frontend + PDF).
+  rag: "Norma aplicável identificada",
+  descricao: "Sinal identificado na descrição da atividade",
+  questionario: "Declaração do contribuinte",
+  regra_semantica: "Aplicação obrigatória por perfil",
 };
 
 /**
