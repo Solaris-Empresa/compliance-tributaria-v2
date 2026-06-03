@@ -23,7 +23,7 @@
 
 | # | Dimensão | DE (AS-IS — como está) | PARA (TO-BE — a mudança) | Evidência | Risco |
 |---|---|---|---|---|---|
-| DP-01 | **Render (caminho principal)** | markdown via `<Streamdown>` (`BriefingV3.tsx:1060`) | `briefingAdapter` → **fallback markdown quando `structured` NULL (98%)**, idêntico ao monolito | 4851/4944 NULL | 🔴 |
+| DP-01 | **Render (caminho principal)** | markdown via `<Streamdown>` (`BriefingV3.tsx:1060`) | `briefingAdapter` → **fallback legado quando `result.mode === "legacy"` (98%)** (contrato canônico do adapter — `parseBriefingStructured` retorna `{ mode: "legacy" }`, NÃO `null`), idêntico ao monolito | 4851/4944 NULL | 🔴 |
 | DP-02 | **Render (caminho structured)** | `structured` só usado no ShareModal (`:212`) | Split View consome `structured` em 9 componentes (93 projetos) | `getBriefingInconsistencias.structured` | 🟡 |
 | DP-03 | **Estrutura do arquivo** | `BriefingV3.tsx` 1200 LOC monolito | `BriefingSplitView.tsx` + 9 componentes em `components/briefing/` | — | Classe C |
 | DP-04 | **Type safety** | `@ts-nocheck` (`:1`) — 9 erros (causa: `loadTempData` untyped) | removido; `loadTempData<BriefingDraft>(...)`; tsc 0 | `usePersistenceV3:153` | 🔴 |

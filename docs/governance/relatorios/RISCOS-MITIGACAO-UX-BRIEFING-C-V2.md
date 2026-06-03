@@ -9,7 +9,7 @@
 
 | Risco | Prob. | Impacto | Mitigação | PR |
 |---|---|---|---|---|
-| **R1 — Fallback (98%) quebrado** | Alta | P0 | `if (!structured) return <LegacyBriefingView {...props} />` — **monolito completo**, não `<Streamdown>` parcial (N2-c) | PR-3 |
+| **R1 — Fallback (98%) quebrado** | Alta | P0 | `if (result.mode === "legacy") return <LegacyBriefingView />` (contrato canônico do adapter — `{ mode: "legacy" }`, NÃO `null`) — **monolito completo**, não `<Streamdown>` parcial (N2-c) | PR-3 |
 | **R2 — Regressão E2E z17 (7 testids)** | Média | P0 | Preservar os 7 `data-testid` listados no UX_DICTIONARY §11 + strings de seção | PR-2 |
 | **R3 — Double-encoding (DP-19)** | Alta | P1 | `typeof bs === "string" ? JSON.parse(bs) : bs` no adapter; nunca `JSON.parse` sobre objeto (Lição #72) | PR-1 |
 | **R4 — BUG-F4 `confidence_score` tipo errado** | Média | P1 | Ler como **OBJECT** `{nivel_confianca}` (não number) — DB-SPEC confirmado (`ai-schemas.ts:237`) | PR-1 |

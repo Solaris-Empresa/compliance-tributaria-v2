@@ -395,18 +395,18 @@ Fonte: `structured.principais_gaps[i]`. Labels por `source_type` (UX-LABELS-01 #
 **data-testid:** `briefing-gap-card-{i}` · `briefing-gap-source-badge-{i}` · `briefing-gap-urgencia-badge-{i}` · `briefing-gap-hallucination-badge-{i}` · `briefing-gap-expand-{i}`
 
 ### 3. PriorityCards · 4. OpportunityCard · 5. ActionsList
-- **PriorityCards** — `structured.top_3_acoes[]` ({acao, justificativa, prazo}, `ai-schemas.ts:225`); título "Top 3 Prioridades"; `briefing-priority-card-{i}`.
+- **PriorityCards** — `structured.top_3_acoes[]` ({acao, justificativa, prazo}, `ai-schemas.ts:225`); título "Top 3 Prioridades"; `priority-card-{i}` (reconciliado PR-3: implementado como `priority-card-{i}`, não `briefing-priority-card-{i}` — despacho definitivo prevalece).
 - **OpportunityCard** — `structured.oportunidades[]` (string[]); tab "Oportunidades"; vazio→"Nenhuma oportunidade identificada"; `briefing-opportunity-{i}`.
 - **ActionsList** — `structured.recomendacoes_prioritarias[]` (**NÃO `recomendacoes`**); tab **"Ações Prioritárias"**; `briefing-action-{i}`.
 
 ### 6. ImpactsSection (tab "Impactos")
 Bloco **fixo** (3 eixos Financeiro/Operacional/Jurídico — `server:6835-6843`), **não vem do JSON**. D2: render via `<Streamdown>` + âncora de nav (split) / hardcode dos 3 textos. `briefing-impacts-section`.
 
-### 7. MethodSection (tab **"Método"**)
+### 7. MethodSection (tab **"Metodologia"**)
 Fonte: `structured.confidence_score` + **`structured.confiancaSnapshot.pilares[]`** (gravado em `routers-fluxo-v3.ts:2164`; via `getBriefingInconsistencias.structured` — **N2-a: NÃO via `checkBriefingFreshness`**, que não retorna pilares). Labels "Limites do Diagnóstico" · "Como calculamos a Confiança". `briefing-method-section` · `briefing-method-pilares-table`.
 
 ### 8. BriefingNav (5 tabs)
-Ordem: **"Gaps" · "Oportunidades" · "Ações Prioritárias" · "Impactos" · "Método"**. Default: Gaps. `briefing-nav-tab-{slug}`.
+Ordem: **"Gaps" · "Oportunidades" · "Ações Prioritárias" · "Impactos" · "Metodologia"**. Default: Gaps. `briefing-nav-tab-{slug}`. (Errata P.O. 03/06: "Metodologia", não "Método".)
 
 ### 9. ActionBar (Zona 0 superior + Zona 3 inferior sticky)
 **Superior:** Regenerar · Corrigir · Mais Informações · Compartilhar Resumo · Anotações. **Inferior:** Histórico (N) · Exportar PDF · Aprovar Briefing.
@@ -414,7 +414,7 @@ Ordem: **"Gaps" · "Oportunidades" · "Ações Prioritárias" · "Impactos" · "
 **data-testid PRESERVADOS:** `btn-regenerar-briefing` (:1012) · `btn-compartilhar-resumo` (:1118). **Novos:** `btn-aprovar-briefing` · `btn-corrigir-briefing` · `btn-mais-info-briefing` · `btn-exportar-pdf-briefing` · `briefing-action-bar-top` · `briefing-action-bar-bottom`.
 
 ### 10. RoundsSummarySection (🔴 NOVO — N1, elemento obrigatório)
-**Fonte:** `getRoundsSummary` (**CONSUMIDO** — não "não usado"). Renderiza **"Intensidade de Aprofundamento por CNAE"** (heatmap de rounds por CNAE, badge de alta complexidade) — está na lista **"Elementos Obrigatórios (NÃO suprimir)"** da issue #1344 (`BriefingV3.tsx:874-970`). **Zona 2** (tab "Método" ou seção acima das tabs, como no monolito). `data-testid: briefing-rounds-summary`.
+**Fonte:** `getRoundsSummary` (**CONSUMIDO** — não "não usado"). Renderiza **"Intensidade de Aprofundamento por CNAE"** (heatmap de rounds por CNAE, badge de alta complexidade) — está na lista **"Elementos Obrigatórios (NÃO suprimir)"** da issue #1344 (`BriefingV3.tsx:874-970`). **Zona 2** (tab "Metodologia" ou seção acima das tabs, como no monolito). `data-testid: briefing-rounds-summary`.
 
 ### 11. BriefingV3 (host) — feature flag + fallback
 | Estado | Condição | Render |

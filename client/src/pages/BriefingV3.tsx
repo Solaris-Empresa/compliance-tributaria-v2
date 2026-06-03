@@ -31,6 +31,19 @@ import { ShareBriefingModal } from "@/components/ShareBriefingModal";
 import { ApproveReservationModal, type PredefinedReason } from "@/components/ApproveReservationModal";
 import { BriefingReservationBadge, type ApprovalReservation } from "@/components/BriefingReservationBadge";
 import { useAuth } from "@/_core/hooks/useAuth";
+// UX-BRIEFING-C-V2 PR-3 (F3): wiring do Split View (opt-in temporário ?ui=split; a
+// flag definitiva entra no PR-4). Default = legacy para todos (produção inalterada).
+import { parseBriefingStructured } from "@/lib/briefingAdapter";
+import { DecisionPanel } from "@/components/briefing/DecisionPanel";
+import { GapCard } from "@/components/briefing/GapCard";
+import { PriorityCards } from "@/components/briefing/PriorityCards";
+import { OpportunityCard } from "@/components/briefing/OpportunityCard";
+import { ActionsList } from "@/components/briefing/ActionsList";
+import { ImpactsSection } from "@/components/briefing/ImpactsSection";
+import { MethodSection } from "@/components/briefing/MethodSection";
+import { RoundsSummarySection } from "@/components/briefing/RoundsSummarySection";
+import { BriefingNav, type BriefingTab } from "@/components/briefing/BriefingNav";
+import { ActionBar } from "@/components/briefing/ActionBar";
 
 // ── Componente: Painel de Diagnóstico de Entrada (3 Camadas) ─────────────────────────────────
 function DiagnosticoEntradaPanel({
@@ -145,6 +158,8 @@ export default function BriefingV3() {
   const [wasAlreadyApproved, setWasAlreadyApproved] = useState(false);
   // RF-3.06: Histórico de versões
   const [versionHistory, setVersionHistory] = useState<BriefingVersion[]>([]);
+  // UX-BRIEFING-C-V2 PR-3 (F3): aba ativa do Split View (opt-in ?ui=split).
+  const [splitTab, setSplitTab] = useState<BriefingTab>("gaps");
   const [showHistory, setShowHistory] = useState(false);
   const [viewingVersion, setViewingVersion] = useState<BriefingVersion | null>(null);
   // fix(UAT 2026-04-20): versões cujo motivo está expandido (texto completo visível).
@@ -562,9 +577,65 @@ export default function BriefingV3() {
 
   const displayContent = viewingVersion ? viewingVersion.content : briefing;
 
+  // ── UX-BRIEFING-C-V2 PR-3 (F3) — Wiring do Split View ───────────────────────
+  // Opt-in TEMPORÁRIO via ?ui=split (QA/smoke). Default = legacy para TODOS
+  // (produção inalterada). Split só renderiza com briefingStructured presente
+  // (mode "split-view") E o parâmetro. A flag definitiva entra no PR-4.
+  const briefingResult = parseBriefingStructured(
+    (project as any)?.briefingStructured
+  );
+  const uiParam = new URLSearchParams(window.location.search).get("ui");
+  const showSplitView =
+    briefingResult.mode === "split-view" && uiParam === "split";
+
+  if (showSplitView) {
+    return (
+      <ComplianceLayout>
+        <div
+          data-testid="briefing-split-view"
+          className="max-w-6xl mx-auto space-y-4 py-2"
+        >
+          <ActionBar
+            onRegenerate={() => handleGenerate()}
+            onCorrect={() => setFeedbackMode("correction")}
+            onMoreInfo={() => setFeedbackMode("more_info")}
+            onShare={() => setShareModalOpen(true)}
+            onExportPdf={handleExportPDF}
+            onApprove={handleApprove}
+            canApprove={canApprove}
+            isApproving={isApproving}
+            historyCount={versionHistory.length}
+          />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <aside className="space-y-4 md:col-span-1">
+              <DecisionPanel result={briefingResult} />
+              <PriorityCards result={briefingResult} />
+              <RoundsSummarySection roundsSummary={roundsSummary} />
+            </aside>
+            <main className="space-y-4 md:col-span-2">
+              <BriefingNav activeTab={splitTab} onTabChange={setSplitTab} />
+              {splitTab === "gaps" && <GapCard result={briefingResult} />}
+              {splitTab === "oportunidades" && (
+                <OpportunityCard result={briefingResult} />
+              )}
+              {splitTab === "acoes" && <ActionsList result={briefingResult} />}
+              {splitTab === "impactos" && <ImpactsSection />}
+              {splitTab === "metodologia" && (
+                <MethodSection content={displayContent} />
+              )}
+            </main>
+          </div>
+        </div>
+      </ComplianceLayout>
+    );
+  }
+
   return (
     <ComplianceLayout>
-      <div className="max-w-4xl mx-auto space-y-6 py-2">
+      <div
+        data-testid="legacy-briefing-view"
+        className="max-w-4xl mx-auto space-y-6 py-2"
+      >
         {showResumeBanner && (
           <ResumeBanner
             savedAt={draftSavedAt}
