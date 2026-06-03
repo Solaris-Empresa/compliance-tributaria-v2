@@ -178,10 +178,13 @@ describe("FIX-09 — buildIagenGapFromAnswer (zero dicionários intermediários)
     });
   });
 
-  describe("Tipo do retorno completo (5 chaves + answer_value_preview = 6)", () => {
-    it("GapToInsert tem exatamente as 6 chaves esperadas", () => {
+  describe("Tipo do retorno completo (iagen_answer_id + 5 chaves + answer_value_preview = 7)", () => {
+    it("GapToInsert tem exatamente as 7 chaves esperadas", () => {
       const gap = buildIagenGapFromAnswer(makeIagen({}));
       const keys: Array<keyof IagenGapToInsert> = [
+        // iagen_answer_id adicionado em bc7aba9a (Sprint 3 FIX-VIS-U4 paridade);
+        // assert atualizado de 6→7 chaves (estava stale — REGRA-ORQ-CI-01 / Lição #64).
+        "iagen_answer_id",
         "gap_descricao",
         "area",
         "severidade",
