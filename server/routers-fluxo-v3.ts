@@ -10,6 +10,8 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
+// UX-BRIEFING-C-V2 PR-0 (D4/G5): fonte única dos labels de fonte (consolida 5 cópias).
+import { SOURCE_TYPE_LABELS } from "@shared/source-type-labels";
 // BUG-BRIEFING (#1202): suprimir credito presumido Art. 168 no briefing p/ perfil não elegível
 import {
   isCreditoPresumidoArt168Eligible,
@@ -6641,16 +6643,8 @@ const URGENCIA_LABEL_V2: Record<string, string> = {
 
 // fix #811: rótulos legíveis para o campo source_type do briefing.
 // Content engine regra #1 exige fonte por item — aqui é exposto ao usuário.
-const SOURCE_TYPE_LABEL_V2: Record<string, string> = {
-  rag: "Norma aplicável identificada",
-  cnae: "Incidência por atividade econômica (CNAE)",
-  descricao: "Sinal identificado na descrição da atividade",
-  questionario: "Declaração do contribuinte",
-  iagen: "Análise complementar por IA",
-  regra_semantica: "Aplicação obrigatória por perfil",
-  // UX-LABELS-01: chave adicionada (estava ausente) — Gap SOLARIS exibia "solaris" cru.
-  solaris: "Questionário de conformidade SOLARIS",
-};
+// UX-BRIEFING-C-V2 PR-0: labels consolidados em shared/source-type-labels.ts (fonte única).
+const SOURCE_TYPE_LABEL_V2: Record<string, string> = SOURCE_TYPE_LABELS;
 
 function buildBriefingMarkdownV2(
   structured: any,

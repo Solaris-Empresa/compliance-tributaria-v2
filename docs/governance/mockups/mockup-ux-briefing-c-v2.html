@@ -1,0 +1,316 @@
+<!-- MOCKUP UX-BRIEFING-C-V2 — Conceito C v2 (Split View) -->
+<!-- Dados reais: Projeto 5700001 — Trading exportadora de grãos -->
+<!-- Design System: Tailwind + shadcn/ui classes do projeto IA SOLARIS -->
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ZONA 0 — Header + ActionBar Superior                              -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="border-b border-border bg-background px-6 py-4">
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+    <a href="#" class="hover:text-foreground">Projetos</a>
+    <span>/</span>
+    <a href="#" class="hover:text-foreground">Trading exportadora de grãos</a>
+    <span>/</span>
+    <span class="text-foreground font-medium">Briefing de Compliance</span>
+  </nav>
+
+  <!-- Título + Versão + ActionBar -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <h1 class="text-xl font-semibold text-foreground">Briefing de Compliance</h1>
+      <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+        Versão 2
+      </span>
+      <span class="text-xs text-muted-foreground">Gerada em 03/06/2026 às 00:12</span>
+    </div>
+
+    <!-- ActionBar Superior: Regenerar, Corrigir, Mais Informações, Compartilhar, Anotações -->
+    <div class="flex items-center gap-2">
+      <button class="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Regenerar
+      </button>
+      <button class="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        Corrigir
+      </button>
+      <button class="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Mais Informações
+      </button>
+      <button class="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        Compartilhar
+      </button>
+      <button class="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+        Anotações (0)
+      </button>
+    </div>
+  </div>
+
+  <!-- Pipeline Steps -->
+  <div class="flex items-center gap-1 mt-4">
+    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">✓ Projeto</span>
+    <span class="text-muted-foreground">›</span>
+    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">✓ Questionário</span>
+    <span class="text-muted-foreground">›</span>
+    <span class="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white">3 Briefing</span>
+    <span class="text-muted-foreground">›</span>
+    <span class="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">4 Riscos</span>
+    <span class="text-muted-foreground">›</span>
+    <span class="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">5 Plano de Ação</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- LAYOUT SPLIT: Zona 1 (esquerda fixo) + Zona 2 (direita tabbed)   -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="flex gap-6 p-6 min-h-[calc(100vh-200px)]">
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+  <!-- ZONA 1 — Decision Panel (sidebar fixa à esquerda)              -->
+  <!-- ─────────────────────────────────────────────────────────────── -->
+  <aside class="w-72 shrink-0 space-y-5">
+
+    <!-- Gauge: Confiança do Diagnóstico -->
+    <div class="rounded-lg border border-border bg-card p-5">
+      <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">Confiança do Diagnóstico</h3>
+      <!-- Gauge visual -->
+      <div class="flex flex-col items-center">
+        <div class="relative w-32 h-32">
+          <!-- SVG Gauge -->
+          <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="110" stroke-linecap="round"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-3xl font-bold text-foreground">65%</span>
+          </div>
+        </div>
+        <span class="mt-2 text-sm font-medium text-red-600">Baixa</span>
+        <span class="text-xs text-muted-foreground mt-1">Revisão por advogado recomendada</span>
+      </div>
+    </div>
+
+    <!-- Badge: Nível de Risco Geral -->
+    <div class="rounded-lg border border-border bg-card p-5">
+      <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Nível de Exposição</h3>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center rounded-md bg-red-100 px-3 py-1.5 text-sm font-semibold text-red-800">
+          ● ALTO
+        </span>
+        <span class="text-xs text-muted-foreground">Score 65/100</span>
+      </div>
+    </div>
+
+    <!-- Contadores -->
+    <div class="rounded-lg border border-border bg-card p-5">
+      <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Resumo</h3>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-foreground">Gaps identificados</span>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-100 text-sm font-semibold text-red-700">5</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-foreground">Ações prioritárias</span>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-100 text-sm font-semibold text-amber-700">3</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-foreground">Oportunidades</span>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">3</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-foreground">Recomendações</span>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 text-sm font-semibold text-blue-700">4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumo Executivo (colapsado) -->
+    <div class="rounded-lg border border-border bg-card p-5">
+      <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Resumo Executivo</h3>
+      <p class="text-sm text-muted-foreground leading-relaxed">
+        Empresa de comércio exterior de grãos com operações interestaduais apresenta gaps críticos em parametrização de alíquotas IBS e controles de obrigações acessórias...
+      </p>
+    </div>
+
+  </aside>
+
+  <!-- ─────────────────────────────────────────────────────────────── -->
+  <!-- ZONA 2 — Conteúdo Tabbed (área principal à direita)            -->
+  <!-- ─────────────────────────────────────────────────────────────── -->
+  <main class="flex-1 min-w-0">
+
+    <!-- BriefingNav: 5 Tabs -->
+    <div class="border-b border-border mb-6">
+      <nav class="flex gap-6">
+        <button class="relative pb-3 text-sm font-medium text-foreground border-b-2 border-blue-600">
+          Gaps (5)
+        </button>
+        <button class="relative pb-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Ações Prioritárias (3)
+        </button>
+        <button class="relative pb-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Oportunidades (3)
+        </button>
+        <button class="relative pb-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Impactos
+        </button>
+        <button class="relative pb-3 text-sm font-medium text-muted-foreground hover:text-foreground">
+          Método
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Ativa: GAPS -->
+    <div class="space-y-4">
+
+      <!-- Gap 1 -->
+      <div class="rounded-lg border border-border bg-card p-5 hover:border-blue-200 transition-colors">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-semibold text-foreground mb-2">
+              Risco potencial de ausência de parametrização das alíquotas do IBS por UF/município de destino nas operações interestaduais de grãos
+            </h4>
+            <div class="flex flex-wrap items-center gap-2 mt-3">
+              <!-- Badge Fonte -->
+              <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+                💬 Declaração do contribuinte
+              </span>
+              <!-- Badge Urgência -->
+              <span class="inline-flex items-center rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                ⚡ Imediata
+              </span>
+              <!-- Badge Hallucination Warning -->
+              <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                ⚠️ Verificar artigo citado
+              </span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-2">
+              Ref: P10 CNAE — local de entrega diferente do domicílio do adquirente
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 2 -->
+      <div class="rounded-lg border border-border bg-card p-5 hover:border-blue-200 transition-colors">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-semibold text-foreground mb-2">
+              Indícios de ausência de atualização cadastral obrigatória no novo regime do IBS/CBS
+            </h4>
+            <div class="flex flex-wrap items-center gap-2 mt-3">
+              <span class="inline-flex items-center gap-1 rounded-full bg-violet-50 border border-violet-200 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+                ⚙️ Aplicação obrigatória por perfil
+              </span>
+              <span class="inline-flex items-center rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                ⚡ Imediata
+              </span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                ⚠️ Verificar artigo citado
+              </span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-2">
+              Ref: Aplicação obrigatória: obrigação cadastral IBS/CBS
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 3 -->
+      <div class="rounded-lg border border-border bg-card p-5 hover:border-blue-200 transition-colors">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-semibold text-foreground mb-2">
+              Indícios de falhas ou ausência de controles internos robustos para garantir a correta apuração e entrega das obrigações acessórias
+            </h4>
+            <div class="flex flex-wrap items-center gap-2 mt-3">
+              <span class="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+                🔮 Diagnóstico SOLARIS
+              </span>
+              <span class="inline-flex items-center rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                ⚡ Imediata
+              </span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-2">
+              Ref: SOL-038
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 4 -->
+      <div class="rounded-lg border border-border bg-card p-5 hover:border-blue-200 transition-colors">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-semibold text-foreground mb-2">
+              Indícios de ausência de controles formais para revisão periódica e correção de erros na apuração
+            </h4>
+            <div class="flex flex-wrap items-center gap-2 mt-3">
+              <span class="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+                🔮 Diagnóstico SOLARIS
+              </span>
+              <span class="inline-flex items-center rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                ⚡ Imediata
+              </span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-2">
+              Ref: SOL-040
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap 5 -->
+      <div class="rounded-lg border border-border bg-card p-5 hover:border-blue-200 transition-colors">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm font-semibold text-foreground mb-2">
+              Indícios de ausência de controles para garantir a correta emissão e exigência de documentos fiscais eletrônicos
+            </h4>
+            <div class="flex flex-wrap items-center gap-2 mt-3">
+              <span class="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-xs font-medium text-purple-700">
+                🔮 Diagnóstico SOLARIS
+              </span>
+              <span class="inline-flex items-center rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                ⚡ Imediata
+              </span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-2">
+              Ref: SOL-049
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ZONA 3 — ActionBar Inferior (Aprovação)                           -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sticky bottom-0 border-t border-border bg-background px-6 py-4">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-muted-foreground">
+        Briefing aprovado anteriormente · Versão 2
+      </span>
+      <button class="text-sm text-blue-600 hover:underline">
+        Ver Histórico (1)
+      </button>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-accent">
+        Exportar PDF
+      </button>
+      <button class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm">
+        ✓ Aprovar Briefing
+      </button>
+    </div>
+  </div>
+</div>

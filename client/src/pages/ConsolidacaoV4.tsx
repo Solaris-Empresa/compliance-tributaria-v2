@@ -55,21 +55,8 @@ const DISCLAIMER = `AVISO LEGAL: Este diagnóstico é uma ferramenta de apoio à
 
 // F0-3 (Sprint 5, 2026-06-02): consolidação 5 cópias → 1 import.
 import { CATEGORIA_LABELS } from "@shared/categoria-labels";
-
-// UX-LABELS-01 (Opção C): mapa unificado de fonte (11 chaves) nos 4 sites.
-const SOURCE_LABELS: Record<string, string> = {
-  cnae: "Incidência por atividade econômica (CNAE)",
-  ncm: "Incidência por código de produto (NCM)",
-  nbs: "Incidência por código de serviço (NBS)",
-  solaris: "Questionário de conformidade SOLARIS",
-  iagen: "Análise complementar por IA",
-  regulatorio: "Norma regulatória aplicável",
-  inferred: "Enquadramento inferido por perfil",
-  rag: "Norma aplicável identificada",
-  descricao: "Sinal identificado na descrição da atividade",
-  questionario: "Declaração do contribuinte",
-  regra_semantica: "Aplicação obrigatória por perfil",
-};
+// UX-BRIEFING-C-V2 PR-0: labels de fonte consolidados (fonte única, era mapa inline).
+import { SOURCE_TYPE_LABELS as SOURCE_LABELS } from "@shared/source-type-labels";
 
 const SEVERITY_COLORS: Record<string, string> = {
   alta: "bg-red-100 text-red-700 border-red-200",

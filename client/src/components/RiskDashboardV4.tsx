@@ -11,6 +11,8 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+// UX-BRIEFING-C-V2 PR-0: labels de fonte consolidados em shared/source-type-labels.ts.
+import { SOURCE_TYPE_LABELS } from "@shared/source-type-labels";
 // Issue #1049 — fonte groups e contadores extraídos para função pura testável
 // Issue #1064 — substitui filtro multi-fonte (countRisksByFonteGroup) por filtro
 // baseado em source_priority (cada risco conta em apenas 1 grupo)
@@ -168,23 +170,8 @@ import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 // regime_diferenciado, obrigacao_acessoria). Usa resolveArtigoForHeader como fallback
 // defensivo no header de grupo (linha 1417 abaixo).
 
-const SOURCE_LABELS: Record<string, string> = {
-  cnae: "Incidência por atividade econômica (CNAE)",
-  ncm: "Incidência por código de produto (NCM)",
-  nbs: "Incidência por código de serviço (NBS)",
-  solaris: "Questionário de conformidade SOLARIS",
-  iagen: "Análise complementar por IA",
-  // M3.10 Fix C-bis: ampliação para refletir Fonte expandida (M3.8.1 Bug C +
-  // PR #968 introduziram "regulatorio"; "inferred" vem de normative-inference).
-  regulatorio: "Norma regulatória aplicável",
-  inferred: "Enquadramento inferido por perfil",
-  // UX-LABELS-01 (Opção C): chaves de source_type do briefing incluídas para
-  // mapa unificado de fonte nos 4 sites (server briefing + 3 frontend + PDF).
-  rag: "Norma aplicável identificada",
-  descricao: "Sinal identificado na descrição da atividade",
-  questionario: "Declaração do contribuinte",
-  regra_semantica: "Aplicação obrigatória por perfil",
-};
+// UX-BRIEFING-C-V2 PR-0: fonte única (era mapa inline de 11 chaves; agora @shared).
+const SOURCE_LABELS: Record<string, string> = SOURCE_TYPE_LABELS;
 
 /**
  * M3.10 Fix C-bis (post-mortem #975): extrai TODAS as fontes contribuintes do
