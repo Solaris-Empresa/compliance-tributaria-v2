@@ -533,7 +533,7 @@ briefing-actionbar-superior · briefing-actionbar-inferior · briefing-btn-aprov
 
 ## 14. Vinculadas
 Issue #1344 · #793 (@ts-nocheck) · #767 (share) · #59 (retrocesso) · REGRA-ORQ-09/14/16/20/24/34/41 · ADR-0016/0018/0030/0031/010 · Lições #65/#67/#68/#72/#86 · `PLANO-TESTES-UX-BRIEFING-C-V2.md` · `CHECKLIST-ACEITE-UX-BRIEFING-C-V2.md`
-**DB-SPEC:** N/A — refactor 100% frontend, nenhuma coluna/migration.
+**DB-SPEC:** `DB-SPEC-UX-BRIEFING-C-V2.md` — contrato de **leitura** (zero migration/ALTER/DROP); tipos reais de `briefingStructured` + double-encoding + `_hallucination_detected` pós-parse.
 
 ---
 
