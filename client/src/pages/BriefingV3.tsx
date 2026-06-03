@@ -31,8 +31,8 @@ import { ShareBriefingModal } from "@/components/ShareBriefingModal";
 import { ApproveReservationModal, type PredefinedReason } from "@/components/ApproveReservationModal";
 import { BriefingReservationBadge, type ApprovalReservation } from "@/components/BriefingReservationBadge";
 import { useAuth } from "@/_core/hooks/useAuth";
-// UX-BRIEFING-C-V2 PR-3 (F3): wiring do Split View (opt-in temporário ?ui=split; a
-// flag definitiva entra no PR-4). Default = legacy para todos (produção inalterada).
+// UX-BRIEFING-C-V2 PR-4 (F4): wiring do Split View gated pela flag de build
+// VITE_BRIEFING_UI_VERSION. Default = legacy para todos (produção inalterada).
 import { parseBriefingStructured } from "@/lib/briefingAdapter";
 import { DecisionPanel } from "@/components/briefing/DecisionPanel";
 import { GapCard } from "@/components/briefing/GapCard";
@@ -158,7 +158,7 @@ export default function BriefingV3() {
   const [wasAlreadyApproved, setWasAlreadyApproved] = useState(false);
   // RF-3.06: Histórico de versões
   const [versionHistory, setVersionHistory] = useState<BriefingVersion[]>([]);
-  // UX-BRIEFING-C-V2 PR-3 (F3): aba ativa do Split View (opt-in ?ui=split).
+  // UX-BRIEFING-C-V2 PR-4 (F4): aba ativa do Split View (flag VITE_BRIEFING_UI_VERSION).
   const [splitTab, setSplitTab] = useState<BriefingTab>("gaps");
   const [showHistory, setShowHistory] = useState(false);
   const [viewingVersion, setViewingVersion] = useState<BriefingVersion | null>(null);
@@ -577,16 +577,18 @@ export default function BriefingV3() {
 
   const displayContent = viewingVersion ? viewingVersion.content : briefing;
 
-  // ── UX-BRIEFING-C-V2 PR-3 (F3) — Wiring do Split View ───────────────────────
-  // Opt-in TEMPORÁRIO via ?ui=split (QA/smoke). Default = legacy para TODOS
-  // (produção inalterada). Split só renderiza com briefingStructured presente
-  // (mode "split-view") E o parâmetro. A flag definitiva entra no PR-4.
+  // ── UX-BRIEFING-C-V2 PR-4 (F4) — Wiring do Split View (feature flag) ─────────
+  // Gated pela flag de BUILD VITE_BRIEFING_UI_VERSION. Default = legacy para TODOS
+  // (produção inalterada — flag ausente → "" ≠ "split"). Split só renderiza com
+  // briefingStructured presente (mode "split-view") E a flag = "split".
+  // Nota: flag é build-time (Vite) — flip/rollback exige rebuild+redeploy.
   const briefingResult = parseBriefingStructured(
     (project as any)?.briefingStructured
   );
-  const uiParam = new URLSearchParams(window.location.search).get("ui");
+  const briefingUiVersion =
+    (import.meta.env.VITE_BRIEFING_UI_VERSION as string | undefined) ?? "";
   const showSplitView =
-    briefingResult.mode === "split-view" && uiParam === "split";
+    briefingResult.mode === "split-view" && briefingUiVersion === "split";
 
   if (showSplitView) {
     return (
