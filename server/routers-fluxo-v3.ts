@@ -1936,7 +1936,7 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
   - SOLARIS: código da pergunta (ex.: "SOL-049") + título curto entre aspas
   - Questionário: "questao_id:ABC" ou nome curto da pergunta (ex.: "P3 Onda 2 — partes relacionadas")
   - IA Gen: "pergunta IA Gen: [título curto]"
-  - Regra semântica: "Aplicação obrigatória: <assunto da regra>" (ex.: "Aplicação obrigatória: alíquota zero (Art. 9)" · "Aplicação obrigatória: obrigação cadastral IBS/CBS")
+  - Regra semântica: APENAS o assunto da regra, SEM prefixo (a label "Aplicação obrigatória por perfil" já antecede) — ex.: "alíquota zero (Art. 9)" · "obrigação cadastral IBS/CBS" · "IBS interestadual (Art. 14 e 15)"
 
 REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2 · refinada BUG-2 2026-06-02):
 - Para CADA risk_category_code DISTINTO com gap SOLARIS detectado (resposta "não" ou
