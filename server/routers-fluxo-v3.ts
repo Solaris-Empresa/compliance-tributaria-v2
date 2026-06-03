@@ -1936,7 +1936,7 @@ REGRA DE RASTREABILIDADE — FONTE DE CADA GAP (issue #811, content engine regra
   - SOLARIS: código da pergunta (ex.: "SOL-049") + título curto entre aspas
   - Questionário: "questao_id:ABC" ou nome curto da pergunta (ex.: "P3 Onda 2 — partes relacionadas")
   - IA Gen: "pergunta IA Gen: [título curto]"
-  - Regra semântica: número da regra acima (ex.: "Gatilho #2 — cesta básica")
+  - Regra semântica: "Aplicação obrigatória: <assunto da regra>" (ex.: "Aplicação obrigatória: alíquota zero (Art. 9)" · "Aplicação obrigatória: obrigação cadastral IBS/CBS")
 
 REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2 · refinada BUG-2 2026-06-02):
 - Para CADA risk_category_code DISTINTO com gap SOLARIS detectado (resposta "não" ou
@@ -6642,12 +6642,14 @@ const URGENCIA_LABEL_V2: Record<string, string> = {
 // fix #811: rótulos legíveis para o campo source_type do briefing.
 // Content engine regra #1 exige fonte por item — aqui é exposto ao usuário.
 const SOURCE_TYPE_LABEL_V2: Record<string, string> = {
-  rag: "📚 RAG (base regulatória)",
-  cnae: "🏷️ CNAE confirmado",
-  descricao: "📝 Descrição do negócio",
-  questionario: "💬 Respostas do questionário",
-  iagen: "🤖 IA Generativa (Onda 2)",
-  regra_semantica: "⚙️ Regra semântica (gatilho)",
+  rag: "Norma aplicável identificada",
+  cnae: "Incidência por atividade econômica (CNAE)",
+  descricao: "Sinal identificado na descrição da atividade",
+  questionario: "Declaração do contribuinte",
+  iagen: "Análise complementar por IA",
+  regra_semantica: "Aplicação obrigatória por perfil",
+  // UX-LABELS-01: chave adicionada (estava ausente) — Gap SOLARIS exibia "solaris" cru.
+  solaris: "Questionário de conformidade SOLARIS",
 };
 
 function buildBriefingMarkdownV2(

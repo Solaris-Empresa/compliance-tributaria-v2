@@ -263,19 +263,20 @@ describe("M3.10 Fix C-bis — Breadcrumb4 renderiza múltiplas fontes", () => {
 // ---------------------------------------------------------------------------
 describe("M3.10 Fix C-bis — SOURCE_LABELS cobertura completa", () => {
   it("SOURCE_LABELS tem 'regulatorio' (M3.8.1 Bug C ampliação)", () => {
-    expect(FRONTEND_SRC).toMatch(/regulatorio:\s*["']Regulatório["']/);
+    // UX-LABELS-01: label legível em vez de "Regulatório".
+    expect(FRONTEND_SRC).toMatch(/regulatorio:\s*["']Norma regulatória aplicável["']/);
   });
 
   it("SOURCE_LABELS tem 'inferred' (normative-inference)", () => {
-    expect(FRONTEND_SRC).toMatch(/inferred:\s*["']Inferido["']/);
+    expect(FRONTEND_SRC).toMatch(/inferred:\s*["']Enquadramento inferido por perfil["']/);
   });
 
-  it("SOURCE_LABELS preserva valores legados (cnae, ncm, nbs, solaris, iagen)", () => {
-    expect(FRONTEND_SRC).toMatch(/cnae:\s*["']CNAE["']/);
-    expect(FRONTEND_SRC).toMatch(/ncm:\s*["']NCM["']/);
-    expect(FRONTEND_SRC).toMatch(/nbs:\s*["']NBS["']/);
-    expect(FRONTEND_SRC).toMatch(/solaris:\s*["']Solaris["']/);
-    expect(FRONTEND_SRC).toMatch(/iagen:\s*["']IA Gen["']/);
+  it("SOURCE_LABELS preserva chaves canônicas com labels UX-LABELS-01 (cnae, ncm, nbs, solaris, iagen)", () => {
+    expect(FRONTEND_SRC).toMatch(/cnae:\s*["']Incidência por atividade econômica \(CNAE\)["']/);
+    expect(FRONTEND_SRC).toMatch(/ncm:\s*["']Incidência por código de produto \(NCM\)["']/);
+    expect(FRONTEND_SRC).toMatch(/nbs:\s*["']Incidência por código de serviço \(NBS\)["']/);
+    expect(FRONTEND_SRC).toMatch(/solaris:\s*["']Questionário de conformidade SOLARIS["']/);
+    expect(FRONTEND_SRC).toMatch(/iagen:\s*["']Análise complementar por IA["']/);
   });
 });
 

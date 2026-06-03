@@ -131,6 +131,22 @@ function formatVersaoDate(ts: string | number | Date | undefined): string | null
 // F0-3 (Sprint 5, 2026-06-02): consolidação 5 cópias → 1 import.
 import { CATEGORIA_LABELS } from "@shared/categoria-labels";
 
+// UX-LABELS-01 (Opção C): mapa unificado de fonte (11 chaves) — D3 exibe label
+// legível na coluna "Origem" do PDF em vez de source_priority cru em UPPERCASE.
+const SOURCE_LABELS: Record<string, string> = {
+  cnae: "Incidência por atividade econômica (CNAE)",
+  ncm: "Incidência por código de produto (NCM)",
+  nbs: "Incidência por código de serviço (NBS)",
+  solaris: "Questionário de conformidade SOLARIS",
+  iagen: "Análise complementar por IA",
+  regulatorio: "Norma regulatória aplicável",
+  inferred: "Enquadramento inferido por perfil",
+  rag: "Norma aplicável identificada",
+  descricao: "Sinal identificado na descrição da atividade",
+  questionario: "Declaração do contribuinte",
+  regra_semantica: "Aplicação obrigatória por perfil",
+};
+
 export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -294,7 +310,7 @@ export function generateDiagnosticoPDF(data: DiagnosticoPDFData): void {
         r.titulo.length > 60 ? r.titulo.slice(0, 60) + "…" : r.titulo,
         CATEGORIA_LABELS[r.categoria] ?? r.categoria,
         r.severidade,
-        r.source_priority?.toUpperCase() ?? "—",
+        SOURCE_LABELS[r.source_priority] ?? r.source_priority ?? "—",
         r.artigo || "—",
         // BUG-CPF-COL-#6 — jsPDF Helvetica = WinAnsiEncoding (Windows-1252);
         // U+2713 (✓) fora do Latin-1 → renderiza como apóstrofo no PDF.
