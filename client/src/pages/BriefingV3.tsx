@@ -420,7 +420,11 @@ export default function BriefingV3() {
   ].includes((project as any)?.status ?? '');
 
   const handleApprove = async () => {
-    if (!briefing) return;
+    // BUG-APPROVE-SPLIT (PR-6): conteúdo view-agnóstico. O Split View renderiza de
+    // briefingStructured e não hidrata o estado `briefing` (artefato da textarea do
+    // Legacy) — usar o markdown que já vem do banco (project.briefingContent).
+    const contentToApprove = briefing || ((project as any)?.briefingContent ?? "");
+    if (!contentToApprove) return;
     // fix(UAT 2026-04-20): gate <85% → abrir modal de ressalva.
     if (currentConfidence !== null && currentConfidence < 85) {
       setReservationModalOpen(true);
@@ -428,7 +432,7 @@ export default function BriefingV3() {
     }
     setIsApproving(true);
     try {
-      await approveBriefing.mutateAsync({ projectId, briefingContent: briefing });
+      await approveBriefing.mutateAsync({ projectId, briefingContent: contentToApprove });
       clearTempData(projectId, 'etapa3');
       toast.success("Briefing aprovado! Avançando para Matrizes de Riscos...");
       setLocation(`/projetos/${projectId}/risk-dashboard-v4`);
@@ -445,12 +449,14 @@ export default function BriefingV3() {
   };
 
   const handleConfirmReservation = async (predefinedReason: PredefinedReason, freeReason: string) => {
-    if (!briefing) return;
+    // BUG-APPROVE-SPLIT (PR-6): mesmo conteúdo view-agnóstico do handleApprove.
+    const contentToApprove = briefing || ((project as any)?.briefingContent ?? "");
+    if (!contentToApprove) return;
     setIsApproving(true);
     try {
       await approveBriefingWithReservation.mutateAsync({
         projectId,
-        briefingContent: briefing,
+        briefingContent: contentToApprove,
         predefinedReason,
         freeReason,
       });
