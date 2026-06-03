@@ -13,10 +13,13 @@
 | Coluna | Tipo real (Drizzle) | Uso no redesign |
 |---|---|---|
 | `briefingStructured` | **TEXT (double-encoded JSON)** | **Fonte principal** — `briefingAdapter` (modo split) |
-| `briefingContent` | TEXT (markdown) | **Fallback** (98% dos projetos) + tab **Método** (`<Streamdown>`) |
-| `score_confianca` | `int("score_confianca")` (`drizzle/schema.ts:2009`) | **Coluna separada — NÃO é fonte do gauge.** O gauge lê `briefingStructured.confidence_score.nivel_confianca`. |
+| `briefingContent` | TEXT (markdown) | **Fallback** (**98,1%** dos projetos — 4881/4974, SQL Manus) + tab **Método** (`<Streamdown>`) |
 
+> **⚠️ Correção (SQL Manus, 03/06/2026):** a coluna **`score_confianca` NÃO existe na tabela `projects` em produção** — `SHOW COLUMNS` retornou 0 resultados. O `drizzle/schema.ts:2009` declara `scoreConfianca: int("score_confianca")`, mas **a migration nunca foi executada** → o write em `server/routers-m1-monitor.ts:308` é **dead-write silencioso** (TiDB ignora coluna inexistente). **A fonte do gauge é exclusivamente `briefingStructured.confidence_score.nivel_confianca`** (dentro do JSON). [Bug pré-existente a registrar fora desta frente.]
+>
 > `confiancaSnapshot` é **chave dentro do JSON** `briefingStructured`, **não** uma coluna (correção N2-a).
+>
+> **Distribuição (SQL Manus):** 93/4974 (1,9%) com `briefingStructured`; **4881 NULL** → fallback é o caminho de **98,1%**. Prefixo legado "Aplicação obrigatória:": **4/372 gaps** (1,1%) — strip necessário, impacto baixo.
 
 ---
 
