@@ -8,6 +8,8 @@ const templateRoot = path.resolve(import.meta.dirname);
 // e são excluídos aqui para que o CI passe sem acesso ao banco.
 export default defineConfig({
   root: templateRoot,
+  // UX-BRIEFING-C-V2 PR-2 (#1344): JSX automático (react/jsx-runtime) p/ testes .tsx.
+  esbuild: { jsx: "automatic" },
   resolve: {
     alias: {
       "@": path.resolve(templateRoot, "client", "src"),
@@ -22,6 +24,8 @@ export default defineConfig({
       "server/**/*.spec.ts",
       "client/src/lib/**/*.test.ts",
       "scripts/**/*.test.ts",
+      // UX-BRIEFING-C-V2 PR-2 (#1344) — testes de componentes briefing (.tsx)
+      "client/src/components/**/*.test.tsx",
     ],
     exclude: ["server/integration/**"],
     testTimeout: 180000, // 180 segundos (3 minutos) para acomodar operações com LLM
