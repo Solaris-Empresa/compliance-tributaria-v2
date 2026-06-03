@@ -36,11 +36,11 @@
 
 ---
 
-## F. Decisões da Auditoria v3 (D1-D4 — bloqueantes)
-- [ ] **D1 — badge hallucination:** ⬜ Implementar (Opção A, recomendado — dado `_hallucination_detected` já existe pós-parse, frontend-only) · ⬜ Deferir V2
-- [ ] **D2 — ImpactsSection:** ⬜ Bloco fixo fiel ao atual (Opção B) · ⬜ Regex extrai 1 seção do markdown (Opção A) · ⬜ Remover tab (C)
-- [ ] **D3 — F3+F4:** ⬜ Separar em 6 PRs (Opção B, recomendado) · ⬜ Unificado em 5 PRs
-- [ ] **D4 — SOURCE_TYPE_LABEL:** ⬜ Criar `shared/source-type-labels.ts` no PR-0/F0 (recomendado, G5/TK-3) · ⬜ Reusar map existente sem consolidar
+## F. Decisões (D1-D5) — D2/D3/D4 decididas; faltam D1/D5
+- [ ] **D1 — badge hallucination:** ⬜ Implementar (Opção 0, recomendado — `_hallucination_detected` existe 46/93, validado pelo mockup MK-4) · ⬜ Deferir V2
+- [x] **D2 — ImpactsSection:** ✅ DECIDIDA — bloco fixo via `<Streamdown>` + âncora de nav (não regex, não remover tab)
+- [x] **D3 — F3+F4:** ✅ DECIDIDA — separar em 6 PRs (PR-0..PR-5)
+- [x] **D4 — SOURCE_TYPE_LABEL:** ✅ DECIDIDA — criar `shared/source-type-labels.ts` no PR-0/F0 (G5/TK-3)
 - [ ] **D5 — threshold confiança (TK-2):** ⬜ alerta visual <80 "atenção" + gate aprovação <85 "exige justificativa" (server inalterado, recomendado) · ⬜ alinhar alerta a <85 · ⬜ alinhar gate a <80
 - [ ] **ConfidenceBar (TK-1):** ciente que as faixas atuais (>=85/70-84/<70) divergem de C1 (4 faixas) — DecisionPanel implementa C1, não reusa a faixa do componente
 

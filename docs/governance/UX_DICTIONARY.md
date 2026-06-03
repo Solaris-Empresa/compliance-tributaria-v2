@@ -348,3 +348,90 @@ Spec HIBRIDA obrigatoria:
 - REGRA-ORQ-32 (no hardcode — feature flag em vez de if/else)
 - Lição #93 (mecanismo verificado: `analise_1_cnpj_operacional` mantido por escopo unitário, não rotulagem CNPJ)
 - F0 #1292 · F1 #1293 · F2 #1294 · F3 #1295 · F4 #1296 · F5 (este PR fecha #1290)
+
+---
+
+## §UX-BRIEFING-C-V2 — BriefingV3 Split View (Issue #1344)
+
+**Criado:** Sprint 5 (2026-06-03) · **Precedente de formato:** §M1.1 (BUG-AGRO-CPF) · **PR:** #1354 · **Status:** ANÁLISE (impl. bloqueada até `spec-aprovada`)
+**Tela host:** `client/src/pages/BriefingV3.tsx` (1200 LOC, `@ts-nocheck`) · **Rota:** `/projetos/:id/briefing-v3`
+**Feature flag:** `BRIEFING_UI_VERSION` — `legacy` (monolito atual, default até F5) | **`split`** (Split View)
+**Decisões aprovadas:** C1 (4 faixas completude) · C2 (consome `briefingStructured`, sem parser) · C3 (host) · C4 (sem prefixo) · UX-LABELS-01 (#1342) · UX-LABELS-02 (#1346) · D1 (badge alucinação Opção 0) · D2 (ImpactsSection `<Streamdown>`+âncora) · D3 (6 PRs) · D4 (`shared/source-type-labels.ts` no PR-0) · D5 (threshold)
+
+> **Regra:** labels seguem as DECISÕES (UX-LABELS-01/C1), **NÃO o mockup** — MK-1/MK-2/MK-3 são regressões REJEITADAS (mockup é só referência de layout).
+
+### 1. DecisionPanel (Zona 1 — sidebar fixa)
+Fonte: `structured.confidence_score.nivel_confianca` (number dentro de OBJECT — `ai-schemas.ts:237`) + `structured.nivel_risco_geral`.
+
+| Chave | Label PT-BR |
+|---|---|
+| gauge_title | **"Grau de Completude do Diagnóstico"** (C1 — não "Confiança") |
+| faixas | "Crítico" (0-49) · "Parcial" (50-79) · "Adequado" (80-94) · "Completo" (95-100) |
+| alerta | "Alerta: completude abaixo de 80%" (C1, render só `<80`) |
+| risco_badge_title | **"Nível de Exposição"** (não "Nível de Risco") |
+| contadores | "Gaps" · "Oportunidades" · "Ações" · "Inconsistências" |
+
+**Invariantes:** gauge usa as **4 faixas C1** — NÃO reusa as 3 faixas do `ConfidenceBar.tsx` (`>=85/70-84/<70`, TK-1). Alerta visual `<80` ≠ gate de aprovação `<85` (D5 — coexistem). `nivel_risco_geral` enum `baixo|medio|alto|critico` (`ai-schemas.ts:180`).
+**data-testid:** `decision-panel` · `decision-panel-gauge` · `decision-panel-faixa` · `decision-panel-alerta` · `decision-panel-risco-badge` · `decision-panel-resumo`
+
+### 2. GapCard (Zona 2 — tab Gaps)
+Fonte: `structured.principais_gaps[i]`. Labels por `source_type` (UX-LABELS-01 #1342, **sem emoji**):
+
+| `source_type` | Label | Linha (`SOURCE_TYPE_LABEL_V2`, const :6643) |
+|---|---|---|
+| `questionario` | "Declaração do contribuinte" | :6648 |
+| `regra_semantica` | "Aplicação obrigatória por perfil" | :6650 |
+| `solaris` | "Questionário de conformidade SOLARIS" | :6652 |
+| `rag` | "Norma aplicável identificada" | :6645 |
+| `cnae` | "Incidência por atividade econômica (CNAE)" | :6646 |
+| `descricao` | "Sinal identificado na descrição da atividade" | :6647 |
+| `iagen` | "Análise complementar por IA" | :6649 |
+
+> Mockup MK-3 ("🔮 Diagnóstico SOLARIS") **REJEITADO**. Urgência: `imediata`→"Imediata" · `curto_prazo`→"Curto Prazo" · `medio_prazo`→"Médio Prazo".
+
+**Badge alucinação (D1/Opção 0):** `gap._hallucination_detected === true` → "⚠️ Verificar artigo citado". Campo **pós-parse** (`validate-article-citations.ts:78`), fora do Zod — usar `gap._hallucination_detected ?? false`.
+**Campos:** título = `gap` (**NÃO `titulo`**). `source_reference` exibido **sem prefixo "Aplicação obrigatória:"**.
+**🔴 Invariante N2-b (dados legados):** os 93 projetos existentes têm o prefixo **persistido** no `source_reference` (Gap 1 do 5700001 confirmado por SQL). O **`briefingAdapter.ts` deve fazer `strip("Aplicação obrigatória: ")`** no render (UX-LABELS-02 só afeta briefings novos).
+**data-testid:** `briefing-gap-card-{i}` · `briefing-gap-source-badge-{i}` · `briefing-gap-urgencia-badge-{i}` · `briefing-gap-hallucination-badge-{i}` · `briefing-gap-expand-{i}`
+
+### 3. PriorityCards · 4. OpportunityCard · 5. ActionsList
+- **PriorityCards** — `structured.top_3_acoes[]` ({acao, justificativa, prazo}, `ai-schemas.ts:225`); título "Top 3 Prioridades"; `briefing-priority-card-{i}`.
+- **OpportunityCard** — `structured.oportunidades[]` (string[]); tab "Oportunidades"; vazio→"Nenhuma oportunidade identificada"; `briefing-opportunity-{i}`.
+- **ActionsList** — `structured.recomendacoes_prioritarias[]` (**NÃO `recomendacoes`**); tab **"Ações Prioritárias"**; `briefing-action-{i}`.
+
+### 6. ImpactsSection (tab "Impactos")
+Bloco **fixo** (3 eixos Financeiro/Operacional/Jurídico — `server:6835-6843`), **não vem do JSON**. D2: render via `<Streamdown>` + âncora de nav (split) / hardcode dos 3 textos. `briefing-impacts-section`.
+
+### 7. MethodSection (tab **"Método"**)
+Fonte: `structured.confidence_score` + **`structured.confiancaSnapshot.pilares[]`** (gravado em `routers-fluxo-v3.ts:2164`; via `getBriefingInconsistencias.structured` — **N2-a: NÃO via `checkBriefingFreshness`**, que não retorna pilares). Labels "Limites do Diagnóstico" · "Como calculamos a Confiança". `briefing-method-section` · `briefing-method-pilares-table`.
+
+### 8. BriefingNav (5 tabs)
+Ordem: **"Gaps" · "Oportunidades" · "Ações Prioritárias" · "Impactos" · "Método"**. Default: Gaps. `briefing-nav-tab-{slug}`.
+
+### 9. ActionBar (Zona 0 superior + Zona 3 inferior sticky)
+**Superior:** Regenerar · Corrigir · Mais Informações · Compartilhar Resumo · Anotações. **Inferior:** Histórico (N) · Exportar PDF · Aprovar Briefing.
+**Invariantes:** handlers **movidos, não reescritos** (`handleApprove:400` · `handleGenerate:322` · `handleExportPDF:446` · `handleFeedbackSubmit:525`); state lifted ao container (`isApproving`/`canApprove`/`briefing`/`feedbackMode`).
+**data-testid PRESERVADOS:** `btn-regenerar-briefing` (:1012) · `btn-compartilhar-resumo` (:1118). **Novos:** `btn-aprovar-briefing` · `btn-corrigir-briefing` · `btn-mais-info-briefing` · `btn-exportar-pdf-briefing` · `briefing-action-bar-top` · `briefing-action-bar-bottom`.
+
+### 10. RoundsSummarySection (🔴 NOVO — N1, elemento obrigatório)
+**Fonte:** `getRoundsSummary` (**CONSUMIDO** — não "não usado"). Renderiza **"Intensidade de Aprofundamento por CNAE"** (heatmap de rounds por CNAE, badge de alta complexidade) — está na lista **"Elementos Obrigatórios (NÃO suprimir)"** da issue #1344 (`BriefingV3.tsx:874-970`). **Zona 2** (tab "Método" ou seção acima das tabs, como no monolito). `data-testid: briefing-rounds-summary`.
+
+### 11. BriefingV3 (host) — feature flag + fallback
+| Estado | Condição | Render |
+|---|---|---|
+| `legacy_render` | flag=`legacy` | monolito atual (markdown via `<Streamdown>`) byte-idêntico |
+| `split_render` | flag=`split` + `briefingStructured` não-null (2%) | Split View |
+| **`split_fallback`** | flag=`split` + `briefingStructured` **null (98%!)** | **`if (!structured) return <LegacyBriefingView {...props} />`** — **monolito COMPLETO** (N2-c: NÃO `<Streamdown>` parcial; preserva version history, banners, inconsistências, ActionBar) |
+
+**7 data-testid preservados (E2E z17):** `briefing-version-timestamp` (:616) · `version-history-row-{v}` (:769) · `version-history-reason-{v}` (:782) · `btn-toggle-reason-{v}` (:807) · `version-history-reason-full-{v}` (:824) · `btn-regenerar-briefing` (:1012) · `btn-compartilhar-resumo` (:1118).
+**Fallback (98%) é o caminho mais exercitado → testado PRIMEIRO.**
+
+### 12. Componentes REUSADOS (não reescrever)
+`BriefingReservationBadge` · `BriefingFreshnessBanner` · `ShareBriefingModal` · `ApproveReservationModal` · `StepComments` · `AlertasInconsistencia` · `FlowStepper` · `RetrocessoConfirmModal`. `ConfidenceBar` — **NÃO reusado no DecisionPanel** (faixas diferentes, TK-1); preservado para outros consumers.
+**`DiagnosticoEntradaPanel`** (`BriefingV3:37-80,:976`) — **EXCLUÍDO do escopo v2** (decisão P.O. 03/06/2026; não está nos "Elementos Obrigatórios"). **Preservado no fallback legacy.**
+
+### 13. Procedures tRPC (10 — contrato F3.1)
+`getProjectStep1` (915) · `generateBriefing` (1495) · `approveBriefing` (2586) · `approveBriefingWithReservation` (2720) · `getProgress` (1187) · **`getRoundsSummary` (1333 — CONSUMIDO por RoundsSummarySection)** · `getBriefingInconsistencias` (3708) · `checkBriefingFreshness` (2511) · `getLiveBriefingSources` (6295) · `dismissInconsistencia` (2376).
+
+### Vinculadas
+Issue #1344 · UX-LABELS-01 #1342 · UX-LABELS-02 #1346 · `AS-IS-TO-BE-UX-BRIEFING-C-V2-20260603.md` (v5) · `DB-SPEC-UX-BRIEFING-C-V2.md` · `RISCOS-MITIGACAO-UX-BRIEFING-C-V2.md` · `briefingAdapter.test.ts` (Triade ORQ-28 A2) · REGRA-ORQ-09/16/28 · Lição #72.
