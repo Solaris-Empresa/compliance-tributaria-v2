@@ -45,6 +45,14 @@ const FRONTEND_SRC = readFileSync(
   "utf-8",
 );
 
+// UX-BRIEFING-C-V2 PR-0: os labels de fonte foram consolidados em shared/.
+// As asserções de VALOR de label passam a ler a fonte única; as de USO
+// (SOURCE_LABELS[...] no componente) continuam lendo FRONTEND_SRC.
+const LABELS_SRC = readFileSync(
+  path.resolve(__dirname, "../../shared/source-type-labels.ts"),
+  "utf-8",
+);
+
 // ---------------------------------------------------------------------------
 // Frente 1 — restauração da chamada a gapEngine.analyzeGaps (write-only)
 // ---------------------------------------------------------------------------
@@ -264,19 +272,20 @@ describe("M3.10 Fix C-bis — Breadcrumb4 renderiza múltiplas fontes", () => {
 describe("M3.10 Fix C-bis — SOURCE_LABELS cobertura completa", () => {
   it("SOURCE_LABELS tem 'regulatorio' (M3.8.1 Bug C ampliação)", () => {
     // UX-LABELS-01: label legível em vez de "Regulatório".
-    expect(FRONTEND_SRC).toMatch(/regulatorio:\s*["']Norma regulatória aplicável["']/);
+    // UX-BRIEFING-C-V2 PR-0: valor lido da fonte única (shared/source-type-labels.ts).
+    expect(LABELS_SRC).toMatch(/regulatorio:\s*["']Norma regulatória aplicável["']/);
   });
 
   it("SOURCE_LABELS tem 'inferred' (normative-inference)", () => {
-    expect(FRONTEND_SRC).toMatch(/inferred:\s*["']Enquadramento inferido por perfil["']/);
+    expect(LABELS_SRC).toMatch(/inferred:\s*["']Enquadramento inferido por perfil["']/);
   });
 
   it("SOURCE_LABELS preserva chaves canônicas com labels UX-LABELS-01 (cnae, ncm, nbs, solaris, iagen)", () => {
-    expect(FRONTEND_SRC).toMatch(/cnae:\s*["']Incidência por atividade econômica \(CNAE\)["']/);
-    expect(FRONTEND_SRC).toMatch(/ncm:\s*["']Incidência por código de produto \(NCM\)["']/);
-    expect(FRONTEND_SRC).toMatch(/nbs:\s*["']Incidência por código de serviço \(NBS\)["']/);
-    expect(FRONTEND_SRC).toMatch(/solaris:\s*["']Questionário de conformidade SOLARIS["']/);
-    expect(FRONTEND_SRC).toMatch(/iagen:\s*["']Análise complementar por IA["']/);
+    expect(LABELS_SRC).toMatch(/cnae:\s*["']Incidência por atividade econômica \(CNAE\)["']/);
+    expect(LABELS_SRC).toMatch(/ncm:\s*["']Incidência por código de produto \(NCM\)["']/);
+    expect(LABELS_SRC).toMatch(/nbs:\s*["']Incidência por código de serviço \(NBS\)["']/);
+    expect(LABELS_SRC).toMatch(/solaris:\s*["']Questionário de conformidade SOLARIS["']/);
+    expect(LABELS_SRC).toMatch(/iagen:\s*["']Análise complementar por IA["']/);
   });
 });
 

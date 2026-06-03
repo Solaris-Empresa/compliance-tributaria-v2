@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAutoSave, loadTempData, clearTempData } from "@/hooks/usePersistenceV3";
 import { ResumeBanner } from "@/components/ResumeBanner";
@@ -108,6 +107,14 @@ interface BriefingVersion {
   reason?: string;
 }
 
+// UX-BRIEFING-C-V2 PR-0: shape do rascunho local persistido (loadTempData<T>).
+// Tipa os acessos a saved.data.* que o @ts-nocheck mascarava.
+interface BriefingDraft {
+  briefing: string;
+  generationCount?: number;
+  versionHistory?: BriefingVersion[];
+}
+
 export default function BriefingV3() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
@@ -151,7 +158,7 @@ export default function BriefingV3() {
   // Verificar rascunho local ao montar
   useEffect(() => {
     if (!projectId) return;
-    const saved = loadTempData(projectId, 'etapa3');
+    const saved = loadTempData<BriefingDraft>(projectId, 'etapa3');
     if (saved?.data?.briefing) {
       setDraftSavedAt(saved.savedAt);
       setShowResumeBanner(true);
@@ -159,7 +166,7 @@ export default function BriefingV3() {
   }, [projectId]);
 
   const handleResumeDraft = () => {
-    const saved = loadTempData(projectId, 'etapa3');
+    const saved = loadTempData<BriefingDraft>(projectId, 'etapa3');
     if (saved?.data?.briefing) {
       setBriefing(saved.data.briefing);
       setGenerationCount(saved.data.generationCount || 1);
@@ -302,7 +309,7 @@ export default function BriefingV3() {
       // fix(BUG-4 UAT 2026-04-20): preservar generationCount + versionHistory do auto-save
       // quando disponíveis. Antes, hardcode `setGenerationCount(1)` fazia o contador
       // regredir (v3 → v1) sempre que a página era recarregada — perdia numeração real.
-      const draft = loadTempData(projectId, 'etapa3');
+      const draft = loadTempData<BriefingDraft>(projectId, 'etapa3');
       const draftCount = draft?.data?.generationCount;
       const nextCount = typeof draftCount === "number" && draftCount > 0 ? draftCount : 1;
       setGenerationCount(nextCount);
