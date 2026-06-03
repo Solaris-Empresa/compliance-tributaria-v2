@@ -57,7 +57,8 @@ import { sessionActionPlanRouter } from "./routers-session-action-plan";
 import { sessionConsolidationRouter } from "./routers-session-consolidation";
 import { onboardingRouter } from "./routers-onboarding";
 import { adminEmbeddingsRouter } from "./routers-admin-embeddings";
-import { complianceV3Router } from "./routers-compliance-v3";
+// ADR-0034 Fase 1: complianceV3Router removido — dashboard V3 legado órfão
+// (rota /compliance-v3/* retirada no z22 UAT B-02b). Tabelas + engines V3 = PR-2.
 import { diagnosticRouter } from "./routers/diagnostic";
 import { gapRouter } from "./routers/gapRouter";
 import { riskRouter } from "./routers/riskRouter";
@@ -111,7 +112,6 @@ export const appRouter = router({
   onboarding: onboardingRouter,
   fluxoV3: fluxoV3Router,
   adminEmbeddings: adminEmbeddingsRouter,
-  complianceV3: complianceV3Router,
   diagnostic: diagnosticRouter,
   gap: gapRouter,
   risk: riskRouter,
