@@ -949,6 +949,8 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         cnaeAnswers: diagSource.cnaeAnswers ?? null,
         // M2 Componente D: operationProfile exposto para edição NCM/NBS (TO-BE v3 2026-04-06)
         operationProfile: (project as any).operationProfile ?? null,
+        // UX-BRIEFING-C-V2 PR-3 (F3): expor briefingStructured para Split View
+        briefingStructured: (project as any).briefingStructured ?? null,
         // M3 Fase 1: Completude diagnóstica expandida (DEC-M3-01 + DEC-M3-02)
         // Campo calculado em runtime — NÃO persistido no banco (M3 Fase 2)
         diagnosticCompleteness: computeCompleteness({
