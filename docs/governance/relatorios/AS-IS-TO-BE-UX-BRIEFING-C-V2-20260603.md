@@ -1,6 +1,6 @@
 # AS-IS / TO-BE — UX-BRIEFING-C-V2 (Redesign Split View do Briefing) · Issue #1344
 
-**Versão:** **v4.0** (2026-06-03 — incorpora **Auditoria GRIP do Manus** sobre a v2: 98% dos projetos com `briefingStructured` NULL, 5 bugs AS-IS, 8 gaps TO-BE, Opção 0 hallucination, `shared/source-type-labels.ts`. Centrada em **DE/PARA + checklist + plano de testes mapeado**) · **Autor:** Claude Code · **Status:** ANÁLISE (não implementado) · aguarda `spec-aprovada` P.O. + despacho (RACI)
+**Versão:** **v5.0** (2026-06-03 — consolida TODAS as decisões da sessão + formaliza os **4 artefatos F3 no doc** (§F3): D2 decidida (ImpactsSection = `<Streamdown>` + âncora), Bloco 9 data-testid, ADR, Contrato tRPC, Fluxo E2E. Base: v4.0 [GRIP Manus]) · **Autor:** Claude Code · **Status:** ANÁLISE (não implementado) · aguarda `spec-aprovada` P.O. + despacho (RACI)
 **Alvo:** `client/src/pages/BriefingV3.tsx` (1200 LOC · `@ts-nocheck` = **9 erros, causa única** `loadTempData()` untyped — §3/§8 R2) · rota `/projetos/:id/briefing-v3`
 **Skill:** `impact-tree` (11 passos) · **Mockup:** imagem PNG anexa à #1344 (Manus) · **Entrega F3:** comentário #1344 ([#issuecomment-4612640300](https://github.com/Solaris-Empresa/compliance-tributaria-v2/issues/1344#issuecomment-4612640300))
 
@@ -9,6 +9,7 @@
 **Changelog v1→v2 (Despacho 2):** C1 gauge "Grau de Completude" + faixas + alerta<80 · C2 sem parser · C3 `BriefingV3.tsx` · C4 GapCard sem prefixo · A1 `@ts-nocheck`=9 erros · A2/A4/A5 contrato preciso.
 **Changelog v2→v3.0 (Auditoria Orquestrador):** §0 — resolução verificada dos 7 bugs · 4 falhas TO-BE · 6 PRs · D1-D4.
 **Changelog v3.0→v4.0 (Auditoria GRIP Manus):** **§★ DE/PARA** (tabela + checklist + plano de testes mapeado) — dado novo: **98% dos projetos com `briefingStructured` NULL** (fallback markdown = caminho principal) · `_hallucination_detected` confirmado em 46/93 (Opção 0) · `shared/source-type-labels.ts` (G5) · estender `BriefingLite`→`BriefingGapFull` (G2/BUG-1) · 20 arquivos `@ts-nocheck` (BUG-3, fora de escopo) · **§★.4 mockup do Manus** (layout 4 zonas confirmado + 3 divergências MK-1/MK-2/MK-3 das decisões C1/C4/UX-LABELS-01 + zero data-testid). **§★ é a referência canônica de implementação.**
+**Changelog v4.0→v5.0 (consolidação final):** **D2 DECIDIDA** (ImpactsSection = bloco fixo via `<Streamdown>` + âncora de nav, NÃO regex) · **D4** = criar `shared/source-type-labels.ts` no PR-0 · **§F3 nova** — os 4 artefatos F3 formalizados no doc (Contrato tRPC · Bloco 9 data-testid · ADR · Fluxo E2E 4 cenários). Pendentes só **D1/D5 + `spec-aprovada`**.
 
 ---
 
@@ -31,7 +32,7 @@
 | DP-07 | **Label de fonte** | `SOURCE_TYPE_LABEL_V2` const não-export (`server:6644`) + **5 cópias** (1 server + 4 client) | **`shared/source-type-labels.ts`** (12 chaves) importado por server + 4 client + GapCard (precedente `shared/categoria-labels.ts`) | G5/BUG-2 | 🟡 |
 | DP-08 | **Prefixo source_reference** | "Aplicação obrigatória: X" (dobrado) | sem prefixo (UX-LABELS-02 #1346) | — | 🟢 |
 | DP-09 | **Tipo do gap (client)** | `BriefingLite` sem `source_type`/`_hallucination_detected`/`top_3_acoes` → `as any` | `BriefingGapFull` com todos os campos tipados | `briefing-areas.ts:93` | 🟡 |
-| DP-10 | **Impactos** | 3 linhas hardcoded no markdown (`server:6836`) | `ImpactsSection.tsx` (bloco fixo **fiel ao atual**) | A7/G4 | 🟡 |
+| DP-10 | **Impactos** | 3 linhas hardcoded no markdown (`server:6836`) | `ImpactsSection.tsx` — bloco fixo via **`<Streamdown>` + âncora de nav** (D2 decidida; NÃO regex) | A7/G4/D2 | 🟡 |
 | DP-11 | **MethodSection** | parte do markdown | consome **structured + `briefingContent` (rawMarkdown)** — exceção C2 | G6 | 🟡 |
 | DP-12 | **Aprovação** | `handleApprove` inline (`:400`) + gate<85% + reservation | **movido (NÃO reescrito)** p/ container/ActionBar | `:400` | 🔴 |
 | DP-13 | **PDF export** | `handleExportPDF` inline (`:446`) | **mantido intacto** (não migra; tech debt G7) | `:446` | 🟢 |
@@ -53,7 +54,7 @@
 - [ ] **DP-07** `shared/source-type-labels.ts` criado (12 chaves); 5 cópias eliminadas; server + 4 client + GapCard importam dele
 - [ ] **DP-08** GapCard exibe `source_reference` sem prefixo "Aplicação obrigatória:"
 - [ ] **DP-09** `BriefingGapFull` tipado; zero `as any` no acesso a campos do gap
-- [ ] **DP-10** `ImpactsSection` exibe os 3 eixos fixos (Financeiro/Operacional/Jurídico)
+- [ ] **DP-10** `ImpactsSection` exibe os 3 eixos fixos via `<Streamdown>` + âncora de nav (D2 — não regex)
 - [ ] **DP-11** `MethodSection` recebe structured **+** rawMarkdown (fórmula/limites do markdown)
 - [ ] **DP-12** `handleApprove` movido sem reescrita: gate<85%→reservation; ≥85%→`/risk-dashboard-v4` (idêntico)
 - [ ] **DP-13** `handleExportPDF` inline preservado byte-a-byte
@@ -82,7 +83,7 @@
 | DP-07 | grep: 0 cópias locais de SOURCE_TYPE_LABEL; todos importam `shared/source-type-labels` | grep/unit | P1 | 1 fonte de verdade |
 | DP-08 | GapCard render: `source_reference` sem "Aplicação obrigatória:" | Render | P1 | texto sem prefixo |
 | DP-09 | tsc: acesso a `gap.source_type`/`._hallucination_detected` sem `as any` | tsc | P1 | tipado |
-| DP-10 | ImpactsSection render: 3 eixos fixos | Render | P2 | Financeiro/Operacional/Jurídico |
+| DP-10 | ImpactsSection render: 3 eixos fixos via `<Streamdown>` + âncora | Render | P2 | Financeiro/Operacional/Jurídico (D2) |
 | DP-11 | MethodSection recebe rawMarkdown + structured | Render | P2 | fórmula visível |
 | DP-12 | E2E aprovar: ≥85%→`/risk-dashboard-v4`; <85%→ApproveReservationModal; reservation persiste | E2E | **P0** | redirect + modal + banco |
 | DP-13 | handleExportPDF gera HTML+print em ambos os modos | Smoke | P1 | PDF gerado |
@@ -181,7 +182,7 @@
 | # | Decisão | Recomendação v3 |
 |---|---|---|
 | **D1** | badge hallucination | **Implementar (Opção A)** — dado já existe (`_hallucination_detected`); frontend-only + type annotation. NÃO mudar Zod (campo é pós-parse). |
-| **D2** | ImpactsSection | Opção B (bloco fixo, fiel ao atual) OU A (regex 1 seção) — decisão UX do P.O. |
+| **D2** | ImpactsSection | ✅ **DECIDIDA (P.O.):** bloco fixo renderizado via `<Streamdown>` (reuso do renderer) **+ âncora de navegação** — NÃO regex. Mantém os 3 eixos fixos (Financeiro/Operacional/Jurídico) com markdown consistente. |
 | **D3** | F3+F4 | **Separar (Opção B)** — 6 PRs, rollback granular |
 | **D4** | SOURCE_TYPE_LABEL | **Criar `shared/source-type-labels.ts` no PR-0/F0** (G5/TK-3) — antes do F2; elimina as 5 cópias |
 | **D5** | threshold confiança (TK-2) | alerta visual `<80` = "atenção" · gate aprovação `<85` = "exige justificativa" (server inalterado) · hint em 80-84. **Decisão P.O. para confirmar/ajustar.** |
@@ -474,6 +475,59 @@ Pausar/reverter se: (a) E2E z17 vermelho após F4; (b) qualquer cenário de apro
 3. **Mockup:** ✅ entregue como imagem PNG anexa à #1344. Diff data-testid Gap=0 contra ele no F3 (Bloco 9 — §3 do comentário, preservar os 7 existentes §5.7).
 4. **Label `rag:corpus`:** ✅ já removida; `spec-bloco9/adr/contrato/e2e` adicionadas.
 5. Confirmar 3 line numbers `~` (handleApprove ~400, handleGenerate, leitura de param em QuestionarioV3) por leitura direta antes do F4.
+
+---
+
+## F3 — Artefatos formais (gate F3 da issue #1344)
+
+> Formalizados aqui no doc (além do comentário #issuecomment-4612640300). Labels `spec-bloco9·spec-adr·spec-contrato·spec-e2e` já aplicadas na #1344; falta `spec-aprovada` (P.O.).
+
+### F3.1 — Contrato tRPC (exato — sem "ou similar")
+
+| Procedure (`server/routers-fluxo-v3.ts`) | L | Input (Zod) | Output consumido |
+|---|---|---|---|
+| `getProjectStep1` | 915 | `{projectId:number}` | `briefingContent` (markdown), profile, answers |
+| `getBriefingInconsistencias` | 3708 | `{projectId:number}` | **`structured`** (JSON, já parseado — DP-19), `inconsistencias[]`, `confidenceScore`, `approvalReservation` |
+| `generateBriefing` | 1495 | `{projectId, allAnswers[], correction?, complement?}` | `{briefing:md, structured:JSON, llmRetries}` |
+| `approveBriefing` | 2586 | `{projectId, briefingContent}` | status→`matriz_riscos`; **gate `<85`→`CONFIDENCE_BELOW_THRESHOLD` (L2610)** |
+| `approveBriefingWithReservation` | 2720 | `{projectId, briefingContent, predefinedReason, freeReason(20-1000)}` | persiste `approval_reservation` |
+| `checkBriefingFreshness` | 2511 | `{projectId}` | `{hasSnapshot, diverged, diffs[]}` |
+| `getLiveBriefingSources` | 6295 | `{projectId}` | `{answered[], missing[]}` |
+| `dismissInconsistencia` | 2376 | `{projectId, perguntaOrigem, motivo?}` | move p/ `dismissed_inconsistencias` |
+
+**Fonte do Split View:** `structured` de `getBriefingInconsistencias` (já desfaz o double-encoding — DP-19). Tipo client: `BriefingGapFull` (DP-09) inclui `source_type · source_reference · _hallucination_detected · _hallucinated_articles · urgencia · causa_raiz · evidencia_regulatoria`.
+
+### F3.2 — Bloco 9 (inventário data-testid)
+
+**Novos (kebab-case):**
+```
+briefing-completude-gauge · briefing-completude-faixa-label · briefing-completude-alerta (cond. <80)
+briefing-risco-geral-badge · briefing-contador-gaps · briefing-contador-acoes · briefing-contador-oportunidades · briefing-contador-recomendacoes · briefing-resumo-executivo
+briefing-nav-tab-gaps · briefing-nav-tab-acoes · briefing-nav-tab-oportunidades · briefing-nav-tab-impactos · briefing-nav-tab-metodo
+briefing-gap-card-{i} · briefing-gap-fonte-badge-{i} · briefing-gap-urgencia-badge-{i} · briefing-gap-hallucination-badge-{i} (cond. _hallucination_detected)
+briefing-acao-card-{i} · briefing-oportunidade-card-{i} · briefing-recomendacao-item-{i}
+briefing-impactos-section · briefing-method-section
+briefing-actionbar-superior · briefing-actionbar-inferior · briefing-btn-aprovar
+```
+**PRESERVAR (E2E/testes dependem — não renomear):** `briefing-version-timestamp` · `version-history-row-{v}` · `version-history-reason-{v}` · `btn-toggle-reason-{v}` · `version-history-reason-full-{v}` · `btn-regenerar-briefing` · `btn-compartilhar-resumo`
+> Diff Gap=0 contra o mockup PNG no F3 (REGRA-ORQ-16). O mockup não traz testids (MK-5).
+
+### F3.3 — ADR-00XX (proposta de decisão)
+
+**Título:** "BriefingV3 Split View + consumo de `briefingStructured`"
+**Status:** Proposto · aguarda P.O. · **Supersede:** nenhum (aditivo)
+**Decisão:** (1) apresentar o briefing em Split View (4 zonas) consumindo `briefingStructured` (JSON) — **rejeitado parser de markdown** (C2); (2) **fallback `LegacyBriefingView` (Streamdown)** quando `structured` null — **caminho de 98%** (DP-01); (3) **Opção 0 hallucination** — consumir `_hallucination_detected` existente (D1); (4) `ImpactsSection` = bloco fixo via `<Streamdown>` + âncora (D2); (5) **feature flag `BRIEFING_UI_VERSION`** (default `legacy` até F5); (6) **F0** remove `@ts-nocheck` (#793, 9 erros causa única `loadTempData`) **+ cria `shared/source-type-labels.ts`** (D4); (7) `BriefingGapFull` tipado (G2); (8) gauge = "Grau de Completude" 4 faixas (C1) — DecisionPanel **não reusa** as 3 faixas do ConfidenceBar (TK-1); (9) threshold visual <80 ≠ gate <85 (D5).
+**Consequências:** zero alteração de contrato tRPC (procedures inalteradas); `briefingContent` permanece input read-only de MatrizesV3/PlanoAcaoV3 (A5); rollback por flag/revert (F0-F2 não tocam default).
+**Referencia:** ADR-010 (arquitetura 98%) · ADR-0030 (SOLARIS canônico) · ADR-0031 (snapshot).
+
+### F3.4 — Fluxo E2E (4 cenários formais)
+
+| # | Cenário | Passos | Asserção |
+|---|---|---|---|
+| **E1** | Carregamento (split) | navega `/projetos/5700001/briefing-v3` (tem `structured`) | 4 zonas renderizam; gauge "Grau de Completude" + faixa "Parcial" (65); 5 GapCards; badge alucinação em 2 gaps |
+| **E2** | **Fallback (98%)** | navega briefing de projeto com `structured=NULL` | **`<Streamdown>` markdown idêntico ao monolito**; sem tela branca; ActionBar preservada |
+| **E3** | Aprovação | clicar "Aprovar Briefing" | conf≥85 → `/risk-dashboard-v4`; conf<85 (ex.: 5700001=65) → `ApproveReservationModal` (justificativa obrigatória) → persiste `approval_reservation` |
+| **E4** | Ações + regressão | Regenerar · Corrigir · Mais Info · Exportar PDF · Compartilhar · z17 CT-05..08 | versão incrementa; PDF gera; share recebe `structured`; **z17 CT-05..08 verde** (textos de seção preservados) |
 
 ---
 
