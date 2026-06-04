@@ -293,6 +293,27 @@ export function matchesCnaeBoundary(chunkCnaeGroups: string, group: string): boo
 }
 
 /**
+ * RAG-1-FIX (#1375) — Especificação JS canônica da condição de pertencimento
+ * ao POOL UNIVERSAL de chunks setoriais.
+ *
+ * Um chunk só pertence ao pool universal quando `cnaeGroups` é genuinamente
+ * vazio (NULL ou string vazia). Chunks com qualquer grupo preenchido (ex:
+ * "64,65,66" = financeiro) são SETORIAIS e NÃO devem entrar no pool universal.
+ *
+ * O filtro SQL em `fetchSetorialCandidates` implementa a MESMA condição:
+ *   `(cnaeGroups IS NULL OR cnaeGroups = '')`
+ *
+ * Substitui o proxy incorreto `LENGTH(cnaeGroups) < 50`, que classificava
+ * ~2.174 chunks setoriais como universais (causa-raiz do GROUNDING-1).
+ * Ver Lição #101 (boundary é por match-de-grupo, não por LENGTH).
+ */
+export function belongsToUniversalPool(
+  cnaeGroups: string | null | undefined,
+): boolean {
+  return cnaeGroups == null || cnaeGroups.trim() === "";
+}
+
+/**
  * Pass 2 do Two-Pass Retrieval — busca chunks setoriais CNAE-aware.
  *
  * Independente do Pass 1 (LIKE keywords). Roda em paralelo, depois mescla.
@@ -322,7 +343,12 @@ async function fetchSetorialCandidates(
       like(ragDocuments.cnaeGroups, `%,${g}`),
       eq(ragDocuments.cnaeGroups, g),
     ]),
-    sql`LENGTH(cnaeGroups) < 50`,
+    // RAG-1-FIX (#1375): apenas chunks genuinamente universais (cnaeGroups
+    // vazio/NULL) entram no pool. O proxy `LENGTH(cnaeGroups) < 50` incluía
+    // ~2.174 chunks SETORIAIS (ex: "64,65,66" = financeiro) no pool universal
+    // → causa-raiz do GROUNDING-1 (Art. 233 LC 214 em briefing de transporte).
+    // Spec JS canônica desta condição: belongsToUniversalPool().
+    sql`(cnaeGroups IS NULL OR cnaeGroups = '')`,
   );
 
   const leiCond = (leiFilter && leiFilter.length > 0)
