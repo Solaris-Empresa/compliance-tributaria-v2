@@ -227,6 +227,40 @@ describe("buildBriefingMarkdown V2 — bundle #808-#811", () => {
     });
   });
 
+  describe("PDF-2/PDF-3 — paridade da linha Fonte com o adapter (auditoria 04/06/2026)", () => {
+    it("alias aplicacao_obrigatoria → label de regra_semantica (PDF-3)", () => {
+      const md = buildBriefingMarkdown(
+        {
+          ...STRUCTURED_BASE,
+          principais_gaps: [
+            { ...STRUCTURED_BASE.principais_gaps[0], source_type: "aplicacao_obrigatoria", source_reference: "ref" },
+          ],
+        },
+        META_BASE
+      );
+      expect(md).toContain("**Fonte:** Aplicação obrigatória por perfil · ref");
+    });
+
+    it("strip do prefixo legado 'Aplicação obrigatória: ' do source_reference, sem duplicar (PDF-2)", () => {
+      const md = buildBriefingMarkdown(
+        {
+          ...STRUCTURED_BASE,
+          principais_gaps: [
+            {
+              ...STRUCTURED_BASE.principais_gaps[0],
+              source_type: "regra_semantica",
+              source_reference: "Aplicação obrigatória: obrigação cadastral IBS/CBS",
+            },
+          ],
+        },
+        META_BASE
+      );
+      // label vem do source_type; ref vem LIMPA (prefixo não duplicado) — igual à página
+      expect(md).toContain("**Fonte:** Aplicação obrigatória por perfil · obrigação cadastral IBS/CBS");
+      expect(md).not.toContain("· Aplicação obrigatória: obrigação cadastral");
+    });
+  });
+
   describe("rollback — feature flag template v1", () => {
     it("BRIEFING_TEMPLATE_VERSION=v1 → ignora toda infra do bundle", () => {
       process.env.BRIEFING_TEMPLATE_VERSION = "v1";
