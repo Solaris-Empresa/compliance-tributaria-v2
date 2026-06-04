@@ -207,6 +207,8 @@ export default function BriefingV3() {
     { enabled: !!projectId }
   );
 
+  const utils = trpc.useUtils();
+
   const generateBriefing = trpc.fluxoV3.generateBriefing.useMutation();
   const approveBriefing = trpc.fluxoV3.approveBriefing.useMutation();
   // fix(UAT 2026-04-20): aprovação com ressalva quando confiança <85%
@@ -392,6 +394,22 @@ export default function BriefingV3() {
       // fix UAT 2026-04-21 D10: marca timestamp da geração atual para exibir
       // ao lado do badge "Versão N" mesmo antes do freshness query refetchar.
       setLastGeneratedAt(Date.now());
+      // BUG-FLASH-AUTOGEN — causa-raiz: falha de invalidação de cache no cliente.
+      // generateBriefing PERSISTE briefingStructured (routers-fluxo-v3.ts:2247) e o
+      // RETORNA em result.structured (L2364), mas o cache de getProjectStep1 — única
+      // fonte de project.briefingStructured → showSplitView (L601-607) — não era
+      // atualizado. Sem isto, o componente renderiza Legacy com o markdown local até
+      // um refetch incidental (window focus) flipar p/ Split → flash de ~12s.
+      // Camada 3 (setData otimista): atualiza o cache no MESMO tick com o objeto já
+      // retornado pela mutation → Split renderiza direto, zero round-trip, zero flash.
+      // parseBriefingStructured trata objeto e string — valor otimista pode
+      // divergir do refetch em tipo, mas não em resultado (split-view garantido)
+      utils.fluxoV3.getProjectStep1.setData({ projectId }, (old) =>
+        old ? { ...old, briefingStructured: (result as any).structured } : old
+      );
+      // Camada 1 (safety net): revalida do servidor p/ trazer os demais campos frescos
+      // (currentStep=3, briefingContent) e garantir consistência eventual.
+      utils.fluxoV3.getProjectStep1.invalidate({ projectId });
       // fix(UX3 UAT 2026-04-20): transparência de retries da LLM
       const retries = (result as any).llmRetries ?? 0;
       if (retries > 0) {
