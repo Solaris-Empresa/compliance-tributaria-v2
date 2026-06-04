@@ -402,7 +402,8 @@ export default function BriefingV3() {
       // um refetch incidental (window focus) flipar p/ Split → flash de ~12s.
       // Camada 3 (setData otimista): atualiza o cache no MESMO tick com o objeto já
       // retornado pela mutation → Split renderiza direto, zero round-trip, zero flash.
-      // briefingStructured é coluna json() (schema.ts:105) → objeto direto (Lição #72).
+      // parseBriefingStructured trata objeto e string — valor otimista pode
+      // divergir do refetch em tipo, mas não em resultado (split-view garantido)
       utils.fluxoV3.getProjectStep1.setData({ projectId }, (old) =>
         old ? { ...old, briefingStructured: (result as any).structured } : old
       );
