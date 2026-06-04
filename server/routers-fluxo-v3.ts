@@ -6783,8 +6783,21 @@ function buildBriefingMarkdownV2(
     // Quando o LLM preenche source_type/source_reference, expõe ao usuário
     // para auditoria. Graceful: sem source → linha omitida (briefings legados).
     if (g.source_type) {
-      const srcLabel = SOURCE_TYPE_LABEL_V2[g.source_type] ?? g.source_type;
-      const srcSuffix = g.source_reference ? ` · ${g.source_reference}` : "";
+      // PDF-2/PDF-3 fix (auditoria determinística 04/06/2026): espelhar o adapter
+      // (client/src/lib/briefingAdapter.ts) para o markdown/PDF NÃO divergirem da
+      // página: (a) alias aplicacao_obrigatoria→regra_semantica (briefingAdapter
+      // normalizeSourceType); (b) strip do prefixo legado "Aplicação obrigatória: "
+      // do source_reference (stripLegacyPrefix, ~1.1% dos gaps legados o carregam).
+      const normType =
+        g.source_type === "aplicacao_obrigatoria" ? "regra_semantica" : g.source_type;
+      const srcLabel = SOURCE_TYPE_LABEL_V2[normType] ?? normType;
+      const LEGACY_REF_PREFIX = "Aplicação obrigatória: ";
+      const cleanRef =
+        typeof g.source_reference === "string" &&
+        g.source_reference.startsWith(LEGACY_REF_PREFIX)
+          ? g.source_reference.slice(LEGACY_REF_PREFIX.length)
+          : g.source_reference;
+      const srcSuffix = cleanRef ? ` · ${cleanRef}` : "";
       lines.push(`- **Fonte:** ${srcLabel}${srcSuffix}`);
     }
     // fix #809: aviso per-gap quando a confiança é baixa — lembra o leitor
