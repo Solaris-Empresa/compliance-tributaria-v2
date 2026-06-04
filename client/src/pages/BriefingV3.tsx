@@ -198,7 +198,11 @@ export default function BriefingV3() {
   // Auto-save do briefing no localStorage (inclui histórico de versões)
   useAutoSave(projectId, 'etapa3', { briefing, generationCount, versionHistory }, 1000);
 
-  const { data: project, isLoading: loadingProject } = trpc.fluxoV3.getProjectStep1.useQuery(
+  const {
+    data: project,
+    isLoading: loadingProject,
+    isFetching,
+  } = trpc.fluxoV3.getProjectStep1.useQuery(
     { projectId },
     { enabled: !!projectId }
   );
@@ -574,7 +578,10 @@ export default function BriefingV3() {
   // BUG-SPLIT-MODALS (flash Legacy→Split): garantir `project` definido ANTES de
   // computar showSplitView. Sem o `!project`, o 1º render com project undefined cai
   // em parseBriefingStructured(undefined) → mode "legacy" → pisca Legacy antes do Split.
-  if (loadingProject || !project) {
+  // BUG-FLASH-CACHE (Opção A): quando o React Query serve cache stale (sem
+  // briefingStructured) e refaz o fetch em background (isFetching), segurar o
+  // spinner até o dado crítico chegar — evita piscar Legacy antes do Split View.
+  if (loadingProject || !project || (isFetching && !(project as any).briefingStructured)) {
     return (
       <ComplianceLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
