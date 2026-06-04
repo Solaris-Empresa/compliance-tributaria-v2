@@ -9,10 +9,11 @@
  *   3. `routers-fluxo-v3.ts` importa o helper
  *   4. As 2 procedures (generateBriefing + generateBriefingFromDiagnostic) buscam
  *      os artigos dinâmicos ANTES do generateWithRetry
- *   5. Os literals "Art. 2 LC 214/2025" e "Art. 21 §1º LC 214/2025" SOMENTE
- *      aparecem como fallback (linhas com "?? ")
- *   6. Os 3 artigos sem categoria (Art. 8, Art. 9, Art. 14/15) têm TODOs
- *      inline citando BUG-G1
+ *   5. Os literals "Art. 2 LC 214/2025" e "Art. 59 LC 214/2025" SOMENTE
+ *      aparecem como fallback (linhas com "?? "). Art. 21 §1º → Art. 59
+ *      (cadastral) corrigido em LEGAL-1 (04/06/2026).
+ *   6. Os 2 artigos ainda sem categoria (Art. 8, Art. 14/15) têm TODOs inline
+ *      citando BUG-G1. Art. 9 → Art. 125 (cesta básica) resolvido em LEGAL-1.
  *
  * Validação runtime contra banco real é responsabilidade do Manus pós-deploy.
  */
@@ -104,11 +105,13 @@ describe("BUG-G1 — routers-fluxo-v3.ts (import + uso)", () => {
     expect(literalsForaDeFallback).toEqual([]);
   });
 
-  it("NÃO existe mais literal 'Art. 21 §1º LC 214/2025' em prompt template (apenas em fallback ?? )", () => {
+  it("NÃO existe literal 'Art. 59 LC 214/2025' fora de fallback ?? (cadastral, pós LEGAL-1)", () => {
+    // LEGAL-1 (04/06/2026): fallback cadastral Art. 21 §1º → Art. 59. O prompt usa
+    // a var ${artigoCadastroCit_*}; o literal "Art. 59" só aparece no fallback ??.
     const lines = fluxo.split("\n");
     const literalsForaDeFallback = lines.filter((line) => {
       return (
-        /Art\.\s*21\s*§1º\s+LC\s+214\/2025/.test(line) &&
+        /Art\.\s*59\s+LC\s+214\/2025/.test(line) &&
         !/\?\?/.test(line) &&
         !line.trim().startsWith("//")
       );
@@ -144,11 +147,15 @@ describe("BUG-G1 — TODOs nos 3 artigos sem categoria correspondente", () => {
     expect(occurrences?.length).toBe(2);
   });
 
-  it("Art. 9 (cesta básica) — TODO mencionando aliquota_zero pendente jurídico", () => {
-    const occurrences = fluxo.match(
-      /\[BUG-G1 TODO:\s*aliquota_zero\s+—\s+artigo\s+pendente\s+validação\s+jurídica/g
+  it("Art. 9 → Art. 125 (cesta básica) — LEGAL-1 resolvido: cita Art. 125 nas 2 procedures, sem TODO pendente", () => {
+    // LEGAL-1 (04/06/2026): Art. 9 (imunidades) → Art. 125 (Cesta Básica Nacional
+    // de Alimentos / alíquota zero), validado contra PDF LC 214. TODO removido.
+    const todoPendente = fluxo.match(/\[BUG-G1 TODO:\s*aliquota_zero/g);
+    expect(todoPendente).toBeNull();
+    const cestaBasica125 = fluxo.match(
+      /CESTA BÁSICA \/ ALÍQUOTA ZERO \(Art\. 125 LC 214\/2025\)/g
     );
-    expect(occurrences?.length).toBe(2);
+    expect(cestaBasica125?.length).toBe(2);
   });
 
   it("Art. 14/15 (IBS interestadual) — TODO mencionando categoria 'ibs_interestadual'", () => {
