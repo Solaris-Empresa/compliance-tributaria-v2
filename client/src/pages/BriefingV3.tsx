@@ -571,7 +571,10 @@ export default function BriefingV3() {
     setLocation(`/projetos/${projectId}/questionario-v3?${params.toString()}`);
   }, [projectId, setLocation]);
 
-  if (loadingProject) {
+  // BUG-SPLIT-MODALS (flash Legacy→Split): garantir `project` definido ANTES de
+  // computar showSplitView. Sem o `!project`, o 1º render com project undefined cai
+  // em parseBriefingStructured(undefined) → mode "legacy" → pisca Legacy antes do Split.
+  if (loadingProject || !project) {
     return (
       <ComplianceLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -634,6 +637,58 @@ export default function BriefingV3() {
             </main>
           </div>
         </div>
+
+        {/* BUG-SPLIT-MODALS: superfícies de side-effect compartilhadas com o Legacy.
+            Mesmo JSX dos modais/card do bloco Legacy (ShareBriefingModal, Approve-
+            ReservationModal e card de feedback) — içadas para o early-return do Split,
+            que não as alcançava. Sem lógica/handler/estado novo. */}
+        <ShareBriefingModal
+          open={shareModalOpen}
+          onOpenChange={setShareModalOpen}
+          structured={briefingStructuredForShare}
+          projectName={project?.name || "Briefing de Compliance"}
+        />
+        <ApproveReservationModal
+          open={reservationModalOpen}
+          onOpenChange={setReservationModalOpen}
+          confidence={currentConfidence ?? 0}
+          answeredSources={lastBriefingSources.answered}
+          missingSources={lastBriefingSources.missing}
+          approverName={currentUser?.name ?? currentUser?.email ?? "Usuário"}
+          approverRole={currentUser?.role ?? null}
+          onConfirm={handleConfirmReservation}
+          isSubmitting={isApproving}
+        />
+        {!viewingVersion && feedbackMode !== "none" && (
+          <Card className="border-primary/20 bg-primary/3">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                {feedbackMode === "correction" ? <Edit3 className="h-4 w-4 text-primary" /> : <MessageSquare className="h-4 w-4 text-primary" />}
+                <p className="text-sm font-semibold">
+                  {feedbackMode === "correction" ? "O que precisa ser corrigido?" : "Que informações adicionais deseja incluir?"}
+                </p>
+              </div>
+              <Textarea
+                value={feedbackText}
+                onChange={e => setFeedbackText(e.target.value)}
+                placeholder={feedbackMode === "correction"
+                  ? "Ex: O regime tributário está errado, somos Lucro Real. A descrição da operação de TI está incompleta..."
+                  : "Ex: Nossa empresa também atua no mercado internacional. Temos um contrato de distribuição exclusiva que impacta o ICMS..."
+                }
+                rows={4}
+                className="resize-none"
+                autoFocus
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" size="sm" onClick={() => { setFeedbackMode("none"); setFeedbackText(""); }}>Cancelar</Button>
+                <Button size="sm" onClick={handleFeedbackSubmit} disabled={!feedbackText.trim()}>
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  Regenerar com Ajustes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </ComplianceLayout>
     );
   }
