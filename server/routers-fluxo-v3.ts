@@ -1777,7 +1777,10 @@ Gere as perguntas no formato:
       const artigoIS_brief = await getArticleByCategory("imposto_seletivo");
       const artigoCadastro_brief = await getArticleByCategory("inscricao_cadastral");
       const artigoISCit_brief = artigoIS_brief ?? "Art. 2 LC 214/2025";
-      const artigoCadastroCit_brief = artigoCadastro_brief ?? "Art. 21 §1º LC 214/2025";
+      // LEGAL-1 fix (04/06/2026): fallback era "Art. 21 §1º" (= "é contribuinte",
+      // LC 214 Art. 21) — incorreto p/ cadastro. Correto = Art. 59 ("obrigadas a se
+      // registrar em cadastro"), validado contra PDF LC 214 Art. 59.
+      const artigoCadastroCit_brief = artigoCadastro_brief ?? "Art. 59 LC 214/2025";
 
       // V60: Geração com retry + temperatura 0.2 + schema estruturado
       // fix(UX3 UAT 2026-04-20): contador de retries para propagar ao frontend
@@ -1846,13 +1849,16 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
    - Termos: "exportação", "exportamos", "exporto", "mercado externo", "exterior", "cross-border", "operação internacional", "venda para fora", "transporte internacional", "importação" (para gap de crédito).
    - AÇÃO: gerar OPORTUNIDADE "Aplicação da imunidade tributária nas operações de exportação (Art. 8 LC 214/2025)" + GAP sobre controles e documentação fiscal de comprovação de exportação.
 
-2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 9 LC 214/2025):
-   - [BUG-G1 TODO: aliquota_zero — artigo pendente validação jurídica
-     (Art. 125 c/c Anexo I é candidato para cesta básica NCM-específica;
-      risk_categories.artigo_base atual = "Art. 14" — divergência semântica)]
+2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 125 LC 214/2025):
+   - [LEGAL-1 fix 04/06/2026: Art. 125 c/c Anexo I = Cesta Básica Nacional de
+     Alimentos ("Ficam reduzidas a zero as alíquotas do IBS e da CBS... que
+     compõem a Cesta Básica Nacional de Alimentos") — validado contra PDF LC 214.
+     Antes citava Art. 9 (que é IMUNIDADES — templos, livros, ouro), incorreto.
+     Pendente em seed separado: risk_categories.artigo_base da categoria
+     aliquota_zero ainda = "Art. 14" — alinhar para Art. 125.]
    - NCMs explícitos na lista de cesta básica nacional: 1006 (arroz), 0713 (feijão), 0401 (leite), 0901 (café), 0802 (castanha), 1701 (açúcar), 1507 (óleo de soja), 0713.33 (feijão preto), 1101 (farinha de trigo), 0407 (ovos), 1104 (cereais processados).
    - Termos genéricos: "cesta básica", "alimentos básicos", "gêneros alimentícios essenciais".
-   - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica nacional (Art. 9 LC 214/2025)" citando o(s) NCM(s) específico(s).
+   - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica nacional (Art. 125 LC 214/2025)" citando o(s) NCM(s) específico(s).
 
 3. IMPOSTO SELETIVO (${artigoISCit_brief}):
    - NCMs com potencial IS: 2202.10 (bebidas açucaradas), 2401-2403 (tabaco), 2710 (combustíveis fósseis), 2203-2208 (bebidas alcoólicas), 8703 (veículos).
@@ -4345,7 +4351,9 @@ Gere o veredito final em JSON:
       const artigoIS_fromDiag = await getArticleByCategory("imposto_seletivo");
       const artigoCadastro_fromDiag = await getArticleByCategory("inscricao_cadastral");
       const artigoISCit_fromDiag = artigoIS_fromDiag ?? "Art. 2 LC 214/2025";
-      const artigoCadastroCit_fromDiag = artigoCadastro_fromDiag ?? "Art. 21 §1º LC 214/2025";
+      // LEGAL-1 fix (04/06/2026): Art. 21 §1º (= "é contribuinte") → Art. 59
+      // (cadastro), validado contra PDF LC 214. Mesmo fix do caminho generateBriefing.
+      const artigoCadastroCit_fromDiag = artigoCadastro_fromDiag ?? "Art. 59 LC 214/2025";
 
       const structured = await genRetry(
         [
@@ -4404,13 +4412,16 @@ Quando qualquer um dos sinais abaixo aparecer no perfil, FATOS ADICIONAIS, CORRE
    - Termos: "exportação", "exportamos", "mercado externo", "exterior", "operação internacional", "transporte internacional", "importação".
    - AÇÃO: gerar OPORTUNIDADE "Aplicação da imunidade em exportação (Art. 8 LC 214/2025)" + GAP de controles/documentação de comprovação.
 
-2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 9 LC 214/2025):
-   - [BUG-G1 TODO: aliquota_zero — artigo pendente validação jurídica
-     (Art. 125 c/c Anexo I é candidato para cesta básica NCM-específica;
-      risk_categories.artigo_base atual = "Art. 14" — divergência semântica)]
+2. CESTA BÁSICA / ALÍQUOTA ZERO (Art. 125 LC 214/2025):
+   - [LEGAL-1 fix 04/06/2026: Art. 125 c/c Anexo I = Cesta Básica Nacional de
+     Alimentos ("Ficam reduzidas a zero as alíquotas do IBS e da CBS... que
+     compõem a Cesta Básica Nacional de Alimentos") — validado contra PDF LC 214.
+     Antes citava Art. 9 (que é IMUNIDADES — templos, livros, ouro), incorreto.
+     Pendente em seed separado: risk_categories.artigo_base da categoria
+     aliquota_zero ainda = "Art. 14" — alinhar para Art. 125.]
    - NCMs: 1006 (arroz), 0713 (feijão), 0401 (leite), 0901 (café), 0802 (castanha), 1701 (açúcar), 1507 (óleo de soja), 1101 (farinha de trigo), 0407 (ovos), 1104 (cereais processados).
    - Termos: "cesta básica", "alimentos básicos", "gêneros alimentícios essenciais".
-   - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica (Art. 9 LC 214/2025)" citando o(s) NCM(s).
+   - AÇÃO: gerar OPORTUNIDADE "Enquadramento em alíquota zero / cesta básica (Art. 125 LC 214/2025)" citando o(s) NCM(s).
 
 3. IMPOSTO SELETIVO (${artigoISCit_fromDiag}):
    - NCMs: 2202.10 (bebidas açucaradas), 2401-2403 (tabaco), 2710 (combustíveis), 2203-2208 (bebidas alcoólicas), 8703 (veículos).
