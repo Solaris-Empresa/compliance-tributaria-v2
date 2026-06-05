@@ -62,7 +62,7 @@ interface SourceInfo {
   expectedGainText: string;
 }
 
-const SOURCE_LABELS: Record<string, SourceInfo> = {
+export const SOURCE_LABELS: Record<string, SourceInfo> = {
   solaris_onda1:        { key: "solaris_onda1",        label: "SOLARIS Onda 1",       expectedGainText: "Responder eleva para 85%" },
   iagen_onda2:          { key: "iagen_onda2",          label: "IA Gen Onda 2",        expectedGainText: "Responder eleva para 85-90%" },
   q_produtos_ncm:       { key: "q_produtos_ncm",       label: "Q.Produtos (NCM)",     expectedGainText: "Responder + NCM cadastrado = +5 pontos" },
@@ -115,8 +115,8 @@ export function ApproveReservationModal({
             Aprovar briefing com ressalva
           </DialogTitle>
           <DialogDescription>
-            A confiança deste briefing é <strong>{confidence}%</strong>, abaixo do patamar
-            mínimo de <strong>85%</strong> estabelecido pela IA SOLARIS. Você pode aprovar
+            A completude deste briefing é <strong>{confidence}%</strong>, abaixo do mínimo
+            de <strong>85%</strong> para confiabilidade plena. Você pode aprovar
             mesmo assim, desde que justifique. A ressalva ficará registrada permanentemente
             no histórico e será visível em todos os artefatos gerados a partir deste briefing.
           </DialogDescription>
