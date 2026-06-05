@@ -1897,6 +1897,8 @@ REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04
 - Quando conf>=85%: linguagem afirmativa é permitida porque há respostas suficientes para validar os gaps.
 
 ${regulatoryContext}
+
+REGRA CRÍTICA DE CITAÇÃO (ANTI-HAL-1): cite APENAS artigos que apareçam explicitamente nas seções [FONTE: ...] fornecidas neste contexto. Nunca cite artigos do seu conhecimento prévio sem grounding nas fontes injetadas. Citações sem [FONTE:] correspondente constituem erro normativo grave.
 ${restricaoCreditoPresumido}
 ${restricaoArt127}
 ${restricaoRegimeImoveis}
@@ -4454,6 +4456,8 @@ REGRA DE LINGUAGEM CONDICIONAL — BAIXA CONFIANÇA (issue #809, fix UAT 2026-04
 - Cada gap deve deixar claro que é HIPÓTESE (baseada em perfil + descrição + base legal), NÃO fato confirmado. Linguagem afirmativa só com conf>=85%.
 
 ${regulatoryContext}
+
+REGRA CRÍTICA DE CITAÇÃO (ANTI-HAL-1): cite APENAS artigos que apareçam explicitamente nas seções [FONTE: ...] fornecidas neste contexto. Nunca cite artigos do seu conhecimento prévio sem grounding nas fontes injetadas. Citações sem [FONTE:] correspondente constituem erro normativo grave.
 
 ${OC}`,
           },
