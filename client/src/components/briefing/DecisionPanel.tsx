@@ -7,12 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { BriefingAdapterResult, NivelRisco } from "@/lib/briefingAdapter";
 
-// C1 — 4 faixas de completude (NÃO as 3 faixas do ConfidenceBar, TK-1).
-function faixaCompletude(n: number): { label: string; tone: string } {
-  if (n < 50) return { label: "Crítico", tone: "text-red-600" };
-  if (n < 80) return { label: "Parcial", tone: "text-orange-600" };
-  if (n < 95) return { label: "Adequado", tone: "text-blue-600" };
-  return { label: "Completo", tone: "text-green-600" };
+// CALC-4 (#1383) — 5 faixas unificadas de completude, thresholds 0/50/70/85/95.
+// Mesmas faixas/labels do ConfidenceBar (getConfidenceConfig) — fonte única.
+// "Em construção" (70-84) é orientativo, não punitivo. Verde (>=85) = aprovação direta.
+export function faixaCompletude(n: number): { label: string; tone: string } {
+  if (n < 50) return { label: "Insuficiente", tone: "text-red-600" };
+  if (n < 70) return { label: "Parcial", tone: "text-orange-600" };
+  if (n < 85) return { label: "Em construção", tone: "text-yellow-600" };
+  if (n < 95) return { label: "Confiável", tone: "text-green-600" };
+  return { label: "Pleno", tone: "text-green-800" };
 }
 
 const RISCO_LABEL: Record<NivelRisco, string> = {
@@ -39,7 +42,7 @@ export function DecisionPanel({ result }: { result: BriefingAdapterResult }) {
     <Card data-testid="decision-panel" className="border-primary/20">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm">
-          Grau de Completude do Diagnóstico
+          Completude do Diagnóstico
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -62,14 +65,15 @@ export function DecisionPanel({ result }: { result: BriefingAdapterResult }) {
           </div>
         </div>
 
-        {/* Alerta visual < 80 (C1; ≠ gate de aprovação < 85, D5) */}
-        {nivel < 80 && (
+        {/* CALC-4 (#1383): aviso orientativo < 85 (unificado com o gate de
+            aprovação e o badge do Split View; antes era < 80, threshold órfão). */}
+        {nivel < 85 && (
           <div
             data-testid="decision-panel-alerta"
-            className="flex items-center gap-2 rounded-md border border-orange-300 bg-orange-50 px-2 py-1.5 text-xs text-orange-700"
+            className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs text-amber-700"
           >
             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-            Alerta: completude abaixo de 80%
+            Diagnóstico em construção: completude abaixo de 85%
           </div>
         )}
 

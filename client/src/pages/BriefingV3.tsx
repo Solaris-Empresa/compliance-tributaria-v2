@@ -28,7 +28,7 @@ import { ConfidenceBar } from "@/components/ConfidenceBar";
 // #767: Modal compartilhar resumo WhatsApp (6 áreas)
 import { ShareBriefingModal } from "@/components/ShareBriefingModal";
 // fix(UAT 2026-04-20): modal + badge de aprovação com ressalva <85%
-import { ApproveReservationModal, type PredefinedReason } from "@/components/ApproveReservationModal";
+import { ApproveReservationModal, SOURCE_LABELS, type PredefinedReason } from "@/components/ApproveReservationModal";
 import { BriefingReservationBadge, type ApprovalReservation } from "@/components/BriefingReservationBadge";
 import { useAuth } from "@/_core/hooks/useAuth";
 // UX-BRIEFING-C-V2 PR-4 (F4): wiring do Split View gated pela flag de build
@@ -625,6 +625,11 @@ export default function BriefingV3() {
     briefingResult.mode === "split-view" && briefingUiVersion === "split";
 
   if (showSplitView) {
+    // SPLIT-1 (#1383): pilares pendentes (fontes < suficiente) para o badge
+    // orientativo de completude < 85%. Reusa SOURCE_LABELS do modal de ressalva.
+    const pendingPillars = lastBriefingSources.missing.map(
+      (k) => SOURCE_LABELS[k]?.label ?? k
+    );
     return (
       <ComplianceLayout>
         <div
@@ -642,6 +647,32 @@ export default function BriefingV3() {
             isApproving={isApproving}
             historyCount={versionHistory.length}
           />
+          {/* SPLIT-1 (#1383): badge orientativo quando completude < 85%.
+              Tom não punitivo — aprovação continua disponível via ActionBar. */}
+          {currentConfidence !== null && currentConfidence < 85 && (
+            <div
+              data-testid="split-view-completude-badge"
+              className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-300"
+            >
+              <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+              <div className="space-y-0.5 text-sm">
+                <p className="font-semibold">Diagnóstico em construção</p>
+                <p className="text-xs">
+                  Completude atual: <strong>{currentConfidence}%</strong> (mínimo
+                  para confiabilidade plena: 85%)
+                </p>
+                {pendingPillars.length > 0 && (
+                  <p className="text-xs">
+                    Pendente: {pendingPillars.slice(0, 2).join(", ")}
+                  </p>
+                )}
+                <p className="text-xs">
+                  Este briefing pode ser aprovado, mas recomendamos completar as
+                  fontes pendentes.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <aside className="space-y-4 md:col-span-1">
               <DecisionPanel result={briefingResult} />
@@ -826,53 +857,10 @@ export default function BriefingV3() {
           onRegerar={() => handleGenerate()}
         />
 
-        {/* M2.1: Banner de Completude Diagnóstica (ADR-0007 Seção 12) */}
-        {(() => {
-          const completeness = (project as any)?.diagnosticCompleteness;
-          if (!completeness || completeness === 'completo') return null;
-          const cfgMap: Record<string, { bg: string; border: string; icon: string; title: string; body: string; cta?: string; ctaUrl?: string }> = {
-            insuficiente: {
-              bg: 'bg-red-50', border: 'border-red-300',
-              icon: '🔴',
-              title: 'Diagnóstico Insuficiente',
-              body: 'Nenhum questionário foi respondido. Responda ao menos um questionário para gerar um diagnóstico confiável.',
-              cta: 'Retornar ao questionário',
-              ctaUrl: `/projetos/${projectId}/questionario-v3`,
-            },
-            parcial: {
-              bg: 'bg-yellow-50', border: 'border-yellow-300',
-              icon: '🟡',
-              title: 'Diagnóstico Parcial',
-              body: 'O sistema identificou informações suficientes para análise, mas algumas dimensões aplicáveis não foram respondidas.',
-              cta: 'Completar diagnóstico',
-              ctaUrl: `/projetos/${projectId}/questionario-iagen`,
-            },
-            adequado: {
-              bg: 'bg-green-50', border: 'border-green-300',
-              icon: '🟢',
-              title: 'Diagnóstico Adequado',
-              body: 'Diagnóstico gerado com base nas dimensões respondidas. Informe NCM/NBS para aumentar a precisão.',
-              cta: 'Informar NCM/NBS',
-              ctaUrl: `/projetos/${projectId}/operation-profile`,
-            },
-          };
-          const cfg = cfgMap[completeness];
-          if (!cfg) return null;
-          return (
-            <div className={`flex items-start gap-3 p-4 rounded-xl border ${cfg.bg} ${cfg.border}`}>
-              <span className="text-lg shrink-0 mt-0.5">{cfg.icon}</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold">{cfg.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{cfg.body}</p>
-                {cfg.cta && cfg.ctaUrl && (
-                  <Button variant="outline" size="sm" className="mt-2 text-xs h-7" onClick={() => setLocation(cfg.ctaUrl!)}>
-                    {cfg.cta}
-                  </Button>
-                )}
-              </div>
-            </div>
-          );
-        })()}
+        {/* CALC-3 (#1383): banner "M2.1 Completude Diagnóstica" removido — era
+            dead code. Comparava diagnosticCompleteness (objeto de
+            computeCompleteness, runtime) com a string 'completo' → sempre null.
+            A mensagem de completude agora vem do ConfidenceBar + badge SPLIT-1. */}
         {/* fix(UX1 UAT 2026-04-20): barra visual de confiança do diagnóstico */}
         {confidenceScore && !isGenerating && (
           <ConfidenceBar score={confidenceScore} />

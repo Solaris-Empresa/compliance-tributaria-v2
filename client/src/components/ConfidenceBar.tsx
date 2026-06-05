@@ -22,16 +22,28 @@ interface Props {
 }
 
 /**
- * Determina cor + ícone + rótulo por faixa de confiança.
- * Thresholds determinísticos (fix alinhado com regras objetivas do briefing):
- *   >=85  → alta (verde, ShieldCheck)
- *   70-84 → média (âmbar, Shield)
- *   <70   → baixa (vermelho, ShieldAlert)
+ * CALC-4 (#1383) — 5 faixas unificadas de completude, thresholds 0/50/70/85/95.
+ * Mesmas faixas/labels do DecisionPanel (faixaCompletude) — fonte única.
+ *   >=95  → Pleno (verde escuro, ShieldCheck)
+ *   85-94 → Confiável (verde, ShieldCheck)
+ *   70-84 → Em construção (amarelo, Shield) — orientativo, não punitivo
+ *   50-69 → Parcial (laranja, ShieldAlert)
+ *   <50   → Insuficiente (vermelho, ShieldAlert)
  */
-function getConfidenceConfig(nivel: number) {
+export function getConfidenceConfig(nivel: number) {
+  if (nivel >= 95) {
+    return {
+      label: "Pleno",
+      bgClass: "bg-green-600",
+      textClass: "text-green-800 dark:text-green-400",
+      bgLight: "bg-green-50 dark:bg-green-950/20",
+      borderClass: "border-green-300 dark:border-green-800",
+      Icon: ShieldCheck,
+    };
+  }
   if (nivel >= 85) {
     return {
-      label: "Alta",
+      label: "Confiável",
       bgClass: "bg-emerald-500",
       textClass: "text-emerald-700 dark:text-emerald-400",
       bgLight: "bg-emerald-50 dark:bg-emerald-950/20",
@@ -41,7 +53,7 @@ function getConfidenceConfig(nivel: number) {
   }
   if (nivel >= 70) {
     return {
-      label: "Média",
+      label: "Em construção",
       bgClass: "bg-amber-500",
       textClass: "text-amber-700 dark:text-amber-400",
       bgLight: "bg-amber-50 dark:bg-amber-950/20",
@@ -49,8 +61,18 @@ function getConfidenceConfig(nivel: number) {
       Icon: Shield,
     };
   }
+  if (nivel >= 50) {
+    return {
+      label: "Parcial",
+      bgClass: "bg-orange-500",
+      textClass: "text-orange-700 dark:text-orange-400",
+      bgLight: "bg-orange-50 dark:bg-orange-950/20",
+      borderClass: "border-orange-200 dark:border-orange-800",
+      Icon: ShieldAlert,
+    };
+  }
   return {
-    label: "Baixa",
+    label: "Insuficiente",
     bgClass: "bg-red-500",
     textClass: "text-red-700 dark:text-red-400",
     bgLight: "bg-red-50 dark:bg-red-950/20",
@@ -81,7 +103,7 @@ export function ConfidenceBar({ score, className }: Props) {
         <div className="flex items-center gap-2">
           <Icon className={cn("h-4 w-4 shrink-0", cfg.textClass)} />
           <span className={cn("text-sm font-semibold", cfg.textClass)}>
-            Confiança do Diagnóstico: {cfg.label}
+            Completude do Diagnóstico: {cfg.label}
           </span>
         </div>
         <span
