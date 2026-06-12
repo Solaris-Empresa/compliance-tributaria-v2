@@ -73,8 +73,14 @@ const RISCO_LABEL: Record<string, string> = {
 /**
  * buildStructuredSectionsHtml — seções structured do PDF (espelha os cards do Split View).
  *
- * Ordem mirando a tela: Resumo + Nível de risco → Completude (+ ressalva <85%) →
- * Recomendações prioritárias → Principais Gaps (com Fonte) → Oportunidades → Ações.
+ * Paridade de RÓTULO + ORDEM com a tela (PDF-1-FIX, verificado nos componentes):
+ *   - DecisionPanel    → Resumo + Nível de risco + Completude (confidence_score)
+ *   - PriorityCards    → "Top 3 Prioridades" (top_3_acoes)            [sidebar]
+ *   - aba Gaps         → "Principais Gaps" (principais_gaps)
+ *   - aba Oportunidades→ "Oportunidades" (oportunidades)
+ *   - aba "Ações Prioritárias" → recomendacoes_prioritarias (ActionsList, string[])
+ * Atenção ao cruzamento: a aba "Ações Prioritárias" renderiza recomendacoes_prioritarias;
+ * top_3_acoes é o card "Top 3 Prioridades" da sidebar (BriefingNav + PriorityCards/ActionsList).
  */
 export function buildStructuredSectionsHtml(data: BriefingStructuredData): string {
   const parts: string[] = [];
@@ -90,7 +96,7 @@ export function buildStructuredSectionsHtml(data: BriefingStructuredData): strin
     parts.push(`<p>${esc(data.resumo_executivo)}</p>`);
   }
 
-  // 2. Completude / confiança (+ badge orientativo <85%) — SPLIT-1
+  // 2. Completude / confiança (+ badge orientativo <85%) — SPLIT-1 / DecisionPanel
   const conf = data.confidence_score.nivel_confianca;
   parts.push("<h2>Completude do Diagnóstico</h2>");
   parts.push(`<p><strong>Completude:</strong> ${conf}%</p>`);
@@ -110,14 +116,20 @@ export function buildStructuredSectionsHtml(data: BriefingStructuredData): strin
     );
   }
 
-  // 3. Recomendações prioritárias (PriorityCards)
-  if (data.recomendacoes_prioritarias.length > 0) {
-    parts.push("<h1>Recomendações Prioritárias</h1>");
-    parts.push(
-      `<ul>${data.recomendacoes_prioritarias
-        .map((r) => `<li>${esc(r)}</li>`)
-        .join("")}</ul>`
-    );
+  // 3. Top 3 Prioridades (PriorityCards — top_3_acoes; sidebar)
+  if (data.top_3_acoes.length > 0) {
+    parts.push("<h1>Top 3 Prioridades</h1>");
+    for (const acao of data.top_3_acoes) {
+      parts.push(`<h3>${esc(acao.acao)}</h3>`);
+      if (acao.justificativa.trim()) {
+        parts.push(`<p>${esc(acao.justificativa)}</p>`);
+      }
+      parts.push(
+        `<p><strong>Prazo:</strong> ${esc(
+          PRAZO_LABEL[acao.prazo] ?? acao.prazo
+        )}</p>`
+      );
+    }
   }
 
   // 4. Principais Gaps (GapCard) — com linha Fonte (label PDF-3 + reference PDF-2)
@@ -157,20 +169,14 @@ export function buildStructuredSectionsHtml(data: BriefingStructuredData): strin
     );
   }
 
-  // 6. Ações prioritárias (ActionsList — top_3_acoes)
-  if (data.top_3_acoes.length > 0) {
+  // 6. Ações Prioritárias (aba "Ações Prioritárias" = ActionsList → recomendacoes_prioritarias)
+  if (data.recomendacoes_prioritarias.length > 0) {
     parts.push("<h1>Ações Prioritárias</h1>");
-    for (const acao of data.top_3_acoes) {
-      parts.push(`<h3>${esc(acao.acao)}</h3>`);
-      if (acao.justificativa.trim()) {
-        parts.push(`<p>${esc(acao.justificativa)}</p>`);
-      }
-      parts.push(
-        `<p><strong>Prazo:</strong> ${esc(
-          PRAZO_LABEL[acao.prazo] ?? acao.prazo
-        )}</p>`
-      );
-    }
+    parts.push(
+      `<ul>${data.recomendacoes_prioritarias
+        .map((r) => `<li>${esc(r)}</li>`)
+        .join("")}</ul>`
+    );
   }
 
   return parts.join("\n");
