@@ -19,6 +19,13 @@
  *   - Arts. 31-35 = split payment (validação jurídica 20/05/2026)
  *   - Alinha com risk_categories.normative_bundle (migration 0099)
  *
+ * LEGAL-3 (Issue #1373 follow-up) reconciliou 4 fallbacks com o DB real:
+ *   - imposto_seletivo    Art. 393 → Art. 409 (migration 0099)
+ *   - aliquota_reduzida   Art. 120 → Art. 127 (migration 0099)
+ *   - credito_presumido   Art. 185 → Art. 168 (migration 0099)
+ *   - regime_diferenciado Art. 29  → Art. 126 (migration 0102 #1174, P.O. Opção C —
+ *       0099 dizia Art. 229 "criptoativos INCORRETO", supersedida por 0102)
+ *
  * Os valores corretos são derivados de:
  *   - DB `risk_categories.artigo_base` (fonte oficial)
  *   - Validação empírica P.O. em projeto #5580001 (2026-05-12)
@@ -28,16 +35,16 @@
  */
 
 export const CATEGORIA_ARTIGOS: Readonly<Record<string, string>> = Object.freeze({
-  imposto_seletivo: "Art. 393 LC 214/2025",
+  imposto_seletivo: "Art. 409 LC 214/2025",
   confissao_automatica: "Art. 45 LC 214/2025",
   split_payment: "Arts. 31-35 LC 214/2025",
   inscricao_cadastral: "Art. 213 LC 214/2025",
-  regime_diferenciado: "Art. 29 LC 214/2025",
+  regime_diferenciado: "Art. 126 LC 214/2025",
   transicao_iss_ibs: "Arts. 6-12 LC 214/2025",
   obrigacao_acessoria: "Art. 102 LC 214/2025",
   aliquota_zero: "Art. 125 LC 214/2025",
-  aliquota_reduzida: "Art. 120 LC 214/2025",
-  credito_presumido: "Art. 185 LC 214/2025",
+  aliquota_reduzida: "Art. 127 LC 214/2025",
+  credito_presumido: "Art. 168 LC 214/2025",
 });
 
 /**

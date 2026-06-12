@@ -27,9 +27,10 @@ describe("Issue #1069 Bug A — CATEGORIA_ARTIGOS com valores corretos", () => {
     expect(CATEGORIA_ARTIGOS.inscricao_cadastral).not.toBe("Art. 21 LC 214/2025");
   });
 
-  it("regime_diferenciado → Art. 29 LC 214/2025 (NÃO Art. 258)", () => {
-    expect(CATEGORIA_ARTIGOS.regime_diferenciado).toBe("Art. 29 LC 214/2025");
+  it("regime_diferenciado → Art. 126 LC 214/2025 (LEGAL-3, NÃO Art. 29 / 229 / 258)", () => {
+    expect(CATEGORIA_ARTIGOS.regime_diferenciado).toBe("Art. 126 LC 214/2025");
     expect(CATEGORIA_ARTIGOS.regime_diferenciado).not.toContain("258");
+    expect(CATEGORIA_ARTIGOS.regime_diferenciado).not.toContain("229");
   });
 
   it("obrigacao_acessoria → Art. 102 LC 214/2025 (NÃO Art. 88)", () => {
@@ -37,10 +38,22 @@ describe("Issue #1069 Bug A — CATEGORIA_ARTIGOS com valores corretos", () => {
     expect(CATEGORIA_ARTIGOS.obrigacao_acessoria).not.toContain("88");
   });
 
-  it("categorias que já estavam corretas permanecem (regressão proibida)", () => {
+  it("imposto_seletivo → Art. 409 LC 214/2025 (LEGAL-3, era Art. 393)", () => {
+    expect(CATEGORIA_ARTIGOS.imposto_seletivo).toBe("Art. 409 LC 214/2025");
+    expect(CATEGORIA_ARTIGOS.imposto_seletivo).not.toContain("393");
+  });
+
+  it("aliquota_reduzida → Art. 127 LC 214/2025 (LEGAL-3, era Art. 120)", () => {
+    expect(CATEGORIA_ARTIGOS.aliquota_reduzida).toBe("Art. 127 LC 214/2025");
+  });
+
+  it("credito_presumido → Art. 168 LC 214/2025 (LEGAL-3, era Art. 185)", () => {
+    expect(CATEGORIA_ARTIGOS.credito_presumido).toBe("Art. 168 LC 214/2025");
+  });
+
+  it("categorias fora do escopo LEGAL-3 permanecem (regressão proibida)", () => {
     expect(CATEGORIA_ARTIGOS.confissao_automatica).toBe("Art. 45 LC 214/2025");
     expect(CATEGORIA_ARTIGOS.transicao_iss_ibs).toBe("Arts. 6-12 LC 214/2025");
-    expect(CATEGORIA_ARTIGOS.imposto_seletivo).toBe("Art. 393 LC 214/2025");
   });
 
   it("mapa é imutável (Object.freeze)", () => {
@@ -82,7 +95,7 @@ describe("Issue #1069 Bug A — resolveArtigoForHeader (fallback defensivo)", ()
     // Antes: `"" ?? CATEGORIA_ARTIGOS[cat]` retornaria "" (string vazia é truthy para ??)
     // Depois: resolveArtigoForHeader trata "" como falsy → fallback ativa
     expect(resolveArtigoForHeader("", "regime_diferenciado"))
-      .toBe("Art. 29 LC 214/2025");
+      .toBe("Art. 126 LC 214/2025");
   });
 
   it("string com whitespace também é tratada como falsy", () => {
@@ -99,7 +112,7 @@ describe("Issue #1069 Bug A — resolveArtigoForHeader (fallback defensivo)", ()
     // Quando risk.artigo é vazio (cenário do bug em produção), fallback retorna valor CORRETO
     expect(resolveArtigoForHeader("", "split_payment")).toBe("Arts. 31-35 LC 214/2025");
     expect(resolveArtigoForHeader("", "inscricao_cadastral")).toBe("Art. 213 LC 214/2025");
-    expect(resolveArtigoForHeader("", "regime_diferenciado")).toBe("Art. 29 LC 214/2025");
+    expect(resolveArtigoForHeader("", "regime_diferenciado")).toBe("Art. 126 LC 214/2025");
     expect(resolveArtigoForHeader("", "obrigacao_acessoria")).toBe("Art. 102 LC 214/2025");
   });
 });
@@ -142,7 +155,7 @@ describe("Issue #1069 — DoD POSITIVO + NEGATIVO", () => {
     const cenarios = [
       { cat: "split_payment", esperado: "Arts. 31-35 LC 214/2025" },
       { cat: "inscricao_cadastral", esperado: "Art. 213 LC 214/2025" },
-      { cat: "regime_diferenciado", esperado: "Art. 29 LC 214/2025" },
+      { cat: "regime_diferenciado", esperado: "Art. 126 LC 214/2025" },
       { cat: "obrigacao_acessoria", esperado: "Art. 102 LC 214/2025" },
     ];
     for (const c of cenarios) {
