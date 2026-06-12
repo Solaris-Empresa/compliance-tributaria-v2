@@ -16,8 +16,9 @@ import {
 } from "./categoria-artigos";
 
 describe("Issue #1069 Bug A — CATEGORIA_ARTIGOS com valores corretos", () => {
-  it("split_payment → Art. 9 LC 214/2025 (NÃO Art. 29)", () => {
-    expect(CATEGORIA_ARTIGOS.split_payment).toBe("Art. 9 LC 214/2025");
+  it("split_payment → Arts. 31-35 LC 214/2025 (LEGAL-2 #1373, NÃO Art. 9 nem Art. 29)", () => {
+    expect(CATEGORIA_ARTIGOS.split_payment).toBe("Arts. 31-35 LC 214/2025");
+    expect(CATEGORIA_ARTIGOS.split_payment).not.toContain("Art. 9");
     expect(CATEGORIA_ARTIGOS.split_payment).not.toContain("29");
   });
 
@@ -63,13 +64,13 @@ describe("Issue #1069 Bug A — CATEGORIA_ARTIGOS com valores corretos", () => {
 
 describe("Issue #1069 Bug A — resolveArtigoForHeader (fallback defensivo)", () => {
   it("retorna risk.artigo quando preenchido (fonte primária)", () => {
-    expect(resolveArtigoForHeader("Art. 9 LC 214/2025", "split_payment"))
-      .toBe("Art. 9 LC 214/2025");
+    expect(resolveArtigoForHeader("Art. 31 LC 214/2025", "split_payment"))
+      .toBe("Art. 31 LC 214/2025");
   });
 
   it("retorna fallback CATEGORIA_ARTIGOS quando risk.artigo é null", () => {
     expect(resolveArtigoForHeader(null, "split_payment"))
-      .toBe("Art. 9 LC 214/2025");
+      .toBe("Arts. 31-35 LC 214/2025");
   });
 
   it("retorna fallback quando risk.artigo é undefined", () => {
@@ -96,7 +97,7 @@ describe("Issue #1069 Bug A — resolveArtigoForHeader (fallback defensivo)", ()
 
   it("caso canônico #5580001 — 4 categorias com fallback corrigido", () => {
     // Quando risk.artigo é vazio (cenário do bug em produção), fallback retorna valor CORRETO
-    expect(resolveArtigoForHeader("", "split_payment")).toBe("Art. 9 LC 214/2025");
+    expect(resolveArtigoForHeader("", "split_payment")).toBe("Arts. 31-35 LC 214/2025");
     expect(resolveArtigoForHeader("", "inscricao_cadastral")).toBe("Art. 213 LC 214/2025");
     expect(resolveArtigoForHeader("", "regime_diferenciado")).toBe("Art. 29 LC 214/2025");
     expect(resolveArtigoForHeader("", "obrigacao_acessoria")).toBe("Art. 102 LC 214/2025");
@@ -139,7 +140,7 @@ describe("Issue #1069 — DoD POSITIVO + NEGATIVO", () => {
   it("DoD POSITIVO: caso canônico #5580001 — header exibe artigo CORRETO mesmo com fallback", () => {
     // Cenário do bug em produção: risk.artigo vazio → fallback dispara → mostra CATEGORIA_ARTIGOS
     const cenarios = [
-      { cat: "split_payment", esperado: "Art. 9 LC 214/2025" },
+      { cat: "split_payment", esperado: "Arts. 31-35 LC 214/2025" },
       { cat: "inscricao_cadastral", esperado: "Art. 213 LC 214/2025" },
       { cat: "regime_diferenciado", esperado: "Art. 29 LC 214/2025" },
       { cat: "obrigacao_acessoria", esperado: "Art. 102 LC 214/2025" },
@@ -163,8 +164,8 @@ describe("Issue #1069 — DoD POSITIVO + NEGATIVO", () => {
   });
 
   it("DoD POSITIVO: funções puras — mesma entrada produz mesma saída", () => {
-    expect(resolveArtigoForHeader("Art. 9", "split_payment")).toBe(
-      resolveArtigoForHeader("Art. 9", "split_payment"),
+    expect(resolveArtigoForHeader("Art. 31", "split_payment")).toBe(
+      resolveArtigoForHeader("Art. 31", "split_payment"),
     );
     expect(resolveArtigoForHeader("", "split_payment")).toBe(
       resolveArtigoForHeader("", "split_payment"),
