@@ -32,7 +32,7 @@ import { ApproveReservationModal, SOURCE_LABELS, type PredefinedReason } from "@
 import { BriefingReservationBadge, type ApprovalReservation } from "@/components/BriefingReservationBadge";
 import { useAuth } from "@/_core/hooks/useAuth";
 // UX-BRIEFING-C-V2 PR-4 (F4): wiring do Split View gated pela flag de build
-// VITE_BRIEFING_UI_VERSION. Default = legacy para todos (produção inalterada).
+// VITE_BRIEFING_UI_VERSION. FLAG-DEFAULT-SPLIT: default ON; opt-out = "legacy".
 import { parseBriefingStructured } from "@/lib/briefingAdapter";
 import { buildBriefingPdfBody, formatDiagnosticStatus } from "@/lib/briefingPdfStructured";
 import { DecisionPanel } from "@/components/briefing/DecisionPanel";
@@ -524,10 +524,13 @@ export default function BriefingV3() {
     const pdfStructured = parseBriefingStructured(
       (project as any)?.briefingStructured
     );
+    // FLAG-DEFAULT-SPLIT: mesmo gate do showSplitView — PDF acompanha a tela
+    // (default ON; opt-out via VITE_BRIEFING_UI_VERSION=legacy). Mantém paridade
+    // tela×PDF validada na FASE 6 (Lição #74 — não deixar gate downstream divergir).
     const briefingUiVersionPdf =
       (import.meta.env.VITE_BRIEFING_UI_VERSION as string | undefined) ?? "";
     const usePdfStructured =
-      pdfStructured.mode === "split-view" && briefingUiVersionPdf === "split";
+      pdfStructured.mode === "split-view" && briefingUiVersionPdf !== "legacy";
     const htmlContent = buildBriefingPdfBody({
       structured: usePdfStructured ? pdfStructured.data : null,
       markdown: content,
@@ -617,17 +620,17 @@ export default function BriefingV3() {
   const displayContent = viewingVersion ? viewingVersion.content : briefing;
 
   // ── UX-BRIEFING-C-V2 PR-4 (F4) — Wiring do Split View (feature flag) ─────────
-  // Gated pela flag de BUILD VITE_BRIEFING_UI_VERSION. Default = legacy para TODOS
-  // (produção inalterada — flag ausente → "" ≠ "split"). Split só renderiza com
-  // briefingStructured presente (mode "split-view") E a flag = "split".
-  // Nota: flag é build-time (Vite) — flip/rollback exige rebuild+redeploy.
+  // FLAG-DEFAULT-SPLIT: Split View é DEFAULT ON (validado em produção desde 03/06).
+  // Opt-out: VITE_BRIEFING_UI_VERSION=legacy nos secrets → rebuild → Legacy imediato.
+  // Default ON evita a regressão de 12/06 (rebuild sem o secret derrubava o Split View).
+  // Segundo guard intacto: briefingStructured ausente (mode "legacy") → Legacy View.
   const briefingResult = parseBriefingStructured(
     (project as any)?.briefingStructured
   );
   const briefingUiVersion =
     (import.meta.env.VITE_BRIEFING_UI_VERSION as string | undefined) ?? "";
   const showSplitView =
-    briefingResult.mode === "split-view" && briefingUiVersion === "split";
+    briefingResult.mode === "split-view" && briefingUiVersion !== "legacy";
 
   if (showSplitView) {
     // SPLIT-1 (#1383): pilares pendentes (fontes < suficiente) para o badge
