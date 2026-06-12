@@ -21,6 +21,32 @@ import { SOURCE_TYPE_LABELS } from "@shared/source-type-labels";
 import type { BriefingStructuredData } from "@/lib/briefingAdapter";
 
 /**
+ * extractMethodologySection — PDF-1-FIX-2 (P.O. 12/06/2026, Opção B tela+PDF).
+ *
+ * O `briefingContent` (markdown) é um briefing COMPLETO. No Split View, gaps/opp/
+ * ações já são exibidos como cards structured — renderizar o markdown inteiro na aba
+ * "Metodologia" (e no PDF) duplica todo o conteúdo. Esta função recorta apenas as
+ * subseções de METODOLOGIA PURA: a partir do heading "Como calculamos a Confiança"
+ * (server: `### 🧮 Como calculamos a Confiança`, routers-fluxo-v3.ts:6920) até o fim
+ * — captura "Como calculamos a Confiança" + "Como ler este briefing" + disclaimer.
+ *
+ * Fallback gracioso: se o anchor não existir → retorna null (caller exibe mensagem
+ * neutra, nunca tela branca/crash). Usado por MethodSection.tsx (tela) E pelo PDF.
+ */
+export function extractMethodologySection(
+  markdown: string | null | undefined
+): string | null {
+  if (!markdown || !markdown.trim()) return null;
+  const lines = markdown.split("\n");
+  // Heading markdown (1-6 #) contendo "Como calculamos a Confian[ç]a" (tolerante a emoji/acento).
+  const idx = lines.findIndex((l) =>
+    /^#{1,6}\s.*Como calculamos a Confian/i.test(l)
+  );
+  if (idx === -1) return null;
+  return lines.slice(idx).join("\n").trim();
+}
+
+/**
  * formatDiagnosticStatus — rótulo amigável do `diagnosticCompleteness.status` no
  * header "Escopo do Diagnóstico" do PDF. "parcial" ganha hint do que falta.
  * Enum: insuficiente | parcial | adequado | completo (server/lib/completeness.ts).
@@ -221,11 +247,18 @@ export function buildBriefingPdfBody(params: {
     return markdownToHtml(markdown);
   }
 
-  // Híbrido → seções structured + Metodologia (markdown, se houver).
+  // Híbrido → seções structured + Metodologia (subseções de metodologia pura).
+  // PDF-1-FIX-2: recorta só "Como calculamos a Confiança" + "Como ler" + disclaimer
+  // (evita duplicar gaps/opp/ações que já estão nas seções structured).
   const sections = buildStructuredSectionsHtml(structured);
-  const methodology =
-    markdown && markdown.trim()
-      ? `<h1>Metodologia</h1>\n${markdownToHtml(markdown)}`
-      : "";
+  const methodologyMd = extractMethodologySection(markdown);
+  let methodology = "";
+  if (methodologyMd) {
+    methodology = `<h1>Metodologia</h1>\n${markdownToHtml(methodologyMd)}`;
+  } else if (markdown && markdown.trim()) {
+    // Markdown presente mas sem o anchor → mensagem neutra (paridade com a tela).
+    methodology =
+      `<h1>Metodologia</h1>\n<p>Metodologia indisponível para este diagnóstico.</p>`;
+  }
   return methodology ? `${sections}\n${methodology}` : sections;
 }

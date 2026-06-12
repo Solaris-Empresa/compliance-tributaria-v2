@@ -11,6 +11,7 @@ import {
   buildStructuredSectionsHtml,
   markdownToHtml,
   formatDiagnosticStatus,
+  extractMethodologySection,
 } from "./briefingPdfStructured";
 import type { BriefingStructuredData } from "./briefingAdapter";
 
@@ -58,8 +59,27 @@ const SAMPLE: BriefingStructuredData = {
   approval_reservation: null,
 };
 
-const MARKDOWN =
-  "# Briefing\n\n## Metodologia\n\nCalculamos a confiança com base nas fontes respondidas.";
+// Markdown realista: gaps duplicados (devem ser EXCLUÍDOS da metodologia recortada)
+// + subseções de metodologia pura (a partir do anchor "Como calculamos a Confiança").
+const MARKDOWN = [
+  "# Briefing de Compliance",
+  "",
+  "## 🎯 Principais Gaps de Compliance (5)",
+  "",
+  "Gap 1. Texto de gap que NAO deve aparecer na metodologia recortada.",
+  "",
+  "---",
+  "",
+  "### 🧮 Como calculamos a Confiança",
+  "",
+  "Média ponderada de 6 pilares. Confiança = 51%.",
+  "",
+  "## 🔍 Como ler este briefing",
+  "",
+  "Sem respostas: mapa regulatório. Com respostas: diagnóstico.",
+  "",
+  "_Briefing gerado automaticamente · Fórmula v4.0._",
+].join("\n");
 
 describe("PDF-1 CT-1 — híbrido: structured + metodologia", () => {
   const out = buildBriefingPdfBody({ structured: SAMPLE, markdown: MARKDOWN });
@@ -89,14 +109,19 @@ describe("PDF-1 CT-1 — híbrido: structured + metodologia", () => {
     expect(out).toContain("Fonte SOLARIS pendente");
   });
 
-  it("contém a seção Metodologia derivada do markdown", () => {
+  it("Metodologia = só subseções de metodologia pura (PDF-1-FIX-2, sem duplicar gaps)", () => {
     expect(out).toContain("<h1>Metodologia</h1>");
-    expect(out).toContain("Calculamos a confiança com base nas fontes respondidas.");
+    expect(out).toContain("Como calculamos a Confiança");
+    expect(out).toContain("Como ler este briefing");
+    expect(out).toContain("Fórmula v4.0");
+    // de-dup: a seção de gaps do markdown NÃO entra na metodologia recortada
+    expect(out).not.toContain("Principais Gaps de Compliance (5)");
+    expect(out).not.toContain("NAO deve aparecer");
   });
 
   it("NÃO é apenas o markdown puro (structured presente)", () => {
     expect(out).not.toBe(markdownToHtml(MARKDOWN));
-    expect(out.length).toBeGreaterThan(markdownToHtml(MARKDOWN).length);
+    expect(out).toContain("Top 3 Prioridades"); // marcador structured, ausente do markdown
   });
 
   it("PDF-3: usa label canônico de fonte (SOURCE_TYPE_LABELS)", () => {
@@ -117,10 +142,12 @@ describe("PDF-1 CT-2 — legacy: structured null → markdown idêntico (zero re
     expect(out).toBe(markdownToHtml(MARKDOWN));
   });
 
-  it("não contém seções structured", () => {
+  it("não contém o render structured (marcadores exclusivos do helper)", () => {
     const out = buildBriefingPdfBody({ structured: null, markdown: MARKDOWN });
-    expect(out).not.toContain("Principais Gaps");
-    expect(out).not.toContain("Ações Prioritárias");
+    // marcadores produzidos só por buildStructuredSectionsHtml, ausentes do markdown
+    expect(out).not.toContain("Top 3 Prioridades");
+    expect(out).not.toContain("Completude:</strong>");
+    expect(out).not.toContain("<h1>Metodologia</h1>");
   });
 });
 
@@ -134,6 +161,47 @@ describe("PDF-1 CT-3 — structured + markdown vazio → metodologia omitida", (
   it("markdown só com espaços também omite Metodologia", () => {
     const out = buildBriefingPdfBody({ structured: SAMPLE, markdown: "   \n  " });
     expect(out).not.toContain("<h1>Metodologia</h1>");
+  });
+});
+
+describe("PDF-1-FIX-2 — extractMethodologySection", () => {
+  it("anchor presente → recorta do 'Como calculamos a Confiança' até o fim", () => {
+    const ex = extractMethodologySection(MARKDOWN);
+    expect(ex).not.toBeNull();
+    expect(ex!).toMatch(/^### .*Como calculamos a Confiança/);
+    expect(ex!).toContain("Como ler este briefing");
+    expect(ex!).toContain("Fórmula v4.0");
+    // exclui tudo que vem ANTES do anchor (gaps duplicados)
+    expect(ex!).not.toContain("Principais Gaps de Compliance");
+    expect(ex!).not.toContain("NAO deve aparecer");
+  });
+
+  it("tolerante a heading com nível/acento variados", () => {
+    expect(extractMethodologySection("## Como calculamos a Confianca\n\nx")).not.toBeNull();
+    expect(extractMethodologySection("###### 🧮 Como calculamos a Confiança\n\nx")).not.toBeNull();
+  });
+
+  it("sem anchor → null (fallback gracioso)", () => {
+    expect(extractMethodologySection("# Briefing\n\nGaps e oportunidades, sem metodologia.")).toBeNull();
+  });
+
+  it("null/vazio → null", () => {
+    expect(extractMethodologySection(null)).toBeNull();
+    expect(extractMethodologySection(undefined)).toBeNull();
+    expect(extractMethodologySection("   ")).toBeNull();
+  });
+});
+
+describe("PDF-1-FIX-2 — fallback PDF: markdown sem anchor → mensagem neutra", () => {
+  it("structured + markdown sem anchor → Metodologia com mensagem neutra (não crash)", () => {
+    const out = buildBriefingPdfBody({
+      structured: SAMPLE,
+      markdown: "# Briefing\n\nConteúdo sem seção de metodologia.",
+    });
+    expect(out).toContain("<h1>Metodologia</h1>");
+    expect(out).toContain("Metodologia indisponível para este diagnóstico.");
+    // não vaza o conteúdo bruto do markdown (que não é metodologia)
+    expect(out).not.toContain("Conteúdo sem seção de metodologia.");
   });
 });
 
