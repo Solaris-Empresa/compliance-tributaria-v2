@@ -10,6 +10,7 @@ import {
   buildBriefingPdfBody,
   buildStructuredSectionsHtml,
   markdownToHtml,
+  formatDiagnosticStatus,
 } from "./briefingPdfStructured";
 import type { BriefingStructuredData } from "./briefingAdapter";
 
@@ -133,6 +134,25 @@ describe("PDF-1 CT-3 — structured + markdown vazio → metodologia omitida", (
   it("markdown só com espaços também omite Metodologia", () => {
     const out = buildBriefingPdfBody({ structured: SAMPLE, markdown: "   \n  " });
     expect(out).not.toContain("<h1>Metodologia</h1>");
+  });
+});
+
+describe("formatDiagnosticStatus — header Escopo do Diagnóstico", () => {
+  it("parcial → hint de questionários pendentes", () => {
+    expect(formatDiagnosticStatus("parcial")).toBe("Parcial (questionários pendentes)");
+  });
+  it("demais status capitalizados, sem hint", () => {
+    expect(formatDiagnosticStatus("completo")).toBe("Completo");
+    expect(formatDiagnosticStatus("adequado")).toBe("Adequado");
+    expect(formatDiagnosticStatus("insuficiente")).toBe("Insuficiente");
+  });
+  it("null/undefined/vazio → 'não disponível'", () => {
+    expect(formatDiagnosticStatus(null)).toBe("não disponível");
+    expect(formatDiagnosticStatus(undefined)).toBe("não disponível");
+    expect(formatDiagnosticStatus("")).toBe("não disponível");
+  });
+  it("valor desconhecido → capitaliza primeira letra (fallback defensivo)", () => {
+    expect(formatDiagnosticStatus("desconhecido")).toBe("Desconhecido");
   });
 });
 

@@ -34,7 +34,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 // UX-BRIEFING-C-V2 PR-4 (F4): wiring do Split View gated pela flag de build
 // VITE_BRIEFING_UI_VERSION. Default = legacy para todos (produção inalterada).
 import { parseBriefingStructured } from "@/lib/briefingAdapter";
-import { buildBriefingPdfBody } from "@/lib/briefingPdfStructured";
+import { buildBriefingPdfBody, formatDiagnosticStatus } from "@/lib/briefingPdfStructured";
 import { DecisionPanel } from "@/components/briefing/DecisionPanel";
 import { GapCard } from "@/components/briefing/GapCard";
 import { PriorityCards } from "@/components/briefing/PriorityCards";
@@ -565,7 +565,7 @@ export default function BriefingV3() {
         <div class="scope-block">
           <h2>Escopo do Diagn\u00f3stico</h2>
           <table>
-            <tr><td>Status</td><td style="font-weight:600">${(project as any)?.diagnosticCompleteness?.status ?? 'n\u00e3o dispon\u00edvel'}</td></tr>
+            <tr><td>Status</td><td style="font-weight:600">${formatDiagnosticStatus((project as any)?.diagnosticCompleteness?.status)}</td></tr>
           </table>
         </div>
         <div class="content">${htmlContent}</div>
