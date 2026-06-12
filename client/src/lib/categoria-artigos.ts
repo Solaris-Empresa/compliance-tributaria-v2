@@ -14,6 +14,11 @@
  *   - regime_diferenciado Art. 258 → Art. 29
  *   - obrigacao_acessoria Art. 88 → Art. 102
  *
+ * LEGAL-2 (Issue #1373) corrigiu split_payment Art. 9 → Arts. 31-35:
+ *   - Art. 9 LC 214 = imunidades (templos, livros, ouro) — classe errada
+ *   - Arts. 31-35 = split payment (validação jurídica 20/05/2026)
+ *   - Alinha com risk_categories.normative_bundle (migration 0099)
+ *
  * Os valores corretos são derivados de:
  *   - DB `risk_categories.artigo_base` (fonte oficial)
  *   - Validação empírica P.O. em projeto #5580001 (2026-05-12)
@@ -25,7 +30,7 @@
 export const CATEGORIA_ARTIGOS: Readonly<Record<string, string>> = Object.freeze({
   imposto_seletivo: "Art. 393 LC 214/2025",
   confissao_automatica: "Art. 45 LC 214/2025",
-  split_payment: "Art. 9 LC 214/2025",
+  split_payment: "Arts. 31-35 LC 214/2025",
   inscricao_cadastral: "Art. 213 LC 214/2025",
   regime_diferenciado: "Art. 29 LC 214/2025",
   transicao_iss_ibs: "Arts. 6-12 LC 214/2025",
