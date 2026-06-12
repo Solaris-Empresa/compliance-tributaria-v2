@@ -63,15 +63,23 @@ const MARKDOWN =
 describe("PDF-1 CT-1 — híbrido: structured + metodologia", () => {
   const out = buildBriefingPdfBody({ structured: SAMPLE, markdown: MARKDOWN });
 
-  it("contém as seções structured (gaps, oportunidades, ações, recomendações)", () => {
+  it("contém as seções structured com rótulos da TELA (PDF-1-FIX paridade)", () => {
     expect(out).toContain("Principais Gaps (2)");
     expect(out).toContain("Ausência de inscrição cadastral atualizada");
     expect(out).toContain("Split payment não configurado");
     expect(out).toContain("Oportunidades (2)");
     expect(out).toContain("Crédito presumido Art. 168");
-    expect(out).toContain("Ações Prioritárias");
+    // top_3_acoes → "Top 3 Prioridades" (sidebar PriorityCards)
+    expect(out).toContain("Top 3 Prioridades");
     expect(out).toContain("Regularizar inscrição cadastral");
-    expect(out).toContain("Recomendações Prioritárias");
+    // recomendacoes_prioritarias → aba "Ações Prioritárias" (ActionsList)
+    expect(out).toContain("Ações Prioritárias");
+    expect(out).toContain("Atualizar cadastro");
+  });
+
+  it("ordem espelha a tela: Top 3 Prioridades antes de Gaps; Ações Prioritárias depois de Oportunidades", () => {
+    expect(out.indexOf("Top 3 Prioridades")).toBeLessThan(out.indexOf("Principais Gaps"));
+    expect(out.indexOf("Oportunidades (2)")).toBeLessThan(out.indexOf("Ações Prioritárias"));
   });
 
   it("contém a completude e o badge de ressalva <85%", () => {
