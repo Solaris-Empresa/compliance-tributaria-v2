@@ -20,6 +20,27 @@
 import { SOURCE_TYPE_LABELS } from "@shared/source-type-labels";
 import type { BriefingStructuredData } from "@/lib/briefingAdapter";
 
+/**
+ * formatDiagnosticStatus — rótulo amigável do `diagnosticCompleteness.status` no
+ * header "Escopo do Diagnóstico" do PDF. "parcial" ganha hint do que falta.
+ * Enum: insuficiente | parcial | adequado | completo (server/lib/completeness.ts).
+ */
+export function formatDiagnosticStatus(status: string | null | undefined): string {
+  if (!status) return "não disponível";
+  switch (status) {
+    case "parcial":
+      return "Parcial (questionários pendentes)";
+    case "insuficiente":
+      return "Insuficiente";
+    case "adequado":
+      return "Adequado";
+    case "completo":
+      return "Completo";
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+}
+
 /** Escapa caracteres HTML para texto vindo do LLM (structured path). */
 export function esc(s: string | null | undefined): string {
   if (s == null) return "";
