@@ -34,6 +34,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 // UX-BRIEFING-C-V2 PR-4 (F4): wiring do Split View gated pela flag de build
 // VITE_BRIEFING_UI_VERSION. Default = legacy para todos (produção inalterada).
 import { parseBriefingStructured } from "@/lib/briefingAdapter";
+import { buildBriefingPdfBody } from "@/lib/briefingPdfStructured";
 import { DecisionPanel } from "@/components/briefing/DecisionPanel";
 import { GapCard } from "@/components/briefing/GapCard";
 import { PriorityCards } from "@/components/briefing/PriorityCards";
@@ -517,16 +518,20 @@ export default function BriefingV3() {
           return `${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
         })()
       : null;
-    const htmlContent = content
-      .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-      .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-      .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/^- (.+)$/gm, "<li>$1</li>")
-      .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
-      .replace(/\n\n/g, "</p><p>")
-      .split("\n").map(line => line.startsWith("<") ? line : `<p>${line}</p>`).join("\n");
+    // PDF-1 (decisão P.O. híbrida 12/06/2026): em Split View, o PDF espelha a tela —
+    // seções structured (briefingStructured) + Metodologia (markdown). Fora do Split
+    // View (legacy ou structured null) → markdown puro (comportamento pré-fix).
+    const pdfStructured = parseBriefingStructured(
+      (project as any)?.briefingStructured
+    );
+    const briefingUiVersionPdf =
+      (import.meta.env.VITE_BRIEFING_UI_VERSION as string | undefined) ?? "";
+    const usePdfStructured =
+      pdfStructured.mode === "split-view" && briefingUiVersionPdf === "split";
+    const htmlContent = buildBriefingPdfBody({
+      structured: usePdfStructured ? pdfStructured.data : null,
+      markdown: content,
+    });
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
