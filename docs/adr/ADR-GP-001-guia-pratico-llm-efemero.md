@@ -22,7 +22,16 @@ A spec original (Manus v2.0, 04/06) tinha **12 imprecisões** vs codebase real (
 - **Validação:** `guiaPraticoResponseSchema` (AZ-01, `server/schemas/guia-pratico.schemas.ts`) — congelado antes do código.
 - **Frontend:** `GuiaPraticoButton.tsx` (TaskRow inline em `ActionPlanPage.tsx:207`, estado aprovado) + `GuiaPraticoModal.tsx` (**shadcn `Dialog`**, não `createPortal`). AbortController via **signal nativo tRPC v11**.
 - **PDF:** reusar **`generateDiagnosticoPDF.ts`** (jsPDF + autotable, já instalado). **NÃO** adicionar `html2canvas`. Carimbo data/hora obrigatório.
-- **Campo "setor":** `projects.businessType` (NÃO `setorAtuacao` — inexistente) — **condicional à query de cobertura** (ver Regras).
+- **Campo "setor": cascata de fallback 4 camadas** (T-6 fechado — P-6 root cause: `businessType` = 0% **na base de teste** [30 projetos "Projeto Teste - Planos por Ramo"]; projetos reais ainda não chegaram ao `plano_acao`. Não é campo morto — é vazio de transição).
+  ```sql
+  COALESCE(
+    NULLIF(p.businessType, ''),                 -- 1. businessType (~100% em projeto real)
+    p.companyProfile->>'$.companyType',          -- 2. companyType (enum: industria/comercio/servicos)
+    JSON_UNQUOTE(p.confirmedCnaes->>'$[0].description'), -- 3. 1º CNAE confirmado (descrição)
+    CONCAT(p.name, ' (', p.taxRegime, ')')       -- 4. name + taxRegime (garantido 100%)
+  ) AS setor_contexto
+  ```
+  **Regra de ouro:** o prompt deve funcionar com **apenas `name` + `taxRegime`** — o risco e a tarefa são a âncora; o perfil é contexto enriquecedor, não obrigatório. **Sem fallback condicional** (a cascata cobre 100% sempre).
 
 ### D-2 — Confiabilidade da feature: Opção (a) Ilustrativo Não-Vinculante
 
@@ -53,7 +62,7 @@ A spec original (Manus v2.0, 04/06) tinha **12 imprecisões** vs codebase real (
 - **`temperature ≤ 0.1`** (REGRA-ORQ-30) · **invokeLLM** (não openai direto).
 - **Disclaimer ilustrativo** presente em tela E PDF.
 - **Linguagem de prompt = best-effort**, nunca rotulada como garantia.
-- **businessType:** se `taxa_pct (status='aprovado') < 70%` → **fallback gracioso obrigatório** (banner não exibe campo em branco). Critério fechado pela query (Manus).
+- **Contexto de "setor":** cascata 4 camadas (`businessType` → `companyType` → CNAE[0] → `name+taxRegime`). **Nunca banner em branco** — a camada 4 é garantida 100%. O prompt deve funcionar só com `name+taxRegime`.
 
 ## Lei do produto (esta feature)
 
@@ -83,12 +92,13 @@ Erro inaceitável:  apresentar como parecer vinculante · publicProcedure · per
 - [ ] Determinístico (A2): schema, fallback, auth, join, assembly — Vitest verde.
 - [ ] **Smoke de qualidade pós-merge** (Nota 7, estilo FASE 6 do PDF-1): amostra de N projetos reais — verificar refs/ISS/coerência. **Gate de liberação**, não aspiração.
 - [ ] Disclaimer visível em tela e PDF.
-- [ ] businessType: taxa ≥70% (ou fallback implementado).
+- [ ] Cascata de "setor" 4 camadas implementada (banner nunca em branco; testar projeto com só `name+taxRegime`).
 - [ ] Zero persistência confirmada (B-07/B-08).
 
 ## Gating de F0
 
-Implementação (B-01→F-14) **só inicia** após: **este ADR aprovado P.O.** + **query businessType** (≥70% ou fallback definido) + **issue formal** + **OK P.O. explícito**.
+Implementação (B-01→F-14) **só inicia** após: **este ADR aprovado P.O.** + **issue formal** + **OK P.O. explícito**.
+(T-6 fechado: cascata 4 camadas decidida — sem dependência de query adicional.)
 
 ## Vinculadas
 
