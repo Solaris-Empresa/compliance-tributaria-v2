@@ -3227,10 +3227,10 @@ NÃO se aplica a:
 - REGRA-ORQ-27 (assemble ≠ consumption — pai conceitual: "registrar ≠ aplicar" é manifestação)
 - REGRA-ORQ-17 (PRE-CLOSE-CHECKLIST — gates de fechamento devem incluir "Lição com caso canônico real tem fix PR aberto?")
 
-## Lição #118 — Join path `tasks → risks_v4` é SEMPRE mediado por `action_plans`
+## Lição #120 — Join path `tasks → risks_v4` é SEMPRE mediado por `action_plans`
 
 **Data:** 2026-06-13 | **Origem:** BUG-GUIA-SQL-01 (PR #1409, FEAT-GUIA-PRÁTICO)
-**Nota de numeração:** o despacho original sugeriu "#120"; o último registro era #117 e #118/#119 estavam livres em `governance.md` — registrado como **#118** (próximo contíguo, convenção de numeração sequencial; ver observação operacional sob REGRA-ORQ-32).
+**Nota de numeração:** registrada como **#120** por decisão do P.O. — #118 e #119 estão reservados para lições pendentes (Manus). O último registro contíguo neste arquivo é #117.
 
 ### Regra
 
