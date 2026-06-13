@@ -45,6 +45,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { generateDiagnosticoPDF } from "@/lib/generateDiagnosticoPDF";
+import { GuiaPraticoButton } from "@/components/GuiaPraticoButton";
+import { GuiaPraticoModal } from "@/components/GuiaPraticoModal";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -199,14 +201,16 @@ interface TaskRowProps {
     data_fim?: string | Date | null;
   };
   locked: boolean;
+  projectId: number;
   onStatusChange: (taskId: string, status: string) => void;
   onDelete: (taskId: string, reason: string) => void;
   onEdit?: (task: TaskRowProps["task"]) => void;
 }
 
-function TaskRow({ task, locked, onStatusChange, onDelete, onEdit }: TaskRowProps) {
+function TaskRow({ task, locked, projectId, onStatusChange, onDelete, onEdit }: TaskRowProps) {
   const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
+  const [guiaOpen, setGuiaOpen] = useState(false);
 
   const NEXT_STATUS: Record<string, string> = {
     todo: "doing",
@@ -294,6 +298,18 @@ function TaskRow({ task, locked, onStatusChange, onDelete, onEdit }: TaskRowProp
         >
           <Trash2 className="h-3 w-3" />
         </Button>
+      )}
+
+      {/* FEAT-GUIA-PRÁTICO (F-02) — só em tarefa liberada */}
+      {!locked && <GuiaPraticoButton onClick={() => setGuiaOpen(true)} />}
+      {!locked && guiaOpen && (
+        <GuiaPraticoModal
+          open={guiaOpen}
+          onOpenChange={setGuiaOpen}
+          taskId={task.id}
+          projectId={projectId}
+          taskTitulo={task.titulo}
+        />
       )}
 
       {/* Modal excluir tarefa (#615) */}
@@ -718,6 +734,7 @@ function ActionPlanCard({ plan, canApprove, onApprove, onDelete, onEdit }: Actio
                 key={task.id}
                 task={task}
                 locked={isLocked}
+                projectId={plan.project_id}
                 onStatusChange={(taskId, status) =>
                   updateTaskMutation.mutate({
                     projectId: plan.project_id,
