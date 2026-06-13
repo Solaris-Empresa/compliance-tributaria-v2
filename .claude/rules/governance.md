@@ -3226,3 +3226,43 @@ NÃO se aplica a:
 - BUG-PAYLOAD-CPF (PR #1314, 22:10 BRT — fix tardio que motivou esta Lição)
 - REGRA-ORQ-27 (assemble ≠ consumption — pai conceitual: "registrar ≠ aplicar" é manifestação)
 - REGRA-ORQ-17 (PRE-CLOSE-CHECKLIST — gates de fechamento devem incluir "Lição com caso canônico real tem fix PR aberto?")
+
+## Lição #118 — Join path `tasks → risks_v4` é SEMPRE mediado por `action_plans`
+
+**Data:** 2026-06-13 | **Origem:** BUG-GUIA-SQL-01 (PR #1409, FEAT-GUIA-PRÁTICO)
+**Nota de numeração:** o despacho original sugeriu "#120"; o último registro era #117 e #118/#119 estavam livres em `governance.md` — registrado como **#118** (próximo contíguo, convenção de numeração sequencial; ver observação operacional sob REGRA-ORQ-32).
+
+### Regra
+
+A tabela `tasks` **não tem coluna `risk_id`**. O vínculo tarefa→risco é **sempre** mediado por `action_plans`:
+
+```
+tasks.action_plan_id → action_plans.id → action_plans.risk_id → risks_v4.id
+```
+
+Qualquer query que precise do risco a partir de uma task DEVE usar o join de 2 saltos:
+
+```sql
+FROM tasks t
+JOIN action_plans ap ON t.action_plan_id = ap.id
+JOIN risks_v4 r ON ap.risk_id = r.id
+```
+
+O join direto `JOIN risks_v4 r ON t.risk_id = r.id` é **impossível de satisfazer** (coluna inexistente) → retorna 0 linhas → `NOT_FOUND` silencioso.
+
+### Caso canônico
+
+`guiaPratico.gerar` (`server/routers/guia-pratico.ts:128`) usava `JOIN risks_v4 r ON t.risk_id = r.id` → toda geração de guia falhava com `NOT_FOUND`. Fix (PR #1409): trocar pelo join mediado por `action_plans`.
+
+O path correto é o mesmo já usado em `server/lib/db-queries-risks-v4.ts:302` (cascade delete `INNER JOIN action_plans ap ON t.action_plan_id = ap.id`) e confirmado pelo `INSERT action_plans (id, project_id, risk_id, …)` em `:407`.
+
+### Aplicação prospectiva
+
+Antes de escrever qualquer join `tasks ↔ risks_v4`, verificar o schema real (`drizzle/schema.ts` — `tasks` tem `action_plan_id`, não `risk_id`). Não inferir a coluna pelo nome esperado.
+
+### Vinculadas
+
+- REGRA-ORQ-35 (NUNCA ASSUMA — verificar schema antes de escrever a query)
+- Gate 0 (verificação de schema obrigatória antes de tocar banco)
+- Lição #65 (rastrear writers/readers end-to-end) · Lição #93 (mecanismo verificado, não inferido)
+- BUG-GUIA-SQL-01 / PR #1409 (caso canônico) · `server/lib/db-queries-risks-v4.ts:302/407` (path correto de referência)

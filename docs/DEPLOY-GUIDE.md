@@ -117,6 +117,9 @@ Se um deploy introduzir um bug crítico em produção:
 | `NODE_ENV` | Auto | `"production"` | Definido automaticamente pela plataforma |
 | `DATABASE_URL` | Auto | — | Injetado automaticamente pela plataforma |
 | `JWT_SECRET` | Auto | — | Injetado automaticamente pela plataforma |
+| `VITE_BRIEFING_UI_VERSION` | Opcional (build-time) | _ausente/vazio_ | UI do Briefing. **Ausente ou vazio → Split View ON** (default, FLAG-DEFAULT-SPLIT #1398). Único opt-out: `"legacy"` → volta à Legacy. É lida em build-time (`import.meta.env`) — exige **rebuild** para ter efeito. |
+
+> **VITE_BRIEFING_UI_VERSION — Split View é o default.** Desde #1398 (FLAG-DEFAULT-SPLIT) o Split View do Briefing fica ON quando o secret está **ausente ou vazio** — não é mais preciso defini-lo para habilitar. Para forçar a UI antiga, definir `VITE_BRIEFING_UI_VERSION=legacy` e **rebuildar** (variáveis `VITE_*` são embutidas no bundle em build-time, não em runtime). Aplica-se à tela E ao PDF (ambos os gates em `BriefingV3.tsx` usam `!== "legacy"`).
 
 Configure variáveis no painel: **Settings → Secrets**.
 
