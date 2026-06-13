@@ -93,7 +93,10 @@ export function DecisionPanel({ result }: { result: BriefingAdapterResult }) {
           {[
             { label: "Gaps", value: d.principais_gaps.length },
             { label: "Oportunidades", value: d.oportunidades.length },
-            { label: "Ações", value: d.top_3_acoes.length },
+            // CALC-2: stat "Ações Prioritárias" conta recomendacoes_prioritarias
+            // (mesma fonte da aba "Ações Prioritárias"/ActionsList). Antes contava
+            // top_3_acoes, divergindo da aba (ex.: 3 vs 5 no projeto 7230001).
+            { label: "Ações Prioritárias", value: d.recomendacoes_prioritarias.length },
             { label: "Inconsistências", value: d.inconsistencias.length },
           ].map(c => (
             <div key={c.label} className="rounded-md bg-muted/50 py-1.5">
