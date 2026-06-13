@@ -32,8 +32,10 @@ export const guiaPraticoTagTipo = z.enum([
 // ─── Input do procedure (request) ────────────────────────────────────────────
 // taskId/projectId: identidade. detalhamento/nivelTecnico: personalização (UI).
 // contextoAdicional: textarea do usuário (≤500). Defaults = "normal".
+// BUG-CONTRACT-01: tasks.id é UUID string (insertTaskV4 usa uuidv4) — NÃO number.
+// projects.id é int. taskId string casa o WHERE t.id no router.
 export const guiaPraticoInputSchema = z.object({
-  taskId: z.number().int(),
+  taskId: z.string().min(1),
   projectId: z.number().int(),
   detalhamento: z.enum(["resumido", "normal", "detalhado"]).default("normal"),
   nivelTecnico: z.enum(["simples", "normal", "especialista"]).default("normal"),
