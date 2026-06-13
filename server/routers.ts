@@ -81,6 +81,7 @@ import { taskboardRouter } from "./routers/taskboard"; // Sprint K — Taskboard
 import { solarisAdminRouter } from "./routers/solarisAdmin"; // Sprint L — DEC-002 Upload CSV Perguntas SOLARIS (Issue #191)
 import { solarisObjetivoRouter } from "./routers/solaris-objetivo"; // FEAT-SOL-UX-01 PR-B3 — Card "Objetivo desta pergunta" (LLM, sem cache)
 import { risksV4Router } from "./routers/risks-v4"; // Sprint Z-07 PR #C — engine determinístico (ADR-0022)
+import { guiaPraticoRouter } from "./routers/guia-pratico"; // FEAT-GUIA-PRÁTICO — modal IA read-only (ADR-GP-001)
 import { adminCategoriesRouter } from "./routers/adminCategoriesRouter"; // Sprint Z-09 — Categorias configuráveis RAG sensor (ADR-0025)
 import { complianceRouter } from "./routers/complianceRouter"; // Sprint Z-22 — CPIE v3 Dashboard on-demand (#725)
 import { m1MonitorRouter } from "./routers-m1-monitor"; // M1 — Runner v3 deploy controlado (feat/m1-archetype-runner-v3)
@@ -134,6 +135,7 @@ export const appRouter = router({
   solarisAdmin: solarisAdminRouter, // Sprint L — DEC-002 Upload CSV Perguntas SOLARIS (Issue #191)
   solarisObjetivo: solarisObjetivoRouter, // FEAT-SOL-UX-01 PR-B3 — Card "Objetivo desta pergunta"
   risksV4: risksV4Router, // Sprint Z-07 — Sistema de Riscos v4 (ADR-0022)
+  guiaPratico: guiaPraticoRouter, // FEAT-GUIA-PRÁTICO — modal IA read-only (ADR-GP-001)
   adminCategories: adminCategoriesRouter, // Sprint Z-09 — Categorias configuráveis RAG sensor (ADR-0025)
   compliance: complianceRouter, // Sprint Z-22 — CPIE v3 Dashboard on-demand (#725)
   m1Monitor: m1MonitorRouter, // M1 — Runner v3 deploy controlado (flag m1-archetype-enabled)
