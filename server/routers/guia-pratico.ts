@@ -125,7 +125,8 @@ export const guiaPraticoRouter = router({
                r.categoria, r.titulo AS risco_titulo, r.artigo,
                r.descricao AS risco_descricao, r.source_priority
         FROM tasks t
-        JOIN risks_v4 r ON t.risk_id = r.id
+        JOIN action_plans ap ON t.action_plan_id = ap.id
+        JOIN risks_v4 r ON ap.risk_id = r.id
         WHERE t.id = ${input.taskId} AND t.project_id = ${input.projectId}
         LIMIT 1
       `);
