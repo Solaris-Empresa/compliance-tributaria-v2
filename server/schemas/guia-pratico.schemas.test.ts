@@ -79,25 +79,34 @@ describe("A2 — guiaPraticoPassoSchema (bounds de campo)", () => {
 });
 
 describe("A2 — guiaPraticoInputSchema (request + defaults)", () => {
+  // BUG-CONTRACT-01: taskId é UUID string (tasks.id), projectId é int.
+  const TASK_ID = "a1b2c3d4-0000-0000-0000-000000000001";
+
   it("aplica defaults 'normal' quando ausentes", () => {
-    const r = guiaPraticoInputSchema.parse({ taskId: 1, projectId: 2 });
+    const r = guiaPraticoInputSchema.parse({ taskId: TASK_ID, projectId: 2 });
     expect(r.detalhamento).toBe("normal");
     expect(r.nivelTecnico).toBe("normal");
   });
 
   it("rejeita contextoAdicional > 500 chars", () => {
     expect(
-      guiaPraticoInputSchema.safeParse({ taskId: 1, projectId: 2, contextoAdicional: "x".repeat(501) }).success,
+      guiaPraticoInputSchema.safeParse({ taskId: TASK_ID, projectId: 2, contextoAdicional: "x".repeat(501) }).success,
     ).toBe(false);
   });
 
   it("rejeita enums inválidos de detalhamento/nivelTecnico", () => {
-    expect(guiaPraticoInputSchema.safeParse({ taskId: 1, projectId: 2, detalhamento: "max" }).success).toBe(false);
-    expect(guiaPraticoInputSchema.safeParse({ taskId: 1, projectId: 2, nivelTecnico: "guru" }).success).toBe(false);
+    expect(guiaPraticoInputSchema.safeParse({ taskId: TASK_ID, projectId: 2, detalhamento: "max" }).success).toBe(false);
+    expect(guiaPraticoInputSchema.safeParse({ taskId: TASK_ID, projectId: 2, nivelTecnico: "guru" }).success).toBe(false);
   });
 
-  it("rejeita taskId/projectId não-inteiros", () => {
-    expect(guiaPraticoInputSchema.safeParse({ taskId: 1.5, projectId: 2 }).success).toBe(false);
+  it("taskId: string UUID válido; rejeita number e vazio (BUG-CONTRACT-01)", () => {
+    expect(guiaPraticoInputSchema.safeParse({ taskId: TASK_ID, projectId: 2 }).success).toBe(true);
+    expect(guiaPraticoInputSchema.safeParse({ taskId: 123 as any, projectId: 2 }).success).toBe(false); // number proibido
+    expect(guiaPraticoInputSchema.safeParse({ taskId: "", projectId: 2 }).success).toBe(false); // vazio (min 1)
+  });
+
+  it("rejeita projectId não-inteiro", () => {
+    expect(guiaPraticoInputSchema.safeParse({ taskId: TASK_ID, projectId: 1.5 }).success).toBe(false);
   });
 });
 
