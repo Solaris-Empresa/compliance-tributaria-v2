@@ -3,6 +3,33 @@
 > **v7.67 · 2026-05-12 (Sprint P2 ENCERRADA — HEAD `14d70a4` · 11 PRs mergeados · E2E #5490001 🟢 confirmado P.O. 2026-05-11 · QCNAE/IS/badges/payload todos validados · próxima: curadoria corpus setorial Capítulo 23)**
 > **Predecessor:** v7.65 · 2026-05-05 (Encerramento sessão M3.10 — HEAD `5725a89`)
 
+## Sessão 2026-06-14 — SPEC-FIRST v1.2 + GATE-NCM-NBS #1219 (proposta Claude Code · Manus finaliza versão + ORQ-19)
+
+> **Nota RACI:** entrada proposta pelo Claude Code no fechamento da sessão. **Versão final, número de audit e bump do header a cargo do Manus.** O header acima (v7.67) **não** foi bumpado por mim. Audits propostos arquivados: **v7.74** (SPEC-FIRST) e **v7.75** (#1219). HEAD main pós-sessão: `ca130fb6`.
+
+**HEAD main:** `ca130fb6` — sincronizado via R-SYNC-01.
+
+### Entregue nesta sessão (2 frentes · 9 PRs mergeados)
+
+**Frente A — SOLARIS-SPEC-FIRST v1.2 (governança)** — audit v7.74:
+- **REGRA-ORQ-43** (índice SPEC-FIRST: consolida ORQ-24/28/33/41 + `sprint-issue.md`) · **REGRA-ORQ-44** (DoD negativo por consumer crítico) · **Lição #121** (metodologia existia fragmentada) · **Lição #122** (review de PR de governança = Approve no GitHub, não chat).
+- Skill `impact-tree` ganhou inventário explícito de consumers/producers; `spec_bug.yml` (issue form ORQ-28). Gate 0 colapsou o plano de 3 PRs para 2 (PR-GOV-3/spec_feature redundantes).
+- PRs: #1414 (ORQ-43/44 + #121) · #1416 (skill + spec_bug) · #1418 (AS-IS/TO-BE v5) · #1420 (ORQ-19 v7.74 + #122).
+
+**Frente B — GATE-NCM-NBS #1219 (resolver cascata grupo/específico)** — audit v7.75 · **#827 CLOSED**:
+- Demanda Dr. José: aceitar **grupos** NCM/NBS além do código específico. 6 fases (F0-F5), todas MERGED.
+- F0 ADR-0035 (#1422 `20c3b497`) · F1 7 gates UX + badge + reversão #859 (#1424 `e716fd2b`, smoke 6/6) · F2 `ncm-nbs-resolver.ts` (#1426 `0577966b`) · F5 curadoria grupos 30 NCM/27 NBS (#1428 `991efe8a`) · F3 4 matchers + fecha #827 (#1429 `bc94f910`) · F4 DoD negativo 7 contratos (#1431 `332354a9`).
+- **Veredito dual:** Implementação 🟢 · Ativação 🟡 (feature **gated por `ENABLE_NCM_RESOLVER` default off** — zero regressão; smoke R2 prod pós-flip = decisão P.O.).
+- Lição #123 (hotfix anti-truncado vs feature de granularidade variável). Gate 0 interceptou 6 desvios de premissa (path, 6-vs-7 gates, sync/async, F5 juridical, resolved_code, Lição #92).
+
+### Tech-debt declarado (backlog)
+F3.1 (`deriveObjetoFromNbs`→resolver, ripple async) · calibração confidence (R4) · ativação `ENABLE_NCM_RESOLVER` + smoke R2 · benefício de grupos 8436/2306/2304/1006 (validação Dr. José — REGRA-ORQ-29; F5 só seedou `*_pendente`) · #1043 (ci-hygiene TS+Vitest infra).
+
+### Pendente (P.O.)
+Veredito final → **fechar #1219**. Quando decidir ativar: flip `ENABLE_NCM_RESOLVER=true` → Manus smoke R2 (S1-S4) em prod.
+
+---
+
 ## Sessão 2026-05-27 → 2026-05-28 — Campanha NCM 2700001 + DIAG-COVERAGE-03 (proposta Claude Code · Manus finaliza versão + ORQ-19)
 
 > **Nota RACI:** entrada proposta pelo Claude Code no fechamento da sessão. **Versão final (vX.XX), número de audit e arquivamento ORQ-19 a cargo do Manus.** O header acima (v7.67) **não** foi bumpado por mim. Audit proposto: **v7.70**, arquivado em `docs/governance/audits/v7.70-2026-05-28-campanha-ncm-diag-cobertura.md`.
