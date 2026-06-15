@@ -20,6 +20,9 @@ Script: `./scripts/gate-adr.sh` verifica automaticamente a consistência.
 | ADR-0017 | `ADR-0017-aviso-ncm-nbs-ausente.md` | Aviso de Diagnóstico Genérico quando NCM/NBS Ausente | Aceito | 2026-04-08 | Fix-Legacy-02 |
 | ADR-0018 | `ADR-0018-context-injection-briefing.md` | Context Injection no Briefing — IS + Art. 2 + alíquota zero + Art. 14 | Aceito | 2026-04-08 | Sprint Z (Gate B) |
 | ADR-0020 | `ADR-0020-schema-drift-0063.md` | Schema Drift 0063 — migration acumulada, não re-executar | Aceito | 2026-04-08 | Sprint Z (Gate B) |
+| ADR-0035 | `ADR-0035-ncm-nbs-resolver-cascata.md` | Resolver NCM/NBS em cascata (ponto único de decisão) | Proposto | 2026-06-14 | GATE-NCM-NBS #1219 |
+
+> ⚠️ Índice incompleto: ADR-0022/0025/0029/0030/0032/0033/0034 existem em `docs/adr/` mas não foram retro-adicionados a esta tabela (backfill pendente — fora do escopo do F0 #1219).
 
 ---
 
