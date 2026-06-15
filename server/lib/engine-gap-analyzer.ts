@@ -25,6 +25,8 @@
 import mysql from 'mysql2/promise';
 import { lookupNcm } from './decision-kernel/engine/ncm-engine';
 import { lookupNbs } from './decision-kernel/engine/nbs-engine';
+// GATE-NCM-NBS #1219 F3 (M1/M2) — resolver central (cascata grupo→específico).
+import { resolveNcm, resolveNbs, isNcmResolverEnabled, type NcmNbsResolution } from './ncm-nbs-resolver';
 
 // ─── Tipos internos ───────────────────────────────────────────────────────────
 
@@ -49,6 +51,31 @@ function buildGapDescription(codigo: string, regime: string, descricao: string):
 
 function buildSourceReference(lei: string, artigo: string): string {
   return `${lei} Art. ${artigo}`.substring(0, 300);
+}
+
+// ─── #1219 F3 (M1/M2) — adaptador resolução → shape mínimo do lookup ──────────
+// Campos usados pelos laços (lookupNcm/lookupNbs são estruturalmente compatíveis).
+interface EngineLookupResult {
+  regime: string;
+  descricao: string;
+  confianca: { valor: number; tipo: string };
+  fonte: { lei: string; artigo: string };
+  nota?: string;
+}
+
+/**
+ * Quando o resolver (normative_rules, com grupos curados em F5) casa um código,
+ * o regime vem do resolver — NÃO do Decision Kernel dataset (exact-only, sem
+ * grupos). Constrói o resultado a partir da resolução. confianca.tipo = nível
+ * de resolução (≠ 'fallback') → não é pulado pelo gate de fallback dos laços.
+ */
+function resolveToLookupResult(res: NcmNbsResolution): EngineLookupResult {
+  return {
+    regime: res.regime,
+    descricao: `Resolução ${res.resolution_level} (${res.resolved_code}) via normative_rules — resolver #1219/ADR-0035`,
+    confianca: { valor: Math.round(res.confidence * 100), tipo: res.resolution_level },
+    fonte: { lei: 'LC 214/2025', artigo: `regime ${res.regime}` },
+  };
 }
 
 // ─── Função principal ─────────────────────────────────────────────────────────
@@ -77,7 +104,18 @@ export async function analyzeEngineGaps(
 
     // ── 1. Processar NCM ──────────────────────────────────────────────────
     for (const codigo of ncmCodes) {
-      const result = lookupNcm({ codigo, sistema: 'NCM' });
+      // #1219 F3 (M1): resolver ON → usa regime do resolver (grupo/específico);
+      // se fallback OU flag OFF → comportamento atual (Decision Kernel dataset).
+      let result: EngineLookupResult;
+      if (isNcmResolverEnabled()) {
+        const res = await resolveNcm(codigo);
+        result =
+          res.resolution_level !== 'fallback'
+            ? resolveToLookupResult(res)
+            : lookupNcm({ codigo, sistema: 'NCM' });
+      } else {
+        result = lookupNcm({ codigo, sistema: 'NCM' });
+      }
 
       // pending_validation → NÃO grava (regra obrigatória)
       if (result.confianca.tipo === 'fallback' && result.nota?.includes('pendente de validação')) {
@@ -108,7 +146,17 @@ export async function analyzeEngineGaps(
 
     // ── 2. Processar NBS ──────────────────────────────────────────────────
     for (const codigo of nbsCodes) {
-      const result = lookupNbs({ codigo, sistema: 'NBS' });
+      // #1219 F3 (M2): resolver ON → usa regime do resolver; fallback/flag OFF → atual.
+      let result: EngineLookupResult;
+      if (isNcmResolverEnabled()) {
+        const res = await resolveNbs(codigo);
+        result =
+          res.resolution_level !== 'fallback'
+            ? resolveToLookupResult(res)
+            : lookupNbs({ codigo, sistema: 'NBS' });
+      } else {
+        result = lookupNbs({ codigo, sistema: 'NBS' });
+      }
 
       // fallback (código desconhecido ou pending) → não grava
       if (result.confianca.tipo === 'fallback') {
