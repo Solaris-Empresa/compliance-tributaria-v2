@@ -16,6 +16,9 @@ import {
   deduplicateById,
 } from "./tracked-question";
 import { queryRag } from "./rag-query";
+// #1219 F6 (#1436) — query RAG group-aware (flag-gated).
+import { isNcmResolverEnabled, resolveNbs } from "./ncm-nbs-resolver";
+import { buildNbsQueryContext } from "./ncm-chapter-context";
 import { querySolarisByCnaes } from "./solaris-query";
 import { inferCompanyType } from "./completeness";
 
@@ -73,9 +76,18 @@ export async function generateServiceQuestions(
 
   // ─── Perguntas RAG por NBS ────────────────────────────────────────────────
   for (const nbs of nbsCodes) {
-    const contextQuery = archetypeContext
-      ? `IBS CBS alíquota serviço NBS ${nbs} reforma tributária ${archetypeContext}`
-      : `IBS CBS alíquota serviço NBS ${nbs} reforma tributária`;
+    // #1219 F6 (#1436): resolver ON → query enriquecida com termos do setor
+    // (divisão NBS) para grupos; flag OFF → query legada (zero regressão).
+    let contextQuery: string;
+    if (isNcmResolverEnabled()) {
+      const resolution = await resolveNbs(nbs);
+      const enriched = buildNbsQueryContext(resolution.resolved_code, resolution.regime);
+      contextQuery = archetypeContext ? `${enriched} ${archetypeContext}` : enriched;
+    } else {
+      contextQuery = archetypeContext
+        ? `IBS CBS alíquota serviço NBS ${nbs} reforma tributária ${archetypeContext}`
+        : `IBS CBS alíquota serviço NBS ${nbs} reforma tributária`;
+    }
     let chunks: RagChunk[] = [];
     try {
       // M3.6 (Issue #932) — whitelist Q.NBS limita RAG a LC 214/2025 e LC 227/2026

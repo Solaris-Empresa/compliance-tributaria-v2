@@ -17,6 +17,9 @@ import {
 } from "./tracked-question";
 import { queryRag } from "./rag-query";
 import { querySolarisByCnaes } from "./solaris-query";
+// #1219 F6 (#1436) — query RAG group-aware (flag-gated).
+import { isNcmResolverEnabled, resolveNcm } from "./ncm-nbs-resolver";
+import { buildNcmQueryContext } from "./ncm-chapter-context";
 import { inferCompanyType } from "./completeness";
 import { isSetorialArtigo } from "../rag-retriever";
 import { fetchArt197Chunks, shouldInjectArt197 } from "./art197-injection";
@@ -75,9 +78,19 @@ export async function generateProductQuestions(
   // corpus_gap_setorial ANTES de invocar LLM (REGRA-ORQ-31 meta 98%).
   const ragChunksByNcm: Array<{ ncm: string; chunk: RagChunk }> = [];
   for (const ncm of ncmCodes) {
-    const contextQuery = archetypeContext
-      ? `IBS CBS alíquota produto NCM ${ncm} reforma tributária ${archetypeContext}`
-      : `IBS CBS alíquota produto NCM ${ncm} reforma tributária`;
+    // #1219 F6 (#1436): resolver ON → query enriquecida com termos do setor
+    // (capítulo) para grupos NCM; flag OFF → query legada (zero regressão).
+    // resolveNcm é async — estamos em contexto async (generateProductQuestions).
+    let contextQuery: string;
+    if (isNcmResolverEnabled()) {
+      const resolution = await resolveNcm(ncm);
+      const enriched = buildNcmQueryContext(resolution.resolved_code, resolution.regime);
+      contextQuery = archetypeContext ? `${enriched} ${archetypeContext}` : enriched;
+    } else {
+      contextQuery = archetypeContext
+        ? `IBS CBS alíquota produto NCM ${ncm} reforma tributária ${archetypeContext}`
+        : `IBS CBS alíquota produto NCM ${ncm} reforma tributária`;
+    }
     let chunks: RagChunk[] = [];
     try {
       // Issue #997: skipSetorialPass quando archetype ausente (backward-compat).
