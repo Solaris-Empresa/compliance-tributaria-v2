@@ -102,14 +102,15 @@ describe("Hotfix P0 — Input Gate M1 (NCM)", () => {
     ).not.toThrow();
   });
 
-  it("Operação Produção própria com NCM truncado '1201' bloqueia (Decisão C3: formato)", () => {
+  // Reversão #859 por ADR-0035 / #1219 F1: "1201" (4 díg.) = grupo válido (posição NCM).
+  it("Operação Produção própria com NCM grupo '1201' (4 díg.) passa — reversão #859/#1219", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "0115-6/00",
         natureza_operacao_principal: ["Produção própria"],
         ncms_principais: ["1201"],
       }),
-    ).toThrow(/NCM_INVALID_FORMAT/);
+    ).not.toThrow();
   });
 
   it("Operação Comércio com NCM sem pontos '12019000' bloqueia", () => {

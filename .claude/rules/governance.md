@@ -3381,3 +3381,25 @@ Os 3 PRs eram **docs-only** (zero código de produção), P.O. presente na sess�
 
 - REGRA-ORQ-33 (RACI — Manus é o Validador) · Lição #87 (smoke estático ≠ consumo / claim ≠ evidência) · REGRA-ORQ-25 (report deve espelhar estado source-controlled)
 - Caso canônico: PRs #1414/#1416/#1418 (14/06/2026) · auditoria `docs/governance/audits/v7.74-2026-06-14-sessao-spec-first-v1.2.md`
+
+## Lição #123 — Hotfix anti-truncado pode conflitar com feature de granularidade variável
+
+**Origem:** GATE-NCM-NBS #1219 F1 (14/06/2026) — conflito entre aceitar grupo NCM/NBS e o hotfix #859
+
+### Texto
+
+Um hotfix que **rejeita** um formato "incompleto" como erro (ex: #859, 2026-04-28: NCM `"1201"` de 4 díg. = "truncado inválido") pode **conflitar diretamente** com uma feature futura que torna esse mesmo formato **válido** (ex: #1219/ADR-0035: `"1201"` = grupo/posição NCM). Ao aceitar **granularidade variável** de um identificador, é obrigatório:
+
+1. **Grep das suites do hotfix anterior** antes de relaxar a validação (`grep -rn "<exemplo>" --include="*.test.ts"`). No caso, `"1201"` aparecia como exemplo canônico de rejeição em **5 suites** (`hotfix-suite-ncm-truncado`, `hotfix-p0-input-gate`, `m2-integration`, `perfil-router`, `ConfirmacaoPerfil.test`).
+2. **Surgir o conflito ao P.O.** (decisão Nível 1 — REGRA-ORQ-22), não flipar testes unilateralmente. A reversão de um hotfix P0 é decisão de produto.
+3. **Documentar a reversão no código** (`// Reversão intencional de #859 por ADR-0035/#1219`) e preservar os demais casos do hotfix que continuam válidos (`12.01`, `1201.90`, `12019000` seguem rejeitados — só o 4-díg. puro flipou).
+4. **Mitigar o risco residual**: input ambíguo (`"1201"` = grupo OU início truncado de `1201.90.00`) é resolvido pelo resolver com `resolution_level='group'` + confiança reduzida + badge "grupo" visível — o sistema não silencia, sinaliza a interpretação.
+
+### Caso canônico
+
+#1219 F1: aceitar `^\d{4}$` (grupo NCM) reverteu #859. P.O. decidiu (Opção A) reverter, com nota no código + esta lição. Os 7 gates de validação foram relaxados (4 NCM + 3 NBS — o despacho listava 6; Gate 0 achou 7, Lição #74).
+
+### Vinculadas
+
+- REGRA-ORQ-22 (crítica Nível 1 ao P.O.) · REGRA-ORQ-35 (NUNCA ASSUMA) · Lição #74 (fix downstream incompleto / gates não rastreados) · Lição #114 (verificar premissa do despacho contra código)
+- ADR-0035 (resolver cascata) · hotfix #859 (PR — anti-truncado revertido parcialmente) · #1219 F1 / PR #1424

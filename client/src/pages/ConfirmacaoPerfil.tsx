@@ -488,8 +488,10 @@ export function isNbsInNcmField(value: string): boolean {
 }
 
 /**
- * G-A10 fix: validação de formato NCM (regex 8 dígitos com pontos)
+ * G-A10 fix + GATE-NCM-NBS #1219 F1: aceita grupo (4 díg. = posição NCM) OU
+ * código específico (8 díg. com pontos). Princípio ADR-0035: armazena específico,
+ * decide pelo grupo.
  */
 export function isValidNcmFormat(value: string): boolean {
-  return /^\d{4}\.\d{2}\.\d{2}$/.test(value.trim());
+  return /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/.test(value.trim());
 }
