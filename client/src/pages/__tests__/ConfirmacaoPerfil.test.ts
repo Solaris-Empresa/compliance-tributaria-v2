@@ -201,8 +201,8 @@ describe("G-A10 (PR-C) — validação inline NCM/NBS", () => {
     expect(isValidNcmFormat("1201.90.00")).toBe(true);
   });
 
-  it("T30: isValidNcmFormat rejeita NCM truncado '1201'", () => {
-    expect(isValidNcmFormat("1201")).toBe(false);
+  it("T30: isValidNcmFormat aceita grupo '1201' (4 díg. = posição) — reversão #859 por #1219/ADR-0035", () => {
+    expect(isValidNcmFormat("1201")).toBe(true);
   });
 
   it("T31: isValidNcmFormat rejeita formato inválido '12019000'", () => {

@@ -125,8 +125,9 @@ const NATUREZA_OPTIONS = [
 // Decisão P.O. C3: P0 valida formato apenas (regex); existência no dataset = P1
 
 const CNAE_REGEX = /^\d{4}-\d\/\d{2}$/;
-const NCM_REGEX = /^\d{4}\.\d{2}\.\d{2}$/;
-const NBS_REGEX = /^\d\.\d{4}\.\d{2}\.\d{2}$/;
+// GATE-NCM-NBS #1219 F1: grupo (NCM 4 díg. / NBS subposição 1.XXXX) OU específico (ADR-0035)
+const NCM_REGEX = /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/;
+const NBS_REGEX = /^\d\.\d{4}$|^\d\.\d{4}\.\d{2}\.\d{2}$/;
 
 const NATUREZA_TO_TIPO: Record<string, string[]> = {
   "Produção própria": ["Bens/mercadorias"],

@@ -17,8 +17,10 @@ describe("Hotfix Suite — NCM truncado rejeitado pelo gate de input (PR #859)",
     nbss_principais: [],
   };
 
+  // Reversão intencional de #859 por ADR-0035 / #1219 F1: "1201" (4 díg. puro)
+  // deixou de ser "truncado inválido" e passou a ser GRUPO válido (posição NCM).
+  // Os demais formatos abaixo continuam inválidos (não são nem grupo nem específico).
   const truncadoExamples = [
-    "1201", // 4 dígitos
     "12.01", // 4 dígitos com ponto
     "1201.90", // 6 dígitos
     "12019000", // 8 dígitos sem pontos
@@ -38,6 +40,13 @@ describe("Hotfix Suite — NCM truncado rejeitado pelo gate de input (PR #859)",
   it("NCM completo '1201.90.00' passa", () => {
     expect(() =>
       validateM1Seed({ ...baseSeed, ncms_principais: ["1201.90.00"] }),
+    ).not.toThrow();
+  });
+
+  // #1219 F1 — reversão #859: grupo NCM (4 díg. = posição) agora é válido.
+  it("NCM grupo '1201' (4 díg. = posição) passa — reversão #859 por #1219/ADR-0035", () => {
+    expect(() =>
+      validateM1Seed({ ...baseSeed, ncms_principais: ["1201"] }),
     ).not.toThrow();
   });
 

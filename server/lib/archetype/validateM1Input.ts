@@ -15,8 +15,13 @@
 import { TRPCError } from "@trpc/server";
 
 const CNAE_REGEX = /^\d{4}-\d\/\d{2}$/;
-const NCM_REGEX = /^\d{4}\.\d{2}\.\d{2}$/;
-const NBS_REGEX = /^\d\.\d{4}\.\d{2}\.\d{2}$/;
+// GATE-NCM-NBS #1219 F1: grupo (NCM 4 díg. / NBS subposição 1.XXXX) OU específico (ADR-0035).
+// Backend é fonte de verdade (Decisão P.O. C2) — simétrico ao frontend.
+// Reversão intencional de #859 por ADR-0035 / #1219 (decisão P.O. 14/06/2026):
+// "1201" (4 díg. puro) = GRUPO válido (posição NCM), não mais "truncado inválido".
+// Demais parciais (12.01, 1201.90, 12019000, 1201.90.0) seguem inválidos. Ver Lição #123.
+const NCM_REGEX = /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/;
+const NBS_REGEX = /^\d\.\d{4}$|^\d\.\d{4}\.\d{2}\.\d{2}$/;
 
 /**
  * Mapping natureza_operacao_principal → tipo_objeto_economico

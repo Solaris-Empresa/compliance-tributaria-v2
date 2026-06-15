@@ -785,10 +785,12 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
     },
   });
 
-  // Validação de formato NCM: NNNN.NN.NN
-  const isValidNcm = (code: string) => /^\d{4}\.\d{2}\.\d{2}$/.test(code);
-  // Validação de formato NBS: N.NNNN.NN.NN
-  const isValidNbs = (code: string) => /^\d\.\d{4}\.\d{2}\.\d{2}$/.test(code);
+  // GATE-NCM-NBS #1219 F1: grupo (NCM NNNN / NBS N.NNNN) OU específico (ADR-0035)
+  const isValidNcm = (code: string) => /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/.test(code);
+  const isValidNbs = (code: string) => /^\d\.\d{4}$|^\d\.\d{4}\.\d{2}\.\d{2}$/.test(code);
+  // GATE-NCM-NBS #1219 F1 (D1): granularidade do código informado (badge visual)
+  const isNcmGroup = (code: string) => /^\d{4}$/.test(code);
+  const isNbsGroup = (code: string) => /^\d\.\d{4}$/.test(code);
   // Verifica se há algum código inválido antes de salvar
   const hasInvalidNcm = value.principaisProdutos.some(p => p.ncm_code && !isValidNcm(p.ncm_code));
   const hasInvalidNbs = value.principaisServicos.some(s => s.nbs_code && !isValidNbs(s.nbs_code));
@@ -1183,8 +1185,11 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                         />
                         {ncmValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
                       </div>
+                      {ncmValid === true && (
+                        <Badge variant="outline" className="text-xs w-fit">{isNcmGroup(item.ncm_code) ? "grupo" : "específico"}</Badge>
+                      )}
                       {ncmValid === false && (
-                        <p id={`ncm-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use NNNN.NN.NN (ex: 1006.40.00)</p>
+                        <p id={`ncm-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use NNNN (grupo) ou NNNN.NN.NN (ex: 8436 ou 1006.40.00)</p>
                       )}
                     </div>
                     <Input
@@ -1289,8 +1294,11 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                         />
                         {nbsValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
                       </div>
+                      {nbsValid === true && (
+                        <Badge variant="outline" className="text-xs w-fit">{isNbsGroup(item.nbs_code) ? "grupo" : "específico"}</Badge>
+                      )}
                       {nbsValid === false && (
-                        <p id={`nbs-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use N.NNNN.NN.NN (ex: 1.1501.10.00)</p>
+                        <p id={`nbs-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use N.NNNN (grupo) ou N.NNNN.NN.NN (ex: 1.0501 ou 1.1501.10.00)</p>
                       )}
                     </div>
                     <Input

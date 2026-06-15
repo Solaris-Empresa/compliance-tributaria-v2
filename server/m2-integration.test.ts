@@ -87,7 +87,7 @@ describe("M2 integração — contratos do router perfil.* + isM2PerfilEntidadeE
     delete process.env.M2_PERFIL_ENTIDADE_ALLOWED_PROJECTS;
   });
 
-  it("T6: validateM1Seed reuse — NCM truncado bloqueia (regex helper PR #859)", async () => {
+  it("T6: validateM1Seed reuse — NCM grupo '1201' (4 díg.) passa (reversão #859 por #1219/ADR-0035)", async () => {
     const { validateM1Seed } = await import("./lib/archetype/validateM1Input");
     expect(() =>
       validateM1Seed({
@@ -96,7 +96,7 @@ describe("M2 integração — contratos do router perfil.* + isM2PerfilEntidadeE
         ncms_principais: ["1201"],
         nbss_principais: [],
       }),
-    ).toThrow(/NCM_INVALID_FORMAT/);
+    ).not.toThrow();
   });
 
   it("T7: validateM1Seed reuse — NBS digitado em campo NCM bloqueado", async () => {
@@ -111,8 +111,8 @@ describe("M2 integração — contratos do router perfil.* + isM2PerfilEntidadeE
     ).toThrow(/NCM_INVALID_FORMAT/);
   });
 
-  it("T8: helper isValidNcmFormat detecta NCMs truncados (alinhamento frontend↔backend)", () => {
-    expect(isValidNcmFormat("1201")).toBe(false);
+  it("T8: helper isValidNcmFormat — grupo (4 díg.) e específico válidos; truncados parciais inválidos (#1219/ADR-0035)", () => {
+    expect(isValidNcmFormat("1201")).toBe(true); // grupo (reversão #859 por #1219)
     expect(isValidNcmFormat("1201.90.00")).toBe(true);
     expect(isValidNcmFormat("12019000")).toBe(false);
   });
