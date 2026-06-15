@@ -1,0 +1,91 @@
+name: "Spec de Bug (SPEC-FIRST / ORQ-28)"
+description: "Bug técnico Classe B/C — issue ultra-detalhada com diagnóstico empírico, test contracts e DoD. Para bug report simples, use 'Bug Report'."
+title: "[SPEC-BUG] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > **Quando usar:** bug que toca código de produção (`server/`, `client/`, `drizzle/`) e exige a Triade (REGRA-ORQ-28).
+        > Para bug trivial (≤5 LOC) ou report rápido, use o template **Bug Report**.
+        > Fluxo canônico: REGRA-ORQ-43. Classe: REGRA-ORQ-24.
+
+  - type: input
+    id: classe
+    attributes:
+      label: "Classe (REGRA-ORQ-24)"
+      description: "A (≤50 LOC/2 arq) · B (≤500 LOC/5 arq) · C (>500 ou cross-cutting)"
+      placeholder: "B"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: "1. Contexto"
+      description: "Caso de teste, sintomas observados, screenshots, HEAD analisado."
+      placeholder: "Projeto #..., HEAD ..., sintoma na UI: ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostico
+    attributes:
+      label: "2. Diagnóstico empírico (arquivo:linha)"
+      description: "Causa-raiz com `arquivo:linha` exato + fluxo do bug. NÃO inferir — verificar (Lição #93)."
+      placeholder: "Root cause: server/lib/x.ts:128 usa JOIN errado → ...\nFluxo: input → transformação → persistência → output"
+    validations:
+      required: true
+
+  - type: textarea
+    id: spec-tecnica
+    attributes:
+      label: "3. Spec técnica (diff antes/depois)"
+      description: "Diff exato, arquivos tocados, LOC estimado."
+      placeholder: "Antes: ... / Depois: ...\nArquivos: x.ts (~10 LOC)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: adr
+    attributes:
+      label: "4. ADR mínimo"
+      description: "Decisões arquiteturais + justificativa. 'N/A' se não houver."
+      placeholder: "N/A — fix cirúrgico sem decisão arquitetural"
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterio-aceite
+    attributes:
+      label: "5. Critério de aceite empírico (comandos reproduzíveis)"
+      description: "Checkboxes verificáveis. Inclua DoD POSITIVO e NEGATIVO (REGRA-ORQ-44) para cada consumer crítico."
+      placeholder: "- [ ] POSITIVO: `SELECT ... ` retorna >= 2\n- [ ] NEGATIVO: `SELECT 'BUG' ... HAVING ... = 1` retorna 0 linhas"
+    validations:
+      required: true
+
+  - type: textarea
+    id: test-contracts
+    attributes:
+      label: "6. Test contracts (it.todo)"
+      description: "Lista de `it.todo()` mapeados 1:1 aos critérios da Seção 5."
+      placeholder: "it.todo('NCM 2306 + CNAE não-92 → IS NÃO elegível')"
+    validations:
+      required: true
+
+  - type: textarea
+    id: nao-implementar
+    attributes:
+      label: "7. Não-implementar (anti scope creep)"
+      description: "Escopo explicitamente excluído."
+      placeholder: "Não tocar SEVERITY_TABLE; não refatorar o resolver; ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: vinculadas
+    attributes:
+      label: "8. Vinculadas"
+      description: "PRs anteriores, REGRAs aplicáveis, issues pré-existentes (Lição #83 — `gh issue list --search` antes de abrir)."
+      placeholder: "REGRA-ORQ-34, Lição #65, PR #...., issue pré-existente verificada: nenhuma"
+    validations:
+      required: true
