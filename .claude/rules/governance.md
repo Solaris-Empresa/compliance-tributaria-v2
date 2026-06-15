@@ -3266,3 +3266,94 @@ Antes de escrever qualquer join `tasks ↔ risks_v4`, verificar o schema real (`
 - Gate 0 (verificação de schema obrigatória antes de tocar banco)
 - Lição #65 (rastrear writers/readers end-to-end) · Lição #93 (mecanismo verificado, não inferido)
 - BUG-GUIA-SQL-01 / PR #1409 (caso canônico) · `server/lib/db-queries-risks-v4.ts:302/407` (path correto de referência)
+
+## REGRA-ORQ-43 — SPEC-FIRST (índice consolidador da metodologia)
+
+**Vigência:** permanente, a partir de 2026-06-14
+**Origem:** Materialização SOLARIS-SPEC-FIRST v1.2 — a metodologia já existia fragmentada; esta regra consolida sem duplicar
+**Severidade:** governança operacional — define o fluxo único obrigatório para specs de feature/bug
+**Classe da própria mudança:** A (índice; não cria mecanismo novo, referencia os existentes)
+
+### Regra
+
+Toda feature ou bug de Classe B/C segue um **fluxo SPEC-FIRST único**, composto pelas regras já existentes. Esta REGRA-ORQ-43 é um **índice** — não redefine nenhuma delas; aponta para a fonte canônica de cada etapa:
+
+| Etapa | Regra canônica | O que define |
+|---|---|---|
+| 1. Classificar impacto (A/B/C) | **REGRA-ORQ-24** | Critérios objetivos: LOC, arquivos, ADR, curadoria humana |
+| 2. Análise de impacto cross-cutting | **REGRA-ORQ-41** + skill `.claude/skills/impact-tree/SKILL.md` | AS-IS/TO-BE com 11 passos, consumers/producers, ADR bump |
+| 3. Artefatos obrigatórios da issue | **REGRA-ORQ-28** (Triade) | Issue ultra-detalhada (8 seções) + test contracts + CI gate |
+| 4. Template canônico da issue | `.github/ISSUE_TEMPLATE/sprint-issue.md` | Blocos 1→9 (Contexto…Referências de código) + checkbox `spec-bloco9` + DoD |
+| 5. Papéis (quem faz o quê) | **REGRA-ORQ-33** (RACI) | R=Claude Code · A=P.O. · C=Consultor · I=Manus |
+| 6. DoD negativo por consumer crítico | **REGRA-ORQ-44** | Cada consumer crítico do AS-IS exige critério SQL/teste negativo |
+| 7. Enforcement de merge | `validate-pr.yml` | Já bloqueia: `Closes #N` + label `spec-aprovada` + 5 labels `spec-*` + conteúdo |
+
+### Aplicação
+
+- **Não duplicar** estas etapas em regras novas — referenciar ORQ-43.
+- PR de Classe B/C **sem** issue vinculada com `spec-aprovada` já é bloqueado por `validate-pr.yml` (não precisa de gate adicional).
+- Antes de afirmar que um artefato/gate "não existe", **grep no corpus** (Lição #66/#83 — o próprio plano SPEC-FIRST violou isso 2×).
+
+### Não se aplica
+
+- Classe A cirúrgica (≤50 LOC · ≤2 arquivos · sem schema · sem ADR) — spec curta basta (ORQ-24).
+- Hotfix P0 (REGRA-ORQ-11) — fast-track.
+- PRs docs/chore — sem spec formal.
+
+### Vinculadas
+
+- REGRA-ORQ-24 (classes) · REGRA-ORQ-28 (triade) · REGRA-ORQ-33 (RACI) · REGRA-ORQ-34 (pipeline bugfix) · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-44 (DoD negativo)
+- `.github/ISSUE_TEMPLATE/sprint-issue.md` (template canônico) · `.github/workflows/validate-pr.yml` (gate de merge)
+- Lição #121 (consolidação) · Lição #66/#83 (não afirmar ausência sem grep)
+
+## REGRA-ORQ-44 — DoD negativo obrigatório por consumer crítico
+
+**Vigência:** permanente, a partir de 2026-06-14
+**Origem:** generaliza REGRA-ORQ-34 Protocolo 3 (DoD negativo) para qualquer mudança com consumers críticos identificados no AS-IS
+**Severidade:** governança crítica — DoD positivo sozinho pode passar por sorte de dados
+
+### Regra
+
+Toda mudança de Classe B/C cujo AS-IS (REGRA-ORQ-41) identifique **consumer crítico** (🔴) DEVE declarar, para cada um, um **DoD negativo**: uma query SQL ou teste que **prova que o estado proibido NÃO ocorre**. O DoD positivo ("o esperado aconteceu") é necessário mas insuficiente.
+
+| Tipo | Função | Exemplo |
+|---|---|---|
+| POSITIVO | prova que o estado esperado ocorre | `COUNT(DISTINCT x) >= 2` |
+| **NEGATIVO** | prova que o estado proibido NÃO ocorre | `SELECT 'BUG' ... HAVING ... = 1 → 0 linhas` |
+
+### Aplicação
+
+- Para cada consumer 🔴 do AS-IS: 1 DoD positivo + 1 DoD negativo, ambos executáveis pelo Validador (Manus, REGRA-ORQ-33).
+- O DoD negativo deve testar o **comportamento real atual**, não o desejado — testar o estado errado-mas-existente é o anti-padrão "DoD invertido".
+
+### Caso canônico (anti-padrão)
+
+GATE-NCM-NBS #1219: a devolutiva propôs DoD negativo `NCM grupo "2402" → IS NÃO elegível`, mas o código (`risk-eligibility-is-ncm-cnae.ts:96`) usa `startsWith("24")` → `"2402"` **casa** (eligible=true). O DoD invertido teria forçado regressão da semântica 2-díg. existente. DoD negativo correto: travar o fallback permissivo de NCM ausente (`NCM=[] + CNAE não-92 → NÃO elegível`, Bug #827/F11).
+
+### Vinculadas
+
+- REGRA-ORQ-34 Protocolo 3 (origem) · REGRA-ORQ-41 (consumers do AS-IS) · REGRA-ORQ-43 (etapa 6) · REGRA-ORQ-27 (assemble ≠ consumption)
+- Lição #85 (DoD de persistência exige SQL) · Lição #93 (mecanismo verificado)
+- GATE-NCM-NBS #1219 (caso canônico do DoD invertido)
+
+## Lição #121 — Metodologia existia fragmentada; consolidada por ORQ-43
+
+**Origem:** Materialização SOLARIS-SPEC-FIRST (14/06/2026) — plano de governança para formalizar o fluxo spec-first
+
+### Texto
+
+A metodologia spec-first **já existia** no repositório, fragmentada em REGRA-ORQ-24 (classes), ORQ-28 (triade), ORQ-33 (RACI) e ORQ-41 (impact-tree). O plano inicial (v1.0) propôs **recriá-la**, afirmando que classes, RACI, templates e gate de CI "não existiam" — sem verificar o corpus. Cada iteração (v1.0 → v1.1 → v1.2) exigiu grep para corrigir o que a memória afirmou:
+
+- v1.0 → v1.1: SPEC-01 já ocupada (colisão); Classes = ORQ-24; RACI = ORQ-33; skill em `.claude/skills/`, não `docs/governance/skills/`.
+- v1.1 → v1.2 (Gate 0): `validate-pr.yml` já bloqueia sem `spec-aprovada` + 5 labels (PR-GOV-3 redundante); `sprint-issue.md` já tem Blocos 1→9 (`spec_feature.yml` redundante).
+
+Resultado: o plano de 3 PRs colapsou para **1,5 PR** (ORQ-43 índice + ORQ-44 DoD negativo + edição da skill + templates residuais condicionais).
+
+### Aplicação prospectiva
+
+Antes de propor **qualquer** regra/template/gate novo, executar grep/`gh`/`ls` no corpus. Afirmar ausência sem verificação é o anti-padrão das Lições #66 (spec sem dados = ilusão) e #83 (issues pré-existentes) — e ocorreu **no próprio plano de governança que pretendia eliminá-lo**.
+
+### Vinculadas
+
+- REGRA-ORQ-43 (consolidação) · REGRA-ORQ-44 · Lição #66 · Lição #83 · Lição #93
+- Gate 0 do plano v1.2 (`validate-pr.yml` + `sprint-issue.md` já cobriam 2 dos 5 gaps)
