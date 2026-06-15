@@ -3357,3 +3357,27 @@ Antes de propor **qualquer** regra/template/gate novo, executar grep/`gh`/`ls` n
 
 - REGRA-ORQ-43 (consolidação) · REGRA-ORQ-44 · Lição #66 · Lição #83 · Lição #93
 - Gate 0 do plano v1.2 (`validate-pr.yml` + `sprint-issue.md` já cobriam 2 dos 5 gaps)
+
+## Lição #122 — Review de PR de governança deve ser registrado no GitHub (Approve)
+
+**Origem:** Auditoria pós-merge SPEC-FIRST v1.2 (14/06/2026) — PRs #1414/#1416/#1418
+
+### Texto
+
+O review de um PR (especialmente de governança) DEVE ser registrado **no GitHub como Approve**, pelo Validador (Manus, REGRA-ORQ-33), antes do merge. Veredicto de "APROVAR" em relatório de chat **não satisfaz ORQ-33** como evidência source-controlled — é declaração, não estado auditável (Lição #87: claim ≠ evidência).
+
+Na auditoria pós-merge, os 3 PRs mostravam `reviews: []` no GitHub (`gh pr view <N> --json reviews`) apesar do report de chat afirmar "review técnico concluído com veredicto APROVAR para os 3". O merge ocorreu sem trilha de review source-controlled.
+
+### Aplicação prospectiva
+
+- Validador registra Approve no PR (`gh pr review <N> --approve`) — não apenas no chat.
+- Auditoria de encerramento (ORQ-19) deve checar `reviews` no GitHub, não confiar em veredicto narrado.
+
+### Exceção desta sessão (registrada honestamente)
+
+Os 3 PRs eram **docs-only** (zero código de produção), P.O. presente na sessão, e os fatos foram **verificados deterministicamente** pelo Claude Code (estado, arquivos, ausência de conflito, conteúdo em main via `git cat-file`). O merge sem Approve formal foi tolerado **nesta sessão específica** — não vira precedente para PRs de código.
+
+### Vinculadas
+
+- REGRA-ORQ-33 (RACI — Manus é o Validador) · Lição #87 (smoke estático ≠ consumo / claim ≠ evidência) · REGRA-ORQ-25 (report deve espelhar estado source-controlled)
+- Caso canônico: PRs #1414/#1416/#1418 (14/06/2026) · auditoria `docs/governance/audits/v7.74-2026-06-14-sessao-spec-first-v1.2.md`
