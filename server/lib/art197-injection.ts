@@ -21,12 +21,13 @@ const ART197_LEIS = ["decreto12955", "resolucao_cgibs_6"] as const;
 const ART197_ARTIGO = "Art. 197";
 
 /**
- * Gate do D1-C.
+ * Gate do D1-C — CNAE grupo 28 (máquinas/equipamentos) + NCM família 8436.
  *
- * INTERINO — gate hardcoded CNAE grupo 28 + NCM 8436.*
- * Tech-debt: migrar para gate data-driven via NEW-CAT aliquota_zero_bens_capital_agro
- * Issue: #NEW-CAT (bloqueada por gate jurídico P.O.)
- * (Mesmo precedente ORQ-32 de PARTE_GERAL_LC214_FIM = 128 — interino com tech-debt.)
+ * GATE-NCM-NBS #1219 F3 (M4): `startsWith("8436")` já aceita tanto o GRUPO
+ * "8436" (4 díg.) quanto o específico "8436.99.00" (validado em F3). Rótulo
+ * "INTERINO" removido: o gate por família 8436 é a semântica correta (máquinas
+ * agrícolas — Decreto 12.955 Anexo V), agora consistente com o catálogo de
+ * grupos data-driven (#1219 F5). Refino por subitem = evolução, não bloqueio.
  */
 export function shouldInjectArt197(cnaeCodes: string[], ncmCodes: string[]): boolean {
   const groups = cnaeCodes.map((c) => c.replace(/\D/g, "").slice(0, 2));

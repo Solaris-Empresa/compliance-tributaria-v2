@@ -28,6 +28,8 @@
  *   minerais dentro do Capítulo 22).
  */
 
+import { isNcmResolverEnabled } from "./ncm-nbs-resolver";
+
 /**
  * Prefixes de NCM elegíveis ao IS conforme Art. 393 §1º LC 214/2025.
  *
@@ -59,7 +61,8 @@ const IS_ELIGIBLE_CNAE_PREFIXES: readonly string[] = [
 
 export type ImpostoSeletivoEligibilityReason =
   | "ncm_cnae_not_in_art_393"
-  | "ncm_cnae_ausentes";
+  | "ncm_cnae_ausentes"
+  | "ncm_ausente"; // #1219 F3 — NCM ausente com resolver ON (fecha #827)
 
 export interface ImpostoSeletivoEligibilityResult {
   eligible: boolean;
@@ -90,6 +93,15 @@ export function isImpostoSeletivoEligible(
   ncmCodes: readonly string[],
   cnaes: readonly string[],
 ): ImpostoSeletivoEligibilityResult {
+  // GATE-NCM-NBS #1219 F3 (M3) — fecha #827: com o resolver ON, NCM ausente
+  // NÃO é elegível ao IS (antes caía no fallback permissivo ncm_cnae_ausentes,
+  // gerando falso-positivo — caso 5040001/F11). IS mantém prefixo 2 díg. para
+  // NCMs presentes (semântica legal Art. 393 §1º). Gated por flag → zero
+  // regressão com ENABLE_NCM_RESOLVER off.
+  if (isNcmResolverEnabled() && ncmCodes.length === 0) {
+    return { eligible: false, reason: "ncm_ausente", matchedPrefix: null };
+  }
+
   const ncmHits = ncmCodes
     .map((ncm) => {
       const digits = digitsOnly(ncm);
