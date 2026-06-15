@@ -159,6 +159,22 @@ grep -rnE "SELECT.*<alvo>|\.<alvo>\b|companyProfile.*<alvo>|project\.<alvo>" \
 
 **Por que importa:** writer sem reader = dead write; reader sem writer = leitura vazia. Lição #65 (rastrear fluxo end-to-end). Em 2026-05-28 confirmou que `users.cpf` tem 1 writer (`NovoCliente.tsx`) e zero readers → dead read.
 
+#### Checklist de artefatos obrigatórios (consumers/producers) — REGRA-ORQ-43 etapa 2
+
+O Passo 10 NÃO está completo com o grep. Ele DEVE produzir **dois inventários nomeados, com `arquivo:linha`**, mais os artefatos de engenharia abaixo:
+
+| Artefato | Obrigatório? | Justificativa |
+|---|---|---|
+| Grep estrutural (ast-grep + rg) | ✅ | Encontrar todos os callers |
+| **Inventário de consumers** (quem LÊ o alvo) | ✅ | Evitar regressão — cada consumer 🔴 exige DoD negativo (REGRA-ORQ-44) |
+| **Inventário de producers** (quem ESCREVE o alvo) | ✅ | Saber a origem dos dados; detectar escrita órfã (Lição #65) |
+| Fluxo E2E documentado | ✅ | Entender o impacto (input→transformação→persistência→output) |
+| Mapa de tabelas | ✅ | Evitar SQL/JSON-key errado (Lição #113) |
+| Mapa de feature flags | ✅ | Plano de rollback |
+| Diagrama de dependência (`depcruise`) | ⚠️ | Apenas para Classe C / features grandes |
+
+**Por que o inventário explícito importa (caso GATE-NCM-NBS #1219, 2026-06-14):** a primeira passagem listou 6 consumers e classificou `deriveObjeto` como "impact-free". O inventário de consumers forçado pelo Passo 10 revelou que `deriveObjetoFromNcm/Nbs` cai em fallback genérico (governado por `lookupNcm`) → era um **consumer crítico (C7)** omitido. Total subiu de 6 → 9. Sem o inventário nomeado, o consumer crítico passa silenciosamente.
+
 ### Passo 11 — Auto-auditoria final com tabela de cobertura
 
 Antes de declarar AS-IS pronto, gerar tabela:
@@ -175,6 +191,8 @@ Antes de declarar AS-IS pronto, gerar tabela:
 | LOC reais antes de classificar | ✅/❌ | … |
 | ADRs identificados + bump declarado | ✅/❌ | … |
 | Mapa writers/readers formal | ✅/❌ | … |
+| Inventário de consumers (com `arquivo:linha`) | ✅/❌ | … |
+| Inventário de producers (origem dos dados) | ✅/❌ | … |
 | **Cobertura total estimada** | … | … |
 
 **Cobertura mínima aceitável:** 🟢 ≥90%. Abaixo de 90%, declarar pendências explicitamente e listar o que falta como "Pendente para Manus".
@@ -185,7 +203,7 @@ Documento `.md` salvo em `docs/governance/relatorios/AS-IS-TO-BE-<TEMA>-<YYYYMMD
 
 1. Auto-auditoria das técnicas usadas
 2. Risco de regressão por gravidade (🔴 crítico / 🟡 visível / 🟢 cosmético)
-3. Consumers reais (lista canônica com arquivo:linha)
+3. Consumers E producers reais (dois inventários canônicos com arquivo:linha — Passo 10)
 4. Árvore de impacto (ASCII com cascata)
 5. Cirurgia possível? (escopo mínimo vs amplo)
 6. AS-IS em N camadas com citações
