@@ -3377,10 +3377,20 @@ Na auditoria pós-merge, os 3 PRs mostravam `reviews: []` no GitHub (`gh pr view
 
 Os 3 PRs eram **docs-only** (zero código de produção), P.O. presente na sessão, e os fatos foram **verificados deterministicamente** pelo Claude Code (estado, arquivos, ausência de conflito, conteúdo em main via `git cat-file`). O merge sem Approve formal foi tolerado **nesta sessão específica** — não vira precedente para PRs de código.
 
+### Exceção estrutural — PAT compartilhado (D-PAT, 15/06/2026)
+
+**Causa-raiz (auditoria #1275):** Claude Code (autor) e Manus (Validador) usam a **mesma identidade GitHub** (PAT compartilhado) → o GitHub bloqueia self-approve → **review independente é impossível**; PRs do épico #1219/#1275 ficaram com `reviews: []`. A Lição #122 é **inexequível** enquanto autor=validador na mesma conta.
+
+**Critério de review válido enquanto o PAT for compartilhado** (vale também para PR de **código**, não só docs):
+(a) comentário de **evidência de smoke E2E** no PR + (b) **aprovação explícita do P.O.** + (c) **merge pelo P.O.** (ou delegado). PR #1438 (#1275) cumpre esse critério.
+
+**Tech-debt P3:** criar conta **`solaris-bot`** + PAT separado para o autor (ou validador) → restaura a possibilidade de Approve independente → Lição #122 volta a ser exequível na forma original.
+
 ### Vinculadas
 
 - REGRA-ORQ-33 (RACI — Manus é o Validador) · Lição #87 (smoke estático ≠ consumo / claim ≠ evidência) · REGRA-ORQ-25 (report deve espelhar estado source-controlled)
 - Caso canônico: PRs #1414/#1416/#1418 (14/06/2026) · auditoria `docs/governance/audits/v7.74-2026-06-14-sessao-spec-first-v1.2.md`
+- Exceção PAT: PR #1438 (#1275, 15/06/2026) · tech-debt `solaris-bot` (P3)
 
 ## Lição #123 — Hotfix anti-truncado pode conflitar com feature de granularidade variável
 
@@ -3403,3 +3413,31 @@ Um hotfix que **rejeita** um formato "incompleto" como erro (ex: #859, 2026-04-2
 
 - REGRA-ORQ-22 (crítica Nível 1 ao P.O.) · REGRA-ORQ-35 (NUNCA ASSUMA) · Lição #74 (fix downstream incompleto / gates não rastreados) · Lição #114 (verificar premissa do despacho contra código)
 - ADR-0035 (resolver cascata) · hotfix #859 (PR — anti-truncado revertido parcialmente) · #1219 F1 / PR #1424
+
+## Lição #124 — DoD negativo deve falsificar a condição mais próxima do positivo (mudar 1 variável, não a principal)
+
+**Origem:** Auditoria smoke E2E #1275 (15/06/2026) — o cenário negativo "NCM 8437 → ausente" não testou o gate real.
+
+### Texto
+
+Um DoD **negativo** só prova o gate se **falsificar a condição mais próxima do estado positivo** — ou seja, partir do caso positivo e **mudar exatamente UMA variável: a do gate em teste**, mantendo a variável principal de elegibilidade. Trocar a variável **principal** por algo trivialmente não-elegível NÃO testa o gate — testa só que "lixo não casa".
+
+| | Cenário | O que prova |
+|---|---|---|
+| ❌ Proxy trivial | `NCM 8437 → ausente` | Só que um NCM não-seedado não casa regra. **NÃO** testa o gate. |
+| ✅ Correto | positivo (`NCM 8436 + destinatário produtor rural`) com **1 variável mudada** → `NCM 8436 + destinatário NÃO produtor rural → não confirma` | Testa o **mecanismo do gate** (destinatário). |
+
+### Caso canônico
+
+#1275: o positivo é `NCM 8436 (elegível) + destinatário produtor rural não contribuinte → Art.197`. O smoke usou o negativo trivial `NCM 8437` (muda a variável **principal** = NCM elegível) — não testou o gate. O negativo correto muda **só** a variável do gate (`destinatário`), mantendo o NCM 8436 elegível.
+
+> ⚠️ Correção adicional: o gate legal do Art.197 é **destinatário** (Art.110 LC 214), **não CNAE** do vendedor. Um negativo `CNAE 0111 + NCM 8436 → ausente` também seria enganoso, porque a **matriz não gateia por CNAE** (`engine-gap-analyzer` resolve por NCM apenas) → o caso casaria mesmo assim. A variável-do-gate correta é o destinatário (ver #1439).
+
+### Aplicação prospectiva
+
+Ao escrever DoD negativo: (1) escreva o positivo; (2) identifique a **variável do gate** em teste; (3) mude **só ela** para o valor que deveria bloquear; (4) mantenha as demais (inclusive a variável principal de elegibilidade) iguais ao positivo. Validar que a variável escolhida é de fato a do gate (não um proxy upstream — Lição #65/#93).
+
+### Vinculadas
+
+- REGRA-ORQ-34 Protocolo 3 (DoD negativo) · REGRA-ORQ-44 (DoD negativo por consumer crítico) · Lição #65 (rastrear fluxo / testar a coisa certa) · Lição #93 (mecanismo verificado)
+- Caso canônico: smoke #1275 (15/06/2026) · gate destinatário #1439 (Fase 2)
