@@ -30,6 +30,8 @@ export interface RetrievedArticle {
   anchorId?: string;
   /** D2-DETECTOR: artigo-pai (LC 214) que rege o regime deste chunk (Anexo/Decreto). */
   artigoPai?: string;
+  /** #1276: cnaeGroups do chunk (varchar ragDocuments) — usado no filtro de relevância CNAE pós-merge. */
+  cnaeGroups?: string;
 }
 
 export interface RAGContext {
@@ -180,6 +182,7 @@ async function fetchCandidates(
     conteudo: r.conteudo,
     anchorId: r.anchor_id ?? undefined,
     artigoPai: r.artigo_pai ?? undefined,
+    cnaeGroups: r.cnaeGroups ?? undefined, // #1276: p/ filtro de relevância CNAE pós-merge
   }));
 }
 
@@ -314,6 +317,31 @@ export function belongsToUniversalPool(
 }
 
 /**
+ * #1276 — filtro de relevância CNAE pós-merge. O Pass 1 (genérico, LIKE por keyword sem
+ * filtro de cnaeGroups) traz chunks SETORIAIS de OUTROS domínios ao pool — ex.: Art. 139
+ * (cultural, cnaeGroups="41,42,43,68"), Art. 128 (saúde/comércio) — que o LLM reranker
+ * seleciona por proximidade semântica genérica. Este filtro os remove.
+ *
+ * Regra (membership ESTRITO, igual ao SQL boundary do Pass 2 — NÃO usa matchesCnaeBoundary,
+ * cuja fallback `length < 50 → true` (l.288/292) classificaria Art.139 como match e tornaria
+ * o filtro no-op; ver belongsToUniversalPool / #1375 / Lição #101 — o proxy LENGTH é incorreto):
+ *   - universal (cnaeGroups vazio/null) → SEMPRE passa
+ *   - setorial → passa só se algum grupo CNAE do projeto for elemento exato do cnaeGroups
+ * Guard: sem CNAE do projeto → não filtra (preserva comportamento atual; sem over-filter).
+ */
+export function filterByCnaeRelevance<T extends { cnaeGroups?: string | null }>(
+  candidates: T[],
+  projectCnaeGroups: string[],
+): T[] {
+  if (projectCnaeGroups.length === 0) return candidates;
+  return candidates.filter((c) => {
+    if (belongsToUniversalPool(c.cnaeGroups)) return true;
+    const parts = (c.cnaeGroups ?? "").split(",").map((s) => s.trim());
+    return projectCnaeGroups.some((g) => parts.includes(g));
+  });
+}
+
+/**
  * Pass 2 do Two-Pass Retrieval — busca chunks setoriais CNAE-aware.
  *
  * Independente do Pass 1 (LIKE keywords). Roda em paralelo, depois mescla.
@@ -377,6 +405,7 @@ async function fetchSetorialCandidates(
     conteudo: r.conteudo,
     anchorId: r.anchor_id ?? undefined,
     artigoPai: r.artigo_pai ?? undefined,
+    cnaeGroups: r.cnaeGroups ?? undefined, // #1276
   }));
 }
 
@@ -474,6 +503,7 @@ async function fetchNcmCandidates(
           conteudo: r.conteudo,
           anchorId: r.anchor_id ?? undefined,
           artigoPai: r.artigo_pai ?? undefined,
+          cnaeGroups: r.cnaeGroups ?? undefined, // #1276
         });
       }
     } catch {
@@ -637,9 +667,14 @@ export async function retrieveArticles(
   // reranker, descartando conteúdo NCM-específico (Art. 620/Anexo). Escopo restrito
   // a lei==='lc214' — a Parte Geral só existe na LC 214; decreto/resolução/tabela_ncm
   // têm numeração própria (evita excluir, p.ex., o chunk do NCM 0102.xx). Ver #997.
+  // #1276: filtro de relevância CNAE — remove chunks setoriais de outros domínios
+  // (Art. 139 cultural / Art. 128 saúde) trazidos pelo Pass 1 genérico por keyword.
+  // Universais passam; sem CNAE do projeto não filtra. Membership estrito (≠ matchesCnaeBoundary).
+  const cnaeFiltered = filterByCnaeRelevance(merged, cnaeGroups);
+
   const candidates = excludeParteGeralLc214
-    ? merged.filter((c) => !isParteGeralLc214(c.lei, c.artigo))
-    : merged;
+    ? cnaeFiltered.filter((c) => !isParteGeralLc214(c.lei, c.artigo))
+    : cnaeFiltered;
 
   // CORPUS-RFC-007 — Jina Reranker v3 dual pipeline:
   //   - JINA_RERANKER_ENABLED=false (default): pipeline idêntico ao anterior
