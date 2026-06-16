@@ -3522,3 +3522,27 @@ Regra declarada como "bloqueante" no texto de governança **não é enforçada**
 **Decisão pendente do P.O.:** ou registrar os jobs funcionais como required (após #1043 verde), ou reescrever ORQ-CI-01/16/17 como "disciplina manual, não mecânica" — eliminando a ficção de enforcement.
 
 Vinculadas: REGRA-ORQ-CI-01 · REGRA-ORQ-16 · REGRA-ORQ-17 · #1043 · `docs/governance/SCHEMA-REFERENCE.md`.
+
+**Correção (16/06/2026 — dogfooding PR #1461):** o required check **`Governance gate` executa `validate-pr-body.js`**. Logo, o **body do PR É enforçado mecanicamente** pelo required check — **não** é disciplina manual (corrige a afirmação acima de que "Validate PR body" não bloqueia). O que de fato segue fora dos required são os jobs `Issue vinculada` / `Spec completa` / `Pre-Close` do `validate-pr.yml` (que, até #1461, nem executavam — startup_failure). Resumo: **template de body é obrigatório de fato** (via Governance gate); ORQ-16/17 (issue-link/spec-completeness/pre-close) seguem não-required.
+
+## Lição #129 — Template de PR que reprova o required check é uma armadilha
+
+Origem: GOV-FIXES / dogfooding PR #1461.
+
+Um template de PR que **não passa** no required check `Governance gate` (= `validate-pr-body.js`) é uma **armadilha**: força admin-override artificial em todo PR que o use. Um template só é válido se o `validate-pr-body.js` o **reconhece explicitamente** (seções, bloco JSON e Auto-auditoria Q1-5 esperados).
+
+**Caso canônico:** `class_a_surgical.md` (entregue no PR #1460, FIX-GOV-5) foi **reprovado** pelo Governance gate em dogfooding (#1461) — faltavam as 8 seções + JSON + Q1-5 exigidos pelo validador. **Removido** (este PR). Lição: **não criar template de PR sem antes ensinar o `validate-pr-body.js` a aceitá-lo.** Um fast-track Classe A real exige primeiro uma exceção no validador.
+
+Vinculadas: Lição #128 (correção) · REGRA-ORQ-45 · `.github/scripts/validate-pr-body.js` · PR #1460 (criou) / #1461 (expôs).
+
+## Lição #130 — `enforce_admins: false` → required checks não bloqueiam admins
+
+Origem: GOV-FIXES / dogfooding PR #1461 (branch protection — PR #1392, 12/06/2026).
+
+`enforce_admins: false` no branch protection significa que os required status checks **não bloqueiam administradores** do repositório. **Admin-override não é exceção ao processo — é o caminho normal para admins.** A proteção real dos required checks vale apenas para contribuidores **não-admin**.
+
+**Implicação:** ao reportar "mergeado apesar do check vermelho", distinguir (a) check **não-required** (não bloqueia ninguém) de (b) check **required + admin bypass** (`enforce_admins=false`). Documentar explicitamente em cada admin-override qual dos dois é o caso.
+
+**Relação com #1043:** mudar para `enforce_admins: true` bloquearia admins em TODO PR enquanto TS+Vitest (#1043) estiver vermelho — inclusive PRs sem código TS. Avaliar junto com #1043.
+
+Vinculadas: Lição #128 · REGRA-ORQ-CI-01 · #1043 · #1392 (branch protection).
