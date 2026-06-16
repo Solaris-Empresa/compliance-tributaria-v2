@@ -3619,3 +3619,15 @@ antes de qualquer afirmação sobre `cnaeGroups` de artigos nessa faixa.
 **Caso canônico:** o bug "Art.140/176 no pool Q.NCM para NCM 8436" não era de 2 artigos — **136 chunks** de `rag-corpus-lcs-novas.ts` têm faixa industrial copy-paste (`10..33`), incluindo artigos gerais (Art.5 incidência, Art.10 fato gerador, Art.12 base de cálculo). Worklist de curadoria: `docs/governance/corpus-curation-worklist-industrial-10-33.md`.
 
 **Vinculadas:** Lição #61 (metadado determinístico validado pelo jurídico) · Lição #126 (fonte primária, não corpus) · Lições #131/#132 · REGRA-ORQ-29/32 (no hardcode / sem requisito) · REGRA-ORQ-33 (escalação jurídica) · REGRA-ORQ-45/46 · CORPUS-FIX-01 #1466 · CORPUS-FIX-02 #1467 · `docs/governance/corpus-audit-checklist.md`
+
+## Lição #134 — Reranker não substitui curadoria de dados
+
+**Contexto:** Despacho v36 (16/06/2026) — smoke E2E do RERANKER-NCM-AWARE-01 Opção A (#1468, PR #1478) com DB+OpenAI.
+
+**Texto:** Prompt injection no reranker (`rerankWithLLM`) é **ineficaz** quando o conteúdo do chunk disponível ao LLM é insuficiente para distinguir o contexto setorial — o prompt mostra apenas **~200 chars/chunk** (`rag-retriever.ts:530`). A solução correta para falsos positivos setoriais é **sempre curadoria de `cnaeGroups`** — fix **determinístico via filtro** (#1276), não heurística via LLM. Implementar a Opção B (score boost) sobre dado ruim é substituir um palpite por outro (Lição #133).
+
+**Evidência (smoke 16/06/2026):** Art.140 (comunicação) e Art.176 (refinarias), ambos com `cnaeGroups` incluindo CNAE 28, **não** foram penalizados pelo reranker para NCM 8436 (agro); Art.197 (agro) foi mantido. A instrução foi injetada corretamente — faltou conteúdo, não instrução.
+
+**Aplicação:** ao diagnosticar falso-positivo setorial em retrieval, priorizar **curadoria do metadado** (`cnaeGroups` via gate jurídico) sobre tuning do reranker. Reranker NCM-aware permanece como defense-in-depth (sem regressão), **não** como fix do dado.
+
+**Vinculadas:** Lição #133 (cnaeGroups é camada interpretativa) · Lição #87 (smoke runtime ≠ estático) · Lição #88 (acoplamento de classificação setorial) · ADR-0036 §4 · #1468 · #1276 · #1466/#1467 (curadoria) · REGRA-ORQ-46
