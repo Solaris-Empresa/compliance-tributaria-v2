@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { belongsToUniversalPool } from "./rag-retriever";
+import { belongsToUniversalPool, buildRerankPrompt } from "./rag-retriever";
 
 // RAG-1-FIX (#1375) — contract test do filtro do pool universal.
 //
@@ -45,5 +45,55 @@ describe("RAG-1-FIX — belongsToUniversalPool (pool universal por vazio, não p
     ).join(",");
     expect(longList.length).toBeGreaterThan(50);
     expect(belongsToUniversalPool(longList)).toBe(false);
+  });
+});
+
+// RERANKER-NCM-AWARE-01 (#1468 · ADR-0036 · Opção A) — espelho determinístico
+// da injeção da instrução de aderência ao NCM no prompt do rerankWithLLM.
+// O ranking real (top-3 exclui Art.140/176, inclui Art.197) é validado por
+// integração/smoke (Lição #87 — unit espelha a instrução, não o ranking LLM).
+describe("RERANKER-NCM-AWARE-01 — buildRerankPrompt injeta aderência ao NCM", () => {
+  const candidates = [
+    {
+      lei: "lc214",
+      artigo: "Art. 140",
+      titulo: "comunicação institucional",
+      conteudo: "serviços de comunicação institucional à administração pública",
+    },
+    {
+      lei: "lc214",
+      artigo: "Art. 197",
+      titulo: "produtor rural",
+      conteudo: "máquinas e implementos agrícolas",
+    },
+  ];
+
+  it("COM NCM: prompt contém o NCM e a instrução de priorização/penalização", () => {
+    const prompt = buildRerankPrompt(candidates, "Fabricante; NCM 8436.99.00", 3, ["8436"]);
+    expect(prompt).toContain("ADERÊNCIA AO NCM");
+    expect(prompt).toContain("8436");
+    expect(prompt).toContain("Penalize artigos de setores não relacionados");
+  });
+
+  it("COM múltiplos NCMs: lista todos na instrução", () => {
+    const prompt = buildRerankPrompt(candidates, "q", 3, ["8436", "8701"]);
+    expect(prompt).toContain("8436, 8701");
+  });
+
+  it("SEM NCM: prompt NÃO contém a instrução (degradação graciosa — Lição #67)", () => {
+    const prompt = buildRerankPrompt(candidates, "Empresa de serviços; sem NCM", 3, []);
+    expect(prompt).not.toContain("ADERÊNCIA AO NCM");
+  });
+
+  it("SEM NCM: bloco CONTEXTO→CANDIDATOS byte-idêntico ao formato anterior", () => {
+    const prompt = buildRerankPrompt(candidates, "CTX", 3, []);
+    expect(prompt).toContain("CONTEXTO DA EMPRESA:\nCTX\n\nCANDIDATOS (2 artigos):");
+  });
+
+  it("inclui candidatos indexados e o topK", () => {
+    const prompt = buildRerankPrompt(candidates, "q", 5, ["8436"]);
+    expect(prompt).toContain("[0] LC214 Art. 140");
+    expect(prompt).toContain("[1] LC214 Art. 197");
+    expect(prompt).toContain("Selecione os 5 artigos");
   });
 });

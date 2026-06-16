@@ -518,6 +518,45 @@ async function fetchNcmCandidates(
 /**
  * Re-ranking via LLM: seleciona os top-5 candidatos mais relevantes
  */
+/**
+ * Monta o prompt do reranker LLM (GPT-4.1).
+ *
+ * RERANKER-NCM-AWARE-01 (#1468 · ADR-0036 · Opção A): quando o contexto contém
+ * NCM(s) do contribuinte, injeta instrução de aderência ao NCM — prioriza
+ * artigos do setor do NCM e penaliza setores não relacionados. Sem NCM, o
+ * prompt é byte-idêntico ao comportamento anterior (degradação graciosa —
+ * Lição #67). Exportada para unit test do espelho determinístico da instrução
+ * (o ranking real é validado por integração/smoke — Lição #87).
+ */
+export function buildRerankPrompt(
+  candidates: RetrievedArticle[],
+  query: string,
+  topK: number,
+  ncms: string[] = [],
+): string {
+  const candidateList = candidates
+    .map((c, i) => `[${i}] ${c.lei.toUpperCase()} ${c.artigo}: ${c.titulo}\n${c.conteudo.substring(0, 200)}...`)
+    .join("\n\n");
+
+  const ncmBlock =
+    ncms.length > 0
+      ? `\nADERÊNCIA AO NCM: Priorize artigos diretamente relacionados ao(s) NCM(s) ${ncms.join(", ")} ou ao produto/setor correspondente. Penalize artigos de setores não relacionados ao NCM do contribuinte.\n`
+      : "";
+
+  return `Você é um especialista em direito tributário brasileiro. Sua tarefa é selecionar os artigos legais mais relevantes para o contexto abaixo.
+
+CONTEXTO DA EMPRESA:
+${query}
+${ncmBlock}
+CANDIDATOS (${candidates.length} artigos):
+${candidateList}
+
+Selecione os ${topK} artigos mais relevantes para este contexto específico. Responda APENAS com um JSON no formato:
+{"indices": [0, 2, 5, 8, 12]}
+
+Os índices devem ser os números entre colchetes dos artigos mais relevantes, em ordem de relevância decrescente.`;
+}
+
 async function rerankWithLLM(
   candidates: RetrievedArticle[],
   query: string,
@@ -526,22 +565,11 @@ async function rerankWithLLM(
   if (candidates.length === 0) return [];
   if (candidates.length <= topK) return candidates;
 
-  const candidateList = candidates
-    .map((c, i) => `[${i}] ${c.lei.toUpperCase()} ${c.artigo}: ${c.titulo}\n${c.conteudo.substring(0, 200)}...`)
-    .join("\n\n");
-
-  const prompt = `Você é um especialista em direito tributário brasileiro. Sua tarefa é selecionar os artigos legais mais relevantes para o contexto abaixo.
-
-CONTEXTO DA EMPRESA:
-${query}
-
-CANDIDATOS (${candidates.length} artigos):
-${candidateList}
-
-Selecione os ${topK} artigos mais relevantes para este contexto específico. Responda APENAS com um JSON no formato:
-{"indices": [0, 2, 5, 8, 12]}
-
-Os índices devem ser os números entre colchetes dos artigos mais relevantes, em ordem de relevância decrescente.`;
+  // RERANKER-NCM-AWARE-01 (#1468): o NCM já chega embutido no contextQuery
+  // (Pass3 o extrai). Reusa o mesmo extrator para nomear o NCM na instrução
+  // de aderência do prompt — sem NCM, prompt idêntico ao anterior.
+  const ncms = extractNcmsFromContext(query);
+  const prompt = buildRerankPrompt(candidates, query, topK, ncms);
 
   try {
     const response = await invokeLLM({
