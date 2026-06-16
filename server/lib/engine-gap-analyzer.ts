@@ -27,6 +27,8 @@ import { lookupNcm } from './decision-kernel/engine/ncm-engine';
 import { lookupNbs } from './decision-kernel/engine/nbs-engine';
 // GATE-NCM-NBS #1219 F3 (M1/M2) — resolver central (cascata grupo→específico).
 import { resolveNcm, resolveNbs, isNcmResolverEnabled, type NcmNbsResolution } from './ncm-nbs-resolver';
+// #1275: validar se o regime resolvido é categoria ativa (cache TTL 1h, ADR-0025).
+import { getRiskCategories } from './risk-engine-v4';
 
 // ─── Tipos internos ───────────────────────────────────────────────────────────
 
@@ -41,6 +43,8 @@ interface EngineGapRow {
   fonte_artigo: string;
   gap_description: string;
   source_reference: string;
+  // #1275: categoria de risco (preenchida quando o regime resolvido é categoria ativa)
+  riskCategoryCode: string | null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -102,6 +106,12 @@ export async function analyzeEngineGaps(
     const gapsToInsert: EngineGapRow[] = [];
     let skippedPending = 0;
 
+    // #1275: categorias ativas (cacheado). Só com resolver ON — flag OFF → {} →
+    // riskCategoryCode sempre null → zero regressão no comportamento atual.
+    const activeCats: Record<string, unknown> = isNcmResolverEnabled()
+      ? await getRiskCategories()
+      : {};
+
     // ── 1. Processar NCM ──────────────────────────────────────────────────
     for (const codigo of ncmCodes) {
       // #1219 F3 (M1): resolver ON → usa regime do resolver (grupo/específico);
@@ -141,6 +151,8 @@ export async function analyzeEngineGaps(
         fonte_artigo: result.fonte.artigo,
         gap_description: buildGapDescription(codigo, result.regime, result.descricao),
         source_reference: buildSourceReference(result.fonte.lei, result.fonte.artigo),
+        // #1275: regime que é categoria ativa → tag p/ Caso A do GapToRuleMapper
+        riskCategoryCode: result.regime in activeCats ? result.regime : null,
       });
     }
 
@@ -180,6 +192,8 @@ export async function analyzeEngineGaps(
         fonte_artigo: result.fonte.artigo,
         gap_description: buildGapDescription(codigo, result.regime, result.descricao),
         source_reference: buildSourceReference(result.fonte.lei, result.fonte.artigo),
+        // #1275: regime que é categoria ativa → tag p/ Caso A do GapToRuleMapper
+        riskCategoryCode: result.regime in activeCats ? result.regime : null,
       });
     }
 
@@ -213,7 +227,7 @@ export async function analyzeEngineGaps(
               deterministic_reason, ai_reason, unmet_criteria,
               recommended_actions, requirement_id, gap_classification,
               evaluation_confidence, evaluation_confidence_reason,
-              question_id, answer_value, source_reference)
+              question_id, answer_value, source_reference, risk_category_code)
            VALUES
              (?, ?, ?, ?, 3,
               'engine', ?, ?,
@@ -225,7 +239,7 @@ export async function analyzeEngineGaps(
               'Enquadramento tributário identificado pelo Decision Kernel (LC 214/2025)',
               'Revisar enquadramento conforme LC 214/2025', 0, NULL,
               ?, ?,
-              0, ?, ?)`,
+              0, ?, ?, ?)`,
           [
             projectId,
             gap.gap_description,
@@ -239,6 +253,7 @@ export async function analyzeEngineGaps(
             gap.confianca_tipo,
             gap.codigo,
             gap.source_reference,
+            gap.riskCategoryCode,
           ]
         );
       }
