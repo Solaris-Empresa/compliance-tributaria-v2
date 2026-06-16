@@ -1,36 +1,42 @@
 # AUDITORIA-FIM-DE-SESSAO — LATEST
 
 > Espelho do audit mais recente. Histórico completo em `docs/governance/audits/`.
-> Mais recente: **v7.76** · 2026-06-16 · GATE-NCM-NBS (encerramento #1219/#1275/#1439) + GOV-FIXES.
+> Mais recente: **v7.77** · 2026-06-16 (PARCIAL) · Curadoria de corpus (`cnaeGroups`) + RERANKER-NCM-AWARE-01 (#1468) + Lições #131–#134.
 
-→ Veja o arquivo completo: **[`audits/v7.76-2026-06-16-sessao-gov-fixes-gate-ncm-nbs.md`](./audits/v7.76-2026-06-16-sessao-gov-fixes-gate-ncm-nbs.md)**
+→ Veja o arquivo completo: **[`audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md`](./audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md)**
 
 ---
 
-## Resumo executivo (v7.76 — proposto pelo Claude Code, ratificação P.O. via merge)
+## Resumo executivo (v7.77 — proposto pelo Claude Code · passos 1/4/6 + veredito 7 pendentes de Manus/P.O.)
 
 ```
-VEREDITO DUAL:  Produto 🟡  ·  Processo 🟡   (sem 🔴 — encerrável)
+VEREDITO DUAL:  Pipeline/governança 🟢  ·  Feature 🟡   (parcial — Manus + P.O. pendentes)
 
-HEAD git:          2b9fcf72
-PRs mergeados:     13 (16/06) — Arco A GATE-NCM-NBS (9) + Arco B GOV-FIXES (4)
+HEAD git:          befb7947
+PRs mergeados:     9 (16/06) — Arco A curadoria corpus (4) + Arco B RERANKER #1468 (5)
+PRs abertos:       0
 tsc:               0 erros
-Unit tests:        PASS (server/lib + #1439b 8/8 + #1276 5/5)
+Unit tests:        rag-retriever.test.ts 11/11 PASS (6 pré + 5 novos)
 Integração:        vermelha por #1043 (DB ausente) — NÃO é required check (Lição #128)
-Greps artefatos:   REGRA-ORQ-45 ✓ · Lições #129/#130 ✓ · correção #128 ✓
-                   class_a removido ✓ · validate-pr.yml labeled ✓ · SCHEMA-REFERENCE ✓
+Greps artefatos:   worklist ✓ · spec reranker ✓ · ADR-0036 (§4) ✓ · checklist ✓
+                   Lições #131/#132/#133/#134 ✓ (4/4 em main) · buildRerankPrompt ✓
 
-Produto 🟡:   cadeia normativa completa e rastreada por PDF (NCM 2301/23.01, cesta
-              básica, 50 NCMs Art.197 I incl. tratores, reranker #1276, 1006.10
-              sem_beneficio). Pendência: aplicação dos seeds tsx em prod + smoke E2E (Manus).
+Pipeline 🟢:  diagnóstico end-to-end correto — "bug Art.140/176 no Q.NCM" rastreado da
+              fonte primária (LC 214 não mapeia CNAE) ao engine → problema de DADOS
+              sistêmico (136 chunks), não de reranker. Worklist de curadoria entregue;
+              Opção A implementada+testada+smoke (insuficiente, Opção B não ativada).
 
-Processo 🟡:  Gate 0 pegou ~8 premissas erradas + 2 no-ops (#1276) + armadilha class_a
-              (dogfooding). 6 Lições novas (#125-130). Débito exposto: validate-pr.yml
-              quebrado ~2 meses (ORQ-16/17 inertes), enforce_admins=false, 1 dup (#1451).
-              Auto-corretivo → não 🔴.
+Feature 🟡:   fix real (cnaeGroups corretos) está blocked-legal-gate (#1466/#1467) —
+              depende do Consultor/Jurídico preencher o worklist. #1468 aberta até lá.
 
-ABERTOS:      #1043 (CI) · #1462 (enforce_admins, indep. de #1043) · #1459 fase 2 (req. #1043)
-PENDENTE MANUS: aplicar seeds + smoke E2E + checkpoint Manus.space vs 2b9fcf72
+Gate 0:       4 desvios de path/premissa em despachos pegos antes de implementar
+              (ORQ-45 já existia; lcs-novas.ts; docs/governance/specs; docs/adrs) +
+              buildRerankPrompt/ncm inexistentes (Lição #125).
+
+ABERTOS:      #1466/#1467 (jurídico) · #1468 (closure pós-curadoria) · #1043 (CI)
+              · #1476/#1477 LC224/227 canônico (P3) · #1469 RAG-VAL-OPP (P2)
+PENDENTE MANUS: passos 1/4/6 (HEADs/HTTP/smoke UX) + checkpoint Manus.space vs befb7947
+PENDENTE P.O.:  veredito 7 consolidado
 ```
 
 Detalhes, inventário completo de PRs e os 7 passos: ver o arquivo arquivado acima.
