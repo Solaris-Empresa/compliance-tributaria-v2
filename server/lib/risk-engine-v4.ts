@@ -19,6 +19,12 @@ import { isImpostoSeletivoEligible } from "./risk-eligibility-is-ncm-cnae";
 import { isAliquotaReduzidaEligible } from "./cnae-oportunidade-eligibility";
 // FEAT-SCOPE-02 (#1201) — gate credito_presumido (Art. 168) por questionário + guardrail SN
 import { isCreditoPresumidoArt168Eligible } from "./credito-presumido-eligibility";
+// #1439b — gate Art. 110 LC 214 c/c Art. 197 Dec 12.955/2026 (destinatário produtor rural
+// não contribuinte). MANTÉM a oportunidade e ajusta a confiança (não skipa como credito_presumido).
+import {
+  isAliquotaZeroBensCapitalAgroEligible,
+  resolveAgroConfidence,
+} from "./aliquota-zero-agro-eligibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -320,6 +326,9 @@ export interface ConsolidatedEvidence {
   rag_validation_note?: string;
   // M3 NOVA-06: contexto do arquétipo (opcional — backward-compat)
   archetype_context?: string;
+  // #1439b: nota quando o destinatário (produtor rural não contribuinte) não foi confirmado
+  // p/ a oportunidade de alíquota zero agro (Art. 110/197). Opcional — backward-compat.
+  eligibility_note?: string;
 }
 
 export interface OperationalContext {
@@ -683,10 +692,32 @@ export async function consolidateRisks(
     // Issue #1047: gap_detected = TRUE se algum gap vem de questionário do usuário.
     const gapDetected = isGapDetected(groupGaps);
 
+    // #1439b (Art. 110 LC 214/2025 c/c Art. 197 Dec 12.955/2026): alíquota zero em bens de
+    // capital agro é OPORTUNIDADE CONDICIONADA ao destinatário (produtor rural não contribuinte),
+    // confirmado por questionário (SOL-058 produto + SOL-059 destinatário, data-driven por
+    // risk_category_code). NÃO usa CNAE (a matriz resolve por NCM). Diferente do credito_presumido
+    // (que SKIPA): aqui MANTÉM a oportunidade e ajusta a confiança — confirmado → high; não
+    // confirmado/ausente → medium + nota (Lição #67 graceful · Lição #124 DoD negativo).
+    let finalConfidence = confidence;
+    let agroNote: string | undefined;
+    if ((categoria as string) === "aliquota_zero_bens_capital_agro") {
+      const elig = await isAliquotaZeroBensCapitalAgroEligible(projectId);
+      const resolved = resolveAgroConfidence(elig);
+      finalConfidence = resolved.confidence;
+      agroNote = resolved.note;
+      if (!elig.eligible) {
+        console.warn(
+          `[risk-engine-v4] aliquota_zero_bens_capital_agro condicional (#1439b) — projeto=${projectId} reason=${elig.reason} → confidence medium`,
+        );
+      }
+    }
+
     const consolidatedEvidence: ConsolidatedEvidence = {
       gaps: evidences,
       rag_validated: false,
       rag_confidence: 0,
+      // #1439b: nota de elegibilidade (destinatário não confirmado → oportunidade condicional)
+      ...(agroNote ? { eligibility_note: agroNote } : {}),
       // M3 NOVA-06: contexto do arquétipo (passthrough opcional)
       ...(archetypeContext ? { archetype_context: archetypeContext } : {}),
     };
@@ -704,7 +735,7 @@ export async function consolidateRisks(
       evidence: consolidatedEvidence,
       breadcrumb: [bestSource, categoria, catArtigo, effectiveRiskKey],
       source_priority: bestSource as import("./db-queries-risks-v4").SourcePriorityV4,
-      confidence,
+      confidence: finalConfidence,
       risk_key: effectiveRiskKey,
       operational_context: context,
       evidence_count: evidences.length,
