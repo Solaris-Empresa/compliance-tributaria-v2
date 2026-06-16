@@ -342,6 +342,7 @@ const TITULO_TEMPLATES: Record<string, string> = {
   regime_diferenciado: "Risco de enquadramento incorreto em regime diferenciado nas operações de {op}",
   imposto_seletivo: "Risco de incidência do Imposto Seletivo nas operações de {op}",
   aliquota_zero: "Oportunidade de alíquota zero sobre produtos elegíveis nas operações de {op}",
+  aliquota_zero_bens_capital_agro: "Oportunidade de alíquota zero IBS/CBS — bens de capital agro (Art. 110 LC 214) nas operações de {op}",
   aliquota_reduzida: "Oportunidade de alíquota reduzida nas operações de {op}",
   credito_presumido: "Oportunidade de aproveitamento de crédito presumido nas operações de {op}",
   enquadramento_geral: "Risco de enquadramento tributário nas operações de {op} — revisão recomendada",
