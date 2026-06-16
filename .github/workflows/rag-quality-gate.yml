@@ -8,7 +8,10 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
     paths:
-      - 'server/rag-retriever.ts'
+      # FIX-GOV-2c (GOV-FIXES jun16): rag-retriever.ts é o ENGINE de retrieval (código), NÃO
+      # ingestão/curadoria de corpus → removido dos paths para não disparar o gate de evidências
+      # de corpus em mudanças de código (falso-positivo recorrente #1116/#1187/#1456 — Lição #92).
+      # Os demais paths (corpus/ingest/schema) permanecem — alteração cirúrgica, não gutting.
       - 'server/routers/ragAdmin.ts'
       - 'server/routers/ragDocuments.ts'
       - 'drizzle/schema.ts'
