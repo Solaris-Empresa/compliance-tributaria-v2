@@ -1,6 +1,6 @@
 # ADR-0036 — Reranker NCM-aware (Opção A: instrução de aderência ao NCM no `rerankWithLLM`)
 
-## Status: Aceito · 2026-06-16 · RERANKER-NCM-AWARE-01 #1468 · Classe B
+## Status: Implementado (#1478) · Smoke: **Opção A insuficiente isoladamente** — ver §4 · 2026-06-16 · #1468 · Classe B
 ## Relacionado: #1276, #1451 (filtragem por CNAE — distintos), #1473 (spec), ADR-0035 (resolver NCM/NBS)
 
 ---
@@ -52,6 +52,18 @@ Pass1 genérico + Pass2 setorial CNAE-aware + Pass3 NCM-targeted
 - **Opção B — score boost determinístico pós-rerank** (multiplicador para chunks que contêm o NCM literal). **Registrada como contingência** se a Opção A for insuficiente nos testes. Limitação: artigos genéricos não citam o NCM no texto.
 - **Opção C — filtro pré-rerank por setor do NCM.** **Rejeitada:** amplia dependência de classificação de domínio (mapeamento NCM→setor/CNAE) — mesma família de problema que gerou o mis-tag de `cnaeGroups` em Art.140/176 (Lição #88/#133) e arrisca ocultar artigo legítimo.
 
+## §4 — Resultado do Smoke E2E (16/06/2026)
+
+**Status:** Opção A **insuficiente isoladamente** (smoke E2E pelo Manus, DB+OpenAI, HEAD `19742e0d`).
+
+**Motivo:** o prompt do `rerankWithLLM` mostra apenas **~200 chars** de cada chunk (`rag-retriever.ts:530`) — sinal semântico insuficiente para o GPT-4.1 distinguir o contexto setorial (Art.176 = refinarias/biocombustíveis vs NCM 8436 = máquinas agrícolas; Art.140 = comunicação institucional). A instrução de aderência foi injetada corretamente, mas o LLM não tem conteúdo suficiente para penalizar.
+
+**Evidência:** Art.176 e Art.140 (ambos com `cnaeGroups` incluindo CNAE 28) **não** foram penalizados; Art.197 (agro, Decreto/CGIBS6) foi mantido.
+
+**Decisão:** **Opção B NÃO ativada.** A causa-raiz é `cnaeGroups` excessivamente amplos (dados), **não** o reranker. Score boost seria heurística sobre o mesmo dado ruim (Lição #134). O fix determinístico via filtro #1276 é suficiente **quando os dados estiverem corretos**.
+
+**Closure de #1468:** após curadoria jurídica de `cnaeGroups` (#1466/#1467 — `blocked-legal-gate`; worklist #1471 pronto). A Opção A permanece em produção como defense-in-depth sem regressão (no-NCM byte-idêntico).
+
 ## 5. Vinculadas
 
-`server/rag-retriever.ts:451,521-579,631-692` · spec #1473 (`docs/specs/SPEC-RERANKER-NCM-AWARE-01-v1.md`) · #1468 · #1276 · #1451 · REGRA-ORQ-27/28/30/44 · Lições #67/#87/#88/#125/#133
+`server/rag-retriever.ts:451,521-579,631-692` · spec #1473 (`docs/specs/SPEC-RERANKER-NCM-AWARE-01-v1.md`) · #1468 · #1276 · #1451 · #1466/#1467 (curadoria) · REGRA-ORQ-27/28/30/44 · Lições #67/#87/#88/#125/#133/#134
