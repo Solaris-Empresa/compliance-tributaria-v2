@@ -3607,3 +3607,15 @@ antes de qualquer afirmação sobre `cnaeGroups` de artigos nessa faixa.
 - ✅ Se sessão encerrar sem PR de lições: ORQ-19 veredito = 🟡 Processo
 
 **Vinculadas:** REGRA-ORQ-19 (Passo 8) · REGRA-ORQ-45 (Gate 0 do emissor) · Lições #131/#132 (origem)
+
+## Lição #133 — cnaeGroups é camada interpretativa, nunca normativa
+
+**Contexto:** Despacho v34 (16/06/2026) — Gate 0 contra a fonte primária `lc214.json` (acervo RAG) ao reescopar CORPUS-FIX-01/02 (#1466/#1467).
+
+**Texto:** A LC 214/2025 **não contém CNAE em nenhum artigo** (`cnae` aparece 1× em toda a lei; 0× em Art.140/176). O campo `cnaeGroups` do corpus é **100% camada editorial interpretativa da plataforma**, sem base no texto legal. Qualquer curadoria de `cnaeGroups` exige **gate jurídico humano** — não é determinística a partir do texto legal. Substituir um valor de `cnaeGroups` sem validação jurídica formal é substituir um palpite por outro (ruído auditável, não curadoria).
+
+**Aplicação:** Antes de qualquer PR que altere `cnaeGroups`, verificar se há **parecer jurídico formal** no corpo da issue. Se não houver → label `blocked-legal-gate`.
+
+**Caso canônico:** o bug "Art.140/176 no pool Q.NCM para NCM 8436" não era de 2 artigos — **136 chunks** de `rag-corpus-lcs-novas.ts` têm faixa industrial copy-paste (`10..33`), incluindo artigos gerais (Art.5 incidência, Art.10 fato gerador, Art.12 base de cálculo). Worklist de curadoria: `docs/governance/corpus-curation-worklist-industrial-10-33.md`.
+
+**Vinculadas:** Lição #61 (metadado determinístico validado pelo jurídico) · Lição #126 (fonte primária, não corpus) · Lições #131/#132 · REGRA-ORQ-29/32 (no hardcode / sem requisito) · REGRA-ORQ-33 (escalação jurídica) · REGRA-ORQ-45/46 · CORPUS-FIX-01 #1466 · CORPUS-FIX-02 #1467 · `docs/governance/corpus-audit-checklist.md`
