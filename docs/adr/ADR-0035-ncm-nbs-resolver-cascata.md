@@ -72,7 +72,7 @@ Cada consumer 🔴 exige critério POSITIVO + NEGATIVO. Os negativos testam o **
 | Consumer | POSITIVO | NEGATIVO |
 |---|---|---|
 | C4 Gate IS | `NCM 2710.19.21 (diesel) → IS elegível` | `NCM=[] + CNAE não-92 → IS NÃO elegível` (trava #827/F11); `NCM 2306.10.00 (fora Art.393, arrays não-vazios) → NÃO elegível` |
-| C5 Art.197 | `NCM 8436 + CNAE 28 + destinatário PF não-contribuinte → injeta` | `NCM ausente → NÃO injeta` |
+| C5 Art.197 | `NCM 8436 + CNAE 28 → injeta a pergunta` (injeção NÃO gateia destinatário — ver §9.4) | `NCM ausente → NÃO injeta` |
 | Cesta básica (via C3/C6) | `NCM específico do Anexo I → aliquota_zero` | `grupo (4 díg.) sozinho → NÃO concede aliquota_zero` (refino específico obrigatório) |
 | C3/C7 resolver | `NCM 8436 → resolution_level='group'` | `NCM 8436 → NÃO cair em 'fallback'/genérico` |
 
@@ -90,3 +90,17 @@ F0 (este ADR) → F1 (UX 4 gates aceitam grupo) → F2 (`ncm-nbs-resolver.ts` + 
 - REGRA-ORQ-43 (fluxo SPEC-FIRST) · REGRA-ORQ-44 (DoD negativo) · REGRA-ORQ-24 (Classe C) · REGRA-ORQ-27 (consumo)
 - ADR-0010 (NCM/NBS) · ADR-0012 (IS) · ADR-0016 (Score/confiança — bump MINOR em F2) · ADR-0017 (aviso ausente)
 - Issue #1219 (GATE-NCM-NBS) · #827 (IS falso-positivo — fechado em F3) · #1043 (ci-hygiene, ortogonal)
+
+## 9. Errata normativa (2026-06-16 — verificação determinística LC 214 + Decreto 12.955 + Resolução CGIBS 6)
+
+Correções/esclarecimentos com extração `pdftotext` (citação por linha do PDF). Origem: análise do gate Art. 197 (#1439a/#1439b) e da curadoria do Dr. José.
+
+**9.1 — Destinatário (corrige a redação "PF" do §5/C5).** O sujeito da alíquota zero do Art. 197, I é **produtor rural não contribuinte** — não restrito a PF. O **Art. 164 da LC 214/2025** (l.3318) define não contribuinte como produtor rural **PF ou PJ** com receita < R$ 3,6M/ano (+ produtor integrado). O termo "PF" da norma pertence ao **inciso II** (transportador autônomo de carga), não ao inciso I (produtor rural).
+
+**9.2 — Base legal.** A base da alíquota zero agro é o **Art. 110 da LC 214/2025** (`LC 214 Art. 110` — zera IBS+CBS). O **Art. 197 da própria LC 214** (l.4065) trata de cooperativas/serviços financeiros — **não** é base agro. O "Art. 197" agro existe apenas nos **regulamentos**: Decreto 12.955/2026 (lado CBS) e Resolução CGIBS 6/2026 (lado IBS), ambos c/c Art. 110 da LC 214.
+
+**9.3 — Citação canônica da Tabela de bens.** A lista de tratores/máquinas/implementos agrícolas (Art. 197, I) está, de forma **internamente consistente**, na **Resolução CGIBS 6/2026, Anexo IV, Tabela II**. No **Decreto 12.955/2026** a mesma tabela está fisicamente no **Anexo V, Tabela I** (erro de diagramação do Decreto: o texto do artigo remete a "Anexo IV", mas a tabela está no Anexo V — o Anexo IV do Decreto é do Art. 196/suspensão).
+
+**9.4 — Eixo de elegibilidade (#1439b).** O gate de destinatário (produtor rural não contribuinte) é aplicado na **MATRIZ de riscos** (`consolidateRisks` → confidence high se confirmado / medium + nota se não), **NÃO na injeção** da pergunta. `shouldInjectArt197` gateia apenas CNAE 28 + NCM família 8436 — a pergunta SOL-059 colhe a condição do destinatário, logo não se pode gatear a injeção pela própria resposta.
+
+**Nota de estado:** este ADR foi redigido como "Proposto" com roadmap F0-F5; o épico entregou também F6 + #1275 (NEW-CAT) + #1439 (gate). Atualização de status (Proposto → Aceito) e do roadmap fica como follow-up de governança.
