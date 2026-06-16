@@ -3441,3 +3441,84 @@ Ao escrever DoD negativo: (1) escreva o positivo; (2) identifique a **variável 
 
 - REGRA-ORQ-34 Protocolo 3 (DoD negativo) · REGRA-ORQ-44 (DoD negativo por consumer crítico) · Lição #65 (rastrear fluxo / testar a coisa certa) · Lição #93 (mecanismo verificado)
 - Caso canônico: smoke #1275 (15/06/2026) · gate destinatário #1439 (Fase 2)
+
+## REGRA-ORQ-45 — Gate 0 do Emissor de Despacho
+
+**Vigência:** permanente, a partir de 2026-06-16
+**Origem:** GOV-FIXES — 7 premissas erradas em despachos consecutivos (v8→v18) pegas só pelo Gate 0 do implementador, após N rounds
+**Severidade:** governança crítica — corta a causa nº1 de retrabalho (ciclos de despacho)
+
+### Regra
+
+Todo despacho que prescreve **SQL, nome de coluna, regime, enum ou snippet de código** DEVE:
+
+1. Carregar **evidência verificada no corpo** (`DESCRIBE tabela`, `SELECT` do estado atual, `grep arquivo:linha`, ou consulta a `docs/governance/SCHEMA-REFERENCE.md`); **OU**
+2. Marcar explicitamente **⚠️ A verificar pelo implementador (Gate 0)** para cada premissa não verificada.
+
+Snippet de código proposto deve declarar que **todos os símbolos/campos citados existem** na fonte. Snippet não verificado = **direcional, não copiável** (Lição #125).
+
+Violação = despacho rejeitado pelo implementador via **REGRA-ORQ-22 Nível 1** (bloqueante técnico).
+
+### Incidentes que motivaram (todos pegos tarde, pelo Gate 0 do implementador)
+
+| Despacho | Premissa errada | Realidade |
+|---|---|---|
+| v8/v10 | coluna `status` | não existe (mig 0076) |
+| v18 | coluna `source_basis` | não existe — usa `legal_reference` |
+| v10 | regime `aliquota_reduzida_60_insumos_agro` | committed é `aliquota_reduzida_60` (#1108) |
+| v10 | "criar 2302/2303/2304/2306/2309" | já feitos (PR #1108) |
+| v16 | `ncm LIKE '23.01%'` | formato real `'2301'` |
+| v20 | regime `aliquota_reduzida_bens_capital` | não existe nos seeds |
+| #1276 | snippet `c.cnaeGroups` + `matchesCnaeBoundary` | no-op duplo (campo descartado + fallback `<50`) |
+
+### Vinculadas
+
+- REGRA-ORQ-22 (crítica Nível 1) · REGRA-ORQ-database (Gate 0 schema) · REGRA-ORQ-35 (NUNCA ASSUMA) · REGRA-ORQ-41 (impact-tree)
+- `docs/governance/SCHEMA-REFERENCE.md` (fonte de verdade de schema, mantida por Claude Code)
+- Lições #125 (snippet direcional) · #126 (PDF > corpus) · #127 (issues planejadas) · #128 (gates não-required)
+
+## Lição #125 — Snippet proposto é direcional, não copiável
+
+Origem: GOV-FIXES — snippet (a) do #1276 era **no-op duplo**.
+
+Código sugerido em despacho/devolutiva/análise é **direcional**, não copiável. O implementador verifica **cada símbolo, campo e branch** contra a fonte antes de usar. Código sugerido sem verificação de existência dos campos pode ser **no-op silencioso**.
+
+**Caso canônico (#1276):** o snippet proposto lia `c.cnaeGroups` — mas `RetrievedArticle` não carregava o campo (os 3 fetch maps o descartavam) → no-op. E usava `matchesCnaeBoundary`, cuja fallback `length < 50 → true` (rag-retriever.ts:288/292) classificaria `Art.139` (cnaeGroups "41,42,43,68") como match → no-op. O fix correto exigiu adicionar o campo aos 3 maps + membership **estrito** (`parts.includes(grupo)`).
+
+Vinculadas: REGRA-ORQ-45 · REGRA-ORQ-27 (assemble ≠ consumption) · Lição #59 · Lição #93.
+
+## Lição #126 — Fato normativo: PDF primário, nunca o corpus RAG
+
+Origem: GOV-FIXES — PR #1108 errou um fato jurídico por consultar o corpus, não a lei.
+
+Fato jurídico/normativo deve ser verificado contra o **PDF primário** (`pdftotext`/extração direta), **nunca** contra o corpus RAG (`rag-corpus-*.ts` / `ragDocuments`). O corpus é **derivado** e pode ter lacunas ou normalização; **a lei é a fonte**.
+
+**Caso canônico:** PR #1108 concluiu *"NCM 2301 ausente do Anexo IX"* varrendo `lcs-novas.ts` (corpus) e manteve 2301 conservador por anti-alucinação. O **PDF** da LC 214 lista `23.01` **explícito** no Anexo IX Item 20 (mesma linha de 2304.00/23.06). O erro atrasou a confirmação de 23.01 por 3+ despachos (até v16).
+
+Vinculadas: REGRA-ORQ-29 · REGRA-ORQ-37 (evidência de ingestão) · Lição #61 · Lição #66.
+
+## Lição #127 — Despacho/board não citam issue planejada (extensão Lição #83)
+
+Origem: GOV-FIXES — `#1451` duplicata de `#1276` + board reservando `#N` inexistentes.
+
+Despacho e board **nunca citam `#N` de issue planejada** — apenas números de issues **já criadas e confirmadas** via `gh issue view`. `gh issue list --search` **antes** de criar é obrigatório (extensão da Lição #83).
+
+**Casos:** Claude Code criou `#1451` sem buscar — era duplicata do `#1276` existente (remediado: spec movida para #1276, #1451 fechada). O board citou `#1447` (planejado → consumido pelo seed T2) e `#1276` (já existia) como números reservados.
+
+Vinculadas: Lição #83 · REGRA-ORQ-28.
+
+## Lição #128 — Gates declarados ≠ gates enforçados (auditar branch protection)
+
+Origem: GOV-FIXES — auditoria do branch protection de `main` (16/06/2026).
+
+Regra declarada como "bloqueante" no texto de governança **não é enforçada** a menos que o job esteja em **required status checks** do branch protection. Auditar a lista real antes de assumir que um gate bloqueia.
+
+**Achado (16/06/2026), `gh api .../branches/main/protection`:**
+- **Required (5):** `Governance gate` · `Invariant Check (GOV-03b)` · `Migration discipline` · `scope-check` · `autoaudit`.
+- **NÃO required** (declarados, mas ausentes): `TypeScript + Vitest`, `Run Unit Tests`, `Validate PR body`, `Issue vinculada`, `Spec completa`, `Pre-Close Checklist`.
+
+**Consequência:** REGRA-ORQ-CI-01 (TS+Vitest bloqueia), ORQ-16 (validate PR body/5 labels) e ORQ-17 (PRE-CLOSE) **não são enforçadas mecanicamente** — são disciplina manual. O épico GATE-NCM-NBS mergeou com `TypeScript + Vitest` vermelho **não por admin-override, mas porque o check não é required** (#1043 permanece tech-debt, mas não bloqueia). 
+
+**Decisão pendente do P.O.:** ou registrar os jobs funcionais como required (após #1043 verde), ou reescrever ORQ-CI-01/16/17 como "disciplina manual, não mecânica" — eliminando a ficção de enforcement.
+
+Vinculadas: REGRA-ORQ-CI-01 · REGRA-ORQ-16 · REGRA-ORQ-17 · #1043 · `docs/governance/SCHEMA-REFERENCE.md`.
