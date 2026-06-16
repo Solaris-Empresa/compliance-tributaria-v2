@@ -283,6 +283,18 @@ Este formato substitui o veredito único 🟢/🟡/🔴 apenas quando ambas as d
 
 **Convenção de path para audit dual:** `vX.XX-YYYY-MM-DD-audit-mX.XX-DESCRIPTOR.md` (em vez de `-sprint-mX.XX-encerrada.md`), refletindo que sprint não está totalmente encerrada — apenas o pipeline.
 
+### Adendo (2026-06-16) — Passo 8: Lições da sessão commitadas (REGRA-ORQ-46)
+
+Antes de consolidar o veredito (Passo 7), o Claude Code executa o **Passo 8**:
+
+| Passo 8 | Lições da sessão commitadas? | Claude Code |
+|---|---|---|
+| — | `grep "Lição #" .claude/rules/governance.md` → confirmar número mais alto = última commitada | — |
+| — | Se há lições novas não commitadas → abrir PR `chore/licoes-*` ANTES de fechar ORQ-19 | — |
+| — | Se não há lições novas → registrar "Lições: nenhuma nova nesta sessão" | — |
+
+Sessão que encerra com lições novas não commitadas → veredito ORQ-19 = 🟡 Processo (ver REGRA-ORQ-46).
+
 ## REGRA-ORQ-20 — Avaliação de risco estrutural obrigatória
 
 Antes de QUALQUER alteração com sinais de risco estrutural, a issue
@@ -3546,3 +3558,52 @@ Origem: GOV-FIXES / dogfooding PR #1461 (branch protection — PR #1392, 12/06/2
 **Relação com #1043:** mudar para `enforce_admins: true` bloquearia admins em TODO PR enquanto TS+Vitest (#1043) estiver vermelho — inclusive PRs sem código TS. Avaliar junto com #1043.
 
 Vinculadas: Lição #128 · REGRA-ORQ-CI-01 · #1043 · #1392 (branch protection).
+
+## Lição #131 — Regenerar questionário ≠ confirmar fix de corpus
+
+**Contexto:** Auditoria G1-T1 (16/06/2026) — Art.140 aparecia no pool Q.NCM para NCM 8436 (CNAE 28). Manus propôs invalidar cache e regenerar como fix. Claude Code verificou `server/rag-corpus-lcs-novas.ts` e constatou que `cnaeGroups` do Art.140 inclui CNAE 28 — portanto regenerar apenas reproduziria o bug, não o corrigiria.
+
+**Regra:** Antes de propor regeneração como correção de bug de corpus, verificar o valor de `cnaeGroups` no arquivo fonte. Se o dado ainda está errado, regenerar é **TESTE** (confirma bug), não **fix**.
+
+**Aplicação:**
+```bash
+grep -A3 "Art\. 140" server/rag-corpus-lcs-novas.ts
+```
+antes de qualquer proposta de regeneração pós-diagnóstico de corpus.
+
+**Vinculadas:** Lição #132 · REGRA-ORQ-35 (NUNCA ASSUMA) · REGRA-ORQ-45 (Gate 0 do emissor) · Lição #93 (mecanismo verificado) · `docs/governance/corpus-audit-checklist.md` · CORPUS-FIX-01 #1466 · CORPUS-FIX-02 #1467
+
+## Lição #132 — Afirmar cnaeGroups sem verificar o arquivo fonte é anti-padrão
+
+**Contexto:** Auditoria G1-T1 (16/06/2026) — Manus afirmou que Art.140 tinha `cnaeGroups = "41,42,43,68"` (valor real do **Art.139**, `server/rag-corpus-lcs-novas.ts:2948`). Evidência real (Art.140, ~linha 2974): faixa industrial `10,11,…,33`, que inclui CNAE 28.
+
+**Regra:** Nunca afirmar o valor de `cnaeGroups` de um artigo sem verificar o arquivo fonte. Art.139 e Art.140 têm valores superficialmente similares mas semanticamente distintos — confusão gera diagnósticos incorretos (limpeza de cache, regeneração desnecessária, issues incorretas).
+
+**Aplicação:**
+```bash
+grep -B1 -A5 "Art\. 14[0-9]" server/rag-corpus-lcs-novas.ts
+```
+antes de qualquer afirmação sobre `cnaeGroups` de artigos nessa faixa.
+
+**Evidência verificada (16/06/2026):** Art.139 = `"41,42,43,68"` (L2948) · Art.140 = faixa `10–33` incl. 28 (L2974) · Art.176 = `35–39,10–33` incl. 28 (L3783).
+
+**Vinculadas:** Lição #131 · REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-45 · Lição #93 · `docs/governance/corpus-audit-checklist.md`
+
+## REGRA-ORQ-46 — Lição identificada = PR obrigatório na mesma sessão
+
+**Regra:** Toda lição identificada durante uma sessão DEVE ser commitada em `.claude/rules/governance.md` antes do encerramento (ORQ-19 Passo 8). Não é permitido adiar lições para "próxima sessão" ou deixá-las apenas em memo.
+
+**Gatilho:** Qualquer despacho que contenha "Lição #NNN" ou "registrar em governance.md" aciona obrigação de PR `chore/licoes-*` antes do ORQ-19.
+
+**Responsável:** Claude Code abre o PR; P.O. autoriza merge.
+
+**Anti-padrão proibido:**
+- ❌ "Lição #NNN — registrar em próxima sessão"
+- ❌ "Lição #NNN — backlog"
+- ❌ Lição apenas em memo do Orquestrador
+
+**Padrão correto:**
+- ✅ Lição identificada → PR `chore/licoes-*` → merge antes do ORQ-19
+- ✅ Se sessão encerrar sem PR de lições: ORQ-19 veredito = 🟡 Processo
+
+**Vinculadas:** REGRA-ORQ-19 (Passo 8) · REGRA-ORQ-45 (Gate 0 do emissor) · Lições #131/#132 (origem)
