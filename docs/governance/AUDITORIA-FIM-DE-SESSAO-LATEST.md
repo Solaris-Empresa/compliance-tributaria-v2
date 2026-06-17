@@ -1,9 +1,10 @@
 # AUDITORIA-FIM-DE-SESSAO — LATEST
 
 > Espelho do audit mais recente. Histórico completo em `docs/governance/audits/`.
-> Mais recente: **v7.77** · 2026-06-16 (PARCIAL) · Curadoria de corpus (`cnaeGroups`) + RERANKER-NCM-AWARE-01 (#1468) + Lições #131–#134.
+> Mais recente: **v7.77.1** (adendo) · 2026-06-17 · Integridade corpus lc227 (#1484) **executada** + correção factual CNAE/Art.273 (#1482) + worklists primários (#1483) + errata Art.197 (#1488) + Lição #135.
+> Base: **v7.77** · 2026-06-16 (parcial) · curadoria `cnaeGroups` + RERANKER (#1468) + Lições #131–#134.
 
-→ Veja o arquivo completo: **[`audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md`](./audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md)**
+→ Adendo: **[`audits/v7.77.1-2026-06-17-adendo-corpus-fix.md`](./audits/v7.77.1-2026-06-17-adendo-corpus-fix.md)** · Base: **[`audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md`](./audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md)**
 
 ---
 

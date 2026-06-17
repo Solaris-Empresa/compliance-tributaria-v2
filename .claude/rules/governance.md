@@ -3633,3 +3633,17 @@ antes de qualquer afirmação sobre `cnaeGroups` de artigos nessa faixa.
 **Aplicação:** ao diagnosticar falso-positivo setorial em retrieval, priorizar **curadoria do metadado** (`cnaeGroups` via gate jurídico) sobre tuning do reranker. Reranker NCM-aware permanece como defense-in-depth (sem regressão), **não** como fix do dado.
 
 **Vinculadas:** Lição #133 (cnaeGroups é camada interpretativa) · Lição #87 (smoke runtime ≠ estático) · Lição #88 (acoplamento de classificação setorial) · ADR-0036 §4 · #1468 · #1276 · #1466/#1467 (curadoria) · REGRA-ORQ-46
+
+## Lição #135 — Contagem para fix de prod vem da query no DB, não do arquivo de corpus; e o executado deve ser o script revisado
+
+**Origem:** Fix #1484 (integridade lc227) — 17/06/2026.
+
+**Texto:** Para um fix destrutivo em produção, as **contagens** que dimensionam o `DELETE`/`UPDATE` devem vir da **query no banco real (Manus)**, não do arquivo de corpus TS (`rag-corpus-lcs-novas.ts`). O arquivo é **proxy de build-time, não espelho** do `ragDocuments` — eles divergem. Além disso, o que é **executado em prod deve ser o script revisado/commitado** (REGRA-ORQ-37); se o operador rodar uma variante à mão, o artefato revisado fica stale e a auditoria perde rastreabilidade.
+
+**Caso canônico:** o Gate 0 file-based do #1484 mediu **89 dotted / 72 não-dotted / lc227=273**; o prod (query Manus) tinha **44 / 57 / lc227=333**. O **total** de mis-tags (num>197) bateu (**101** em ambos), mas o split dotted/não-dotted divergiu (29 vs 44) → 15 chunks têm `conteudo` diferente no arquivo vs no banco (ou predicado de "pontilhado" distinto). O script mergeado #1486 (89/72) **não foi o executado** (Opção X 44/57, manual) → #1486 ficou stale.
+
+**O que funcionou:** o Gate 0 file-based ainda interceptou os erros **estruturais** (string-compare, LIKE genérico, aritmética 390→333) — eles independem da contagem exata. E o script tinha guards `PRE-CHECK · PARAR-se-divergir` justamente para o caso de o número real diferir.
+
+**Aplicação:** (a) dimensionar fix de prod pela query do Manus (sem empirismo), usando o arquivo só para validar a **forma** do predicado; (b) garantir que o SQL executado = o SQL revisado (ou atualizar o artefato pós-execução para refletir o real).
+
+**Vinculadas:** Lição #71 (script versionado) · #72/#89 (corpus/scripts) · #93 (mecanismo verificado, não inferido) · REGRA-ORQ-37 (evidência) · feedback "sem empirismo — Manus executa queries" · #1484 / #1486 (caso canônico) · adendo ORQ-19 v7.77.1
