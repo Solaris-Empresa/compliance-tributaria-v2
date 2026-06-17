@@ -152,15 +152,46 @@ Considerando **todas** as regras (ativas e inativas) que casam o código, seja `
 - **Salvaguarda pré-fix (D2 — REGRA-ORQ-44 DoD negativo, parecer Consultor 2026-06-18):** executar, **antes do merge de #1492**, a query de integridade que cruza os `active=0` contra os **códigos literais do Anexo I** (não contra o grupo `1006`):
 
   ```sql
-  -- Resultado esperado: VAZIO (0 rows). Se não-vazio → ABORTAR o fix:
-  -- a desativação contradiz a lei (código beneficiado pelo Anexo I marcado active=0).
-  SELECT ncm_code, regime
-  FROM normative_product_rules
+  -- Salvaguarda D2 — Anexo I LC 214/2025 (Art. 125) — query mista IN + LIKE (D3 opção A)
+  -- Fonte: extração literal PDF Consultor 18/06/2026 · 76 códigos inclusão · 57 exatos + 19 prefixos
+  -- D4: forma canônica com pontos (confirmado banco Manus 18/06/2026); item 26 2106.9090 → 2106.90.90
+  -- Resultado esperado: VAZIO. Se não-vazio: ABORTAR o fix de #1492.
+  SELECT ncm_code FROM normative_product_rules
   WHERE active = 0
-    AND ncm_code IN (
-      -- Códigos LITERAIS do Anexo I LC 214/2025 (Art. 125 — Cesta Básica).
-      -- Array literal Anexo I: aguarda Consultor (oferta aceita — ~80 NCMs / 26 itens).
-      '1006.20', '1006.30', '1006.40.00'  -- arroz (Item 1) — demais a completar
+    AND (
+      ncm_code IN (
+        '1006.40.00','0401.10.10','0401.10.90','0401.20.10','0401.20.90',
+        '0401.40.10','0401.50.10','0402.10.10','0402.10.90','0402.21.10',
+        '0402.21.20','0402.29.10','0402.29.20','1901.10.10','1901.10.90',
+        '2106.90.90','0405.10.00','1517.10.00','0713.33.19','0713.33.29',
+        '0713.33.99','0713.35.90','1513.21.20','1106.20.00','1903.00.00',
+        '1102.20.00','1103.13.00','1104.19.00','1104.23.00','1101.00.10',
+        '1701.14.00','1701.99.00','1905.90.90','1901.20.10','1901.20.90',
+        '1104.12.00','1104.22.00','1102.90.00','0206.10.00','0210.20.00',
+        '0206.30.00','0210.99.20','0210.99.90','0206.80.00','0206.90.00',
+        '0209.90.00','0406.10.10','0406.10.90','0406.20.00','0406.90.10',
+        '0406.90.20','0406.90.30','2501.00.20','2501.00.90','1901.90.90',
+        '1902.19.00'
+      )
+      OR ncm_code LIKE '0901%'    -- 09.01 café
+      OR ncm_code LIKE '0201%'    -- 02.01
+      OR ncm_code LIKE '0202%'    -- 02.02
+      OR ncm_code LIKE '0203%'    -- 02.03
+      OR ncm_code LIKE '0204%'    -- 02.04
+      OR ncm_code LIKE '0207%'    -- 02.07
+      OR ncm_code LIKE '0302%'    -- 03.02
+      OR ncm_code LIKE '0303%'    -- 03.03
+      OR ncm_code LIKE '0304%'    -- 03.04
+      OR ncm_code LIKE '0903%'    -- 09.03 mate
+      OR ncm_code LIKE '1006.20%' -- arroz descascado
+      OR ncm_code LIKE '1006.30%' -- arroz beneficiado
+      OR ncm_code LIKE '2101.1%'  -- café extratos
+      OR ncm_code LIKE '1902.1%'  -- massas
+      OR ncm_code LIKE '0206.2%'
+      OR ncm_code LIKE '0206.4%'
+      OR ncm_code LIKE '0209.10%'
+      OR ncm_code LIKE '0210.1%'
+      OR ncm_code LIKE '0210.99.1%' -- anômalo 7-díg
     );
   -- 1006.10 NÃO consta do Anexo I → desativação legítima → não dispara alerta.
   ```
