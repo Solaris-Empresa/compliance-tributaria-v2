@@ -1047,10 +1047,16 @@ Severidade: governança operacional — define ownership de cada etapa do fluxo
 
 | Papel | Pessoa/Sistema | Atribuição |
 |---|---|---|
-| **R** — Responsible | Claude Code | Implementar código (escreve PRs, aplica REGRA-ORQ-28 quando aplicável) |
-| **A** — Accountable | P.O. (Uires Tapajós) | Aprovação final de specs e merges |
-| **C** — Consulted | Consultor (ChatGPT) | Análise crítica, sugestão de design, parecer técnico |
-| **I** — Informed (executor) | Manus | Review pós-implementação + deploy em produção |
+| **R** — Responsible | Claude Code | Implementar código (escreve PRs, aplica REGRA-ORQ-28 quando aplicável) · **aplica/remove labels de rastreabilidade (v59)** |
+| **A** — Accountable | P.O. (Uires Tapajós) | Dúvidas técnicas + spec de regras + aprovação final de specs e merges (v59) |
+| **C** — Consulted | Consultor (ChatGPT) | Análise crítica, sugestão de design, parecer técnico/jurídico |
+| **I** — Informed (executor) | Manus | Review pós-implementação + merge + queries SQL/deploy (**não mais labels — v59**) |
+
+### Adendo (2026-06-18 v59) — labels migram de Manus para Claude Code
+
+Origem: Decisão P.O. v59 (Despacho Nominal). A aplicação/remoção de labels de rastreabilidade em issues e PRs passa a ser **responsabilidade do Claude Code** (antes: Manus). Manus mantém review, merge, queries SQL e deploy. Consultor jurídico é o **ChatGPT** (explicitado). P.O. atua em dúvidas técnicas + spec de regras + aprovação.
+
+Reflexo operacional: trechos do governance que atribuíam labels ao Manus ou ao P.O. (ex.: REGRA-ORQ-12 "Manus em paralelo"; Gate UX "após labels aplicados") leem-se, a partir de v59, com o Claude Code como executor das labels — a aprovação de quais labels aplicar permanece decisão do P.O. (A).
 
 ### Aplicação operacional
 
