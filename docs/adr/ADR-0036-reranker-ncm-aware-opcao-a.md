@@ -43,7 +43,7 @@ Pass1 genérico + Pass2 setorial CNAE-aware + Pass3 NCM-targeted
 **Test contracts (da spec #1473 — REGRA-ORQ-28/44):**
 - NEGATIVO: Art.140 **não** no top-3 para NCM 8436 (CNAE 28)
 - NEGATIVO: Art.176 **não** no top-3 para NCM 8436 (CNAE 28)
-- POSITIVO: Art.197 **no** top-3 para NCM 8436 (CNAE 28)
+- POSITIVO: o agro de NCM 8436 (CNAE 28) **no** top-3 — **Art. 110 (LC 214)** (base) / **Art. 197 (Decreto 12.955 / CGIBS 6)** (infralegal). NB: **LC 214 Art. 197 ≠ agro** (é cooperativas).
 - ANTI-REGRESSÃO: Art.139 **no** top-3 para NCM de produto cultural (não penalizar globalmente)
 - Unit (sem DB/LLM): `buildRerankPrompt` injeta a instrução com o NCM quando presente; omite quando ausente.
 
@@ -58,7 +58,7 @@ Pass1 genérico + Pass2 setorial CNAE-aware + Pass3 NCM-targeted
 
 **Motivo:** o prompt do `rerankWithLLM` mostra apenas **~200 chars** de cada chunk (`rag-retriever.ts:530`) — sinal semântico insuficiente para o GPT-4.1 distinguir o contexto setorial (Art.176 = refinarias/biocombustíveis vs NCM 8436 = máquinas agrícolas; Art.140 = comunicação institucional). A instrução de aderência foi injetada corretamente, mas o LLM não tem conteúdo suficiente para penalizar.
 
-**Evidência:** Art.176 e Art.140 (ambos com `cnaeGroups` incluindo CNAE 28) **não** foram penalizados; Art.197 (agro, Decreto/CGIBS6) foi mantido.
+**Evidência:** Art.176 e Art.140 (ambos com `cnaeGroups` incluindo CNAE 28) **não** foram penalizados; o agro de NCM 8436 — **Art. 197 (Decreto 12.955 / CGIBS 6)** (base primária **Art. 110 LC 214**) — foi mantido. (NB: **LC 214 Art. 197 = cooperativas**, não agro — não confundir com o Art. 197 do Decreto/CGIBS 6.)
 
 **Decisão:** **Opção B NÃO ativada.** A causa-raiz é `cnaeGroups` excessivamente amplos (dados), **não** o reranker. Score boost seria heurística sobre o mesmo dado ruim (Lição #134). O fix determinístico via filtro #1276 é suficiente **quando os dados estiverem corretos**.
 
