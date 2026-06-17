@@ -72,7 +72,7 @@ Mapear NCM→setor antes do Jina, excluindo chunks de setores não relacionados.
 Para NCM 8436 (CNAE 28, máquinas agrícolas):
 - `it.todo` Art.140 **NÃO** no top-3 (comunicação institucional — irrelevante ao NCM)
 - `it.todo` Art.139 **NÃO** no top-3 (cultural)
-- `it.todo` Art.197 **DEVE** estar no top-3 (legítimo p/ CNAE 28) — anti-regressão
+- `it.todo` o agro de NCM 8436/CNAE 28 **DEVE** estar no top-3 — **Art. 110 (LC 214)** (base primária: tratores/máquinas agrícolas) e/ou **Art. 197 (Decreto 12.955 / CGIBS 6)** (agro infralegal) — anti-regressão. (NB: **LC 214 Art. 197 ≠ agro** — é cooperativas; não confundir.)
 - `it.todo` anti-regressão: para NCM de produto cultural, Art.139 **DEVE** aparecer (não penalizar globalmente)
 - `it.todo` degradação graciosa: falha do reranker NCM-aware → fallback ao comportamento atual (Lição #67)
 

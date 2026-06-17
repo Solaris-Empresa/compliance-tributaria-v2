@@ -50,8 +50,9 @@ describe("RAG-1-FIX — belongsToUniversalPool (pool universal por vazio, não p
 
 // RERANKER-NCM-AWARE-01 (#1468 · ADR-0036 · Opção A) — espelho determinístico
 // da injeção da instrução de aderência ao NCM no prompt do rerankWithLLM.
-// O ranking real (top-3 exclui Art.140/176, inclui Art.197) é validado por
-// integração/smoke (Lição #87 — unit espelha a instrução, não o ranking LLM).
+// O ranking real (top-3 exclui Art.140/176, inclui o agro Art. 110 LC 214 /
+// Art. 197 Decreto·CGIBS 6) é validado por integração/smoke (Lição #87 — unit
+// espelha a instrução, não o ranking LLM). NB: LC 214 Art. 197 = cooperativas.
 describe("RERANKER-NCM-AWARE-01 — buildRerankPrompt injeta aderência ao NCM", () => {
   const candidates = [
     {
@@ -62,7 +63,7 @@ describe("RERANKER-NCM-AWARE-01 — buildRerankPrompt injeta aderência ao NCM",
     },
     {
       lei: "lc214",
-      artigo: "Art. 197",
+      artigo: "Art. 110",
       titulo: "produtor rural",
       conteudo: "máquinas e implementos agrícolas",
     },
@@ -93,7 +94,7 @@ describe("RERANKER-NCM-AWARE-01 — buildRerankPrompt injeta aderência ao NCM",
   it("inclui candidatos indexados e o topK", () => {
     const prompt = buildRerankPrompt(candidates, "q", 5, ["8436"]);
     expect(prompt).toContain("[0] LC214 Art. 140");
-    expect(prompt).toContain("[1] LC214 Art. 197");
+    expect(prompt).toContain("[1] LC214 Art. 110");
     expect(prompt).toContain("Selecione os 5 artigos");
   });
 });
