@@ -123,7 +123,9 @@ A cascata do §2 (`específico → grupo → capítulo → regime_geral`) decide
 
 > **Regra de precedência negativa:** quando existe uma regra **mais específica** que casa o código e essa regra está **`active=0`**, ela **vence** sobre qualquer regra **menos específica** (grupo/capítulo) `active=1`. O resolver **não propaga** o match do grupo pai — retorna o regime declarado pela regra inativa (ex.: `sem_beneficio`) ou, na ausência de regime explícito, `regime_geral`.
 
-Em uma frase: **um específico inativo "sombreia" (shadows) o grupo pai ativo.** Não há contradição com a cascata — `active=0` no nível específico é um sinal normativo deliberado de "este código **não** herda o benefício do grupo", e respeitá-lo é a leitura **correta** do princípio "decide-se pelo grupo; refina-se pelo específico onde a lei distingue" (§2). A desativação do específico **é** a distinção que a lei (via decisão curada) faz.
+Em uma frase: **um específico inativo "sombreia" (shadows) o grupo pai ativo.** Não há contradição com a cascata — `active=0` no nível específico é um sinal curatorial deliberado registrado na base normativa da plataforma, de "este código **não** herda o benefício do grupo", e respeitá-lo é a leitura **correta** do princípio "decide-se pelo grupo; refina-se pelo específico onde a lei distingue" (§2). A desativação do específico **é** a distinção que a curadoria (alinhada à lei — ex.: P.O. v17) faz.
+
+> **Correção factual (parecer Consultor 2026-06-18):** a regra de grupo `1006` com `match_mode='prefix'` (`cesta_basica_pendente`) captura **mais largo que a lei autoriza**. A LC 214/2025 (Art. 125 + Anexo I, Item 1) enumera apenas `1006.20`, `1006.30` e `1006.40.00` — **não** o grupo `1006`. Essa modelagem ampla é a **causa-raiz estrutural**; a precedência negativa (Opção A) resolve o **sintoma** sem deixar lacunas no cap. 10 (posições 1001–1005, 1007–1008 ainda não curadas). O fix definitivo (Opção B — trocar a regra de grupo pelas 3 regras específicas) fica condicionado à curadoria completa do cap. 10 — ver issue tech-debt vinculada em §10.7.
 
 ### 10.3 — Semântica precisa (para a implementação em #1492)
 
@@ -147,6 +149,21 @@ Considerando **todas** as regras (ativas e inativas) que casam o código, seja `
 - **POSITIVO:** `resolveNcm('1006.10')` → `sem_beneficio`/`regime_geral` (respeita P.O. v17).
 - **NEGATIVO:** `resolveNcm('1006.10')` **NÃO** retorna `cesta_basica_pendente` (regime do grupo pai `1006`).
 - **Auditoria de amplitude (query Manus):** quantos específicos `active=0` têm grupo pai `active=1` hoje? (dimensiona o impacto antes do fix).
+- **Salvaguarda pré-fix (D2 — REGRA-ORQ-44 DoD negativo, parecer Consultor 2026-06-18):** executar, **antes do merge de #1492**, a query de integridade que cruza os `active=0` contra os **códigos literais do Anexo I** (não contra o grupo `1006`):
+
+  ```sql
+  -- Resultado esperado: VAZIO (0 rows). Se não-vazio → ABORTAR o fix:
+  -- a desativação contradiz a lei (código beneficiado pelo Anexo I marcado active=0).
+  SELECT ncm_code, regime
+  FROM normative_product_rules
+  WHERE active = 0
+    AND ncm_code IN (
+      -- Códigos LITERAIS do Anexo I LC 214/2025 (Art. 125 — Cesta Básica).
+      -- Array literal Anexo I: aguarda Consultor (oferta aceita — ~80 NCMs / 26 itens).
+      '1006.20', '1006.30', '1006.40.00'  -- arroz (Item 1) — demais a completar
+    );
+  -- 1006.10 NÃO consta do Anexo I → desativação legítima → não dispara alerta.
+  ```
 
 ### 10.6 — Para o Consultor (revisão semântica solicitada)
 
@@ -154,4 +171,4 @@ Confirmar que a regra de precedência negativa **não conflita** com nenhuma reg
 
 ### 10.7 — Vinculadas (amendment)
 
-Issue #1492 (BUG-001) · `ncm-nbs-resolver.ts:128-140` (`loadActiveRules`) · `:89-99` (`classifyResolution`) · Decisão P.O. v17 (`1006.10`) + v54 Q1 · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-44 (DoD negativo) · REGRA-ORQ-21 (não congelar implementação na spec).
+Issue #1492 (BUG-001 — Opção A, sintoma) · **Issue #1498 (Opção B — fix definitivo: regra de grupo 1006 → 3 regras específicas do Anexo I, gate: cap. 10 100% curado)** · `ncm-nbs-resolver.ts:128-140` (`loadActiveRules`) · `:89-99` (`classifyResolution`) · Decisão P.O. v17 (`1006.10`) + v54 Q1 + v62 (emenda §10.2/§10.5) · Parecer Consultor 2026-06-18 · LC 214/2025 Art. 125 + Anexo I · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-44 (DoD negativo) · REGRA-ORQ-21 (não congelar implementação na spec).
