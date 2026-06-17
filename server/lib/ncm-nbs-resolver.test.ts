@@ -179,3 +179,27 @@ dbDescribe("resolveNcm — DoD #1492 (DB real)", () => {
     expect(r.regime).toBe("aliquota_zero");
   });
 });
+
+// ─── DoD #1493 — subposição 2304.00 (DB real; requer scripts/fix-2304-00-*-1493.ts) ──
+// Manus roda o script de dados ANTES destes testes (INSERT 2304.00 + UPDATE legal_ref).
+dbDescribe("resolveNcm — DoD #1493 (2304.00, DB real)", () => {
+  it("POSITIVO: resolveNcm('2304.00') → aliquota_reduzida_60", async () => {
+    const r = await resolveNcm("2304.00");
+    expect(r.regime).toBe("aliquota_reduzida_60");
+  });
+
+  it("NEGATIVO: resolveNcm('2304.00') ≠ tratamento_agropecuario_especifico_pendente", async () => {
+    const r = await resolveNcm("2304.00");
+    expect(r.regime).not.toBe("tratamento_agropecuario_especifico_pendente");
+  });
+
+  it("anti-regressão: resolveNcm('2304.00.10') → aliquota_reduzida_60 (regime intacto)", async () => {
+    const r = await resolveNcm("2304.00.10");
+    expect(r.regime).toBe("aliquota_reduzida_60");
+  });
+
+  it("anti-regressão: resolveNcm('2304') → tratamento_agropecuario_especifico_pendente (grupo prefix intacto)", async () => {
+    const r = await resolveNcm("2304");
+    expect(r.regime).toBe("tratamento_agropecuario_especifico_pendente");
+  });
+});
