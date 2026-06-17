@@ -6,6 +6,21 @@
 
 > **Nota de formato:** a SQL fica neste doc (não em `scripts/*.sql`) porque o gate `Migration discipline` trata qualquer `.sql` como migration Drizzle e exigiria seções/reversibilidade que **não se aplicam** a um fix operacional de dados (Lição #92 — guards com false-positive por tipo de arquivo). O conteúdo é a SQL revisada e versionada (Lição #71). O Manus executa estas statements em produção.
 
+## ⚠️ SUPERSEDED pela execução real (17/06/2026) — P3-A
+
+> Este protocolo (abaixo) foi **revisado e aprovado** com os números do diagnóstico **file-based** (`DELETE 89` / `UPDATE 72` / `lc227=273`). **NÃO foi o que executou em produção.**
+>
+> O Manus executou a **"Opção X"** (predicado de "pontilhado" mais restrito + escopo só num>197), com os números **reais do banco**:
+>
+> | Métrica | BEFORE | AFTER |
+> |---|---|---|
+> | `lc227` | 434 | **333** |
+> | `lc214` | 1586 | **1643** |
+>
+> **DELETE 44** (pontilhados puros, num>197) · **UPDATE 57** (mis-tag num>197 → `lei='lc214'`) · **DoD negativo `lc227 num>197 = 0`** ✅ · **77 preservados** (num≤197).
+>
+> A divergência de contagem (89/72 file-based vs 44/57 prod) foi **predicado de "pontilhado" diferente**, não erro de execução (**Lição #135**). Evidência REGRA-ORQ-37 em #1484 + #1486. Os 77 preservados são tratados na **Issue #1490** (P3). O bloco SQL abaixo fica como **registro histórico do protocolo revisado**.
+
 ## Contexto
 
 `lei = 'lc227'` tem 434 chunks no `ragDocuments`. Diagnóstico #1484:
