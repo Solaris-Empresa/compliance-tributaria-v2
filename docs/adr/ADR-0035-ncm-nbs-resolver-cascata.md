@@ -1,6 +1,7 @@
 # ADR-0035 — Resolver NCM/NBS em cascata (ponto único de decisão)
 
 ## Status: Proposto · 2026-06-14 · GATE-NCM-NBS #1219 · Classe C
+## Amendments: §10 — precedência negativa (exclusion list) · 2026-06-18 · #1492 · bump MINOR
 ## Relacionado: ADR-0010 (NCM/NBS), ADR-0012 (IS Art.57/Art.2), ADR-0017 (aviso NCM/NBS ausente)
 
 ---
@@ -104,3 +105,101 @@ Correções/esclarecimentos com extração `pdftotext` (citação por linha do P
 **9.4 — Eixo de elegibilidade (#1439b).** O gate de destinatário (produtor rural não contribuinte) é aplicado na **MATRIZ de riscos** (`consolidateRisks` → confidence high se confirmado / medium + nota se não), **NÃO na injeção** da pergunta. `shouldInjectArt197` gateia apenas CNAE 28 + NCM família 8436 — a pergunta SOL-059 colhe a condição do destinatário, logo não se pode gatear a injeção pela própria resposta.
 
 **Nota de estado:** este ADR foi redigido como "Proposto" com roadmap F0-F5; o épico entregou também F6 + #1275 (NEW-CAT) + #1439 (gate). Atualização de status (Proposto → Aceito) e do roadmap fica como follow-up de governança.
+
+## 10. Amendment — Regra de precedência negativa (exclusion list) · 2026-06-18
+
+**Âncora:** Decisão P.O. v54 Q1 + Issue #1492 (BUG-001) · Classe A (docs-only) · bump **MINOR** deste ADR.
+**Status do amendment:** Proposto — aguarda revisão semântica do Consultor + aprovação P.O. (REGRA-ORQ-33).
+
+### 10.1 — Problema (verificado no código — Gate 0)
+
+`loadActiveRules` (`ncm-nbs-resolver.ts:128-140`) carrega **apenas** regras `WHERE active = 1`. Logo, uma regra **específica** desativada (ex.: `1006.10` `sem_beneficio`/`active=0`, criada na Decisão P.O. v17 justamente para **negar** o benefício a esse específico) **não é carregada** → `classifyResolution` (`:89-91`, vencedor = mais dígitos) não a vê → o **grupo pai** `1006` (`active=1`, `match_mode='prefix'`, ex.: `cesta_basica_pendente`) **captura por prefixo** → o resolver retorna o regime **do grupo pai**, contrariando a decisão de desativar o específico.
+
+Isto é **sistêmico** (não só `1006.10`): qualquer específico futuro marcado `active=0` para "cair" em regime mais geral cai na mesma armadilha.
+
+### 10.2 — Decisão: precedência negativa (a exclusion list é **extensão**, não contradição, da cascata)
+
+A cascata do §2 (`específico → grupo → capítulo → regime_geral`) decide pela regra **mais específica que casa**. O amendment apenas estende o conjunto de regras consideradas para **incluir as desativadas como bloqueadoras**, preservando o mesmo princípio "o mais específico vence":
+
+> **Regra de precedência negativa:** quando existe uma regra **mais específica** que casa o código e essa regra está **`active=0`**, ela **vence** sobre qualquer regra **menos específica** (grupo/capítulo) `active=1`. O resolver **não propaga** o match do grupo pai — retorna o regime declarado pela regra inativa (ex.: `sem_beneficio`) ou, na ausência de regime explícito, `regime_geral`.
+
+Em uma frase: **um específico inativo "sombreia" (shadows) o grupo pai ativo.** Não há contradição com a cascata — `active=0` no nível específico é um sinal curatorial deliberado registrado na base normativa da plataforma, de "este código **não** herda o benefício do grupo", e respeitá-lo é a leitura **correta** do princípio "decide-se pelo grupo; refina-se pelo específico onde a lei distingue" (§2). A desativação do específico **é** a distinção que a curadoria (alinhada à lei — ex.: P.O. v17) faz.
+
+> **Correção factual (parecer Consultor 2026-06-18):** a regra de grupo `1006` com `match_mode='prefix'` (`cesta_basica_pendente`) captura **mais largo que a lei autoriza**. A LC 214/2025 (Art. 125 + Anexo I, Item 1) enumera apenas `1006.20`, `1006.30` e `1006.40.00` — **não** o grupo `1006`. Essa modelagem ampla é a **causa-raiz estrutural**; a precedência negativa (Opção A) resolve o **sintoma** sem deixar lacunas no cap. 10 (posições 1001–1005, 1007–1008 ainda não curadas). O fix definitivo (Opção B — trocar a regra de grupo pelas 3 regras específicas) fica condicionado à curadoria completa do cap. 10 — ver issue tech-debt vinculada em §10.7.
+
+### 10.3 — Semântica precisa (para a implementação em #1492)
+
+Considerando **todas** as regras (ativas e inativas) que casam o código, seja `W` a de **maior** número de dígitos (mais específica):
+
+| Caso | `W.active` | Resultado |
+|---|---|---|
+| `W` é a vencedora e está **ativa** | 1 | comportamento atual (regime de `W`) — **sem mudança** |
+| `W` é a vencedora e está **inativa** | 0 | **precedência negativa**: regime de `W` se declarado (ex.: `sem_beneficio`), senão `regime_geral`; **NÃO** cai no grupo pai ativo |
+| nenhuma regra casa | — | `fallback`/`regime_geral` — **sem mudança** |
+
+`resolution_level`/`confidence`/`source` do caso de bloqueio ficam a cargo da spec de #1492 (sugestão: marcar como `specific` + `source` distinguindo o bloqueio; **não** definido aqui para não congelar implementação — REGRA-ORQ-21).
+
+### 10.4 — Anti-regressão (invariante)
+
+- Específicos `active=1` e grupos `active=1` **sem** específico inativo concorrente → **inalterados**.
+- A regra de precedência negativa só altera o resultado quando coexistem (a) específico `active=0` e (b) grupo/capítulo pai `active=1` que casa o mesmo código.
+
+### 10.5 — DoD (herda REGRA-ORQ-44)
+
+- **POSITIVO:** `resolveNcm('1006.10')` → `sem_beneficio`/`regime_geral` (respeita P.O. v17).
+- **NEGATIVO:** `resolveNcm('1006.10')` **NÃO** retorna `cesta_basica_pendente` (regime do grupo pai `1006`).
+- **Auditoria de amplitude (query Manus):** quantos específicos `active=0` têm grupo pai `active=1` hoje? (dimensiona o impacto antes do fix).
+- **Salvaguarda pré-fix (D2 — REGRA-ORQ-44 DoD negativo, parecer Consultor 2026-06-18):** executar, **antes do merge de #1492**, a query de integridade que cruza os `active=0` contra os **códigos literais do Anexo I** (não contra o grupo `1006`):
+
+  ```sql
+  -- Salvaguarda D2 — Anexo I LC 214/2025 (Art. 125) — query mista IN + LIKE (D3 opção A)
+  -- Fonte: extração literal PDF Consultor 18/06/2026 · 76 códigos inclusão · 57 exatos + 19 prefixos
+  -- D4: forma canônica com pontos (confirmado banco Manus 18/06/2026); item 26 2106.9090 → 2106.90.90
+  -- Resultado esperado: VAZIO. Se não-vazio: ABORTAR o fix de #1492.
+  SELECT ncm_code FROM normative_product_rules
+  WHERE active = 0
+    AND (
+      ncm_code IN (
+        '1006.40.00','0401.10.10','0401.10.90','0401.20.10','0401.20.90',
+        '0401.40.10','0401.50.10','0402.10.10','0402.10.90','0402.21.10',
+        '0402.21.20','0402.29.10','0402.29.20','1901.10.10','1901.10.90',
+        '2106.90.90','0405.10.00','1517.10.00','0713.33.19','0713.33.29',
+        '0713.33.99','0713.35.90','1513.21.20','1106.20.00','1903.00.00',
+        '1102.20.00','1103.13.00','1104.19.00','1104.23.00','1101.00.10',
+        '1701.14.00','1701.99.00','1905.90.90','1901.20.10','1901.20.90',
+        '1104.12.00','1104.22.00','1102.90.00','0206.10.00','0210.20.00',
+        '0206.30.00','0210.99.20','0210.99.90','0206.80.00','0206.90.00',
+        '0209.90.00','0406.10.10','0406.10.90','0406.20.00','0406.90.10',
+        '0406.90.20','0406.90.30','2501.00.20','2501.00.90','1901.90.90',
+        '1902.19.00'
+      )
+      OR ncm_code LIKE '0901%'    -- 09.01 café
+      OR ncm_code LIKE '0201%'    -- 02.01
+      OR ncm_code LIKE '0202%'    -- 02.02
+      OR ncm_code LIKE '0203%'    -- 02.03
+      OR ncm_code LIKE '0204%'    -- 02.04
+      OR ncm_code LIKE '0207%'    -- 02.07
+      OR ncm_code LIKE '0302%'    -- 03.02
+      OR ncm_code LIKE '0303%'    -- 03.03
+      OR ncm_code LIKE '0304%'    -- 03.04
+      OR ncm_code LIKE '0903%'    -- 09.03 mate
+      OR ncm_code LIKE '1006.20%' -- arroz descascado
+      OR ncm_code LIKE '1006.30%' -- arroz beneficiado
+      OR ncm_code LIKE '2101.1%'  -- café extratos
+      OR ncm_code LIKE '1902.1%'  -- massas
+      OR ncm_code LIKE '0206.2%'
+      OR ncm_code LIKE '0206.4%'
+      OR ncm_code LIKE '0209.10%'
+      OR ncm_code LIKE '0210.1%'
+      OR ncm_code LIKE '0210.99.1%' -- anômalo 7-díg
+    );
+  -- 1006.10 NÃO consta do Anexo I → desativação legítima → não dispara alerta.
+  ```
+
+### 10.6 — Para o Consultor (revisão semântica solicitada)
+
+Confirmar que a regra de precedência negativa **não conflita** com nenhuma regra normativa nem com o contrato da cascata (§2/§3): especificamente, que "específico `active=0` bloqueia grupo pai `active=1`" é a leitura juridicamente correta de uma desativação curada de regra específica (ex.: P.O. v17 para `1006.10`), e não introduz risco de **negar** benefício legítimo onde a lei o concede pelo grupo.
+
+### 10.7 — Vinculadas (amendment)
+
+Issue #1492 (BUG-001 — Opção A, sintoma) · **Issue #1498 (Opção B — fix definitivo: regra de grupo 1006 → 3 regras específicas do Anexo I, gate: cap. 10 100% curado)** · `ncm-nbs-resolver.ts:128-140` (`loadActiveRules`) · `:89-99` (`classifyResolution`) · Decisão P.O. v17 (`1006.10`) + v54 Q1 + v62 (emenda §10.2/§10.5) · Parecer Consultor 2026-06-18 · LC 214/2025 Art. 125 + Anexo I · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-44 (DoD negativo) · REGRA-ORQ-21 (não congelar implementação na spec).
