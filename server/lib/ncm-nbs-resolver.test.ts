@@ -3,8 +3,10 @@
 // resolveNcm/resolveNbs (async) são wrappers finos que carregam regras + chamam o core.
 
 import { describe, it, expect } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import {
   classifyResolution,
+  resolveNcm,
   isNcmResolverEnabled,
   CONFIDENCE_SPECIFIC,
   CONFIDENCE_GROUP,
@@ -102,5 +104,78 @@ describe("classifyResolution — edge cases", () => {
   });
   it("conjunto de regras vazio → fallback", () => {
     expect(classifyResolution("8436", []).resolution_level).toBe("fallback");
+  });
+});
+
+// ─── #1492 (ADR-0035 §10) — precedência negativa / exclusion list (núcleo PURO) ──
+// Fixture: específico 1006.10 desativado (active=0) + grupo pai 1006 ativo (active=1).
+const NCM_BLACKLIST: ResolverRule[] = [
+  { regime: "sem_beneficio", code: "1006.10", match_mode: "exact", active: 0 },
+  { regime: "cesta_basica_pendente", code: "1006", match_mode: "prefix", active: 1 },
+];
+
+describe("classifyResolution — precedência negativa (#1492)", () => {
+  it("específico active=0 SOMBREIA o grupo pai active=1 (1006.10)", () => {
+    const r = classifyResolution("1006.10", NCM_BLACKLIST);
+    expect(r.source).toBe("negative_precedence");
+    expect(r.resolution_level).toBe("specific");
+    expect(r.resolved_code).toBe("1006.10");
+    expect(r.regime).toBe("sem_beneficio");
+  });
+
+  it("NEGATIVO (REGRA-ORQ-44): 1006.10 NÃO retorna cesta_basica_pendente", () => {
+    expect(classifyResolution("1006.10", NCM_BLACKLIST).regime).not.toBe(
+      "cesta_basica_pendente",
+    );
+  });
+
+  it("regime vazio na regra inativa → regime_geral", () => {
+    const rules: ResolverRule[] = [
+      { regime: "", code: "1006.10", match_mode: "exact", active: 0 },
+      { regime: "cesta_basica_pendente", code: "1006", match_mode: "prefix", active: 1 },
+    ];
+    const r = classifyResolution("1006.10", rules);
+    expect(r.source).toBe("negative_precedence");
+    expect(r.regime).toBe("regime_geral");
+  });
+
+  it("anti-regressão: irmão NÃO blacklistado (1006.20) cai no grupo pai ativo", () => {
+    const r = classifyResolution("1006.20", NCM_BLACKLIST);
+    expect(r.source).toBe("normative_rules");
+    expect(r.resolution_level).toBe("group");
+    expect(r.regime).toBe("cesta_basica_pendente");
+  });
+
+  it("anti-regressão: vencedor active=1 explícito segue caminho normal", () => {
+    const rules: ResolverRule[] = [
+      { regime: "tratamento_agropecuario", code: "8436.99.00", match_mode: "exact", active: 1 },
+    ];
+    const r = classifyResolution("8436.99.00", rules);
+    expect(r.source).toBe("normative_rules");
+    expect(r.resolution_level).toBe("specific");
+  });
+
+  it("anti-regressão: active ausente (pré-#1492) = caminho normal", () => {
+    // NCM_RULES não tem campo active → undefined → nunca dispara precedência negativa
+    const r = classifyResolution("8436.99.00", NCM_RULES);
+    expect(r.source).toBe("normative_rules");
+  });
+});
+
+// ─── DoD §10.5 com DB real (dbDescribe — roda no Manus; skip sem DATABASE_URL) ──
+dbDescribe("resolveNcm — DoD #1492 (DB real)", () => {
+  it("POSITIVO: resolveNcm('1006.10') → sem_beneficio | regime_geral", async () => {
+    const r = await resolveNcm("1006.10");
+    expect(["sem_beneficio", "regime_geral"]).toContain(r.regime);
+  });
+
+  it("NEGATIVO: resolveNcm('1006.10') NÃO retorna cesta_basica_pendente", async () => {
+    const r = await resolveNcm("1006.10");
+    expect(r.regime).not.toBe("cesta_basica_pendente");
+  });
+
+  it("anti-regressão: resolveNcm('1006.20') → aliquota_zero (active=1 intacto)", async () => {
+    const r = await resolveNcm("1006.20");
+    expect(r.regime).toBe("aliquota_zero");
   });
 });

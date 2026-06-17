@@ -22,7 +22,7 @@ export interface NcmNbsResolution {
   resolved_code: string; // código usado para decisão (ncm_code/nbs_code da regra vencedora)
   regime: string;
   confidence: number; // PLACEHOLDER — calibrar em F5 com dados reais
-  source: "normative_rules" | "dataset" | "fallback";
+  source: "normative_rules" | "dataset" | "fallback" | "negative_precedence"; // §10 exclusion list
 }
 
 // ─── Confidence (R4) — PLACEHOLDER, calibrar em F5; NÃO são valores finais ──────
@@ -46,6 +46,11 @@ export interface ResolverRule {
   regime: string;
   code: string; // ncm_code ou nbs_code
   match_mode: "exact" | "prefix";
+  // #1492 (ADR-0035 §10) — exclusion list / precedência negativa.
+  // active=0 ⇒ regra desativada (curada) que BLOQUEIA o grupo pai ativo se for a
+  // mais específica a casar. Opcional: ausente (testes puros pré-#1492) = tratado
+  // como ativa (caminho normal). DB: tinyint 0/1.
+  active?: number;
 }
 
 function digitsOnly(s: string): string {
@@ -89,6 +94,26 @@ export function classifyResolution(
   const winner = matches.reduce((a, b) =>
     digitsOnly(b.code).length > digitsOnly(a.code).length ? b : a,
   );
+
+  // ─── Precedência negativa (ADR-0035 §10 — exclusion list / #1492) ───────────
+  // Se a regra MAIS específica que casa o código está active=0 (desativação
+  // curada — ex.: 1006.10 sem_beneficio, P.O. v17), ela SOMBREIA o grupo pai
+  // ativo: o resolver NÃO propaga o match do grupo. Retorna o regime declarado
+  // pela regra inativa ou, na ausência, regime_geral.
+  // `active` ausente (undefined, testes puros pré-#1492) → caminho normal.
+  if (Number(winner.active) === 0) {
+    return {
+      code,
+      resolution_level: "specific",
+      resolved_code: winner.code,
+      regime: winner.regime || REGIME_FALLBACK,
+      // confidence: específico desativado é determinação de alta confiança
+      // (sabemos que NÃO herda o benefício). REGRA-ORQ-21 — valor não congelado no ADR.
+      confidence: CONFIDENCE_SPECIFIC,
+      source: "negative_precedence",
+    };
+  }
+
   const wlen = digitsOnly(winner.code).length;
 
   const level: NcmNbsResolution["resolution_level"] =
@@ -125,6 +150,11 @@ function getDb(): ReturnType<typeof drizzle> {
   return _db;
 }
 
+// #1492 (ADR-0035 §10): carrega TODAS as regras (ativas + inativas). As regras
+// active=0 entram no conjunto como blacklist de precedência negativa — não são
+// mais filtradas no SELECT (era `WHERE active = 1`). O bloqueio é decidido em
+// classifyResolution. (Nome `loadActiveRules` mantido por escopo cirúrgico — ver
+// nota de rename Nível 2 no PR #1492.)
 async function loadActiveRules(
   table: "normative_product_rules" | "normative_service_rules",
   codeCol: "ncm_code" | "nbs_code",
@@ -134,7 +164,7 @@ async function loadActiveRules(
   const [rows] = await (db.$client as any)
     .promise()
     .execute(
-      `SELECT regime, ${codeCol} AS code, match_mode FROM ${table} WHERE active = 1`,
+      `SELECT regime, ${codeCol} AS code, match_mode, active FROM ${table}`,
     );
   return rows as ResolverRule[];
 }
