@@ -3,7 +3,7 @@
 **Criado:** 16/06/2026 · **Atualizado:** 16/06/2026 (lc224/227 do corpus derivado) · **Origem:** Gate 0 fonte primária LC 214/2025 (despacho v34)
 **Total:** 136 chunks · 111 artigos · **Status:** 🔴 Aguarda validação jurídica (`blocked-legal-gate`)
 
-> **Regra de ouro (Lição #133):** a LC 214/2025 **não contém CNAE em nenhum artigo** (`cnae` aparece 1× em toda a lei). O campo `cnaeGroups` é 100% camada interpretativa editorial. Nunca preencher "cnaeGroups proposto" sem leitura do texto legal completo + assinatura jurídica.
+> **Regra de ouro (Lição #133, corrigida 16/06/2026):** a LC 214/2025 cita CNAE em **apenas 1 artigo** — **Art. 273, § 2º, I** (CNAE **5620-1/01**, regime de bares/restaurantes; fonte primária `Lcp 214.pdf`, `pdftotext`: 1 ocorrência de "CNAE" na lei inteira). Para **todos os demais artigos** do worklist o mapeamento artigo→CNAE **não existe na lei** — o campo `cnaeGroups` é camada interpretativa editorial. Nunca preencher "cnaeGroups proposto" sem ler o caput completo + assinatura jurídica. Em dúvida sobre o setor, preferir **"universal"** a uma lista restrita incorreta.
 
 > **⚠️ Provenance:** LC 214 = caput da **fonte primária** `lc214.json` (acervo v3). **LC 224 / LC 227 = `conteudo` do corpus DERIVADO** (`rag-corpus-lcs-novas.ts`) — `lc224.json`/`lc227.json` **não existem no acervo primário v3** (verificado em `corpus_normativo_v3.zip`). O jurídico DEVE confirmar o texto LC224/227 contra a fonte primária quando disponível (Lição #126).
 
