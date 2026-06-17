@@ -1,6 +1,7 @@
 # ADR-0035 — Resolver NCM/NBS em cascata (ponto único de decisão)
 
 ## Status: Proposto · 2026-06-14 · GATE-NCM-NBS #1219 · Classe C
+## Amendments: §10 — precedência negativa (exclusion list) · 2026-06-18 · #1492 · bump MINOR
 ## Relacionado: ADR-0010 (NCM/NBS), ADR-0012 (IS Art.57/Art.2), ADR-0017 (aviso NCM/NBS ausente)
 
 ---
@@ -104,3 +105,53 @@ Correções/esclarecimentos com extração `pdftotext` (citação por linha do P
 **9.4 — Eixo de elegibilidade (#1439b).** O gate de destinatário (produtor rural não contribuinte) é aplicado na **MATRIZ de riscos** (`consolidateRisks` → confidence high se confirmado / medium + nota se não), **NÃO na injeção** da pergunta. `shouldInjectArt197` gateia apenas CNAE 28 + NCM família 8436 — a pergunta SOL-059 colhe a condição do destinatário, logo não se pode gatear a injeção pela própria resposta.
 
 **Nota de estado:** este ADR foi redigido como "Proposto" com roadmap F0-F5; o épico entregou também F6 + #1275 (NEW-CAT) + #1439 (gate). Atualização de status (Proposto → Aceito) e do roadmap fica como follow-up de governança.
+
+## 10. Amendment — Regra de precedência negativa (exclusion list) · 2026-06-18
+
+**Âncora:** Decisão P.O. v54 Q1 + Issue #1492 (BUG-001) · Classe A (docs-only) · bump **MINOR** deste ADR.
+**Status do amendment:** Proposto — aguarda revisão semântica do Consultor + aprovação P.O. (REGRA-ORQ-33).
+
+### 10.1 — Problema (verificado no código — Gate 0)
+
+`loadActiveRules` (`ncm-nbs-resolver.ts:128-140`) carrega **apenas** regras `WHERE active = 1`. Logo, uma regra **específica** desativada (ex.: `1006.10` `sem_beneficio`/`active=0`, criada na Decisão P.O. v17 justamente para **negar** o benefício a esse específico) **não é carregada** → `classifyResolution` (`:89-91`, vencedor = mais dígitos) não a vê → o **grupo pai** `1006` (`active=1`, `match_mode='prefix'`, ex.: `cesta_basica_pendente`) **captura por prefixo** → o resolver retorna o regime **do grupo pai**, contrariando a decisão de desativar o específico.
+
+Isto é **sistêmico** (não só `1006.10`): qualquer específico futuro marcado `active=0` para "cair" em regime mais geral cai na mesma armadilha.
+
+### 10.2 — Decisão: precedência negativa (a exclusion list é **extensão**, não contradição, da cascata)
+
+A cascata do §2 (`específico → grupo → capítulo → regime_geral`) decide pela regra **mais específica que casa**. O amendment apenas estende o conjunto de regras consideradas para **incluir as desativadas como bloqueadoras**, preservando o mesmo princípio "o mais específico vence":
+
+> **Regra de precedência negativa:** quando existe uma regra **mais específica** que casa o código e essa regra está **`active=0`**, ela **vence** sobre qualquer regra **menos específica** (grupo/capítulo) `active=1`. O resolver **não propaga** o match do grupo pai — retorna o regime declarado pela regra inativa (ex.: `sem_beneficio`) ou, na ausência de regime explícito, `regime_geral`.
+
+Em uma frase: **um específico inativo "sombreia" (shadows) o grupo pai ativo.** Não há contradição com a cascata — `active=0` no nível específico é um sinal normativo deliberado de "este código **não** herda o benefício do grupo", e respeitá-lo é a leitura **correta** do princípio "decide-se pelo grupo; refina-se pelo específico onde a lei distingue" (§2). A desativação do específico **é** a distinção que a lei (via decisão curada) faz.
+
+### 10.3 — Semântica precisa (para a implementação em #1492)
+
+Considerando **todas** as regras (ativas e inativas) que casam o código, seja `W` a de **maior** número de dígitos (mais específica):
+
+| Caso | `W.active` | Resultado |
+|---|---|---|
+| `W` é a vencedora e está **ativa** | 1 | comportamento atual (regime de `W`) — **sem mudança** |
+| `W` é a vencedora e está **inativa** | 0 | **precedência negativa**: regime de `W` se declarado (ex.: `sem_beneficio`), senão `regime_geral`; **NÃO** cai no grupo pai ativo |
+| nenhuma regra casa | — | `fallback`/`regime_geral` — **sem mudança** |
+
+`resolution_level`/`confidence`/`source` do caso de bloqueio ficam a cargo da spec de #1492 (sugestão: marcar como `specific` + `source` distinguindo o bloqueio; **não** definido aqui para não congelar implementação — REGRA-ORQ-21).
+
+### 10.4 — Anti-regressão (invariante)
+
+- Específicos `active=1` e grupos `active=1` **sem** específico inativo concorrente → **inalterados**.
+- A regra de precedência negativa só altera o resultado quando coexistem (a) específico `active=0` e (b) grupo/capítulo pai `active=1` que casa o mesmo código.
+
+### 10.5 — DoD (herda REGRA-ORQ-44)
+
+- **POSITIVO:** `resolveNcm('1006.10')` → `sem_beneficio`/`regime_geral` (respeita P.O. v17).
+- **NEGATIVO:** `resolveNcm('1006.10')` **NÃO** retorna `cesta_basica_pendente` (regime do grupo pai `1006`).
+- **Auditoria de amplitude (query Manus):** quantos específicos `active=0` têm grupo pai `active=1` hoje? (dimensiona o impacto antes do fix).
+
+### 10.6 — Para o Consultor (revisão semântica solicitada)
+
+Confirmar que a regra de precedência negativa **não conflita** com nenhuma regra normativa nem com o contrato da cascata (§2/§3): especificamente, que "específico `active=0` bloqueia grupo pai `active=1`" é a leitura juridicamente correta de uma desativação curada de regra específica (ex.: P.O. v17 para `1006.10`), e não introduz risco de **negar** benefício legítimo onde a lei o concede pelo grupo.
+
+### 10.7 — Vinculadas (amendment)
+
+Issue #1492 (BUG-001) · `ncm-nbs-resolver.ts:128-140` (`loadActiveRules`) · `:89-99` (`classifyResolution`) · Decisão P.O. v17 (`1006.10`) + v54 Q1 · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-44 (DoD negativo) · REGRA-ORQ-21 (não congelar implementação na spec).
