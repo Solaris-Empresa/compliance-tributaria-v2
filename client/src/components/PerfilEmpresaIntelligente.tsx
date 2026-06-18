@@ -182,13 +182,16 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
   // Lição #109 + REGRA-ORQ-42: tabela de visibilidade de campos exige gate diferente
   // por perfil (UI esconde os campos + score não cobra preenchimento).
   const isPF = p.taxIdType === "cpf";
-  // BUG-AGRO-CPF-UX-F7 (#1299) — Despacho F7 reduziu PF a apenas [CPF válido]
-  // (Tipo de Operação ocultado via Mudança 2; clientType + multiState ficam
-  // visíveis mas opcionais). PJ ganha operationType explícito (já era contado
-  // antes em outro item da lista — mantém comportamento PJ).
+  // BUG-CLIENTTYPE (18/06/2026, Opção B) — clientType é OBRIGATÓRIO em ambos os perfis,
+  // em paridade com o backend (routers-fluxo-v3.ts:367 `.min(1)` desde v2.1) e restaurando
+  // o #1300 F6 (DoD PF: CPF + Tipo de Cliente + Multiestadual → Avançar). O comentário
+  // anterior do #1299 ("clientType opcional") era DEAD COMMENT, sobrescrito pelo #1300 F6.
+  // A divergência frontend(opcional)↔backend(min 1) foi exposta pelo re-deploy limpo —
+  // mesma classe das Lições #74/#137 (relaxar um gate sem o outro).
   const required: Array<[boolean, string]> = isPF
     ? [
         [validateCpf(p.cpf ?? ""), "CPF válido"],
+        [p.clientType.length > 0, "Tipo de Cliente"],
       ]
     : [
         [validateCnpj(p.cnpj), "CNPJ válido"],
@@ -196,6 +199,7 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
         [!!p.companySize, "Porte da empresa"],
         [!!p.taxRegime, "Regime Tributário"],
         [!!p.operationType, "Tipo de Operação"],
+        [p.clientType.length > 0, "Tipo de Cliente"],
       ];
   const optional: Array<[boolean, string]> = [
     [!!p.annualRevenueRange, "Faturamento Anual"],
