@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { isValidNcm, isValidNbs, isNcmGroup, isNbsGroup, ncmGranularity, nbsGranularity } from "@shared/ncm-nbs-validation";
 // fix(z22) Wave A.2+B: CpieReportExport removido (deletado junto com CPIE legado).
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -785,12 +786,8 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
     },
   });
 
-  // GATE-NCM-NBS #1219 F1: grupo (NCM NNNN / NBS N.NNNN) OU específico (ADR-0035)
-  const isValidNcm = (code: string) => /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/.test(code);
-  const isValidNbs = (code: string) => /^\d\.\d{4}$|^\d\.\d{4}\.\d{2}\.\d{2}$/.test(code);
-  // GATE-NCM-NBS #1219 F1 (D1): granularidade do código informado (badge visual)
-  const isNcmGroup = (code: string) => /^\d{4}$/.test(code);
-  const isNbsGroup = (code: string) => /^\d\.\d{4}$/.test(code);
+  // GATE-NCM-NBS #1219 F1 + D2/D4 (18/jun/2026): helper único shared/ncm-nbs-validation
+  // Aceita grupo (NNNN), subposição (NNNN.NN) e específico (NNNN.NN.NN)
   // Verifica se há algum código inválido antes de salvar
   const hasInvalidNcm = value.principaisProdutos.some(p => p.ncm_code && !isValidNcm(p.ncm_code));
   const hasInvalidNbs = value.principaisServicos.some(s => s.nbs_code && !isValidNbs(s.nbs_code));
@@ -1186,10 +1183,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                         {ncmValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
                       </div>
                       {ncmValid === true && (
-                        <Badge variant="outline" className="text-xs w-fit">{isNcmGroup(item.ncm_code) ? "grupo" : "específico"}</Badge>
+                        <Badge variant="outline" className="text-xs w-fit">{ncmGranularity(item.ncm_code) || "específico"}</Badge>
                       )}
                       {ncmValid === false && (
-                        <p id={`ncm-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use NNNN (grupo) ou NNNN.NN.NN (ex: 8436 ou 1006.40.00)</p>
+                        <p id={`ncm-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use NNNN (grupo), NNNN.NN (subposição) ou NNNN.NN.NN (ex: 8436, 1006.20, 1006.40.00)</p>
                       )}
                     </div>
                     <Input
@@ -1295,10 +1292,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                         {nbsValid === true && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-500 text-xs">✓</span>}
                       </div>
                       {nbsValid === true && (
-                        <Badge variant="outline" className="text-xs w-fit">{isNbsGroup(item.nbs_code) ? "grupo" : "específico"}</Badge>
+                        <Badge variant="outline" className="text-xs w-fit">{nbsGranularity(item.nbs_code) || "específico"}</Badge>
                       )}
                       {nbsValid === false && (
-                        <p id={`nbs-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use N.NNNN (grupo) ou N.NNNN.NN.NN (ex: 1.0501 ou 1.1501.10.00)</p>
+                        <p id={`nbs-error-${idx}`} className="text-xs text-destructive">Formato inválido. Use N.NNNN (grupo), N.NNNN.NN (subposição) ou N.NNNN.NN.NN (ex: 1.0501, 1.0501.14, 1.1501.10.00)</p>
                       )}
                     </div>
                     <Input

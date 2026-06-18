@@ -488,10 +488,9 @@ export function isNbsInNcmField(value: string): boolean {
 }
 
 /**
- * G-A10 fix + GATE-NCM-NBS #1219 F1: aceita grupo (4 díg. = posição NCM) OU
- * código específico (8 díg. com pontos). Princípio ADR-0035: armazena específico,
- * decide pelo grupo.
+ * G-A10 fix + GATE-NCM-NBS #1219 F1 + D2/D4 (18/jun/2026): helper único.
+ * Aceita grupo (NNNN), subposição (NNNN.NN) e específico (NNNN.NN.NN).
+ * Princípio ADR-0035: armazena específico, decide pelo grupo.
+ * Consolidado em shared/ncm-nbs-validation.ts
  */
-export function isValidNcmFormat(value: string): boolean {
-  return /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/.test(value.trim());
-}
+export { isValidNcm as isValidNcmFormat } from "@shared/ncm-nbs-validation";
