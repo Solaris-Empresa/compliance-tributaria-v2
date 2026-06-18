@@ -3655,3 +3655,35 @@ antes de qualquer afirmação sobre `cnaeGroups` de artigos nessa faixa.
 **Aplicação:** (a) definir o predicado de "pontilhado"/limite **uma vez em SQL**, reusado em diagnóstico e protocolo; (b) dimensionar pela query do Manus; (c) executado = revisado.
 
 **Vinculadas:** Lição #71 (script versionado) · #72/#89 (corpus/scripts) · #93 (mecanismo verificado, não inferido) · REGRA-ORQ-37 (evidência) · feedback "sem empirismo — Manus executa queries" · #1484 / #1486 (caso canônico) · adendo ORQ-19 v7.77.1
+
+## Lição #137 — Consolidação em helper único exige conectar TODOS os gates consumers (frontend E backend) no mesmo PR
+
+**Origem:** Bug NCM 6-díg em produção (18/06/2026) — PR #1502 (consolidação) → #1504 (complemento)
+
+> **Nota de numeração:** registrada como **#137** por decisão do P.O. (sessão 18/06). A #136 é candidata paralela ainda não commitada neste arquivo no momento deste registro (último contíguo aqui = #135).
+
+### Texto
+
+Quando um padrão de validação é consolidado num **helper compartilhado**, o PR DEVE migrar **todos** os pontos de uso (frontend, backend, resolver, testes) **no mesmo PR**. Deixar um gate de fora é **consolidação incompleta**: o helper existe mas não é consumido por aquele gate, e o bug persiste em produção para o subconjunto de inputs que **só aquele gate** rejeita.
+
+### Caso canônico
+
+- **PR #1502** (D2/D3/D4) consolidou os **3 gates frontend** (`PerfilEmpresaIntelligente.tsx:789`, `M1PerfilEntidade.tsx:129`, `ConfirmacaoPerfil.tsx:496`) no helper `shared/ncm-nbs-validation.ts` — mas **deixou o 4º gate** (`server/lib/archetype/validateM1Input.ts:23`) com regex inline divergente (`/^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/`, sem subposição).
+- Resultado: frontend + resolver + `normative_product_rules` (#1500) aceitavam `2304.00`/`1006.20` (6-díg), mas o backend `validateM1Input` (chamado em `perfil.ts:223/322`) lançava `NCM_INVALID_FORMAT` → bug em `/perfil-entidade` "após selecionar o CNAE".
+- **PR #1504** conectou o 4º gate ao helper (`isValidNcm`/`isValidNbs` de `@shared/ncm-nbs-validation`) → consolidação completa (4/4 gates).
+
+### Checklist obrigatório antes de fechar PR de consolidação
+
+```bash
+grep -rn "<padrão-antigo>|<regex-antiga>" server/ client/ shared/ --include="*.ts" --include="*.tsx"
+```
+
+Todos os callsites devem ser migrados **no mesmo PR** — OU ter issue aberta com justificativa de deferimento explícita. Estender o rastreio aos **testes** (CHECKLIST-VAL-01): todo assert do comportamento alterado deve ser atualizado no mesmo PR (no #1504: `hotfix-suite-ncm-truncado` e `perfil-router` T21 que assertavam 6-díg→throw).
+
+### Vinculadas
+
+- [[Lição #74]] (fix downstream incompleto / gate não rastreado) — padrão análogo, âncora desta lição
+- CHECKLIST-VAL-01 (rastreamento end-to-end de gates de validação)
+- REGRA-ORQ-35 (NUNCA ASSUMA — grep de TODOS os callsites antes de fechar)
+- REGRA-ORQ-25 (drift de deploy — o bug só se manifestou em prod via checkpoint stale; correção exigiu re-deploy do HEAD limpo + reporte `git=<SHA>/checkpoint=<id>`)
+- Casos: PR #1502 (consolidação parcial) · #1504 (complemento) · helper `shared/ncm-nbs-validation.ts`
