@@ -1,43 +1,37 @@
 # AUDITORIA-FIM-DE-SESSAO — LATEST
 
 > Espelho do audit mais recente. Histórico completo em `docs/governance/audits/`.
-> Mais recente: **v7.77.1** (adendo) · 2026-06-17 · Integridade corpus lc227 (#1484) **executada** + correção factual CNAE/Art.273 (#1482) + worklists primários (#1483) + errata Art.197 (#1488) + Lição #135.
-> Base: **v7.77** · 2026-06-16 (parcial) · curadoria `cnaeGroups` + RERANKER (#1468) + Lições #131–#134.
+> Mais recente: **v7.79** · 2026-06-18 · Sessão NCM-validation + elegibilidade (clientType #1508, A-2/A-3 #1507, PR-B F1 #1509) · BUG-REG-Q1 fechado · **Produto ✅ / Processo 🟡**.
 
-→ Adendo: **[`audits/v7.77.1-2026-06-17-adendo-corpus-fix.md`](./audits/v7.77.1-2026-06-17-adendo-corpus-fix.md)** · Base: **[`audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md`](./audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md)**
+→ Arquivo: **[`audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md`](./audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md)**
 
 ---
 
-## Resumo executivo (v7.77 — proposto pelo Claude Code · passos 1/4/6 + veredito 7 pendentes de Manus/P.O.)
+## Resumo executivo (v7.79)
 
 ```
-VEREDITO DUAL:  Pipeline/governança 🟢  ·  Feature 🟡   (parcial — Manus + P.O. pendentes)
+VEREDITO:  Produto ✅  ·  Processo 🟡
 
-HEAD git:          befb7947
-PRs mergeados:     9 (16/06) — Arco A curadoria corpus (4) + Arco B RERANKER #1468 (5)
-PRs abertos:       0
-tsc:               0 erros
-Unit tests:        rag-retriever.test.ts 11/11 PASS (6 pré + 5 novos)
-Integração:        vermelha por #1043 (DB ausente) — NÃO é required check (Lição #128)
-Greps artefatos:   worklist ✓ · spec reranker ✓ · ADR-0036 (§4) ✓ · checklist ✓
-                   Lições #131/#132/#133/#134 ✓ (4/4 em main) · buildRerankPrompt ✓
+HEAD (4 alinhados):  3eaa0425  (GitHub = S3 = checkpoint = produção, pós deploy R-SYNC-02)
+PRs mergeados:       #1507 (A-2/A-3 f637a576) · #1508 (BUG-CLIENTTYPE 54d3a596) · #1509 (PR-B F1 3eaa0425)
+PR aberto:           #1511 (PR-B F2 — wrapper isCategoryAllowed, flag OFF)
+tsc:                 0 erros
+Smoke UX:            8/9 PASS (Fluxo 9 = rota legada /matriz-riscos; Matriz v4 real OK — ver C1)
+Smoke A-2/A-3:       /risk-dashboard-v4 projeto 8760001 → 4 riscos, zero falsos positivos (C2)
 
-Pipeline 🟢:  diagnóstico end-to-end correto — "bug Art.140/176 no Q.NCM" rastreado da
-              fonte primária (LC 214 não mapeia CNAE) ao engine → problema de DADOS
-              sistêmico (136 chunks), não de reranker. Worklist de curadoria entregue;
-              Opção A implementada+testada+smoke (insuficiente, Opção B não ativada).
+Produto ✅:  BUG-CLIENTTYPE desbloqueia criação; A-2/A-3 removem FP da matriz (validado);
+             cadeia NCM 4/6/8 díg. ponta a ponta. BUG-REG-Q1 fechado (efeito #1504),
+             residual V-10-FALLBACK #1510.
 
-Feature 🟡:   fix real (cnaeGroups corretos) está blocked-legal-gate (#1466/#1467) —
-              depende do Consultor/Jurídico preencher o worklist. #1468 aberta até lá.
+Processo 🟡: 3× drift de deploy (checkpoints fantasma c04097ca/df07600c/60e95765 —
+             REGRA-ORQ-25) + ADR-0037 (gate deploy 4 HEADs bloqueante) pendente.
 
-Gate 0:       4 desvios de path/premissa em despachos pegos antes de implementar
-              (ORQ-45 já existia; lcs-novas.ts; docs/governance/specs; docs/adrs) +
-              buildRerankPrompt/ncm inexistentes (Lição #125).
+Correções de registro: C1 (Fluxo 9 = rota legada, não "Matriz v4 inexistente") ·
+             C2 (A-2/A-3 validado smoke) · C3 (#1511 já criado) · C4 (este audit arquivado).
 
-ABERTOS:      #1466/#1467 (jurídico) · #1468 (closure pós-curadoria) · #1043 (CI)
-              · #1476/#1477 LC224/227 canônico (P3) · #1469 RAG-VAL-OPP (P2)
-PENDENTE MANUS: passos 1/4/6 (HEADs/HTTP/smoke UX) + checkpoint Manus.space vs befb7947
-PENDENTE P.O.:  veredito 7 consolidado
+ABERTOS:     #1511 (F2) · #1510 V-10-FALLBACK (P2) · #1506/#1282 (P3) · A-4 #1439b (🔒) ·
+             #1466/#1467 cnaeGroups (🔒 blocked-legal-gate)
+PRÓXIMA SESSÃO: ADR-0037 bloqueante · PR-B F3/F4 · regime tributário (DESBLOQUEADO)
 ```
 
-Detalhes, inventário completo de PRs e os 7 passos: ver o arquivo arquivado acima.
+Detalhes, checklist completo (C1-C4) e scorecard: ver o arquivo arquivado acima.
