@@ -134,9 +134,12 @@ describe("isCategoryAllowed — resultado estrutural", () => {
     expect(r.final).toBe(r.suggested);
   });
 
-  it("tabela ELIGIBILITY_TABLE expõe apenas imposto_seletivo em v1.2", () => {
-    const keys = Object.keys(ELIGIBILITY_TABLE);
-    expect(keys).toEqual(["imposto_seletivo"]);
+  // A-2/A-3 (18/06/2026): tabela expandida para 3 categorias (era só imposto_seletivo).
+  it("tabela ELIGIBILITY_TABLE expõe imposto_seletivo + transicao_iss_ibs + regime_diferenciado", () => {
+    const keys = Object.keys(ELIGIBILITY_TABLE).sort();
+    expect(keys).toEqual(
+      ["imposto_seletivo", "regime_diferenciado", "transicao_iss_ibs"].sort(),
+    );
   });
 });
 
@@ -230,5 +233,47 @@ describe("isCategoryAllowed — aliases (hotfix v1.2.1)", () => {
     expect(r.allowed).toBe(true);
     expect(r.final).toBe("imposto_seletivo");
     expect(r.reason).toBe(null);
+  });
+});
+
+// ─── A-2 (18/06/2026) — transicao_iss_ibs (Art. 342) ──────────────────────────
+describe("isCategoryAllowed — transicao_iss_ibs (A-2)", () => {
+  it("industria BLOQUEIA (fabricante não recolhe ISS) → unmapped", () => {
+    const r = isCategoryAllowed("transicao_iss_ibs", "industria");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("unmapped");
+    expect(r.reason).toBe("sujeito_passivo_incompativel");
+  });
+  it("servicos PERMITE (prestador de serviço)", () => {
+    const r = isCategoryAllowed("transicao_iss_ibs", "servicos");
+    expect(r.allowed).toBe(true);
+    expect(r.final).toBe("transicao_iss_ibs");
+  });
+  it("misto PERMITE", () => {
+    expect(isCategoryAllowed("transicao_iss_ibs", "misto").allowed).toBe(true);
+  });
+  it("comercio BLOQUEIA → unmapped", () => {
+    expect(isCategoryAllowed("transicao_iss_ibs", "comercio").final).toBe("unmapped");
+  });
+});
+
+// ─── A-3 (18/06/2026) — regime_diferenciado (band-aid: exclui só industria) ────
+describe("isCategoryAllowed — regime_diferenciado (A-3 band-aid)", () => {
+  it("industria BLOQUEIA (band-aid) → unmapped", () => {
+    const r = isCategoryAllowed("regime_diferenciado", "industria");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("unmapped");
+    expect(r.reason).toBe("sujeito_passivo_incompativel");
+  });
+  // Anti-regressão: agro/financeiro... regime_diferenciado é amplo (Título IV).
+  // eligible NÃO remove agro/comercio/servicos/misto (evita falso negativo).
+  it("agronegocio PERMITE (não falso-negativar agro)", () => {
+    expect(isCategoryAllowed("regime_diferenciado", "agronegocio").allowed).toBe(true);
+  });
+  it("comercio PERMITE", () => {
+    expect(isCategoryAllowed("regime_diferenciado", "comercio").allowed).toBe(true);
+  });
+  it("servicos PERMITE", () => {
+    expect(isCategoryAllowed("regime_diferenciado", "servicos").allowed).toBe(true);
   });
 });

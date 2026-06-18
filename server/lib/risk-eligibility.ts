@@ -86,6 +86,28 @@ export const ELIGIBILITY_TABLE: Partial<
     // DEPOIS: "unmapped" — handler downstream em risk-engine-v4 skip o risco.
     downgrade_to: "unmapped",
   },
+
+  // A-2 (18/06/2026) — transição ISS→IBS (Art. 342 LC 214/2025) só se aplica a quem
+  // recolhe ISS (prestadores de serviço). Fabricante (industria) NÃO é contribuinte do
+  // ISS → falso positivo na matriz. Gate por operationType; downgrade "unmapped".
+  transicao_iss_ibs: {
+    eligible: ["servicos", "misto"] as const,
+    conditional: [] as const,
+    conditional_reason: "sujeito_passivo_incompativel",
+    downgrade_to: "unmapped",
+  },
+
+  // A-3 (18/06/2026) — BAND-AID (despacho v75 / parecer Consultor). regime_diferenciado
+  // (Título IV LC 214/2025, pg. 31-43) exclui industria GENÉRICA. eligible = todos menos
+  // industria. FALSO NEGATIVO RESIDUAL ACEITO: Art. 128 III-V (dispositivos médicos /
+  // medicamentos) é industria elegível e será suprimido — fix real = subdivisão por
+  // capítulo do Título IV (issue #1506; não bloqueia merge).
+  regime_diferenciado: {
+    eligible: ["servicos", "misto", "agronegocio", "comercio"] as const,
+    conditional: [] as const,
+    conditional_reason: "sujeito_passivo_incompativel",
+    downgrade_to: "unmapped",
+  },
 };
 
 // ───────────────────────────────────────────────────────────────────────────
