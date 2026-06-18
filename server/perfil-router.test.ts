@@ -257,13 +257,15 @@ describe("BUG-1 fix — guard isM2PerfilEntidadeEnabled consumido pelo router", 
 });
 
 describe("validateM1Seed reuse — input gate compartilhado", () => {
-  // "1201" virou grupo válido (#1219/ADR-0035); usa "1201.90" (6 díg.) que segue inválido.
-  it("T21: NCM truncado parcial '1201.90' bloqueia (não duplicar regex no router perfil)", () => {
+  // D2 (#1502 4º gate): "1201" (grupo) e "1201.90" (subposição) viraram VÁLIDOS;
+  // usa "12019000" (sem pontos) que segue inválido — comprova que o router perfil
+  // delega ao gate (não duplica regex).
+  it("T21: NCM inválido '12019000' bloqueia (router perfil delega ao gate)", () => {
     expect(() =>
       validateM1Seed({
         cnae_principal_confirmado: "0115-6/00",
         natureza_operacao_principal: ["Produção própria"],
-        ncms_principais: ["1201.90"],
+        ncms_principais: ["12019000"],
         nbss_principais: [],
       }),
     ).toThrow(/NCM_INVALID_FORMAT/);
