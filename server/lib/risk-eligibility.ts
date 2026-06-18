@@ -5,6 +5,11 @@
 
 import type { CategoriaCanonica } from "./risk-categorizer";
 import { insertAuditLog } from "./db-queries-risks-v4";
+// PR-B F2 (A-5 · Lição #137) — fonte única atrás de ENABLE_UNIFIED_ELIGIBILITY.
+import {
+  resolveCategoryEligibility,
+  isUnifiedEligibilityEnabled,
+} from "./category-eligibility";
 
 // ───────────────────────────────────────────────────────────────────────────
 // 1. TIPOS EXPORTADOS
@@ -118,6 +123,25 @@ export function isCategoryAllowed(
   suggested: CategoriaCanonica,
   operationType: string | null | undefined,
 ): EligibilityResult {
+  // PR-B F2 — fonte única (flag ON). OFF (default) → comportamento legado abaixo (zero
+  // regressão). Mapeia o resultado do módulo único para o contrato EligibilityResult:
+  // bloqueado → downgrade "unmapped"; reason restrito ao union legado.
+  if (isUnifiedEligibilityEnabled()) {
+    const u = resolveCategoryEligibility(suggested as string, {
+      operationType,
+    });
+    return {
+      suggested,
+      allowed: u.allowed,
+      final: u.allowed ? suggested : "unmapped",
+      reason: u.allowed
+        ? u.reason === "operation_type_ausente"
+          ? "operation_type_ausente"
+          : null
+        : "sujeito_passivo_incompativel",
+    };
+  }
+
   const rule = ELIGIBILITY_TABLE[suggested];
 
   // (1) Categoria não-restrita → permite
