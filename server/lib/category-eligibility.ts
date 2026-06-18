@@ -152,3 +152,13 @@ export function isCategoryEligible(
 
 /** Categorias com regra explícita (para testes/observabilidade). */
 export const RULED_CATEGORIES = Object.keys(RULES);
+
+/**
+ * Feature flag (PR-B F2/F3) — rollback cold→hot. OFF (default) = os consumers
+ * (isCategoryAllowed / filtrarCategoriasPorPerfil) mantêm o comportamento legado;
+ * ON = roteiam por esta fonte única. Flip só após DoD de paridade (F4) +
+ * confirmação do gate NCM/CNAE do IS (D1-IS — #1282).
+ */
+export function isUnifiedEligibilityEnabled(): boolean {
+  return process.env.ENABLE_UNIFIED_ELIGIBILITY === "true";
+}

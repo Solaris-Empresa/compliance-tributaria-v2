@@ -1,7 +1,7 @@
 // Hotfix IS v1.2 — testes de risk-eligibility
 // Cobertura: SPEC-HOTFIX-IS-v1.1 Bloco 8.1 (mantido em v1.2)
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import {
   isCategoryAllowed,
   isOperationType,
@@ -275,5 +275,47 @@ describe("isCategoryAllowed — regime_diferenciado (A-3 band-aid)", () => {
   });
   it("servicos PERMITE", () => {
     expect(isCategoryAllowed("regime_diferenciado", "servicos").allowed).toBe(true);
+  });
+});
+
+// ─── PR-B F2 — wrapper atrás de ENABLE_UNIFIED_ELIGIBILITY ─────────────────────
+describe("isCategoryAllowed — fonte única (flag ENABLE_UNIFIED_ELIGIBILITY)", () => {
+  afterEach(() => {
+    delete process.env.ENABLE_UNIFIED_ELIGIBILITY;
+  });
+
+  it("flag OFF (default): imposto_seletivo + servicos → unmapped (comportamento legado)", () => {
+    delete process.env.ENABLE_UNIFIED_ELIGIBILITY;
+    const r = isCategoryAllowed("imposto_seletivo", "servicos");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("unmapped");
+  });
+
+  it("flag ON: imposto_seletivo + servicos → PERMITE (D1-IS não-autoritativo, difere do legado)", () => {
+    process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+    const r = isCategoryAllowed("imposto_seletivo", "servicos");
+    expect(r.allowed).toBe(true); // defere ao gate NCM/CNAE (Art.409); ≠ flag OFF
+    expect(r.final).toBe("imposto_seletivo");
+  });
+
+  it("flag ON: transicao_iss_ibs + industria → unmapped (paridade com legado)", () => {
+    process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+    const r = isCategoryAllowed("transicao_iss_ibs", "industria");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("unmapped");
+    expect(r.reason).toBe("sujeito_passivo_incompativel");
+  });
+
+  it("flag ON: regime_diferenciado + industria → unmapped; + agronegocio → permite", () => {
+    process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+    expect(isCategoryAllowed("regime_diferenciado", "industria").final).toBe("unmapped");
+    expect(isCategoryAllowed("regime_diferenciado", "agronegocio").allowed).toBe(true);
+  });
+
+  it("flag ON: operationType ausente → permissivo", () => {
+    process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+    const r = isCategoryAllowed("transicao_iss_ibs", null);
+    expect(r.allowed).toBe(true);
+    expect(r.reason).toBe("operation_type_ausente");
   });
 });
