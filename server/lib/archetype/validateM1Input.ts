@@ -13,15 +13,20 @@
  * Enum canônico: "Servicos" (sem acento) — conforme enums.ts
  */
 import { TRPCError } from "@trpc/server";
+// D2/D4 (18/jun/2026): 4º gate de validação NCM/NBS consolidado no helper único
+// @shared/ncm-nbs-validation (antes este backend tinha regex inline DIVERGENTE que
+// rejeitava subposição NNNN.NN — #1502 atualizou os 3 gates frontend mas deixou este
+// de fora; consolidação incompleta = Lição #74). Backend é fonte de verdade (C2),
+// simétrico ao frontend. Formatos: grupo (NNNN) | subposição (NNNN.NN) | específico
+// (NNNN.NN.NN). Reversão #859 ("1201" = grupo) preservada — Lições #123/#74.
+import {
+  isValidNcm,
+  isValidNbs,
+  NCM_FORMAT_HINT,
+  NBS_FORMAT_HINT,
+} from "@shared/ncm-nbs-validation";
 
 const CNAE_REGEX = /^\d{4}-\d\/\d{2}$/;
-// GATE-NCM-NBS #1219 F1: grupo (NCM 4 díg. / NBS subposição 1.XXXX) OU específico (ADR-0035).
-// Backend é fonte de verdade (Decisão P.O. C2) — simétrico ao frontend.
-// Reversão intencional de #859 por ADR-0035 / #1219 (decisão P.O. 14/06/2026):
-// "1201" (4 díg. puro) = GRUPO válido (posição NCM), não mais "truncado inválido".
-// Demais parciais (12.01, 1201.90, 12019000, 1201.90.0) seguem inválidos. Ver Lição #123.
-const NCM_REGEX = /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/;
-const NBS_REGEX = /^\d\.\d{4}$|^\d\.\d{4}\.\d{2}\.\d{2}$/;
 
 /**
  * Mapping natureza_operacao_principal → tipo_objeto_economico
@@ -88,16 +93,16 @@ export function validateM1Seed(seed: M1SeedInput): void {
   // NCM (Issue #1014: campo opcional — Decisão P.O. 2026-05-07)
   // Antes: NCM_REQUIRED era lançado quando requerNcm && ncms.length === 0.
   // Agora: NCM ausente é aceito (análise automática NCM simplesmente não executa).
-  // Mantido: validação de FORMAT (NCM_INVALID_FORMAT) — protege contra NCM truncado
-  // (ex: "1201" sem ".90.00") que era a justificativa original do PR #859.
-  // Variável requerNcm permanece declarada acima para compatibilidade de leitura
-  // semântica do código (pode ser consumida por logs/telemetria futura).
+  // Mantido: validação de FORMAT (NCM_INVALID_FORMAT) — rejeita lixo/parciais
+  // (ex: "12.01", "12019000", "1201.90.0"). Grupo "1201", subposição "1201.90" e
+  // específico "1201.90.00" são VÁLIDOS (helper). Variável requerNcm permanece
+  // declarada acima para compatibilidade de leitura semântica do código.
   const ncms = (seed.ncms_principais ?? []).map((n) => n?.trim()).filter(Boolean) as string[];
   for (const ncm of ncms) {
-    if (!NCM_REGEX.test(ncm)) {
+    if (!isValidNcm(ncm)) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: `NCM_INVALID_FORMAT: '${ncm}' não está no formato completo 0000.00.00 (ex: 1201.90.00).`,
+        message: `NCM_INVALID_FORMAT: '${ncm}' inválido. ${NCM_FORMAT_HINT}`,
       });
     }
   }
@@ -124,10 +129,10 @@ export function validateM1Seed(seed: M1SeedInput): void {
   // quando cliente fornece código mal-formado.
   // Variáveis requerNbs e isFinanceiro permanecem para leitura semântica.
   for (const nbs of nbss) {
-    if (!NBS_REGEX.test(nbs)) {
+    if (!isValidNbs(nbs)) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: `NBS_INVALID_FORMAT: '${nbs}' não está no formato completo 0.0000.00.00 (ex: 1.0501.14.59).`,
+        message: `NBS_INVALID_FORMAT: '${nbs}' inválido. ${NBS_FORMAT_HINT}`,
       });
     }
   }
