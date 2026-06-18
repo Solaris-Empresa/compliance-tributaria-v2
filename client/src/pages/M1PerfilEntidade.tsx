@@ -67,6 +67,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { NCM_REGEX, NBS_REGEX, NCM_FORMAT_HINT, NBS_FORMAT_HINT } from "@shared/ncm-nbs-validation";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -125,9 +126,7 @@ const NATUREZA_OPTIONS = [
 // Decisão P.O. C3: P0 valida formato apenas (regex); existência no dataset = P1
 
 const CNAE_REGEX = /^\d{4}-\d\/\d{2}$/;
-// GATE-NCM-NBS #1219 F1: grupo (NCM 4 díg. / NBS subposição 1.XXXX) OU específico (ADR-0035)
-const NCM_REGEX = /^\d{4}$|^\d{4}\.\d{2}\.\d{2}$/;
-const NBS_REGEX = /^\d\.\d{4}$|^\d\.\d{4}\.\d{2}\.\d{2}$/;
+// GATE-NCM-NBS #1219 F1 + D2/D4 (18/jun/2026): NCM_REGEX e NBS_REGEX importados de @shared/ncm-nbs-validation
 
 const NATUREZA_TO_TIPO: Record<string, string[]> = {
   "Produção própria": ["Bens/mercadorias"],
@@ -157,7 +156,7 @@ function validateInputs(f: SeedForm): string[] {
     if (ncms.length === 0) errors.push("Operação envolve bens/produtos. Informe ao menos um NCM.");
     else for (const ncm of ncms) {
       if (NBS_REGEX.test(ncm)) errors.push(`'${ncm}' parece NBS. Use o campo NBS para 0.0000.00.00.`);
-      else if (!NCM_REGEX.test(ncm)) errors.push(`NCM inválido: '${ncm}'. Formato 0000.00.00 (ex: 1201.90.00).`);
+      else if (!NCM_REGEX.test(ncm)) errors.push(`NCM inválido: '${ncm}'. ${NCM_FORMAT_HINT}`);
     }
   }
 
@@ -165,7 +164,7 @@ function validateInputs(f: SeedForm): string[] {
   if (requerNbs) {
     if (nbss.length === 0) errors.push("Operação envolve serviços. Informe ao menos um NBS.");
     else for (const nbs of nbss) {
-      if (!NBS_REGEX.test(nbs)) errors.push(`NBS inválido: '${nbs}'. Formato 0.0000.00.00 (ex: 1.0501.14.59).`);
+      if (!NBS_REGEX.test(nbs)) errors.push(`NBS inválido: '${nbs}'. ${NBS_FORMAT_HINT}`);
     }
   }
 
