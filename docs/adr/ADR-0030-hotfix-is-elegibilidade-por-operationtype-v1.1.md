@@ -3,6 +3,18 @@
 ## Status: Proposto · 2026-04-21 · Aprovação P.O. pendente
 ## Supersede (parcial): ADR-0030 v1.0 (mesma data)
 ## Referência: SPEC-HOTFIX-IS-v1.1 (amendment paralelo)
+## PATCH v1.1.1 · 2026-06-18 · #G1-8610001 (despacho v75) — ELIGIBILITY_TABLE expandida
+
+> **Bump PATCH (aditivo, sem mudança de contrato):** a `ELIGIBILITY_TABLE` deixa de ter
+> apenas `imposto_seletivo` e passa a incluir **`transicao_iss_ibs`** (A-2 — eligible
+> `["servicos","misto"]`, Art. 342) e **`regime_diferenciado`** (A-3 — eligible
+> `["servicos","misto","agronegocio","comercio"]`, band-aid que exclui só `industria`;
+> Título IV LC 214/2025). `transicao_iss_ibs` foi tornado canônico em `risk-categorizer.ts`
+> (drift de tipo corrigido — Opção a). Falso negativo residual aceito (Art. 128 III-V —
+> industria elegível) → issue de subdivisão por capítulo. A assinatura/semântica de
+> `isCategoryAllowed` não muda; apenas a cobertura da tabela. Mecanismo (`risk-engine-v4:563`)
+> inalterado. Nota: existe colisão pré-existente de numeração (dois arquivos `ADR-0030-*`) —
+> registrada como observação, fora do escopo deste PATCH.
 
 ---
 

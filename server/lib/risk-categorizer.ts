@@ -31,6 +31,11 @@ export type CategoriaCanonica =
   | "split_payment"
   | "obrigacao_acessoria"
   | "transicao"
+  // A-2 (18/06/2026): variante granular emitida pelo risk-engine-v4 (transição ISS→IBS,
+  // Art. 342). Era passada a isCategoryAllowed via `as CategoriaCanonica` (cast) sem estar
+  // no union → drift de tipo. Tornada canônica (Opção a) p/ chavear ELIGIBILITY_TABLE. Bump
+  // PATCH ADR-0030 (hotfix-is-elegibilidade). Fix definitivo de divergência canônica↔engine = A-5.
+  | "transicao_iss_ibs"
   | "enquadramento_geral"
   // M3.8-3: status para gap não-categorizável → não gera risco, vai para reviewQueue
   // Substitui fallback silencioso "enquadramento_geral" (REGRA-ORQ-29 + Lição #62)
