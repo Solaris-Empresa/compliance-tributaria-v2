@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!--
+  MOCKUP F7-A/F7-B — Admin SOLARIS · exibir + CRUD de cnae_groups (CNAE-ADMIN-01)
+  Gate UX (REGRA-ORQ-09). Componente: client/src/pages/AdminSolarisQuestions.tsx
+  Spec: docs/governance/relatorios/SPEC-CNAE-ADMIN-01.md
+  data-testid: col-cnae-groups · input-cnae-groups · cnae-chip-{i} · cnae-chip-remove-{i}
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" /><title>Mockup F7 — Admin cnae_groups</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:24px;color:#1f2937;background:#f9fafb}
+  h2{margin-top:32px;border-bottom:2px solid #5319E7;padding-bottom:6px}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;font-size:13px;border-bottom:1px solid #f3f4f6}
+  th{background:#f3f4f6;font-weight:600}
+  .badge{display:inline-block;padding:2px 8px;border-radius:9999px;font-size:11px;border:1px solid;margin:1px}
+  .b-univ{color:#6b7280;border-color:#d1d5db;background:#f9fafb}
+  .b-cnae{color:#7c3aed;border-color:#ddd6fe;background:#f5f3ff}
+  .b-reg{color:#047857;border-color:#a7f3d0;background:#ecfdf5}
+  .b-risk{color:#1d4ed8;border-color:#bfdbfe;font-family:monospace}
+  .muted{color:#9ca3af}
+  .panel{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:20px;max-width:560px}
+  label{display:block;font-size:12px;font-weight:600;margin:12px 0 4px}
+  .chips{border:1px solid #d1d5db;border-radius:6px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;min-height:38px}
+  .chip{background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;border-radius:6px;padding:2px 6px 2px 10px;font-size:12px;display:inline-flex;gap:6px;align-items:center}
+  .chip b{cursor:pointer;color:#9ca3af;font-weight:700}
+  .chips input{border:none;outline:none;font-size:13px;flex:1;min-width:120px}
+  .hint{font-size:11px;color:#6b7280;margin-top:4px}
+  .note{background:#fef9c3;border:1px solid #fde68a;border-radius:6px;padding:10px;font-size:12px;margin:8px 0}
+</style></head>
+<body>
+<h1>Mockup F7-A/B — Admin SOLARIS · <code>cnae_groups</code> (CNAE-ADMIN-01)</h1>
+<div class="note"><strong>Paridade com regime (F5):</strong> grupo CNAE vazio/null → <strong>"Todos os CNAEs"</strong> (universal). Editar para vazio persiste <code>NULL</code> (DoD negativo — Lição #138). Formato de armazenamento = JSON array; entrada por chips.</div>
+
+<h2>F7-A — Listagem: nova coluna "Grupos CNAE"</h2>
+<table>
+  <thead><tr>
+    <th style="width:32px"><input type="checkbox"></th>
+    <th style="width:80px">Código</th><th>Título</th>
+    <th style="width:90px">Severidade</th><th style="width:90px">Vigência</th>
+    <th style="width:150px">Regimes</th>
+    <th style="width:160px" data-testid="col-cnae-groups">Grupos CNAE</th>
+    <th style="width:140px">Código do Risco</th><th style="width:80px">Lote</th><th style="width:56px"></th>
+  </tr></thead>
+  <tbody>
+    <tr><td><input type="checkbox"></td><td><span class="badge b-risk">SOL-050</span></td>
+      <td>Atacadista agro — crédito presumido?</td><td>alta</td><td class="muted">2026-01-01</td>
+      <td><span class="badge b-univ">Todos</span></td>
+      <td><span class="badge b-cnae">4639-7/01</span><span class="badge b-cnae">4632-0/01</span></td>
+      <td><span class="badge b-risk">credito_presumido</span></td><td class="muted">42ff</td><td class="muted">✎ 🗑</td></tr>
+    <tr><td><input type="checkbox"></td><td><span class="badge b-risk">SOL-058</span></td>
+      <td>Máquinas industriais (div. 28) — IS?</td><td>critica</td><td class="muted">2026-01-01</td>
+      <td><span class="badge b-reg">Lucro Real</span></td>
+      <td><span class="badge b-cnae">28</span></td>
+      <td><span class="badge b-risk">imposto_seletivo</span></td><td class="muted">42ff</td><td class="muted">✎ 🗑</td></tr>
+    <tr><td><input type="checkbox"></td><td><span class="badge b-risk">SOL-038</span></td>
+      <td>Confissão automática via documento fiscal</td><td>critica</td><td class="muted">2026-01-01</td>
+      <td><span class="badge b-univ">Todos</span></td>
+      <td><span class="badge b-univ">Todos os CNAEs</span></td>
+      <td><span class="badge b-risk">confissao_automatica</span></td><td class="muted">42ff</td><td class="muted">✎ 🗑</td></tr>
+  </tbody>
+</table>
+<p class="hint">Coluna entre "Regimes" e "Código do Risco". <code>cnae_groups</code> null/[] → badge "Todos os CNAEs"; senão 1 badge por grupo. <code>data-testid="col-cnae-groups"</code>.</p>
+
+<h2>F7-B — Modal de Edição: campo "Grupos CNAE" (chip-input)</h2>
+<div class="panel">
+  <label>Título</label>
+  <div class="chips" style="display:block;border:1px solid #d1d5db;padding:6px 8px">Atacadista agro — crédito presumido?</div>
+
+  <label>Grupos CNAE aplicáveis</label>
+  <div class="chips" data-testid="input-cnae-groups">
+    <span class="chip" data-testid="cnae-chip-0">4639-7/01 <b data-testid="cnae-chip-remove-0">×</b></span>
+    <span class="chip" data-testid="cnae-chip-1">4632-0/01 <b data-testid="cnae-chip-remove-1">×</b></span>
+    <input placeholder="digite um CNAE e Enter (ex: 28 ou 4639-7/01)" />
+  </div>
+  <p class="hint">
+    Nenhum chip → persiste <code>cnae_groups = NULL</code> ("Todos os CNAEs", universal — DoD negativo).<br/>
+    Digitar + Enter adiciona chip; × remove. Aceita prefixo (<code>28</code>) ou código (<code>4639-7/01</code>).<br/>
+    Mesmo padrão visual do multi-select de Regimes (F5), porém <strong>aberto</strong> (CNAE não é lista fixa).
+  </p>
+
+  <label>Regimes tributários aplicáveis (F5 — referência)</label>
+  <div class="chips" style="border:1px solid #d1d5db">
+    <span class="badge b-univ" style="cursor:pointer">Todos</span>
+    <span class="badge b-reg" style="cursor:pointer">Lucro Real</span>
+  </div>
+</div>
+
+<h2>data-testid (contrato E2E)</h2>
+<ul style="font-size:13px">
+  <li><code>col-cnae-groups</code> — &lt;th&gt; da coluna Grupos CNAE (F7-A)</li>
+  <li><code>input-cnae-groups</code> — container do chip-input (F7-B)</li>
+  <li><code>cnae-chip-{i}</code> / <code>cnae-chip-remove-{i}</code> — cada chip e seu botão remover</li>
+</ul>
+</body></html>
