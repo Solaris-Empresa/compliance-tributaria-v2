@@ -29,6 +29,8 @@ import {
   projectStatusLog, InsertProjectStatusLog,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+// F3 (ADR-0038 D5 · Lição #137) — fonte única de filtragem CNAE × regime da Onda 1.
+import { filterSolarisByContext } from "./lib/solaris-context-filter";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -1282,7 +1284,10 @@ export async function createSolarisQuestion(
  *   - cnaeGroups contém cnaePrefix → retorna
  *   - cnaeGroups não contém cnaePrefix → não retorna
  */
-export async function getSolarisQuestions(cnaePrefix?: string): Promise<SolarisQuestion[]> {
+export async function getSolarisQuestions(
+  cnaePrefix?: string,
+  regime?: string | null,
+): Promise<SolarisQuestion[]> {
   const db = await getDb();
   if (!db) return [];
 
@@ -1292,13 +1297,11 @@ export async function getSolarisQuestions(cnaePrefix?: string): Promise<SolarisQ
     .where(eq(solarisQuestions.ativo, 1))
     .orderBy(solarisQuestions.id);
 
-  if (!cnaePrefix) return rows;
-
-  return rows.filter((q) => {
-    if (q.cnaeGroups === null || q.cnaeGroups === undefined) return true; // universal
-    const groups = safeParseJson<string[]>(q.cnaeGroups, []);
-    return groups.some((g) => cnaePrefix.startsWith(g) || g.startsWith(cnaePrefix));
-  });
+  // F3 (ADR-0038 D5) — filtro unificado CNAE × regime (substitui o filtro inline).
+  // NOTA: alinha o tratamento de cnae_groups=[] (array vazio) a getOnda1Questions —
+  // o helper trata [] como universal (antes este filtro excluía []). Mudança aceita
+  // (consolidação D5): universal é o default seguro (exibe, não esconde).
+  return filterSolarisByContext(rows, { cnae: cnaePrefix, regime });
 }
 
 /**
@@ -1364,7 +1367,10 @@ export async function bulkCreateSolarisQuestions(
  * Busca perguntas SOLARIS ativas, opcionalmente filtradas por prefixo de CNAE.
  * Retorna as 12 perguntas SOL-001..SOL-012 (ou subconjunto por CNAE).
  */
-export async function getOnda1Questions(cnaeCode?: string): Promise<SolarisQuestion[]> {
+export async function getOnda1Questions(
+  cnaeCode?: string,
+  regime?: string | null,
+): Promise<SolarisQuestion[]> {
   const db = await getDb();
   if (!db) return [];
 
@@ -1383,17 +1389,11 @@ export async function getOnda1Questions(cnaeCode?: string): Promise<SolarisQuest
     )
     .orderBy(solarisQuestions.id);
 
-  // BUG-SOL-050-051: filtrar por cnae_groups quando cnaeCode é fornecido
-  // cnae_groups = null → pergunta universal (retorna sempre)
-  // cnae_groups contém CNAE compatível → retorna
-  // cnae_groups não contém CNAE compatível → não retorna
-  if (!cnaeCode) return rows;
-  return rows.filter((q) => {
-    if (q.cnaeGroups === null || q.cnaeGroups === undefined) return true; // universal
-    const groups = safeParseJson<string[]>(q.cnaeGroups, []);
-    if (groups.length === 0) return true; // empty array = universal
-    return groups.some((g) => cnaeCode.startsWith(g) || g.startsWith(cnaeCode));
-  });
+  // F3 (ADR-0038 D5) — filtro unificado CNAE × regime (substitui o filtro cnae_groups
+  // inline). cnaeCode ausente → estado 1 (só regime); regime ausente → universal no
+  // regime (backward-compat: perguntas legadas têm tax_regimes=null). Wiring do regime
+  // real vem da procedure (F4). cnae_groups null/[] = universal (preserva BUG-SOL-050-051).
+  return filterSolarisByContext(rows, { cnae: cnaeCode, regime });
 }
 
 /**
