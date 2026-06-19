@@ -1478,6 +1478,10 @@ export default function AdminSolarisQuestions() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Gerenciamento de Perguntas — Onda 1 SOLARIS</h1>
           <p className="text-sm text-muted-foreground mt-1">Administração do corpus de perguntas curadas pela equipe jurídica</p>
+          {/* CNAE-ADMIN-01 — marcador de build (verificação de deploy): qual bundle está no ar. */}
+          <p className="text-[10px] text-muted-foreground/70 mt-0.5" data-testid="build-hash">
+            build: {(import.meta.env as Record<string, string | undefined>).VITE_BUILD_HASH ?? "dev"}
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
