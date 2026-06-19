@@ -148,3 +148,55 @@ describe("BUG-REGIME-FILTER-01 — DoD discriminante (4 perguntas lucro_presumid
     expect(filterSolarisByContext(lp4, { regime: null })).toHaveLength(4);
   });
 });
+
+// ── DoD discriminante — 3 regimes × (positivo + negativo) (Lição #139 + #141) ──
+// Trava no CI o suporte aos 3 regimes (simples_nacional, lucro_presumido, lucro_real).
+// O caso NEGATIVO é obrigatório por regime: o positivo sozinho passaria mesmo com filtro
+// permissivo (Lição #139). Cobre a importação de perguntas simples_nacional (19/06/2026).
+describe("matchesRegimeDimension — DoD discriminante 3 regimes", () => {
+  // lucro_presumido
+  it("LP positivo: pergunta LP → visível para projeto LP", () => {
+    expect(matchesRegimeDimension(["lucro_presumido"], "lucro_presumido")).toBe(true);
+  });
+  it("LP negativo discriminante: pergunta LP → AUSENTE para projeto LR", () => {
+    expect(matchesRegimeDimension(["lucro_presumido"], "lucro_real")).toBe(false);
+  });
+  it("LP neutro: pergunta universal (null) → visível para qualquer regime", () => {
+    expect(matchesRegimeDimension(null, "lucro_presumido")).toBe(true);
+    expect(matchesRegimeDimension(null, "lucro_real")).toBe(true);
+    expect(matchesRegimeDimension(null, "simples_nacional")).toBe(true);
+  });
+
+  // lucro_real
+  it("LR positivo: pergunta LR → visível para projeto LR", () => {
+    expect(matchesRegimeDimension(["lucro_real"], "lucro_real")).toBe(true);
+  });
+  it("LR negativo discriminante: pergunta LR → AUSENTE para projeto LP", () => {
+    expect(matchesRegimeDimension(["lucro_real"], "lucro_presumido")).toBe(false);
+  });
+
+  // simples_nacional
+  it("SN positivo: pergunta SN → visível para projeto SN", () => {
+    expect(matchesRegimeDimension(["simples_nacional"], "simples_nacional")).toBe(true);
+  });
+  it("SN negativo discriminante: pergunta SN → AUSENTE para projeto LP", () => {
+    expect(matchesRegimeDimension(["simples_nacional"], "lucro_presumido")).toBe(false);
+  });
+  it("SN negativo discriminante: pergunta SN → AUSENTE para projeto LR", () => {
+    expect(matchesRegimeDimension(["simples_nacional"], "lucro_real")).toBe(false);
+  });
+
+  // multi-regime (pergunta marcada para 2 regimes)
+  it("multi-regime: pergunta [SN, LR] → visível p/ SN e LR, AUSENTE p/ LP", () => {
+    expect(matchesRegimeDimension(["simples_nacional", "lucro_real"], "simples_nacional")).toBe(true);
+    expect(matchesRegimeDimension(["simples_nacional", "lucro_real"], "lucro_real")).toBe(true);
+    expect(matchesRegimeDimension(["simples_nacional", "lucro_real"], "lucro_presumido")).toBe(false);
+  });
+
+  // permissividade (projeto sem regime resolvível)
+  it("sem regime no projeto → pergunta específica de qualquer regime aparece (permissivo)", () => {
+    expect(matchesRegimeDimension(["simples_nacional"], null)).toBe(true);
+    expect(matchesRegimeDimension(["lucro_real"], "")).toBe(true);
+    expect(matchesRegimeDimension(["lucro_presumido"], undefined)).toBe(true);
+  });
+});
