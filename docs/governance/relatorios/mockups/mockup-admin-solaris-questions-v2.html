@@ -22,6 +22,12 @@
   .tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin:16px 0 0}
   .tabs button{border:0;background:none;font-size:1em;padding:12px 18px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px}
   .tabs button.active{color:var(--roxo);border-bottom-color:var(--roxo);font-weight:700}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+  .card{display:flex;flex-direction:column;gap:2px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--cc);border-radius:var(--radius);padding:14px 16px;cursor:pointer;text-align:left;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .card:hover{border-color:var(--cc);box-shadow:0 4px 14px rgba(0,0,0,.08)}
+  .card .cv{font-size:1.9em;font-weight:800;color:var(--cc);line-height:1}
+  .card .cl{font-size:.9em;color:var(--muted);font-weight:600}
+  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}}
   .toolbar{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .field{display:flex;flex-direction:column;gap:5px}
@@ -97,6 +103,18 @@
     <button class="active">Lista</button>
     <button>Upload CSV</button>
     <button>Histórico de Lotes</button>
+  </div>
+
+  <!-- ===== Cards de resumo (clicáveis = atalho de filtro) ===== -->
+  <div class="cards" id="cards">
+    <button class="card" data-act="todas" onclick="setStatus('todas')" style="--cc:#1E40AF">
+      <span class="cv" id="kpi-total">22</span><span class="cl">📄 Total</span></button>
+    <button class="card" data-act="ativas" onclick="setStatus('ativas')" style="--cc:#16A34A">
+      <span class="cv" id="kpi-ativas">20</span><span class="cl">✓ Ativas</span></button>
+    <button class="card" data-act="inativas" onclick="setStatus('inativas')" style="--cc:#6B7280">
+      <span class="cv" id="kpi-inativas">2</span><span class="cl">⊘ Inativas</span></button>
+    <button class="card" data-act="reg" onclick="filtrarRegimeEspecifico()" style="--cc:#7C3AED">
+      <span class="cv" id="kpi-reg">5</span><span class="cl">⚖ Regime específico</span></button>
   </div>
 
   <!-- ===== Toolbar de consulta ===== -->
@@ -250,6 +268,10 @@ function tog(id){const e=document.getElementById(id);document.querySelectorAll("
 document.addEventListener("click",e=>{if(!e.target.closest(".multi"))document.querySelectorAll(".multi").forEach(m=>m.classList.remove("open"))});
 function checked(id){return [...document.querySelectorAll(`#${id} input:checked`)].map(i=>i.value)}
 function setStatus(s){status=s;document.querySelectorAll("#seg-status button").forEach(b=>b.classList.toggle("active",b.dataset.st===s));render()}
+function filtrarRegimeEspecifico(){ // atalho do card: regimes ≠ Universal
+  document.querySelectorAll("#m-reg input").forEach(i=>i.checked=(i.value!=="__uni"));
+  setStatus("todas");
+}
 function expandAll(open){Object.keys(collapsed).forEach(k=>delete collapsed[k]);if(!open)visibleGroups.forEach(g=>collapsed[g]=true);render()}
 
 function vigKey(d){ if(!d.vigencia)return"Sem vigência"; const[dd,mm,yy]=d.vigencia.split("/"); const dt=new Date(`${yy}-${mm}-${dd}`); return dt<today?"Vencida":"A vencer"; }
@@ -309,6 +331,11 @@ function render(){
   document.getElementById("c-at").textContent=`(${D.filter(d=>d.ativo).length})`;
   document.getElementById("c-in").textContent=`(${D.filter(d=>!d.ativo).length})`;
   document.getElementById("c-to").textContent=`(${D.length})`;
+  // cards de resumo (estáticos sobre o corpus)
+  document.getElementById("kpi-total").textContent=D.length;
+  document.getElementById("kpi-ativas").textContent=D.filter(d=>d.ativo).length;
+  document.getElementById("kpi-inativas").textContent=D.filter(d=>!d.ativo).length;
+  document.getElementById("kpi-reg").textContent=D.filter(d=>d.regimes.length>0).length;
   const colspan=COLS.length;
   if(!gb){
     body.innerHTML=rows.map(d=>`<tr class="${d.ativo?"":"inactive"}">${COLS.map(([k])=>`<td>${cell(d,k)}</td>`).join("")}</tr>`).join("")||emptyRow(colspan);
