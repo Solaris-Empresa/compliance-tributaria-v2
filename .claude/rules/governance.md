@@ -3722,3 +3722,70 @@ Antes de declarar um DoD negativo PASS: perguntar "esta query retornaria o mesmo
 - [[Lição #124]] (DoD negativo falsifica a condição mais próxima do positivo) · [[Lição #85]] (persistência exige SQL, não estado de UI) · [[Lição #87]] (smoke estático ≠ consumo)
 - REGRA-ORQ-44 (DoD negativo por consumer crítico) · REGRA-ORQ-34 Protocolo 3
 - Caso canônico: GATE-PO T2 (SOL-060/SOL-061) · épico ADR-0038 F1-F6 · auditoria `docs/governance/audits/AUDITORIA_PROFUNDA_01de1c47.md` + `PARECER_AUDITORIA_01de1c47.md`
+
+## Lição #139 — Teste de filtro/gate só prova com o caso NEGATIVO discriminante
+
+**Origem:** BUG-REGIME-FILTER-01 (19/06/2026) — questões `lucro_presumido` exibidas em projeto `lucro_real`
+
+### Texto
+
+Um teste de **filtro/gate** que valida só o caso **positivo** (valor casa → inclui) **não prova nada** — ele passa **também** quando o gate está **permissivo/quebrado** (default que inclui tudo). O que prova o gate é o caso **negativo discriminante**: variar **a chave do filtro** para um valor **não-casante** e confirmar **exclusão**, em **dado real**.
+
+### Caso canônico
+
+F4 regime (ADR-0038): o projeto 9180001 (lucro_presumido) "passou" no teste positivo **por permissividade** (coluna `projects.taxRegime` NULL → regime `undefined` → `matchesRegimeDimension` retorna `true` → mostra tudo), **mascarando o bug**. Só o caso 9210001 (lucro_real → deveria **excluir** as perguntas LP) o revelou. O positivo passava tanto com o filtro funcionando quanto quebrado; só o negativo distingue.
+
+### Aplicação prospectiva
+
+DoD de filtro/gate exige os 3 casos (REGRA-ORQ-47): positivo (casa → inclui), **negativo discriminante** (chave diferente → exclui), neutro (universal/sem valor → documentado). O negativo varia **a chave do filtro**, não o estado universal/vazio.
+
+### Vinculadas
+
+[[Lição #138]] (DoD exercita a escrita) · [[Lição #124]] (varia 1 variável — aqui a chave do filtro) · [[Lição #93]] (mecanismo verificado) · REGRA-ORQ-44/47 · BUG-REGIME-FILTER-01 (PR fix A1)
+
+## Lição #140 — Campo com dupla persistência: confirmar a fonte canônica antes de ler
+
+**Origem:** BUG-REGIME-FILTER-01 (19/06/2026)
+
+### Texto
+
+Campo com **dual-storage** (coluna SQL + JSON; ex.: `taxRegime` em `projects.taxRegime` **e** `companyProfile.taxRegime`) → **antes de ler**, fazer `grep` dos readers existentes para achar a **fonte canônica**. Não assumir a coluna pelo nome. Preferir **helper único** de resolução.
+
+### Caso canônico
+
+F4 (`routers-fluxo-v3.ts:5057`) lia `(project).taxRegime` (coluna SQL = **NULL**) quando a fonte canônica era `companyProfile.taxRegime` (JSON, **~10 readers**, ex.: `:5269`). O `createProject` grava o regime só no JSON; a coluna fica NULL. Resultado: regime `undefined` → filtro permissivo → vazamento. O risco **havia sido flagado (🟡) no AS-IS do F4** e não virou item de DoD (ver REGRA-ORQ-47b).
+
+### Aplicação prospectiva
+
+`grep -rn "\.<campo>\b" server/ client/src` antes de escolher a fonte. Se houver dual-storage, documentar a canônica + usar helper. Backfill da coluna redundante é hardening, não a correção primária.
+
+### Vinculadas
+
+[[REGRA-ORQ-35]] (NUNCA ASSUMA) · [[Lição #113]] (campo/UI ≠ fonte real) · [[Lição #65]] (writers/readers) · REGRA-ORQ-47 · BUG-REGIME-FILTER-01
+
+## REGRA-ORQ-47 — DoD obrigatório de filtro + 🟡 do impact-tree vira item rastreável
+
+**Vigência:** permanente, a partir de 19/06/2026
+**Origem:** BUG-REGIME-FILTER-01 — "spec clara, bug básico passou" (DoD não-discriminante + 🟡 do AS-IS evaporado)
+**Severidade:** governança — fecha a classe de filtro permissivo mascarado + análise que não vira DoD
+
+### (a) DoD obrigatório de filtro/gate
+
+Toda feature de **filtro/gate de exibição** (regime, CNAE, elegibilidade, scope, visibilidade condicional) tem DoD **inválido** sem **3 casos** — todos em **dado real no consumer final**:
+
+1. **Positivo:** a chave casa → **inclui**.
+2. **Negativo discriminante:** a chave **diferente** (não-casante) → **exclui**. (Lição #139 — é o que prova o gate; o positivo pode passar por permissividade.)
+3. **Neutro:** universal/sem valor → comportamento **documentado** (permissivo ou restritivo, explícito).
+
+### (b) 🟡 do impact-tree vira item rastreável
+
+Todo risco **🟡 levantado na skill `impact-tree`/AS-IS** DEVE virar **item explícito de DoD ou blocker** no PR — **não pode permanecer só como nota**. Se um 🟡 do AS-IS não tem item de DoD correspondente, `validate-pr`/review **reprova**. *(Fecha o gap "a análise viu, a implementação não tratou" — caso canônico: o dual-storage do `taxRegime` flagado no AS-IS do F4 e ignorado.)*
+
+### Enforcement
+
+- **Imediato (declarativo):** checklist no PR template — "Feature de filtro/gate? → 3 casos de DoD (a)"; "🟡 do AS-IS sem item de DoD? → blocker (b)".
+- **Futuro (mecânico):** `validate-pr` exige, em PRs com label `filtro`/`gate`, a seção "DoD discriminante (positivo+negativo+neutro)".
+
+### Vinculadas
+
+REGRA-ORQ-44 (DoD negativo por consumer) — esta estende p/ filtros · REGRA-ORQ-41 (impact-tree) · [[Lição #138]] · [[Lição #139]] · [[Lição #140]] · [[Lição #124]] · BUG-REGIME-FILTER-01
