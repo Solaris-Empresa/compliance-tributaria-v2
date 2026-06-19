@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup — Admin SOLARIS Questions v2 (consulta)</title>
+<style>
+  :root{
+    --roxo:#5319E7; --roxo-100:#ede9fe; --roxo-700:#4316c4;
+    --ink:#1f2430; --muted:#6b7280; --line:#e5e7eb; --bg:#f6f7fb; --card:#fff;
+    --crit:#b91c1c; --alta:#b45309; --media:#1d4ed8; --baixa:#047857;
+    --fs:16px; --row:56px; --radius:12px;
+  }
+  body.fs-lg{ --fs:18.5px; --row:64px; }
+  body.density-compact{ --row:42px; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Calibri,Segoe UI,Roboto,system-ui,sans-serif;font-size:var(--fs);color:var(--ink);background:var(--bg)}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px}
+  header.page h1{font-size:1.55em;color:var(--roxo);margin:0 0 2px}
+  header.page p{margin:0;color:var(--muted)}
+  .badge-build{display:inline-block;font-size:.72em;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 10px;margin-left:8px;vertical-align:middle}
+  .tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin:16px 0 0}
+  .tabs button{border:0;background:none;font-size:1em;padding:12px 18px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px}
+  .tabs button.active{color:var(--roxo);border-bottom-color:var(--roxo);font-weight:700}
+  .toolbar{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:.8em;color:var(--muted);font-weight:600}
+  .field input,.field select{font-size:1em;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:#fff;min-height:44px}
+  .field input:focus,.field select:focus{outline:3px solid var(--roxo-100);border-color:var(--roxo)}
+  .grow{flex:1;min-width:240px}
+  /* segmented status */
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{border:0;background:#fff;padding:10px 16px;font-size:.95em;cursor:pointer;min-height:44px;display:flex;gap:8px;align-items:center;color:var(--ink)}
+  .seg button+button{border-left:1.5px solid var(--line)}
+  .seg button.active{background:var(--roxo);color:#fff;font-weight:700}
+  .seg .cnt{font-size:.8em;opacity:.8}
+  /* multi dropdown */
+  .multi{position:relative}
+  .multi>button{font-size:1em;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:#fff;min-height:44px;cursor:pointer;min-width:170px;text-align:left;display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .multi .pop{position:absolute;z-index:20;top:calc(100% + 4px);left:0;background:#fff;border:1.5px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:8px;min-width:240px;display:none;max-height:280px;overflow:auto}
+  .multi.open .pop{display:block}
+  .multi .pop label{display:flex;gap:10px;align-items:center;padding:9px 8px;border-radius:7px;cursor:pointer;font-size:.95em}
+  .multi .pop label:hover{background:var(--roxo-100)}
+  .multi .pop input{width:18px;height:18px}
+  .btn{font-size:.95em;padding:10px 16px;border-radius:9px;border:1.5px solid var(--line);background:#fff;cursor:pointer;min-height:44px;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:var(--roxo);color:#fff;border-color:var(--roxo);font-weight:700}
+  .btn:hover{border-color:var(--roxo)}
+  .controls2{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .controls2 .lbl{font-size:.8em;color:var(--muted);font-weight:600;margin-right:2px}
+  /* chips */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;min-height:0}
+  .chip{display:inline-flex;gap:8px;align-items:center;background:var(--roxo-100);color:var(--roxo-700);border-radius:20px;padding:6px 12px;font-size:.85em;font-weight:600}
+  .chip button{border:0;background:none;color:var(--roxo-700);cursor:pointer;font-size:1.1em;line-height:1;padding:0}
+  .summary{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 8px;color:var(--muted);font-size:.9em;flex-wrap:wrap;gap:8px}
+  .summary b{color:var(--ink)}
+  /* table */
+  .tablecard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:0 16px;height:var(--row);border-bottom:1px solid var(--line);font-size:.95em;vertical-align:middle}
+  th{background:#faf9ff;color:var(--muted);font-size:.8em;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;user-select:none;position:sticky;top:0}
+  th .ar{color:var(--roxo);font-size:.9em}
+  tr:hover td{background:#fbfaff}
+  .code{font-family:ui-monospace,Consolas,monospace;font-weight:700;color:var(--roxo-700)}
+  .title-cell{font-weight:600;max-width:340px}
+  .sub{display:block;font-size:.8em;color:var(--muted);font-weight:400}
+  .sev{display:inline-flex;gap:7px;align-items:center;font-weight:700;font-size:.9em}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .sev.critica{color:var(--crit)} .sev.critica .dot{background:var(--crit)}
+  .sev.alta{color:var(--alta)} .sev.alta .dot{background:var(--alta)}
+  .sev.media{color:var(--media)} .sev.media .dot{background:var(--media)}
+  .sev.baixa{color:var(--baixa)} .sev.baixa .dot{background:var(--baixa)}
+  .sev.none{color:var(--muted)} .sev.none .dot{background:var(--muted)}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:16px;padding:2px 9px;font-size:.78em;color:var(--muted);background:#fff;margin:1px 2px}
+  .pill.uni{font-style:italic}
+  .pill.risk{background:var(--roxo-100);color:var(--roxo-700);border-color:transparent;font-weight:600}
+  .inactive{opacity:.55}
+  .tag-inativa{font-size:.7em;background:#fee2e2;color:#991b1b;border-radius:6px;padding:1px 7px;font-weight:700;margin-left:6px}
+  /* group header */
+  .grp td{background:#f1edff;font-weight:700;color:var(--roxo-700);cursor:pointer;height:46px}
+  .grp .cnt{font-weight:400;color:var(--muted);font-size:.85em;margin-left:8px}
+  .grp .caret{display:inline-block;width:16px}
+  .hidden{display:none}
+  .legend{font-size:.78em;color:var(--muted);margin-top:10px}
+  .note{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:.82em;color:#92400e;margin-top:14px}
+</style>
+</head>
+<body class="fs-lg">
+<div class="wrap">
+
+  <header class="page">
+    <h1>Gerenciamento de Perguntas — Onda 1 SOLARIS <span class="badge-build">build: 84a31fe6</span></h1>
+    <p>Administração do corpus de perguntas curadas pela equipe jurídica · <strong>mockup v2 — consulta</strong></p>
+  </header>
+
+  <div class="tabs">
+    <button class="active">Lista</button>
+    <button>Upload CSV</button>
+    <button>Histórico de Lotes</button>
+  </div>
+
+  <!-- ===== Toolbar de consulta ===== -->
+  <div class="toolbar">
+    <div class="row">
+      <div class="field grow">
+        <label for="q">Buscar (código, título, conteúdo ou risco)</label>
+        <input id="q" type="search" placeholder="Ex.: crédito presumido, SOL-301, confissao_automatica…" oninput="render()" />
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <div class="seg" id="seg-status">
+          <button class="active" data-st="ativas" onclick="setStatus('ativas')">✓ Ativas <span class="cnt" id="c-at"></span></button>
+          <button data-st="inativas" onclick="setStatus('inativas')">⊘ Inativas <span class="cnt" id="c-in"></span></button>
+          <button data-st="todas" onclick="setStatus('todas')">Todas <span class="cnt" id="c-to"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:14px">
+      <div class="field"><label>Área</label>
+        <select id="f-area" onchange="render()"><option value="">Todas as áreas</option>
+          <option>contabilidade_fiscal</option><option>juridico</option><option>negocio</option><option>ti</option></select></div>
+
+      <div class="field"><label>Vigência</label>
+        <select id="f-vig" onchange="render()">
+          <option value="">Todas</option><option value="com">Com vigência</option><option value="sem">Sem vigência</option>
+          <option value="vencida">Vencida</option><option value="a_vencer">A vencer</option></select></div>
+
+      <div class="field"><label>Lote</label>
+        <select id="f-lote" onchange="render()"><option value="">Todos os lotes</option>
+          <option>42ff01a9</option><option>1af47db9</option><option value="—">Sem lote</option></select></div>
+
+      <!-- multi-selects (dimensões antes invisíveis como filtro) -->
+      <div class="field"><label>Severidade</label>
+        <div class="multi" id="m-sev"><button onclick="tog('m-sev')"><span>Todas</span><span>▾</span></button>
+          <div class="pop">
+            <label><input type="checkbox" value="critica" onchange="render()"> 🔴 Crítica</label>
+            <label><input type="checkbox" value="alta" onchange="render()"> 🟠 Alta</label>
+            <label><input type="checkbox" value="media" onchange="render()"> 🔵 Média</label>
+            <label><input type="checkbox" value="baixa" onchange="render()"> 🟢 Baixa</label>
+            <label><input type="checkbox" value="none" onchange="render()"> ⚪ Sem severidade</label>
+          </div></div></div>
+
+      <div class="field"><label>Regime tributário</label>
+        <div class="multi" id="m-reg"><button onclick="tog('m-reg')"><span>Todos</span><span>▾</span></button>
+          <div class="pop">
+            <label><input type="checkbox" value="Simples Nacional" onchange="render()"> Simples Nacional</label>
+            <label><input type="checkbox" value="Lucro Presumido" onchange="render()"> Lucro Presumido</label>
+            <label><input type="checkbox" value="Lucro Real" onchange="render()"> Lucro Real</label>
+            <label><input type="checkbox" value="__uni" onchange="render()"> Universal (todos)</label>
+          </div></div></div>
+
+      <div class="field"><label>Código do Risco</label>
+        <div class="multi" id="m-risk"><button onclick="tog('m-risk')"><span>Todos</span><span>▾</span></button>
+          <div class="pop" id="pop-risk"></div></div></div>
+
+      <div class="field"><label>Grupo CNAE</label>
+        <input id="f-cnae" type="text" placeholder="Ex.: 28, 4639-7/01" oninput="render()" style="min-width:150px" /></div>
+    </div>
+
+    <!-- linha 3: agrupar + visual -->
+    <div class="controls2">
+      <span class="lbl">Agrupar por:</span>
+      <select id="groupby" onchange="render()">
+        <option value="">— Nenhum (lista) —</option>
+        <option value="categoria">Área</option>
+        <option value="severidade">Severidade</option>
+        <option value="regimeKey">Regime</option>
+        <option value="risk">Código do Risco</option>
+        <option value="lote">Lote</option>
+        <option value="status">Status</option>
+        <option value="vigKey">Vigência</option>
+      </select>
+      <button class="btn" onclick="expandAll(true)">Expandir tudo</button>
+      <button class="btn" onclick="expandAll(false)">Recolher tudo</button>
+      <span style="flex:1"></span>
+      <span class="lbl">Texto:</span>
+      <button class="btn" onclick="document.body.classList.toggle('fs-lg')">A / A+</button>
+      <span class="lbl">Densidade:</span>
+      <button class="btn" onclick="document.body.classList.toggle('density-compact')">Confortável / Compacto</button>
+      <button class="btn" onclick="alert('Mockup: exportaria o resultado filtrado em CSV/Excel (client-side, sem tocar o banco).')">⬇ Exportar consulta</button>
+      <button class="btn primary" onclick="alert('Mockup: abriria o formulário de nova pergunta (fora do escopo de consulta).')">+ Nova Pergunta</button>
+    </div>
+
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="summary">
+    <div id="count"></div>
+    <div>
+      <button class="btn" style="min-height:36px;padding:6px 12px" onclick="alert('Mockup: salvaria esta combinação de filtros em &quot;Minhas buscas&quot; (localStorage — sem banco).')">★ Salvar esta busca</button>
+      <select style="min-height:36px;border:1.5px solid var(--line);border-radius:8px;padding:4px 8px" onchange="if(this.value)alert('Mockup: aplicaria a busca salva: '+this.value)">
+        <option value="">Minhas buscas salvas…</option><option>Críticas do Simples</option><option>Vencidas</option><option>Crédito presumido (agro)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tablecard">
+    <table>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <div class="legend">Severidade: 🔴 Crítica · 🟠 Alta · 🔵 Média · 🟢 Baixa · ⚪ Sem · &nbsp;|&nbsp; "Universal" = aplica a todos os regimes/CNAEs (campo vazio no banco).</div>
+  <div class="note"><strong>Mockup de consulta (read-only).</strong> Sem alteração de regra de negócio nem de banco. Os filtros novos (Regime, Grupo CNAE, Código do Risco, agrupamento, status proeminente, ordenação, texto grande, export, buscas salvas) apenas <em>consultam</em> campos já existentes. Implementação só após aprovação do P.O. (Gate UX).</div>
+</div>
+
+<script>
+// ---- dados de referência (22 perguntas — espelho da tela atual) ----
+const CNAE_AGRO=["4639-7/01","4632-0/01","4631-1/00","4634-6/01","4635-4/01","4637-1/07","4633-8/01","4636-2/02","4623-1/09"];
+const D=[
+ ["SOL-038","Confissão automática via documento fiscal","critica","31/03/2026",["Simples Nacional"],[],"confissao_automatica","42ff01a9","contabilidade_fiscal",true],
+ ["SOL-039","Revisão da apuração assistida","critica","31/03/2026",[],[],"confissao_automatica","42ff01a9","contabilidade_fiscal",true],
+ ["SOL-040","Validações contra dívida ativa","critica","31/03/2026",[],[],"inscricao_cadastral","42ff01a9","juridico",true],
+ ["SOL-041","Fluxo de retificação imediata","alta","31/03/2026",[],[],"obrigacao_acessoria","42ff01a9","contabilidade_fiscal",true],
+ ["SOL-042","Monitoramento de passivos confessados","critica","31/03/2026",[],[],"confissao_automatica","42ff01a9","contabilidade_fiscal",true],
+ ["SOL-043","Estratégia preventiva de contraditório","alta","31/03/2026",[],[],"confissao_automatica","42ff01a9","juridico",true],
+ ["SOL-044","Conferência da apuração do Fisco","alta","31/03/2026",[],[],"confissao_automatica","42ff01a9","contabilidade_fiscal",true],
+ ["SOL-045","SLA para ajustes fiscais","alta","31/03/2026",[],[],"obrigacao_acessoria","42ff01a9","negocio",true],
+ ["SOL-046","Revisão de parametrização do ERP","critica","31/03/2026",[],[],"regime_diferenciado","42ff01a9","ti",true],
+ ["SOL-047","Mapeamento de teses jurídicas","alta","31/03/2026",[],[],"confissao_automatica","42ff01a9","juridico",true],
+ ["SOL-048","Governança e trilha de auditoria","alta","31/03/2026",[],[],"obrigacao_acessoria","42ff01a9","negocio",true],
+ ["SOL-049","Antecipação de inconsistências","alta","31/03/2026",[],[],"split_payment","42ff01a9","contabilidade_fiscal",true],
+ ["SOL-050","Crédito presumido — regime regular","alta","",[],CNAE_AGRO,"credito_presumido","—","contabilidade_fiscal",true],
+ ["SOL-051","Crédito presumido — aquisição de produtor rural","alta","",[],CNAE_AGRO,"credito_presumido","—","contabilidade_fiscal",true],
+ ["SOL-052","Crédito presumido — produtor não contribuinte","alta","",[],CNAE_AGRO,"credito_presumido","—","juridico",true],
+ ["SOL-057","Crédito presumido de IBS/CBS na atividade agrícola","alta","31/12/2025",[],["0115-6"],"regime_diferenciado_produtor_rural_credito","—","contabilidade_fiscal",true],
+ ["SOL-058","Alíquota zero agro — bens (Tabela II Anexo IV)","none","",[],["28"],"aliquota_zero_bens_capital_agro","—","contabilidade_fiscal",false],
+ ["SOL-059","Alíquota zero agro — destinatário não contribuinte","none","",[],["28"],"aliquota_zero_bens_capital_agro","—","juridico",false],
+ ["SOL-301","Inventário de créditos para migração à CBS","alta","30/06/2026",["Lucro Presumido"],[],"obrigacao_acessoria","1af47db9","contabilidade_fiscal",true],
+ ["SOL-302","Conciliação dos créditos com EFD-Contribuições e PER/DCOMP","alta","30/06/2026",["Lucro Presumido"],[],"obrigacao_acessoria","1af47db9","contabilidade_fiscal",true],
+ ["SOL-303","Capacidade probatória e lastro documental dos créditos","alta","30/06/2026",["Lucro Presumido"],[],"obrigacao_acessoria","1af47db9","contabilidade_fiscal",true],
+ ["SOL-304","Créditos de maior risco de fiscalização na transição","critica","30/06/2026",["Lucro Presumido"],[],"obrigacao_acessoria","1af47db9","juridico",true],
+].map(r=>({codigo:r[0],titulo:r[1],severidade:r[2],vigencia:r[3],regimes:r[4],cnae:r[5],risk:r[6],lote:r[7],categoria:r[8],ativo:r[9]}));
+
+const SEV_LABEL={critica:"Crítica",alta:"Alta",media:"Média",baixa:"Baixa",none:"Sem severidade"};
+const SEV_ORDER={critica:4,alta:3,media:2,baixa:1,none:0};
+const today=new Date("2026-06-19");
+const COLS=[["codigo","Código"],["titulo","Título"],["severidade","Severidade"],["vigencia","Vigência"],["regimes","Regimes"],["cnae","Grupos CNAE"],["risk","Código do Risco"],["lote","Lote"]];
+
+let status="ativas", sortKey="codigo", sortDir=1;
+const collapsed={};
+
+// popular filtro de risco a partir dos dados
+const risks=[...new Set(D.map(d=>d.risk))].sort();
+document.getElementById("pop-risk").innerHTML=risks.map(r=>`<label><input type="checkbox" value="${r}" onchange="render()"> ${r}</label>`).join("");
+
+function tog(id){const e=document.getElementById(id);document.querySelectorAll(".multi").forEach(m=>{if(m!==e)m.classList.remove("open")});e.classList.toggle("open")}
+document.addEventListener("click",e=>{if(!e.target.closest(".multi"))document.querySelectorAll(".multi").forEach(m=>m.classList.remove("open"))});
+function checked(id){return [...document.querySelectorAll(`#${id} input:checked`)].map(i=>i.value)}
+function setStatus(s){status=s;document.querySelectorAll("#seg-status button").forEach(b=>b.classList.toggle("active",b.dataset.st===s));render()}
+function expandAll(open){Object.keys(collapsed).forEach(k=>delete collapsed[k]);if(!open)visibleGroups.forEach(g=>collapsed[g]=true);render()}
+
+function vigKey(d){ if(!d.vigencia)return"Sem vigência"; const[dd,mm,yy]=d.vigencia.split("/"); const dt=new Date(`${yy}-${mm}-${dd}`); return dt<today?"Vencida":"A vencer"; }
+function regimeKey(d){ return d.regimes.length?d.regimes.join(", "):"Universal"; }
+let visibleGroups=[];
+
+function passes(d){
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  if(q && !(d.codigo+" "+d.titulo+" "+d.risk).toLowerCase().includes(q)) return false;
+  if(status==="ativas"&&!d.ativo) return false;
+  if(status==="inativas"&&d.ativo) return false;
+  const area=document.getElementById("f-area").value; if(area&&d.categoria!==area) return false;
+  const vig=document.getElementById("f-vig").value;
+  if(vig==="com"&&!d.vigencia) return false; if(vig==="sem"&&d.vigencia) return false;
+  if(vig==="vencida"&&vigKey(d)!=="Vencida") return false; if(vig==="a_vencer"&&vigKey(d)!=="A vencer") return false;
+  const lote=document.getElementById("f-lote").value; if(lote&&d.lote!==lote) return false;
+  const sev=checked("m-sev"); if(sev.length&&!sev.includes(d.severidade)) return false;
+  const reg=checked("m-reg"); if(reg.length){ const uni=d.regimes.length===0; const hit=reg.some(r=>r==="__uni"?uni:d.regimes.includes(r)); if(!hit)return false; }
+  const rk=checked("m-risk"); if(rk.length&&!rk.includes(d.risk)) return false;
+  const cnae=document.getElementById("f-cnae").value.trim(); if(cnae){ const hit=d.cnae.some(c=>c.startsWith(cnae)||cnae.startsWith(c)); if(!hit)return false; }
+  return true;
+}
+
+function sevCell(s){return `<span class="sev ${s}"><span class="dot"></span>${SEV_LABEL[s]||"—"}</span>`}
+function listCell(arr,uni){ if(!arr.length)return `<span class="pill uni">${uni}</span>`; const show=arr.slice(0,3).map(x=>`<span class="pill">${x}</span>`).join(""); return show+(arr.length>3?`<span class="pill">+${arr.length-3}</span>`:"") }
+function cell(d,k){
+  if(k==="codigo")return `<span class="code">${d.codigo}</span>`;
+  if(k==="titulo")return `<span class="title-cell">${d.titulo}${d.ativo?"":'<span class="tag-inativa">INATIVA</span>'}</span>`;
+  if(k==="severidade")return sevCell(d.severidade);
+  if(k==="vigencia")return d.vigencia||'<span style="color:var(--muted)">—</span>';
+  if(k==="regimes")return listCell(d.regimes,"Todos");
+  if(k==="cnae")return listCell(d.cnae,"Todos os CNAEs");
+  if(k==="risk")return `<span class="pill risk">${d.risk}</span>`;
+  if(k==="lote")return d.lote==="—"?'<span style="color:var(--muted)">—</span>':`<span class="code" style="font-size:.85em">${d.lote}</span>`;
+  return d[k];
+}
+function setSort(k){ if(sortKey===k)sortDir*=-1; else{sortKey=k;sortDir=1;} render(); }
+
+function render(){
+  // head
+  document.getElementById("head").innerHTML=COLS.map(([k,l])=>`<th onclick="setSort('${k}')">${l} ${sortKey===k?`<span class="ar">${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("");
+  // chips
+  const chips=[];
+  const q=document.getElementById("q").value.trim(); if(q)chips.push(["Busca: "+q,()=>{document.getElementById("q").value=""}]);
+  const add=(id,lbl)=>{const v=document.getElementById(id).value;if(v)chips.push([lbl+": "+v,()=>{document.getElementById(id).value="";}])};
+  add("f-area","Área");add("f-vig","Vigência");add("f-lote","Lote");add("f-cnae","CNAE");
+  [["m-sev","Severidade"],["m-reg","Regime"],["m-risk","Risco"]].forEach(([id,lbl])=>checked(id).forEach(v=>chips.push([lbl+": "+(v==="__uni"?"Universal":v),()=>{document.querySelector(`#${id} input[value="${v}"]`).checked=false}])));
+  if(status!=="ativas")chips.push(["Status: "+status,()=>setStatus("ativas")]);
+  document.getElementById("chips").innerHTML=chips.length?chips.map((c,i)=>`<span class="chip">${c[0]}<button onclick="rmChip(${i})">×</button></span>`).join("")+`<button class="chip" style="background:#fff;border:1px solid var(--line);color:var(--muted)" onclick="clearAll()">Limpar tudo</button>`:"";
+  window.__chips=chips;
+  // data
+  let rows=D.filter(passes);
+  rows.sort((a,b)=>{ let r; if(sortKey==="severidade")r=SEV_ORDER[a.severidade]-SEV_ORDER[b.severidade]; else r=String(a[sortKey]).localeCompare(String(b[sortKey]),"pt"); return r*sortDir; });
+  const gb=document.getElementById("groupby").value;
+  const body=document.getElementById("body");
+  // counts status
+  document.getElementById("c-at").textContent=`(${D.filter(d=>d.ativo).length})`;
+  document.getElementById("c-in").textContent=`(${D.filter(d=>!d.ativo).length})`;
+  document.getElementById("c-to").textContent=`(${D.length})`;
+  const colspan=COLS.length;
+  if(!gb){
+    body.innerHTML=rows.map(d=>`<tr class="${d.ativo?"":"inactive"}">${COLS.map(([k])=>`<td>${cell(d,k)}</td>`).join("")}</tr>`).join("")||emptyRow(colspan);
+    visibleGroups=[];
+  }else{
+    const keyOf=d=>gb==="status"?(d.ativo?"Ativas":"Inativas"):gb==="regimeKey"?regimeKey(d):gb==="vigKey"?vigKey(d):d[gb]||"—";
+    const groups={}; rows.forEach(d=>{(groups[keyOf(d)] ||= []).push(d)});
+    visibleGroups=Object.keys(groups).sort((a,b)=>a.localeCompare(b,"pt"));
+    body.innerHTML=visibleGroups.map(g=>{
+      const items=groups[g]; const isC=collapsed[g];
+      const head=`<tr class="grp" onclick="toggleG('${g.replace(/'/g,"")}')"><td colspan="${colspan}"><span class="caret">${isC?"▸":"▾"}</span>${labelGroup(gb,g)}<span class="cnt">— ${items.length} pergunta(s)</span></td></tr>`;
+      const rs=isC?"":items.map(d=>`<tr class="${d.ativo?"":"inactive"}">${COLS.map(([k])=>`<td>${cell(d,k)}</td>`).join("")}</tr>`).join("");
+      return head+rs;
+    }).join("")||emptyRow(colspan);
+  }
+  document.getElementById("count").innerHTML=`Exibindo <b>${rows.length}</b> de <b>${D.length}</b> perguntas`+(status==="ativas"?` · <b>${D.filter(d=>!d.ativo).length}</b> inativas ocultas`:``)+(gb?` · agrupado por <b>${document.querySelector("#groupby option:checked").textContent}</b>`:``);
+}
+function labelGroup(gb,g){ return (gb==="severidade")?(SEV_LABEL[g]||g):g; }
+function emptyRow(c){return `<tr><td colspan="${c}" style="text-align:center;color:var(--muted);height:120px">Nenhuma pergunta corresponde aos filtros. <a href="#" onclick="clearAll();return false">Limpar filtros</a></td></tr>`}
+function toggleG(g){collapsed[g]=!collapsed[g];render()}
+function rmChip(i){window.__chips[i][1]();render()}
+function clearAll(){document.getElementById("q").value="";["f-area","f-vig","f-lote","f-cnae"].forEach(id=>document.getElementById(id).value="");document.querySelectorAll(".multi input:checked").forEach(i=>i.checked=false);setStatus("ativas")}
+render();
+</script>
+</body>
+</html>
