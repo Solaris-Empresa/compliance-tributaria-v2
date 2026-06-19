@@ -49,6 +49,26 @@ curl -s https://iasolaris.manus.space/ | grep -oE 'index-[A-Za-z0-9_-]+\.js'
 - Editar pergunta: adicionar grupo CNAE (chip "28") → `SELECT cnae_groups WHERE id=?` = `["28"]`.
 - Editar removendo todos os chips → `cnae_groups IS NULL` (DoD negativo, Lição #138).
 
+## Atualização (Docker / Cloud Build) — resiliência + DATABASE_URL
+
+Após o 1º fix (`;`→`&&`), o deploy Docker falhou com **exit 1 sem output**. Duas causas distintas:
+
+**(a) `git rev-parse` sem `.git` no Docker (NOSSO código — corrigido aqui).**
+O build inline `node -e "...git rev-parse..."` **lança** quando o contexto Docker não tem `.git` → com `&&`, aborta o `vite build` → `pnpm build` exit 1. **Fix:** extraí para **`scripts/write-build-env.cjs`** — resiliente:
+- resolve o hash por **env var de CI** (`SOURCE_COMMIT`/`GITHUB_SHA`/`MANUS_COMMIT`/…) quando houver;
+- senão `git rev-parse` (dev); senão **`"unknown"`** (try/catch);
+- **`process.exit(0)` sempre** → jamais bloqueia o `&& vite build`.
+- Remove o quoting inline frágil (Docker-shell-safe).
+- build agora: `node scripts/write-build-env.cjs && vite build && esbuild …`.
+- Testado: `SOURCE_COMMIT=x` → usa x; git local → SHA; `pnpm build` → vite roda (3083 módulos).
+
+> **Recomendação opcional (Manus):** injetar `SOURCE_COMMIT` (ou similar) no build do Docker para o marcador `build:` mostrar o SHA real (senão mostra `unknown`, o que ainda é válido — não quebra).
+
+**(b) `DATABASE_URL` com `ssl={"rejectUnauthorized":true}` no `RUN` do Docker (PLATAFORMA Manus — fora do nosso código).**
+As chaves `{ }` no valor são interpretadas pelo shell do Docker (brace expansion) → parse error no `RUN`. **Não é resolvível por código nosso.** Recomendações p/ o Manus:
+- **Não injetar `DATABASE_URL` em build-time** — o `vite build` (frontend) e o `esbuild` (server) **não precisam** de DB para buildar. DATABASE_URL só é necessária em **runtime**. Mover o secret para runtime (ENV do container em execução), não para `ARG`/`RUN` do build.
+- Se precisar no build, **aspas simples** em volta do valor no Dockerfile ou usar `--secret` (BuildKit) em vez de interpolar no `RUN`.
+
 ## Notas de governança
 - `e73d6c73` (republish reportado) **NÃO é commit git** (`git cat-file` → not a valid object) — checkpoint Manus.space (REGRA-ORQ-25). O git real é `a4da5cb8`.
 - Lição candidata (a commitar): "script de build com `;` em vez de `&&` pula etapas silenciosamente — deploy serve artefato stale" (estende REGRA-ORQ-25 / ADR-0037: artefato de prod ≠ git HEAD).
