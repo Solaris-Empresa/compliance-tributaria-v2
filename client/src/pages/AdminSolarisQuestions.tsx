@@ -7,7 +7,7 @@
  *   2. Upload CSV — importação em lote (DEC-002)
  *   3. Histórico de Lotes — gerenciamento de lotes de upload
  */
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, Fragment } from "react";
 import { trpc } from "../lib/trpc";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -90,16 +90,23 @@ function parseTaxRegimes(raw: unknown): string[] {
   return [];
 }
 
+/** Tokens de cor por regime (Lista v2): Universal cinza · LP roxo · LR azul · SN verde. */
+const TAX_REGIME_COLOR: Record<string, string> = {
+  simples_nacional: "text-green-700 border-green-300",
+  lucro_presumido: "text-violet-700 border-violet-300",
+  lucro_real: "text-blue-700 border-blue-300",
+};
+
 /** Badges da coluna Regimes — vazio/null → "Todos" (universal). */
 function TaxRegimesBadges({ value }: { value: unknown }) {
   const arr = parseTaxRegimes(value);
   if (arr.length === 0) {
-    return <Badge variant="outline" className="text-xs text-muted-foreground">Todos</Badge>;
+    return <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">Todos</Badge>;
   }
   return (
     <span className="flex flex-wrap gap-1">
       {arr.map((r) => (
-        <Badge key={r} variant="outline" className="text-xs text-violet-700 border-violet-300">
+        <Badge key={r} variant="outline" className={`text-xs ${TAX_REGIME_COLOR[r] ?? "text-violet-700 border-violet-300"}`}>
           {TAX_REGIME_LABEL[r] ?? r}
         </Badge>
       ))}
@@ -286,6 +293,14 @@ function TabLista({
   const [sortKey, setSortKey] = useState<string>("codigo");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
   const [clientPageSize, setClientPageSize] = useState<"20" | "50" | "100" | "todos">("20");
+  // Lista v2 PR-2 — group-by, acessibilidade, modal detalhe, buscas salvas
+  const [groupBy, setGroupBy] = useState<"" | "categoria" | "severidade_base" | "regime" | "risk" | "lote" | "status" | "vigencia">("");
+  const [fontLarge, setFontLarge] = useState(false);
+  const [dense, setDense] = useState(false);
+  const [detailQ, setDetailQ] = useState<SolarisQuestion | null>(null);
+  const [savedSearches, setSavedSearches] = useState<Array<{ name: string; q: string; cat: string; sev: string; vig: string; lote: string; st: string; reg: string[]; cnae: string; risk: string[] }>>(() => {
+    try { return JSON.parse(localStorage.getItem("solaris-admin-buscas") || "[]"); } catch { return []; }
+  });
 
   // Seleção
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -581,8 +596,88 @@ function TabLista({
   const allSelected = questions.length > 0 && questions.every((q) => selected.has(q.id));
   useEffect(() => { if (page > totalPages) setPage(1); }, [page, totalPages]);
 
+  // ── PR-2: group-by, visibilidade, export, buscas salvas ──────────────────────
+  const groupKeyOf = (q: SolarisQuestion): string => {
+    if (groupBy === "regime") { const r = parseTaxRegimes(q.tax_regimes); return r.length ? r.map((x) => TAX_REGIME_LABEL[x] ?? x).join(", ") : "Universal"; }
+    if (groupBy === "status") return q.ativo ? "Ativas" : "Inativas";
+    if (groupBy === "vigencia") { const v = vigStatus(q); return v === "sem" ? "Sem vigência" : v === "vencida" ? "Vencida" : "A vencer"; }
+    if (groupBy === "risk") return q.risk_category_code || "—";
+    if (groupBy === "lote") return q.upload_batch_id || "—";
+    if (groupBy === "severidade_base") return q.severidade_base || "—";
+    if (groupBy === "categoria") return AREA_LABELS[q.categoria] || q.categoria || "—";
+    return "";
+  };
+  const groups = useMemo(() => {
+    if (!groupBy) return null;
+    const m = new Map<string, SolarisQuestion[]>();
+    for (const q of sorted) { const k = groupKeyOf(q); const arr = m.get(k); if (arr) arr.push(q); else m.set(k, [q]); }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "pt"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sorted, groupBy]);
+
+  // Painel "Visibilidade por Regime": universais ativas + específicas ativas por regime
+  const visibility = useMemo(() => {
+    const uni = allQuestions.filter((q) => q.ativo && parseTaxRegimes(q.tax_regimes).length === 0).length;
+    return TAX_REGIME_OPTIONS.map((o) => {
+      const esp = allQuestions.filter((q) => q.ativo && parseTaxRegimes(q.tax_regimes).includes(o.value)).length;
+      return { label: o.label, total: uni + esp, uni, esp };
+    });
+  }, [allQuestions]);
+
+  const exportCsv = () => {
+    const cols = ["codigo", "titulo", "severidade_base", "categoria", "vigencia_inicio", "tax_regimes", "cnae_groups", "risk_category_code", "upload_batch_id", "ativo"];
+    const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
+    const lines = sorted.map((q) => cols.map((c) => {
+      if (c === "vigencia_inicio") return esc(formatDate(q.vigencia_inicio));
+      if (c === "tax_regimes") return esc(parseTaxRegimes(q.tax_regimes).join(",") || "Todos");
+      if (c === "cnae_groups") return esc(parseCnaeGroups(q.cnae_groups).join(",") || "Todos");
+      if (c === "ativo") return esc(q.ativo ? "ativa" : "inativa");
+      return esc(String((q as unknown as Record<string, unknown>)[c] ?? ""));
+    }).join(";")).join("\n");
+    const blob = new Blob(["﻿" + cols.join(";") + "\n" + lines], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "solaris-questions.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const saveCurrentSearch = () => {
+    const name = window.prompt("Nome da busca salva:");
+    if (!name) return;
+    const entry = { name, q: search, cat: categoria, sev: severidade, vig: vigencia, lote: batchFilter, st: statusFilter, reg: regimeFilter, cnae: cnaeFilter, risk: riskFilter };
+    const next = [...savedSearches.filter((s) => s.name !== name), entry];
+    setSavedSearches(next);
+    try { localStorage.setItem("solaris-admin-buscas", JSON.stringify(next)); } catch { /* ignore */ }
+  };
+  const applySearch = (name: string) => {
+    const s = savedSearches.find((x) => x.name === name); if (!s) return;
+    setSearch(s.q); setDebouncedSearch(s.q); setCategoria(s.cat); setSeveridade(s.sev);
+    setVigencia(s.vig as typeof vigencia); setBatchFilter(s.lote); setStatusFilter(s.st as typeof statusFilter);
+    setRegimeFilter(s.reg); setCnaeFilter(s.cnae); setRiskFilter(s.risk); setPage(1);
+  };
+
+  const renderRow = (q: SolarisQuestion) => (
+    <tr key={q.id} data-testid={`row-${q.codigo}`} className={`border-t hover:bg-muted/30 ${selected.has(q.id) ? "bg-primary/5" : ""} ${q.ativo ? "" : "opacity-60"}`}>
+      <td className="p-3"><input type="checkbox" checked={selected.has(q.id)} onChange={() => handleSelectOne(q.id)} className="rounded" /></td>
+      <td className="p-3"><Badge variant="outline" className="text-xs font-mono text-blue-700 border-blue-300 cursor-pointer" onClick={() => setDetailQ(q)}>{q.codigo}</Badge></td>
+      <td className="p-3"><span className="text-foreground" title={q.titulo}>{q.titulo}</span>{q.ativo ? null : <span className="ml-2 text-[10px] bg-red-100 text-red-700 rounded px-1.5 py-0.5 font-bold">INATIVA</span>}</td>
+      <td className="p-3 text-xs">{q.severidade_base ? <span>{SEVERIDADE_ICONS[q.severidade_base] ?? ""} {q.severidade_base}</span> : "—"}</td>
+      <td className="p-3 text-xs text-muted-foreground">{formatDate(q.vigencia_inicio)}</td>
+      <td className="p-3"><TaxRegimesBadges value={q.tax_regimes} /></td>
+      <td className="p-3"><CnaeGroupsBadges value={q.cnae_groups} /></td>
+      <td className="p-3">{q.risk_category_code ? <Badge variant="outline" className="text-xs font-mono text-emerald-700 border-emerald-300">{q.risk_category_code}</Badge> : <span className="text-xs text-muted-foreground">—</span>}</td>
+      <td className="p-3 text-xs font-mono text-muted-foreground">{shortBatchId(q.upload_batch_id)}</td>
+      <td className="p-3">
+        <div className="flex gap-1">
+          <Button variant="ghost" size="sm" onClick={() => setDetailQ(q)} className="text-muted-foreground hover:text-violet-600 hover:bg-violet-50 p-1 h-auto" title="Ver detalhes"><Eye className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="sm" onClick={() => openEditModal(q)} className="text-muted-foreground hover:text-blue-600 hover:bg-blue-50 p-1 h-auto" title="Editar esta pergunta"><Pencil className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="sm" onClick={() => openDeleteModal([q.id])} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-1 h-auto" title="Excluir esta pergunta"><Trash2 className="w-4 h-4" /></Button>
+        </div>
+      </td>
+    </tr>
+  );
+
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${fontLarge ? "text-[17px]" : ""}`}>
       {/* Cards de resumo (Lista v2) — clicáveis = atalho de filtro */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <button data-testid="card-total" onClick={() => { setStatusFilter("todas"); setPage(1); }}
@@ -749,6 +844,52 @@ function TabLista({
         </div>
       )}
 
+      {/* Controles de visualização (Lista v2 PR-2) */}
+      <div className="flex flex-wrap gap-2 items-center text-sm">
+        <span className="text-muted-foreground">Agrupar por:</span>
+        <Select value={groupBy || "none"} onValueChange={(v) => { setGroupBy((v === "none" ? "" : v) as typeof groupBy); setPage(1); }}>
+          <SelectTrigger className="w-[170px] h-9" data-testid="groupby"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">— Nenhum (lista) —</SelectItem>
+            <SelectItem value="categoria">Área</SelectItem>
+            <SelectItem value="severidade_base">Severidade</SelectItem>
+            <SelectItem value="regime">Regime</SelectItem>
+            <SelectItem value="risk">Código do Risco</SelectItem>
+            <SelectItem value="lote">Lote</SelectItem>
+            <SelectItem value="status">Status</SelectItem>
+            <SelectItem value="vigencia">Vigência</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="outline" size="sm" data-testid="btn-export" onClick={exportCsv} className="gap-1"><Download className="w-4 h-4" /> Exportar (CSV)</Button>
+        <Button variant="outline" size="sm" onClick={saveCurrentSearch} className="gap-1">★ Salvar busca</Button>
+        {savedSearches.length > 0 && (
+          <Select value="" onValueChange={applySearch}>
+            <SelectTrigger className="w-[170px] h-9"><SelectValue placeholder="Buscas salvas…" /></SelectTrigger>
+            <SelectContent>{savedSearches.map((s) => (<SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>))}</SelectContent>
+          </Select>
+        )}
+        <span className="flex-1" />
+        <span className="text-muted-foreground">Texto:</span>
+        <Button variant={fontLarge ? "outline" : "default"} size="sm" data-testid="btn-font-a" onClick={() => setFontLarge(false)} className="w-9 px-0" title="Texto normal">A</Button>
+        <Button variant={fontLarge ? "default" : "outline"} size="sm" data-testid="btn-font-a-plus" onClick={() => setFontLarge(true)} className="w-10 px-0 text-base" title="Texto grande">A+</Button>
+        <Button variant="outline" size="sm" data-testid="btn-densidade" onClick={() => setDense((d) => !d)} title="Alternar densidade">{dense ? "Confortável" : "Compacto"}</Button>
+      </div>
+
+      {/* Painel Visibilidade por Regime (quando agrupado por regime) */}
+      {groupBy === "regime" && (
+        <div className="rounded-lg border bg-violet-50/50 p-3">
+          <div className="text-sm font-semibold text-violet-800 mb-2">Visibilidade por regime do projeto (ativas)</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+            {visibility.map((v) => (
+              <div key={v.label} className="rounded border bg-white px-3 py-2">
+                <div className="font-semibold">{v.label}: {v.total}</div>
+                <div className="text-xs text-muted-foreground">{v.uni} universais + {v.esp} específicas</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Contador + ações em lote */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <div className="flex items-center gap-3">
@@ -793,7 +934,7 @@ function TabLista({
 
       {/* Tabela */}
       <div className="border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+        <table className={`w-full text-sm ${dense ? "[&_td]:py-1 [&_th]:py-1" : ""}`}>
           <thead className="bg-muted/50">
             <tr>
               <th className="p-3 w-10">
@@ -827,76 +968,31 @@ function TabLista({
             )}
             {isLoading ? (
               <tr>
-                <td colSpan={9} className="p-8 text-center text-muted-foreground">
+                <td colSpan={10} className="p-8 text-center text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
                   Carregando...
                 </td>
               </tr>
-            ) : questions.length === 0 ? (
+            ) : sorted.length === 0 ? (
               <tr>
-                <td colSpan={9} className="p-8 text-center text-muted-foreground">
-                  Nenhuma pergunta encontrada
+                <td colSpan={10} className="p-10 text-center text-muted-foreground">
+                  Nenhuma pergunta corresponde aos filtros.{" "}
+                  <button className="underline text-primary" onClick={clearFilters}>Limpar filtros</button>
                 </td>
               </tr>
-            ) : (
-              questions.map((q) => (
-                <tr key={q.id} data-testid={`row-${q.codigo}`} className={`border-t hover:bg-muted/30 ${selected.has(q.id) ? "bg-primary/5" : ""} ${q.ativo ? "" : "opacity-60"}`}>
-                  <td className="p-3">
-                    <input
-                      type="checkbox"
-                      checked={selected.has(q.id)}
-                      onChange={() => handleSelectOne(q.id)}
-                      className="rounded"
-                    />
-                  </td>
-                  <td className="p-3">
-                    <Badge variant="outline" className="text-xs font-mono text-blue-700 border-blue-300">
-                      {q.codigo}
-                    </Badge>
-                  </td>
-                  <td className="p-3 max-w-xs">
-                    <span className="line-clamp-2 text-foreground" title={q.titulo}>{q.titulo}</span>
-                  </td>
-                  <td className="p-3 text-xs">
-                    {q.severidade_base ? (
-                      <span>{SEVERIDADE_ICONS[q.severidade_base] ?? ""} {q.severidade_base}</span>
-                    ) : "—"}
-                  </td>
-                  <td className="p-3 text-xs text-muted-foreground">{formatDate(q.vigencia_inicio)}</td>
-                  <td className="p-3"><TaxRegimesBadges value={q.tax_regimes} /></td>
-                  <td className="p-3"><CnaeGroupsBadges value={q.cnae_groups} /></td>
-                  <td className="p-3">
-                    {q.risk_category_code ? (
-                      <Badge variant="outline" className="text-xs font-mono text-emerald-700 border-emerald-300">
-                        {q.risk_category_code}
-                      </Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="p-3 text-xs font-mono text-muted-foreground">{shortBatchId(q.upload_batch_id)}</td>
-                  <td className="p-3 flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openEditModal(q)}
-                      className="text-muted-foreground hover:text-blue-600 hover:bg-blue-50 p-1 h-auto"
-                      title="Editar esta pergunta"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openDeleteModal([q.id])}
-                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-1 h-auto"
-                      title="Excluir esta pergunta"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </td>
-                </tr>
+            ) : groupBy && groups ? (
+              groups.map(([k, items]) => (
+                <Fragment key={k}>
+                  <tr className="bg-violet-50">
+                    <td colSpan={10} className="px-3 py-2 font-semibold text-violet-800">
+                      {k} <span className="font-normal text-muted-foreground text-xs">— {items.length} pergunta(s)</span>
+                    </td>
+                  </tr>
+                  {items.map(renderRow)}
+                </Fragment>
               ))
+            ) : (
+              questions.map(renderRow)
             )}
           </tbody>
         </table>
@@ -916,6 +1012,43 @@ function TabLista({
           </Button>
         </div>
       )}
+
+      {/* Modal de detalhe (read-only) — "Editar" reusa o fluxo atual */}
+      <Dialog open={!!detailQ} onOpenChange={(o) => !o && setDetailQ(null)}>
+        <DialogContent className="max-w-2xl" data-testid="modal-detalhe">
+          {detailQ && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="font-mono text-blue-700 border-blue-300">{detailQ.codigo}</Badge>
+                  <span>{detailQ.titulo}</span>
+                  {detailQ.ativo ? null : <span className="text-[10px] bg-red-100 text-red-700 rounded px-1.5 py-0.5 font-bold">INATIVA</span>}
+                </DialogTitle>
+                <DialogDescription>Detalhes da pergunta (somente leitura)</DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><span className="text-muted-foreground">Área:</span> {AREA_LABELS[detailQ.categoria] ?? detailQ.categoria ?? "—"}</div>
+                <div><span className="text-muted-foreground">Severidade:</span> {detailQ.severidade_base ? `${SEVERIDADE_ICONS[detailQ.severidade_base] ?? ""} ${detailQ.severidade_base}` : "—"}</div>
+                <div><span className="text-muted-foreground">Vigência:</span> {formatDate(detailQ.vigencia_inicio)}</div>
+                <div><span className="text-muted-foreground">Lote:</span> {shortBatchId(detailQ.upload_batch_id)}</div>
+                <div className="flex items-center gap-1"><span className="text-muted-foreground">Regimes:</span> <TaxRegimesBadges value={detailQ.tax_regimes} /></div>
+                <div className="flex items-center gap-1"><span className="text-muted-foreground">CNAE:</span> <CnaeGroupsBadges value={detailQ.cnae_groups} /></div>
+                <div className="col-span-2"><span className="text-muted-foreground">Código do Risco:</span> {detailQ.risk_category_code ?? "—"}</div>
+              </div>
+              <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">{detailQ.texto || "—"}</div>
+              <div className="rounded-md border border-violet-200 bg-violet-50 p-2 text-xs text-violet-800">
+                {parseTaxRegimes(detailQ.tax_regimes).length === 0
+                  ? "Visibilidade: aparece para projetos de QUALQUER regime (universal)."
+                  : `Visibilidade: aparece apenas para projetos com regime ${parseTaxRegimes(detailQ.tax_regimes).map((r) => TAX_REGIME_LABEL[r] ?? r).join(", ")}.`}
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => { const q = detailQ; setDetailQ(null); openEditModal(q); }}>Editar</Button>
+                <Button onClick={() => setDetailQ(null)}>Fechar</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de confirmação de exclusão */}
       <AlertDialog open={deleteModal.open} onOpenChange={(open) => !open && setDeleteModal({ open: false, ids: [], questions: [] })}>
