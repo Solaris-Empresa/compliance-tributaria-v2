@@ -3789,3 +3789,35 @@ Todo risco **🟡 levantado na skill `impact-tree`/AS-IS** DEVE virar **item exp
 ### Vinculadas
 
 REGRA-ORQ-44 (DoD negativo por consumer) — esta estende p/ filtros · REGRA-ORQ-41 (impact-tree) · [[Lição #138]] · [[Lição #139]] · [[Lição #140]] · [[Lição #124]] · BUG-REGIME-FILTER-01
+
+## Lição #141 — "Deploy OK / HEADs alinhados" pelo checkpoint ≠ artefato servido (verificar o que roda, não o id)
+
+**Origem:** BUG-REGIME-FILTER-01 (19/06/2026) — o deploy tree do Manus ficou preso **pré-ADR-0038** por toda a epopeia, servindo código velho silenciosamente.
+
+### Texto
+
+"Deploy OK", "4 HEADs alinhados" e "smoke PASS" baseados no **id do checkpoint** (S3/Manus) **NÃO provam** que o **artefato servido em produção == git HEAD**. O checkpoint pode reportar "alinhado" enquanto o tree de deploy resetou para `origin` (= **S3 stale**, R-SYNC-02) em vez do GitHub → produção serve código antigo **sem erro visível**. A verificação tem de ser do **artefato realmente servido**, não do rótulo do checkpoint:
+
+1. **Build hash exposto na UI** (`VITE_BUILD_HASH`) == git HEAD esperado.
+2. **Arquivo sentinela existe no tree servido** (ex.: `solaris-context-filter.ts`).
+3. **`git cat-file -t <id>`** — se "Not a valid object", é checkpoint, **não** git (REGRA-ORQ-25).
+4. Reportar sempre **`git=<sha> / checkpoint=<id>`** — nunca só o checkpoint.
+
+### Caso canônico
+
+19/06/2026: produção (`d4b97025`, **não-git**) não tinha **nenhum** arquivo do ADR-0038 (F1-F6) — `getOnda1Questions` com 1 param, sem `solaris-context-filter.ts`, sem migration 0127. **Nada de F1-F6/A1 jamais foi deployado**, apesar dos relatórios de "deploy OK / HEADs alinhados". Detectado só quando "persiste o erro" forçou o diff `git HEAD (649bdf04) × tree servido`. O gate ADR-0037 ("4 HEADs") comparava o **id do checkpoint**, não o conteúdo servido — por isso a divergência passou ([[Lição #128]]: gate declarado ≠ enforçado).
+
+### Mecanização (PR #1536)
+
+- `scripts/deploy-guard.cjs` (1º passo do `pnpm build`): **árvore stale FALHA o build** (exit 1) em vez de servir código velho.
+- `scripts/deploy-from-github.sh`: deploy a partir do **remote GitHub** (detectado por URL `github.com`, não `origin`/S3) — fetch+reset (R-SYNC-02) + guard + build.
+- Build hash marker na UI Admin (`build: <sha>`) p/ verificação visual pós-deploy.
+
+### Aplicação prospectiva
+
+- O gate de deploy (ADR-0037) deve comparar o **artefato servido vs git** (build hash / sentinela / endpoint de health com SHA) — **não** o id do checkpoint.
+- Nenhum "deploy OK" é aceito sem a verificação do artefato (1–4 acima).
+
+### Vinculadas
+
+REGRA-ORQ-25 (checkpoint Manus ≠ git SHA) · ADR-0037 (gate 4 HEADs — agora deve checar artefato) · [[Lição #128]] (gate declarado ≠ enforçado) · [[Lição #87]] (claim ≠ evidência) · R-SYNC-02 · BUG-REGIME-FILTER-01 · PR #1536 (mecanização)
