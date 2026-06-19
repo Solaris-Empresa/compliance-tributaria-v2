@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+  MOCKUP F5 — Admin SOLARIS · gestão de tax_regimes (ADR-0038)
+  Gate UX (REGRA-ORQ-09). Componente-alvo: client/src/pages/AdminSolarisQuestions.tsx
+  Spec: docs/governance/relatorios/SPEC-F5-ADMIN-TAX-REGIMES.md
+  data-testids: col-tax-regimes · input-tax-regimes · option-{regime}
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Mockup F5 — Admin tax_regimes</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #1f2937; background: #f9fafb; }
+  h2 { margin-top: 32px; border-bottom: 2px solid #5319E7; padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+  th, td { padding: 10px 12px; text-align: left; font-size: 13px; border-bottom: 1px solid #f3f4f6; }
+  th { background: #f3f4f6; font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; border: 1px solid; margin: 1px; }
+  .b-todos { color: #6b7280; border-color: #d1d5db; background: #f9fafb; }
+  .b-sn { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+  .b-lp { color: #b45309; border-color: #fde68a; background: #fffbeb; }
+  .b-lr { color: #047857; border-color: #a7f3d0; background: #ecfdf5; }
+  .b-risk { color: #047857; border-color: #a7f3d0; font-family: monospace; }
+  .muted { color: #9ca3af; }
+  .panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; max-width: 520px; }
+  label { display: block; font-size: 12px; font-weight: 600; margin: 12px 0 4px; }
+  .ms { border: 1px solid #d1d5db; border-radius: 6px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; background: #fff; }
+  .opt { padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 12px; cursor: pointer; user-select: none; }
+  .opt.sel { background: #5319E7; color: #fff; border-color: #5319E7; }
+  .opt.disabled { opacity: .45; cursor: not-allowed; }
+  .hint { font-size: 11px; color: #6b7280; margin-top: 4px; }
+  .input { border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 8px; width: 100%; font-size: 13px; box-sizing: border-box; }
+  .note { background: #fef9c3; border: 1px solid #fde68a; border-radius: 6px; padding: 10px; font-size: 12px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<h1>Mockup F5 — Admin SOLARIS · <code>tax_regimes</code> (ADR-0038)</h1>
+<div class="note"><strong>Backward-compat:</strong> <code>tax_regimes = null</code> → badge <strong>"Todos"</strong> (universal). Selecionar "Todos" no form persiste <code>null</code> (NÃO <code>[]</code> nem <code>["todos"]</code>) — DoD negativo (REGRA-ORQ-44).</div>
+
+<h2>Tela 1 — Listagem de perguntas (nova coluna "Regimes")</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:32px"><input type="checkbox" /></th>
+      <th style="width:80px">Código</th>
+      <th>Título</th>
+      <th style="width:96px">Severidade</th>
+      <th style="width:96px">Vigência</th>
+      <th style="width:160px" data-testid="col-tax-regimes">Regimes</th>
+      <th style="width:144px">Código do Risco</th>
+      <th style="width:96px">Lote</th>
+      <th style="width:64px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td><span class="badge b-risk">SOL-001</span></td>
+      <td>A empresa possui controle de créditos presumidos?</td>
+      <td>alta</td>
+      <td class="muted">2026-01-01</td>
+      <td><span class="badge b-lr">Lucro Real</span><span class="badge b-lp">Lucro Presumido</span></td>
+      <td><span class="badge b-risk">credito_presumido</span></td>
+      <td class="muted">a1b2</td>
+      <td class="muted">✎ 🗑</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td><span class="badge b-risk">SOL-007</span></td>
+      <td>A empresa está cadastrada no regime regular de IBS/CBS?</td>
+      <td>media</td>
+      <td class="muted">2026-01-01</td>
+      <td><span class="badge b-todos">Todos</span></td>
+      <td><span class="muted">—</span></td>
+      <td class="muted">a1b2</td>
+      <td class="muted">✎ 🗑</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td><span class="badge b-risk">SOL-012</span></td>
+      <td>Recolhimento via Simples — adesão ao split payment?</td>
+      <td>media</td>
+      <td class="muted">2026-01-01</td>
+      <td><span class="badge b-sn">Simples Nacional</span></td>
+      <td><span class="muted">—</span></td>
+      <td class="muted">a1b2</td>
+      <td class="muted">✎ 🗑</td>
+    </tr>
+  </tbody>
+</table>
+<p class="hint">Badge "Todos" = <code>tax_regimes</code> null/[] (universal). 1+ badges = regimes específicos. Mesmo padrão visual de <code>risk_category_code</code> (Badge outline).</p>
+
+<h2>Tela 2 — Cadastro / Edição (multi-select de regimes)</h2>
+<div class="panel">
+  <label>Título</label>
+  <input class="input" value="A empresa possui controle de créditos presumidos?" />
+
+  <label>Regimes tributários aplicáveis</label>
+  <div class="ms" data-testid="input-tax-regimes">
+    <span class="opt" data-testid="option-todos">Todos</span>
+    <span class="opt sel" data-testid="option-simples_nacional" style="display:none">Simples Nacional</span>
+    <span class="opt" data-testid="option-simples_nacional">Simples Nacional</span>
+    <span class="opt sel" data-testid="option-lucro_presumido">Lucro Presumido</span>
+    <span class="opt sel" data-testid="option-lucro_real">Lucro Real</span>
+  </div>
+  <p class="hint">
+    Nenhum selecionado OU "Todos" → persiste <code>tax_regimes = null</code> (universal).<br/>
+    1+ regimes → persiste array JSON (ex.: <code>["lucro_presumido","lucro_real"]</code>).<br/>
+    Selecionar "Todos" limpa os demais (mutuamente exclusivo com regimes específicos).
+  </p>
+
+  <label>CNAE Groups (JSON) — inalterado nesta F5</label>
+  <input class="input" placeholder='["11","4639-7"] ou vazio=universal' value='' />
+  <p class="hint">cnae_groups permanece como Input JSON (fora do escopo F5; harmonização futura).</p>
+</div>
+
+<h2>data-testid (contrato E2E)</h2>
+<ul style="font-size:13px">
+  <li><code>col-tax-regimes</code> — &lt;th&gt; da coluna Regimes (Tela 1)</li>
+  <li><code>input-tax-regimes</code> — container do multi-select (Tela 2)</li>
+  <li><code>option-todos</code> · <code>option-simples_nacional</code> · <code>option-lucro_presumido</code> · <code>option-lucro_real</code></li>
+</ul>
+</body>
+</html>
