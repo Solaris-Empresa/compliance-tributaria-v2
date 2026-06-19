@@ -24,6 +24,11 @@ import {
 } from "./lib/cnae-oportunidade-eligibility";
 // FEAT-COB-01 (#1176): regime específico de bens imóveis (Arts. 251-270) no briefing LLM
 import { buildRegimeImoveisRestriction } from "./lib/regime-imoveis-eligibility";
+// PR-B F3 (A-5 · Lição #137) — fonte única de elegibilidade atrás de ENABLE_UNIFIED_ELIGIBILITY.
+import {
+  isCategoryEligible,
+  isUnifiedEligibilityEnabled,
+} from "./lib/category-eligibility";
 import * as db from "./db";
 import { createTrace } from "./tracer";
 import {
@@ -157,13 +162,27 @@ function calcularLimitePerguntas(
   return Math.min(limite, 12);
 }
 
-function filtrarCategoriasPorPerfil(
+export function filtrarCategoriasPorPerfil(
   categorias: RiskCategory[],
   profile: ProjectProfile
 ): RiskCategory[] {
   const fin = profile.financialProfile;
   const tax = profile.taxComplexity;
   const op = profile.operationProfile;
+
+  // PR-B F3 (A-5 · Lição #137) — fonte única quando ENABLE_UNIFIED_ELIGIBILITY=true.
+  // OFF (default) → switch legado abaixo (zero regressão). Sob flag ON, casa com a
+  // matriz (F2): mesma decisão de elegibilidade nos dois consumidores.
+  if (isUnifiedEligibilityEnabled()) {
+    return categorias.filter(cat =>
+      isCategoryEligible(cat.codigo, {
+        operationType: op?.operationType,
+        paymentMethods: fin?.paymentMethods,
+        hasIntermediaries: fin?.hasIntermediaries,
+        usesTaxIncentives: tax?.usesTaxIncentives,
+      }),
+    );
+  }
 
   return categorias.filter(cat => {
     switch (cat.codigo) {
