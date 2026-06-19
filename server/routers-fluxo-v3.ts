@@ -170,18 +170,24 @@ export function filtrarCategoriasPorPerfil(
   const tax = profile.taxComplexity;
   const op = profile.operationProfile;
 
-  // PR-B F3 (A-5 · Lição #137) — fonte única quando ENABLE_UNIFIED_ELIGIBILITY=true.
-  // OFF (default) → switch legado abaixo (zero regressão). Sob flag ON, casa com a
-  // matriz (F2): mesma decisão de elegibilidade nos dois consumidores.
+  // PR-B F3/F4 (A-5 · Lição #137) — fonte única quando ENABLE_UNIFIED_ELIGIBILITY=true.
+  // OFF (default) → switch legado abaixo (zero regressão).
   if (isUnifiedEligibilityEnabled()) {
-    return categorias.filter(cat =>
-      isCategoryEligible(cat.codigo, {
+    return categorias.filter(cat => {
+      // F4 Opção 2 (despacho v89/v90) — "flip exceto IS": imposto_seletivo mantém o
+      // gate legado operationType [industria,comercio] na Onda 2 até #1282. A matriz
+      // pode flipar o IS (gate NCM/CNAE em risk-engine-v4:615 o trata corretamente),
+      // mas a Onda 2 NÃO tem esse gate → manter legado evita gerar perguntas IS amplas.
+      if (cat.codigo === "imposto_seletivo") {
+        return ["industria", "comercio"].includes(op?.operationType ?? "");
+      }
+      return isCategoryEligible(cat.codigo, {
         operationType: op?.operationType,
         paymentMethods: fin?.paymentMethods,
         hasIntermediaries: fin?.hasIntermediaries,
         usesTaxIncentives: tax?.usesTaxIncentives,
-      }),
-    );
+      });
+    });
   }
 
   return categorias.filter(cat => {

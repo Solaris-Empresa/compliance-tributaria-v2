@@ -4,6 +4,8 @@
 
 import { describe, it, expect, afterEach } from "vitest";
 import { filtrarCategoriasPorPerfil } from "./routers-fluxo-v3";
+import { isCategoryAllowed } from "./lib/risk-eligibility";
+import type { CategoriaCanonica } from "./lib/risk-categorizer";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const cats = (...codigos: string[]): any[] =>
@@ -46,13 +48,17 @@ describe("filtrarCategoriasPorPerfil — flag ON (fonte única)", () => {
     expect(codes(out)).toEqual(["cadastro_fiscal"]);
   });
 
-  it("servicos: imposto_seletivo MANTIDO (D1-IS não-autoritativo — difere do legado)", () => {
+  // F4 Opção 2 (despacho v89/v90) — "flip exceto IS": na Onda 2 o imposto_seletivo
+  // mantém o gate legado operationType [industria,comercio] até #1282 (Onda 2 não tem
+  // o gate NCM/CNAE da matriz, risk-engine-v4:615).
+  it("imposto_seletivo: industria MANTIDO · servicos REMOVIDO (gate legado Onda 2 — Opção 2)", () => {
     process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
-    const out = filtrarCategoriasPorPerfil(
-      cats("imposto_seletivo"),
-      profile({ operationType: "servicos" }),
-    );
-    expect(codes(out)).toEqual(["imposto_seletivo"]);
+    expect(
+      codes(filtrarCategoriasPorPerfil(cats("imposto_seletivo"), profile({ operationType: "industria" }))),
+    ).toEqual(["imposto_seletivo"]);
+    expect(
+      codes(filtrarCategoriasPorPerfil(cats("imposto_seletivo"), profile({ operationType: "servicos" }))),
+    ).toEqual([]);
   });
 
   it("regime_diferenciado: industria removido · servicos mantido", () => {
@@ -73,5 +79,26 @@ describe("filtrarCategoriasPorPerfil — flag ON (fonte única)", () => {
     expect(
       codes(filtrarCategoriasPorPerfil(cats("split_payment"), profile({ paymentMethods: ["boleto"], hasIntermediaries: false }))),
     ).toEqual([]);
+  });
+});
+
+// F4 [3] — paridade F2 (matriz, isCategoryAllowed) ≡ F3 (Onda 2) sob flag ON, p/
+// categorias NÃO-IS. IS é a exceção documentada (Opção 2 / #1282): F2 flipa (gate 615),
+// F3 mantém legado — por isso fora da paridade.
+describe("paridade F2≡F3 (flag ON · categorias não-IS)", () => {
+  afterEach(() => delete process.env.ENABLE_UNIFIED_ELIGIBILITY);
+
+  const f3Keeps = (codigo: string, p: ReturnType<typeof profile>) =>
+    filtrarCategoriasPorPerfil(cats(codigo), p).length > 0;
+  const f2Allows = (codigo: string, op: string) =>
+    isCategoryAllowed(codigo as CategoriaCanonica, op).allowed;
+
+  it("transicao_iss_ibs / regime_diferenciado: F2.allowed === F3.keeps p/ todos os ops", () => {
+    process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+    for (const codigo of ["transicao_iss_ibs", "regime_diferenciado"]) {
+      for (const op of ["industria", "comercio", "servicos", "misto", "agronegocio"]) {
+        expect(f2Allows(codigo, op)).toBe(f3Keeps(codigo, profile({ operationType: op })));
+      }
+    }
   });
 });
