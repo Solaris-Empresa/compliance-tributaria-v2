@@ -451,5 +451,14 @@ Tela administrativa (equipe SOLARIS / advogado_senior) para curar as perguntas d
 ### Procedures tRPC (F5)
 `solarisAdmin.listQuestions` (retorna `tax_regimes`) · `solarisAdmin.createQuestion` (aceita `tax_regimes`) · `solarisAdmin.updateQuestion` (aceita `tax_regimes`).
 
+### Lista v2 — consulta avançada (despacho unificado, Gate UX 19/06/2026 — LIBERAR condicionada)
+**Escopo:** SOMENTE a aba **Lista (consulta)**, READ-ONLY, frontend-only. **NÃO toca** edição/criação, Upload CSV, Histórico, banco/regra/schema. Spec: `docs/governance/relatorios/DESPACHO-UX-ADMIN-SOLARIS-QUESTIONS-v2-UNIFICADO.md` + mockup `docs/governance/relatorios/mockups/mockup-admin-solaris-questions-v2.html` (PR #1539).
+
+Adições: 4 cards de resumo clicáveis · filtros Regime/CNAE/Risco (multi) · status segmentado c/ contagem · chips + limpar tudo · sort por coluna · modal de detalhe READ-ONLY (botão Editar **reusa `openEditModal` atual**) · painel "Visibilidade por Regime" · export Excel/CSV client-side · paginação 20/50/100/Todos · tokens de cor (regime: Universal cinza/LP roxo/LR azul/SN verde) · A/A+ + densidade · group-by ampliado · buscas salvas (localStorage) · acessibilidade sênior.
+
+**data-testid (Bloco 9):** `card-total|card-ativas|card-inativas|card-regime-especifico` · `filter-regime|filter-cnae|filter-risk` · `seg-status-todas|seg-status-ativas|seg-status-inativas` · `groupby` · `chip-{filtro}` · `btn-limpar-tudo` · `btn-export` · `row-{codigo}` · `modal-detalhe` · `pagesize` · `btn-font-a|btn-font-a-plus|btn-densidade`.
+
+**Atenção (Gate UX):** (1) contagens dos cards/status + export "Todos" exigem o dataset completo — `listQuestions` retorna só a página com `total` do filtro; sem tocar backend, buscar via pageSize "Todos" (Lição #66). (2) `pageSize` hardcoded em 3 pontos (L312/L754/L756) — sincronizar todos (Lição #137). (3) "Editar" reusa `openEditModal(q)` (PC-1).
+
 ### Vinculadas
-ADR-0038 · #1282 · REGRA-ORQ-09 (Gate UX) · REGRA-ORQ-27/44 · Lição #137 · F1 (#1517) / F2 (#1518) / F3 (#1519) / F4 (#1520).
+ADR-0038 · #1282 · REGRA-ORQ-09 (Gate UX) · REGRA-ORQ-27/44 · Lição #66/#137 · F1 (#1517) / F2 (#1518) / F3 (#1519) / F4 (#1520) · despacho v2 (PR #1539).
