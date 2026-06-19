@@ -1691,6 +1691,14 @@ export const solarisQuestions = mysqlTable("solaris_questions", {
    */
   cnaeGroups: json("cnae_groups"),
 
+  /**
+   * ADR-0038 (regime tributário) — array JSON de regimes elegíveis.
+   * Ex.: ["simples_nacional", "lucro_presumido", "lucro_real"].
+   * null/[] = universal (aparece para todos os regimes).
+   * Extensível (D2 — MEI/outros sem ALTER ENUM). Curadoria via Admin (D3).
+   */
+  taxRegimes: json("tax_regimes"),
+
   /** Se true, a pergunta é obrigatória para os CNAEs elegíveis */
   obrigatorio: tinyint("obrigatorio").notNull().default(1),
 
