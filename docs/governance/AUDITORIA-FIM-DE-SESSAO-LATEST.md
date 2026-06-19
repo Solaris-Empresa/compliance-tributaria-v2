@@ -1,9 +1,10 @@
 # AUDITORIA-FIM-DE-SESSAO — LATEST
 
 > Espelho do audit mais recente. Histórico completo em `docs/governance/audits/`.
-> Mais recente: **v7.79** · 2026-06-18 · Sessão NCM-validation + elegibilidade (clientType #1508, A-2/A-3 #1507, PR-B F1 #1509) · BUG-REG-Q1 fechado · **Produto ✅ / Processo 🟡**.
+> Mais recente: **v7.80** · 2026-06-19 · Sessão ADR-0037 + PR-B F3/F4 + **épico ADR-0038 regime tributário F1-F6** + Fix IS P2 (13 PRs) · **épico FECHADO** · **Produto ✅ / Processo ✅**.
+> Base anterior: **v7.79** · 2026-06-18 · clientType/eligibility · Produto ✅ / Processo 🟡.
 
-→ Arquivo: **[`audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md`](./audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md)**
+→ Arquivo: **[`audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md`](./audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md)** · Base: **[`audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md`](./audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md)**
 
 ---
 
