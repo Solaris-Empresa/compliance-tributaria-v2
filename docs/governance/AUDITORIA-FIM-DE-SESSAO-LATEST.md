@@ -1,10 +1,11 @@
 # AUDITORIA-FIM-DE-SESSAO — LATEST
 
 > Espelho do audit mais recente. Histórico completo em `docs/governance/audits/`.
-> Mais recente: **v7.80** · 2026-06-19 · Sessão ADR-0037 + PR-B F3/F4 + **épico ADR-0038 regime tributário F1-F6** + Fix IS P2 (13 PRs) · **épico FECHADO** · **Produto ✅ / Processo ✅**.
+> Mais recente: **v7.80 (segmento BUG-REGIME-FILTER-01)** · 2026-06-19 · Dr. José (tracing) + CNAE-ADMIN-01 (deploy/build) + **BUG-REGIME-FILTER-01** (10 PRs #1527–#1537, HEAD `84a31fe6`) · **Código/Git 🟢 · Runtime 🟡** (T2 discriminante + verificação de artefato servido pendentes — Manus/P.O.).
+> Segmento anterior do dia: **v7.80** · 2026-06-19 · épico ADR-0038 regime tributário F1-F6 (FECHADO).
 > Base anterior: **v7.79** · 2026-06-18 · clientType/eligibility · Produto ✅ / Processo 🟡.
 
-→ Arquivo: **[`audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md`](./audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md)** · Base: **[`audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md`](./audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md)**
+→ Arquivo: **[`audits/v7.80-2026-06-19-bug-regime-filter-01.md`](./audits/v7.80-2026-06-19-bug-regime-filter-01.md)** · Segmento ADR-0038: **[`audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md`](./audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md)** · Base: **[`audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md`](./audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md)**
 
 ---
 
