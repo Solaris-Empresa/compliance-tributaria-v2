@@ -44,6 +44,16 @@ const AREA_VALUES = ["contabilidade_fiscal", "negocio", "ti", "juridico"] as con
 const SEVERIDADE_VALUES = ["baixa", "media", "alta", "critica"] as const;
 const CLASSIFICATION_SCOPE_VALUES = ["risk_engine", "diagnostic_only"] as const;
 
+// F5 (ADR-0038) — regimes válidos + normalização de tax_regimes para persistência.
+// DoD negativo (REGRA-ORQ-44): "Todos"/vazio/inválido → NULL (universal), preservando
+// backward-compat com o filtro de runtime (solaris-context-filter.ts:75).
+const TAX_REGIME_VALUES = ["simples_nacional", "lucro_presumido", "lucro_real"] as const;
+function normalizeTaxRegimes(input: string[] | null | undefined): string | null {
+  if (!input || input.length === 0) return null;
+  const valid = input.filter((r) => (TAX_REGIME_VALUES as readonly string[]).includes(r));
+  return valid.length > 0 ? JSON.stringify(valid) : null;
+}
+
 // FIX-06 (FASE A, 2026-06-01): risk_category_code agora obrigatório (era opcional);
 // severidade_base ganha errorMap em PT-BR; campo novo gap_descricao adicionado
 // (persistido via coluna criada na migration 0121 — PR-FIX-05 #1323).
@@ -226,7 +236,7 @@ export const solarisAdminRouter = router({
         const [rows] = await conn.execute(
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
                   vigencia_inicio, upload_batch_id, ativo, criado_em,
-                  risk_category_code, topicos, classification_scope
+                  risk_category_code, topicos, classification_scope, tax_regimes
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
            LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
@@ -240,6 +250,7 @@ export const solarisAdminRouter = router({
             vigencia_inicio: number | null; upload_batch_id: string | null;
             risk_category_code: string | null; topicos: string | null;
             classification_scope: string | null;
+            tax_regimes: unknown; // JSON: string[] | null (F5 ADR-0038)
             ativo: number; criado_em: number;
           }[],
           total,
@@ -508,6 +519,8 @@ export const solarisAdminRouter = router({
         risk_category_code: z.string().optional(),
         classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
         gap_descricao: z.string().nullable().optional(),
+        // F5 (ADR-0038) — regimes elegíveis; null/[]/"Todos" → NULL (universal).
+        tax_regimes: z.array(z.string()).nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -525,6 +538,8 @@ export const solarisAdminRouter = router({
       if (fields.classification_scope !== undefined) { setClauses.push("classification_scope = ?"); params.push(fields.classification_scope); }
       // FIX-06: persiste gap_descricao quando editado. Coluna criada na migration 0121 (FIX-05).
       if (fields.gap_descricao !== undefined) { setClauses.push("gap_descricao = ?"); params.push(fields.gap_descricao || null); }
+      // F5 (ADR-0038): persiste tax_regimes normalizado ("Todos"/vazio → NULL = universal).
+      if (fields.tax_regimes !== undefined) { setClauses.push("tax_regimes = ?"); params.push(normalizeTaxRegimes(fields.tax_regimes)); }
 
       if (setClauses.length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Nenhum campo para atualizar" });
@@ -568,6 +583,8 @@ export const solarisAdminRouter = router({
         classification_scope: z.enum(CLASSIFICATION_SCOPE_VALUES).optional(),
         cnae_groups: z.string().optional(), // JSON array string or empty
         gap_descricao: z.string().nullable().optional(),
+        // F5 (ADR-0038) — regimes elegíveis; null/[]/"Todos" → NULL (universal).
+        tax_regimes: z.array(z.string()).nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -597,8 +614,8 @@ export const solarisAdminRouter = router({
              criado_em, atualizado_em, codigo,
              titulo, topicos, severidade_base, vigencia_inicio,
              risk_category_code, classification_scope,
-             gap_descricao)
-          VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             gap_descricao, tax_regimes)
+          VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             input.texto,
             input.categoria,
@@ -611,6 +628,7 @@ export const solarisAdminRouter = router({
             input.risk_category_code,                // FIX-06: obrigatório no Zod (sem || null)
             scope,
             input.gap_descricao ?? null,             // FIX-06: persiste descrição curada (NULL se ausente)
+            normalizeTaxRegimes(input.tax_regimes),  // F5 (ADR-0038): "Todos"/vazio → NULL
           ]
         );
 
