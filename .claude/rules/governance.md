@@ -2712,6 +2712,8 @@ Os gates de CI do projeto têm comportamentos não-óbvios que custam ciclos se 
 | 4 | **`autoaudit` re-dispara só em `synchronize`/`opened`, NÃO em `edited`** | Editar o body sozinho não re-roda o gate. **Empty commit** (`git commit --allow-empty`) gera `synchronize` e re-lê o body atual. |
 | 5 | **Número de migration — verificar colisão** | Não assumir "próximo número". `ls drizzle/0NNN*.sql` — PRs em voo podem ter reservado o número (ex.: 0101 #1156, 0102 #1181 → próximo 0103). |
 | 6 | **Menção INLINE de fence-json na PROSA conta como bloco** | Escrever a sequência crase-crase-crase+json no texto do body (ex.: descrevendo o gotcha #1) é detectado como fence de evidência → parse inválido. Caso canônico: o PR #1185 desta própria lição falhou por isso. **Solução:** na prosa, escrever "bloco JSON cercado" — nunca o fence literal. |
+| 7 | **Migration discipline exige 3 frases EXATAS no body** (extensão 19/06/2026) | PR que toca `schema.ts`/`.sql`/`drizzle`/`migrations` dispara o gate **`Migration discipline`** (required), que faz `grep -q` por 3 frases literais: **"Migração de banco"** + **"Reversível"** + **"Testado em ambiente isolado"**. Faltando qualquer uma → fail. Caso canônico: #1517 (F1 regime tributário) custou 2 re-triggers até as 3 estarem presentes. Origem complementar: incidente DDL `projects` vs `solaris_questions` — a frase "Testado em ambiente isolado" como prática teria antecipado o typo no report. |
+| 8 | **Exceção docs-only só vale se TODOS os arquivos estão em `docs/`** (extensão 19/06/2026) | `validate-pr-body` dispensa o template completo apenas quando 100% dos arquivos do diff estão sob `docs/`. Um único arquivo em `.claude/` ou `.github/` (ex.: `.claude/rules/governance.md`) **quebra** a exceção → exige o template completo (Escopo/Risco/Declaração/Validação/Task/Checklist/Declaração final + risco marcado). Caso canônico: o PR #1526 (esta própria lição) falhou por isso — PR de lição mistura `governance.md` (em `.claude/`) com audits (em `docs/`). **Solução:** usar o template completo em PRs de governança que toquem `.claude/`. |
 
 ### Validação prática
 
@@ -3687,3 +3689,36 @@ Todos os callsites devem ser migrados **no mesmo PR** — OU ter issue aberta co
 - REGRA-ORQ-35 (NUNCA ASSUMA — grep de TODOS os callsites antes de fechar)
 - REGRA-ORQ-25 (drift de deploy — o bug só se manifestou em prod via checkpoint stale; correção exigiu re-deploy do HEAD limpo + reporte `git=<SHA>/checkpoint=<id>`)
 - Casos: PR #1502 (consolidação parcial) · #1504 (complemento) · helper `shared/ncm-nbs-validation.ts`
+
+## Lição #138 — DoD negativo deve EXERCITAR a escrita, não observar ausência
+
+**Origem:** GATE-PO-REGIME-TRIBUTARIO T2 (sessão 19/06/2026, épico ADR-0038) — auditoria do fechamento
+
+### Texto
+
+Um DoD negativo afirmado por **ausência de dados** (`SELECT ... WHERE campo IS NOT NULL → 0 rows`) é **baseline trivial**, NÃO prova do gate, quando nenhum dado foi populado ainda. "0 rows não-null" só diz "ninguém escreveu" — exatamente o estado que existia **antes** da feature. Não prova que a normalização/persistência funciona.
+
+DoD negativo correto **exercita a escrita** e confirma os DOIS estados via SQL:
+- (a) criar registro com valor esperado → confirmar persistência (ex.: array JSON);
+- (b) criar registro "negativo" → confirmar `NULL`/ausência (o caso que o gate deve produzir);
+- (c) limpar (`ativo=0` ou DELETE) preservando auditoria.
+
+### Caso canônico — GATE-PO T2 (épico regime tributário)
+
+A auditoria do Manus declarou "DoD negativo ✅" com `WHERE tax_regimes IS NOT NULL → 0 rows`. Claude Code + Consultor identificaram: as 18 perguntas estavam todas `NULL` porque **ninguém curou regime** — baseline vazio, não prova de `normalizeTaxRegimes`. O T2 discriminante (executado pelo Manus) fechou a lacuna:
+
+- SOL-061 criado com "Lucro Real" → `tax_regimes = ["lucro_real"]` (SQL) ✅
+- SOL-060 criado com "Todos" (nenhum selecionado) → `tax_regimes = null` (SQL) ✅
+- ambos desativados (`ativo=0`) ✅
+
+Só então o gate ficou provado: a escrita persiste array para regime específico **e** NULL (universal) para "Todos".
+
+### Aplicação prospectiva
+
+Antes de declarar um DoD negativo PASS: perguntar "esta query retornaria o mesmo resultado **antes** da feature existir?". Se sim, é baseline trivial — exigir o teste de escrita (a)+(b). Estende [[Lição #124]] (DoD negativo muda 1 variável do positivo) e [[Lição #85]] (DoD de persistência exige SQL pós-escrita).
+
+### Vinculadas
+
+- [[Lição #124]] (DoD negativo falsifica a condição mais próxima do positivo) · [[Lição #85]] (persistência exige SQL, não estado de UI) · [[Lição #87]] (smoke estático ≠ consumo)
+- REGRA-ORQ-44 (DoD negativo por consumer crítico) · REGRA-ORQ-34 Protocolo 3
+- Caso canônico: GATE-PO T2 (SOL-060/SOL-061) · épico ADR-0038 F1-F6 · auditoria `docs/governance/audits/AUDITORIA_PROFUNDA_01de1c47.md` + `PARECER_AUDITORIA_01de1c47.md`
