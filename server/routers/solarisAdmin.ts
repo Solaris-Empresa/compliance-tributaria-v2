@@ -13,13 +13,14 @@
  * - solarisAdmin.deleteBatch  — soft delete de lote inteiro
  *
  * Formato CSV esperado (UTF-8, separador vírgula):
- *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio[,risk_category_code[,classification_scope]]
+ *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio[,risk_category_code[,classification_scope[,taxRegimes]]]
  *
  * Mapeamento CSV → tabela solaris_questions (DEC-002):
  *   titulo          → titulo
  *   conteudo        → texto
  *   topicos         → topicos
  *   cnaeGroups      → cnae_groups (JSON array)
+ *   taxRegimes      → tax_regimes (JSON array; F6/ADR-0038; separador ";"; coluna ausente/vazia = null = universal)
  *   lei             → fonte (fixo 'solaris' — validado, não inserido como coluna)
  *   artigo          → codigo (SOL-001..N)
  *   categoria       → categoria
@@ -76,6 +77,9 @@ const CsvRowSchema = z.object({
   // FIX-06: gap_descricao curado pelo advogado — usado por G17 (FIX-07 futuro) como
   // gap_descricao do gap gerado. Opcional: NULL → G17 usa fallback "Ausência: {titulo}".
   gap_descricao: z.string().nullable().optional(),
+  // F6 (ADR-0038) — regimes separados por ";" (ex: "simples_nacional;lucro_real").
+  // OPCIONAL → coluna ausente no CSV / vazio = null (universal, backward-compat).
+  taxRegimes: z.string().optional(),
 });
 
 type CsvRow = z.infer<typeof CsvRowSchema>;
@@ -432,6 +436,14 @@ export const solarisAdminRouter = router({
             cnaeGroupsJson = JSON.stringify(groups);
           }
 
+          // F6 (ADR-0038) — tax_regimes do CSV: coluna ausente/vazia → null (universal,
+          // backward-compat); regimes separados por ";"; normaliza (inválido/"Todos" → null).
+          const taxRegimesJson = normalizeTaxRegimes(
+            r.taxRegimes && r.taxRegimes.trim() !== ""
+              ? r.taxRegimes.split(";").map((x) => x.trim()).filter((x) => x.length > 0)
+              : null,
+          );
+
           try {
             const [existing] = await conn.execute(
               "SELECT id FROM solaris_questions WHERE codigo = ?",
@@ -447,7 +459,7 @@ export const solarisAdminRouter = router({
                   titulo = ?, topicos = ?, severidade_base = ?,
                   vigencia_inicio = ?, upload_batch_id = ?, atualizado_em = ?,
                   risk_category_code = ?, classification_scope = ?,
-                  gap_descricao = ?
+                  gap_descricao = ?, tax_regimes = ?
                 WHERE codigo = ?`,
                 [
                   r.conteudo, r.categoria, cnaeGroupsJson,
@@ -456,6 +468,7 @@ export const solarisAdminRouter = router({
                   batchId, now,
                   rcc, scope,
                   r.gap_descricao ?? null, // FIX-06: persiste descrição curada (NULL se ausente)
+                  taxRegimesJson,          // F6: "Todos"/vazio/coluna ausente → NULL (universal)
                   r.artigo,
                 ]
               );
@@ -467,8 +480,8 @@ export const solarisAdminRouter = router({
                    criado_em, atualizado_em, upload_batch_id, codigo,
                    titulo, topicos, severidade_base, vigencia_inicio,
                    risk_category_code, classification_scope,
-                   gap_descricao)
-                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                   gap_descricao, tax_regimes)
+                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                   r.conteudo, r.categoria, cnaeGroupsJson,
                   now, now, batchId, r.artigo,
@@ -476,6 +489,7 @@ export const solarisAdminRouter = router({
                   (r.vigencia_inicio && r.vigencia_inicio.trim() !== '' ? r.vigencia_inicio : null),
                   rcc, scope,
                   r.gap_descricao ?? null, // FIX-06: persiste descrição curada (NULL se ausente)
+                  taxRegimesJson,          // F6: "Todos"/vazio/coluna ausente → NULL (universal)
                 ]
               );
               inserted++;
