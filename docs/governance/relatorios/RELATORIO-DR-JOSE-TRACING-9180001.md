@@ -31,12 +31,26 @@ Foram importadas **4 questões** sobre **inventário, conciliação, lastro prob
 
 ## 3. Detalhamento dos gaps gerados (texto curado preservado)
 
-| Gap | Questão | Texto do gap (conforme curado no CSV) |
-|---|---|---|
-| 3090013 | SOL-301 | Ausência de inventário formal e de cronograma de saneamento dos créditos a migrar para a CBS, com risco de perda prática do direito de utilização antes do marco temporal (dez/2026). |
-| 3090014 | SOL-302 | Créditos não escriturados ou divergentes entre EFD-Contribuições, PER/DCOMP e documentação de suporte, com risco de perda de liquidez e de não homologação após dez/2026. |
-| 3090015 | SOL-303 | Ausência de memória de cálculo individualizada e de lastro documental idôneo, com risco de indeferimento sumário do PER/DCOMP, glosa e autuações. |
-| 3090016 | SOL-304 | Créditos de origem extraordinária (teses, recuperação fiscal, sucessão societária) sem vínculo econômico demonstrável, com risco de não homologação. |
+| Gap | Questão | Criticidade | Prioridade | Texto do gap (conforme curado no CSV) |
+|---|---|---|---|---|
+| 3090013 | SOL-301 | alta | imediata | Ausência de inventário formal e de cronograma de saneamento dos créditos a migrar para a CBS, com risco de perda do direito antes do marco (dez/2026). |
+| 3090014 | SOL-302 | alta | imediata | Créditos não escriturados ou divergentes entre EFD-Contribuições, PER/DCOMP e documentação, com risco de perda de liquidez e não homologação após dez/2026. |
+| 3090015 | SOL-303 | alta | imediata | Ausência de memória de cálculo individualizada e de lastro idôneo, com risco de indeferimento do PER/DCOMP, glosa e autuações. |
+| 3090016 | SOL-304 | **crítica** | imediata | Créditos de origem extraordinária (teses, recuperação fiscal, sucessão) sem vínculo econômico, com risco de não homologação. |
+
+> **Constatação relevante:** a severidade que o senhor atribuiu (alta/crítica) **É preservada no nível do GAP** (coluna Criticidade) e a prioridade é **imediata**. O que muda na matriz é a severidade do **risco consolidado** (item 4.2).
+
+---
+
+## 3-A. Tarefas geradas (execução do plano)
+
+O plano consolidado (Obrigações Acessórias IBS/CBS · 60 dias · responsável *gestor fiscal* · status *aprovado*) desdobrou-se em **3 tarefas** (status *a fazer*):
+
+| # | Tarefa |
+|---|---|
+| 1 | Revisar procedimentos internos de escrituração e envio de declarações |
+| 2 | Atualizar sistemas de TI para atender às novas exigências de IBS/CBS |
+| 3 | Levantar obrigações acessórias específicas para a indústria sob a LC 214/2025 |
 
 ---
 
@@ -50,8 +64,8 @@ O motor agrupa os gaps **pela categoria de risco**. Como as 4 questões foram ca
 
 ### 4.2 Severidade do risco saiu como "Média"
 Embora as questões tenham sido classificadas como **Alta/Crítica** no CSV, o risco consolidado saiu como **Média**.
-**Motivo determinístico:** a severidade do risco é definida pela **categoria** (a categoria "Obrigações Acessórias" está fixada como severidade *Média* no motor), e **não** pela severidade que o senhor atribuiu a cada pergunta. A severidade da pergunta influencia a criticidade do gap, mas não a da matriz de risco.
-→ Para que a matriz reflita a **Alta/Crítica** que o tema de créditos exige, é necessária uma **categoria dedicada**.
+**Motivo determinístico (confirmado por consulta ao banco):** a severidade do risco é definida pela **categoria** ("Obrigações Acessórias" está fixada como *Média* no motor), e **não** pela severidade que o senhor atribuiu. A consulta comprovou: os **gaps mantêm criticidade Alta/Crítica** (vide item 3), mas o **risco consolidado saiu Média** — ou seja, a severidade jurídica existe no gap e **se perde na matriz**.
+→ Para que a matriz reflita a **Alta/Crítica** que o tema de créditos exige, é necessária uma **categoria de risco dedicada**.
 
 ---
 
