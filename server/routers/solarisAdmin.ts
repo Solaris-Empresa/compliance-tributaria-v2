@@ -240,7 +240,7 @@ export const solarisAdminRouter = router({
         const [rows] = await conn.execute(
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
                   vigencia_inicio, upload_batch_id, ativo, criado_em,
-                  risk_category_code, topicos, classification_scope, tax_regimes
+                  risk_category_code, topicos, classification_scope, tax_regimes, cnae_groups
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
            LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
@@ -255,6 +255,7 @@ export const solarisAdminRouter = router({
             risk_category_code: string | null; topicos: string | null;
             classification_scope: string | null;
             tax_regimes: unknown; // JSON: string[] | null (F5 ADR-0038)
+            cnae_groups: unknown; // JSON: string[] | null (F7-A CNAE-ADMIN-01)
             ativo: number; criado_em: number;
           }[],
           total,
@@ -535,6 +536,8 @@ export const solarisAdminRouter = router({
         gap_descricao: z.string().nullable().optional(),
         // F5 (ADR-0038) — regimes elegíveis; null/[]/"Todos" → NULL (universal).
         tax_regimes: z.array(z.string()).nullable().optional(),
+        // F7-B (CNAE-ADMIN-01) — grupos CNAE (JSON array string); ""/"[]" → NULL (universal).
+        cnae_groups: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -554,6 +557,12 @@ export const solarisAdminRouter = router({
       if (fields.gap_descricao !== undefined) { setClauses.push("gap_descricao = ?"); params.push(fields.gap_descricao || null); }
       // F5 (ADR-0038): persiste tax_regimes normalizado ("Todos"/vazio → NULL = universal).
       if (fields.tax_regimes !== undefined) { setClauses.push("tax_regimes = ?"); params.push(normalizeTaxRegimes(fields.tax_regimes)); }
+      // F7-B (CNAE-ADMIN-01): persiste cnae_groups; ""/"[]" → NULL (universal — DoD negativo).
+      if (fields.cnae_groups !== undefined) {
+        const cg = (fields.cnae_groups ?? "").trim();
+        setClauses.push("cnae_groups = ?");
+        params.push(cg && cg !== "[]" ? cg : null);
+      }
 
       if (setClauses.length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Nenhum campo para atualizar" });

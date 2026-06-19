@@ -61,6 +61,7 @@ interface SolarisQuestion {
   topicos?: string | null;
   classification_scope?: string | null;
   tax_regimes?: unknown; // JSON: string[] | null (F5 ADR-0038)
+  cnae_groups?: unknown; // JSON: string[] | null (F7-A CNAE-ADMIN-01)
   ativo: number;
   criado_em: number;
 }
@@ -138,6 +139,77 @@ function TaxRegimesMultiSelect({
           {o.label}
         </Badge>
       ))}
+    </div>
+  );
+}
+
+// ── F7-A/B (CNAE-ADMIN-01) — grupos CNAE ─────────────────────────────────────
+/** Parse defensivo de cnae_groups (Lição #72 — JSON array | null). */
+function parseCnaeGroups(raw: unknown): string[] {
+  return parseTaxRegimes(raw); // mesma lógica (JSON string-array → string[])
+}
+
+/** Badges da coluna Grupos CNAE — vazio/null → "Todos os CNAEs" (universal). */
+function CnaeGroupsBadges({ value }: { value: unknown }) {
+  const arr = parseCnaeGroups(value);
+  if (arr.length === 0) {
+    return <Badge variant="outline" className="text-xs text-muted-foreground">Todos os CNAEs</Badge>;
+  }
+  return (
+    <span className="flex flex-wrap gap-1">
+      {arr.map((g) => (
+        <Badge key={g} variant="outline" className="text-xs text-violet-700 border-violet-300">{g}</Badge>
+      ))}
+    </span>
+  );
+}
+
+/** Chip-input aberto de grupos CNAE. value=[] = "Todos os CNAEs" (universal → persiste NULL). */
+function CnaeGroupsChipInput({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [text, setText] = useState("");
+  const add = () => {
+    const t = text.trim();
+    if (t && !value.includes(t)) onChange([...value, t]);
+    setText("");
+  };
+  return (
+    <div
+      className="flex flex-wrap gap-2 items-center border rounded-md p-2 min-h-[38px]"
+      data-testid="input-cnae-groups"
+    >
+      {value.map((g, i) => (
+        <Badge
+          key={g}
+          data-testid={`cnae-chip-${i}`}
+          variant="outline"
+          className="text-xs text-violet-700 border-violet-300"
+        >
+          {g}
+          <span
+            data-testid={`cnae-chip-remove-${i}`}
+            className="ml-1 cursor-pointer text-muted-foreground"
+            onClick={() => onChange(value.filter((x) => x !== g))}
+          >
+            ×
+          </span>
+        </Badge>
+      ))}
+      <input
+        className="flex-1 min-w-[140px] outline-none text-sm bg-transparent"
+        placeholder="CNAE + Enter (ex: 28 ou 4639-7/01); vazio = Todos"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") { e.preventDefault(); add(); }
+        }}
+        onBlur={add}
+      />
     </div>
   );
 }
@@ -292,7 +364,7 @@ function TabLista({
   const [editForm, setEditForm] = useState({
     titulo: "", texto: "", categoria: "", severidade_base: "",
     vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "",
-    tax_regimes: [] as string[],
+    tax_regimes: [] as string[], cnae_groups: [] as string[],
   });
 
   const openEditModal = (q: SolarisQuestion) => {
@@ -307,6 +379,7 @@ function TabLista({
       risk_category_code: q.risk_category_code || "",
       classification_scope: q.classification_scope || "risk_engine",
       tax_regimes: parseTaxRegimes(q.tax_regimes),
+      cnae_groups: parseCnaeGroups(q.cnae_groups),
     });
   };
 
@@ -334,6 +407,8 @@ function TabLista({
       risk_category_code: editForm.risk_category_code || undefined,
       classification_scope: (editForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
       tax_regimes: editForm.tax_regimes, // [] → backend normaliza p/ NULL (universal)
+      // F7-B: chips vazios → "" → backend normaliza p/ NULL (universal, DoD negativo)
+      cnae_groups: editForm.cnae_groups.length ? JSON.stringify(editForm.cnae_groups) : "",
     });
   };
 
@@ -342,13 +417,13 @@ function TabLista({
   const [createForm, setCreateForm] = useState({
     titulo: "", texto: "", categoria: "contabilidade_fiscal", severidade_base: "",
     vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "risk_engine",
-    cnae_groups: "", tax_regimes: [] as string[],
+    cnae_groups: [] as string[], tax_regimes: [] as string[],
   });
 
   const resetCreateForm = () => setCreateForm({
     titulo: "", texto: "", categoria: "contabilidade_fiscal", severidade_base: "",
     vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "risk_engine",
-    cnae_groups: "", tax_regimes: [] as string[],
+    cnae_groups: [] as string[], tax_regimes: [] as string[],
   });
 
   const createMutation = trpc.solarisAdmin.createQuestion.useMutation({
@@ -388,7 +463,8 @@ function TabLista({
       topicos: createForm.topicos || undefined,
       risk_category_code: createForm.risk_category_code,
       classification_scope: (createForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
-      cnae_groups: createForm.cnae_groups || undefined,
+      // F7-B: chips → JSON array; vazio → undefined (universal)
+      cnae_groups: createForm.cnae_groups.length ? JSON.stringify(createForm.cnae_groups) : undefined,
       tax_regimes: createForm.tax_regimes, // [] → backend normaliza p/ NULL (universal)
     });
   };
@@ -575,6 +651,7 @@ function TabLista({
               <th className="p-3 text-left font-medium w-24">Severidade</th>
               <th className="p-3 text-left font-medium w-24">Vigência</th>
               <th className="p-3 text-left font-medium w-40" data-testid="col-tax-regimes">Regimes</th>
+              <th className="p-3 text-left font-medium w-40" data-testid="col-cnae-groups">Grupos CNAE</th>
               <th className="p-3 text-left font-medium w-36">Código do Risco</th>
               <th className="p-3 text-left font-medium w-24">Lote</th>
               <th className="p-3 w-16"></th>
@@ -583,7 +660,7 @@ function TabLista({
           <tbody>
             {isError && (
               <tr>
-                <td colSpan={8} className="p-8 text-center">
+                <td colSpan={9} className="p-8 text-center">
                   <Alert variant="destructive">
                     <AlertDescription>Erro ao carregar perguntas. Tente novamente.</AlertDescription>
                   </Alert>
@@ -592,14 +669,14 @@ function TabLista({
             )}
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                <td colSpan={9} className="p-8 text-center text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
                   Carregando...
                 </td>
               </tr>
             ) : questions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                <td colSpan={9} className="p-8 text-center text-muted-foreground">
                   Nenhuma pergunta encontrada
                 </td>
               </tr>
@@ -629,6 +706,7 @@ function TabLista({
                   </td>
                   <td className="p-3 text-xs text-muted-foreground">{formatDate(q.vigencia_inicio)}</td>
                   <td className="p-3"><TaxRegimesBadges value={q.tax_regimes} /></td>
+                  <td className="p-3"><CnaeGroupsBadges value={q.cnae_groups} /></td>
                   <td className="p-3">
                     {q.risk_category_code ? (
                       <Badge variant="outline" className="text-xs font-mono text-emerald-700 border-emerald-300">
@@ -844,6 +922,14 @@ function TabLista({
               />
               <p className="text-xs text-muted-foreground">"Todos" (nenhum selecionado) = universal (persiste NULL).</p>
             </div>
+            <div className="space-y-1">
+              <Label>Grupos CNAE aplicáveis</Label>
+              <CnaeGroupsChipInput
+                value={editForm.cnae_groups}
+                onChange={(v) => setEditForm((f) => ({ ...f, cnae_groups: v }))}
+              />
+              <p className="text-xs text-muted-foreground">Vazio = "Todos os CNAEs" (universal, persiste NULL).</p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingQuestion(null)}>Cancelar</Button>
@@ -963,13 +1049,12 @@ function TabLista({
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="create-cnae">CNAE Groups (JSON)</Label>
-                <Input
-                  id="create-cnae"
-                  placeholder='["11","4639-7"] ou vazio=universal'
+                <Label>Grupos CNAE aplicáveis</Label>
+                <CnaeGroupsChipInput
                   value={createForm.cnae_groups}
-                  onChange={(e) => setCreateForm((f) => ({ ...f, cnae_groups: e.target.value }))}
+                  onChange={(v) => setCreateForm((f) => ({ ...f, cnae_groups: v }))}
                 />
+                <p className="text-xs text-muted-foreground">Vazio = "Todos os CNAEs" (universal).</p>
               </div>
             </div>
             <div className="space-y-1">
