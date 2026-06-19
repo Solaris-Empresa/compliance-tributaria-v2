@@ -5051,7 +5051,11 @@ REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2 · refinada BUG-2 2026-06-02
       const primaryCnae = Array.isArray(confirmedCnaes) && confirmedCnaes.length > 0
         ? (typeof confirmedCnaes[0] === 'string' ? confirmedCnaes[0] : confirmedCnaes[0]?.code)
         : undefined;
-      const questions = await db.getOnda1Questions(primaryCnae ?? undefined);
+      // F4 (ADR-0038 D1) — passa o regime tributário do projeto p/ o filtro CNAE × regime.
+      // Perguntas com tax_regimes=null seguem universais (backward-compat). Display LIVE;
+      // o gap-check (:1065) permanece cnae-only (coverage é regime-independente).
+      const projectRegime = (project as any).taxRegime ?? undefined;
+      const questions = await db.getOnda1Questions(primaryCnae ?? undefined, projectRegime);
       const existingAnswers = await db.getOnda1Answers(input.projectId);
 
       // Mapear respostas existentes por questionId
