@@ -1,13 +1,22 @@
 // Hotfix IS v1.2 — testes de risk-eligibility
 // Cobertura: SPEC-HOTFIX-IS-v1.1 Bloco 8.1 (mantido em v1.2)
 
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach } from "vitest";
 import {
   isCategoryAllowed,
   isOperationType,
   ELIGIBILITY_TABLE,
   type EligibilityResult,
 } from "./risk-eligibility";
+
+// Fix IS P2 (dívida do F2 #1511) — isola a flag em TODOS os testes deste arquivo.
+// Os describes legados assumem flag OFF (comportamento ELIGIBILITY_TABLE); sem este
+// guard ficavam env-dependentes e falhavam quando o ambiente tinha
+// ENABLE_UNIFIED_ELIGIBILITY=true (prod, pós-flip). Os testes flag-ON setam o env
+// explicitamente no corpo (este beforeEach roda antes → estado limpo garantido).
+beforeEach(() => {
+  delete process.env.ENABLE_UNIFIED_ELIGIBILITY;
+});
 
 describe("isCategoryAllowed — imposto_seletivo eligible", () => {
   it("industria permite imposto_seletivo sem reason", () => {
@@ -317,5 +326,37 @@ describe("isCategoryAllowed — fonte única (flag ENABLE_UNIFIED_ELIGIBILITY)",
     const r = isCategoryAllowed("transicao_iss_ibs", null);
     expect(r.allowed).toBe(true);
     expect(r.reason).toBe("operation_type_ausente");
+  });
+});
+
+// Fix IS P2 — contrato de PRODUÇÃO do imposto_seletivo na matriz (flag ON = prod pós-flip).
+// Sob flag ON o IS é NÃO-AUTORITATIVO por operationType (D1-IS): isCategoryAllowed
+// retorna allowed=true e DEFERE ao gate NCM/CNAE real (risk-engine-v4:615
+// isImpostoSeletivoEligible, Art.393 §1º). Isto SUBSTITUI o gate operationType legado
+// (que bloqueava servicos/financeiro/agro) — por isso os describes legados acima rodam
+// com flag OFF isolada. O bloqueio real do IS (ex.: soja #5040001) é responsabilidade
+// do gate 615, não deste módulo. Ref ADR-0038 Opção 2 · #1282.
+describe("isCategoryAllowed — imposto_seletivo flag ON (defere ao gate 615)", () => {
+  afterEach(() => delete process.env.ENABLE_UNIFIED_ELIGIBILITY);
+
+  for (const op of ["servicos", "financeiro", "agronegocio"]) {
+    it(`flag ON: imposto_seletivo + ${op} → allowed (não-autoritativo; gate 615 decide)`, () => {
+      process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+      const r = isCategoryAllowed("imposto_seletivo", op);
+      expect(r.allowed).toBe(true);
+      expect(r.final).toBe("imposto_seletivo"); // NÃO faz downgrade unmapped (≠ legado)
+    });
+  }
+
+  it("flag ON: imposto_seletivo + industria → allowed (igual ao legado p/ elegíveis)", () => {
+    process.env.ENABLE_UNIFIED_ELIGIBILITY = "true";
+    expect(isCategoryAllowed("imposto_seletivo", "industria").allowed).toBe(true);
+  });
+
+  it("contraste flag OFF (legado): imposto_seletivo + servicos → unmapped (gate operationType)", () => {
+    delete process.env.ENABLE_UNIFIED_ELIGIBILITY;
+    const r = isCategoryAllowed("imposto_seletivo", "servicos");
+    expect(r.allowed).toBe(false);
+    expect(r.final).toBe("unmapped");
   });
 });
