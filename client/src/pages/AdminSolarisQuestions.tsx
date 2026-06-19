@@ -279,6 +279,13 @@ function TabLista({
   const [batchFilter, setBatchFilter] = useState("todas");
   const [statusFilter, setStatusFilter] = useState<"ativas" | "inativas" | "todas">("ativas");
   const [page, setPage] = useState(1);
+  // Lista v2 (#1540) — filtros adicionais + ordenação + paginação client-side (read-only)
+  const [regimeFilter, setRegimeFilter] = useState<string[]>([]);
+  const [cnaeFilter, setCnaeFilter] = useState("");
+  const [riskFilter, setRiskFilter] = useState<string[]>([]);
+  const [sortKey, setSortKey] = useState<string>("codigo");
+  const [sortDir, setSortDir] = useState<1 | -1>(1);
+  const [clientPageSize, setClientPageSize] = useState<"20" | "50" | "100" | "todos">("20");
 
   // Seleção
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -299,21 +306,74 @@ function TabLista({
   }, [search]);
 
   const hasFilters = debouncedSearch || categoria !== "todas" || severidade !== "todas" ||
-    vigencia !== "todas" || batchFilter !== "todas" || statusFilter !== "ativas";
+    vigencia !== "todas" || batchFilter !== "todas" || statusFilter !== "ativas" ||
+    regimeFilter.length > 0 || cnaeFilter.trim() !== "" || riskFilter.length > 0;
 
-  const queryInput = useMemo(() => ({
-    search: debouncedSearch || undefined,
-    categoria: categoria !== "todas" ? categoria : undefined,
-    severidade_base: severidade !== "todas" ? severidade : undefined,
-    vigencia: vigencia !== "todas" ? vigencia : "todas" as const,
-    upload_batch_id: batchFilter !== "todas" ? batchFilter : undefined,
-    ativo: statusFilter === "ativas" ? true : statusFilter === "inativas" ? false : undefined,
-    page,
-    pageSize: 20,
-  }), [debouncedSearch, categoria, severidade, vigencia, batchFilter, statusFilter, page]);
-
-  const { data, isLoading, isError, refetch } = trpc.solarisAdmin.listQuestions.useQuery(queryInput);
+  // Lista v2 — busca o UNIVERSO (corpus ~52; pageSize máx=100) e filtra/ordena/pagina
+  // client-side. Read-only: reusa a procedure existente, SEM query/backend novo (Lição #66).
+  const { data, isLoading, isError, refetch } = trpc.solarisAdmin.listQuestions.useQuery({
+    page: 1, pageSize: 100, vigencia: "todas" as const,
+  });
   const { data: batches } = trpc.solarisAdmin.listBatches.useQuery();
+
+  const allQuestions: SolarisQuestion[] = useMemo(() => data?.questions ?? [], [data]);
+  const counts = useMemo(() => ({
+    total: allQuestions.length,
+    ativas: allQuestions.filter((q) => q.ativo).length,
+    inativas: allQuestions.filter((q) => !q.ativo).length,
+    regimeEspecifico: allQuestions.filter((q) => parseTaxRegimes(q.tax_regimes).length > 0).length,
+  }), [allQuestions]);
+  const riskCodes = useMemo(
+    () => [...new Set(allQuestions.map((q) => q.risk_category_code).filter(Boolean) as string[])].sort(),
+    [allQuestions],
+  );
+  const vigStatus = useCallback((q: SolarisQuestion): "sem" | "vencida" | "a_vencer" => {
+    if (!q.vigencia_inicio) return "sem";
+    return q.vigencia_inicio < Date.now() ? "vencida" : "a_vencer";
+  }, []);
+
+  const filtered = useMemo(() => {
+    const s = debouncedSearch.trim().toLowerCase();
+    return allQuestions.filter((q) => {
+      if (s && !`${q.codigo} ${q.titulo} ${q.texto} ${q.risk_category_code ?? ""}`.toLowerCase().includes(s)) return false;
+      if (statusFilter === "ativas" && !q.ativo) return false;
+      if (statusFilter === "inativas" && q.ativo) return false;
+      if (categoria !== "todas" && q.categoria !== categoria) return false;
+      if (severidade !== "todas" && q.severidade_base !== severidade) return false;
+      if (vigencia === "com" && !q.vigencia_inicio) return false;
+      if (vigencia === "sem" && q.vigencia_inicio) return false;
+      if (vigencia === "vencida" && vigStatus(q) !== "vencida") return false;
+      if (vigencia === "a_vencer" && vigStatus(q) !== "a_vencer") return false;
+      if (batchFilter !== "todas" && q.upload_batch_id !== batchFilter) return false;
+      if (regimeFilter.length > 0) {
+        const regs = parseTaxRegimes(q.tax_regimes);
+        if (!regimeFilter.some((r) => (r === "__uni" ? regs.length === 0 : regs.includes(r)))) return false;
+      }
+      if (riskFilter.length > 0 && !riskFilter.includes(q.risk_category_code ?? "")) return false;
+      const c = cnaeFilter.trim();
+      if (c) {
+        const groups = parseCnaeGroups(q.cnae_groups);
+        if (!groups.some((g) => g.startsWith(c) || c.startsWith(g))) return false;
+      }
+      return true;
+    });
+  }, [allQuestions, debouncedSearch, statusFilter, categoria, severidade, vigencia, batchFilter, regimeFilter, riskFilter, cnaeFilter, vigStatus]);
+
+  const sorted = useMemo(() => {
+    const SEV_RANK: Record<string, number> = { critica: 4, alta: 3, media: 2, baixa: 1 };
+    return [...filtered].sort((a, b) => {
+      let r: number;
+      if (sortKey === "severidade_base") r = (SEV_RANK[a.severidade_base ?? ""] ?? 0) - (SEV_RANK[b.severidade_base ?? ""] ?? 0);
+      else if (sortKey === "vigencia_inicio") r = (a.vigencia_inicio ?? 0) - (b.vigencia_inicio ?? 0);
+      else r = String((a as unknown as Record<string, unknown>)[sortKey] ?? "").localeCompare(String((b as unknown as Record<string, unknown>)[sortKey] ?? ""), "pt");
+      return r * sortDir;
+    });
+  }, [filtered, sortKey, sortDir]);
+
+  const toggleSort = (k: string) => {
+    if (sortKey === k) setSortDir((d) => (d === 1 ? -1 : 1));
+    else { setSortKey(k); setSortDir(1); }
+  };
 
   const deleteMutation = trpc.solarisAdmin.deleteQuestions.useMutation({
     onSuccess: (result) => {
@@ -507,15 +567,46 @@ function TabLista({
     setVigencia("todas");
     setBatchFilter("todas");
     setStatusFilter("ativas");
+    setRegimeFilter([]);
+    setCnaeFilter("");
+    setRiskFilter([]);
     setPage(1);
   };
 
-  const questions = data?.questions ?? [];
-  const total = data?.total ?? 0;
-  const allSelected = questions.length > 0 && selected.size === questions.length;
+  // paginação client-side sobre o conjunto filtrado/ordenado (Lista v2)
+  const total = filtered.length;
+  const pageSizeNum = clientPageSize === "todos" ? Math.max(1, sorted.length) : Number(clientPageSize);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSizeNum));
+  const questions = sorted.slice((page - 1) * pageSizeNum, page * pageSizeNum);
+  const allSelected = questions.length > 0 && questions.every((q) => selected.has(q.id));
+  useEffect(() => { if (page > totalPages) setPage(1); }, [page, totalPages]);
 
   return (
     <div className="space-y-4">
+      {/* Cards de resumo (Lista v2) — clicáveis = atalho de filtro */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button data-testid="card-total" onClick={() => { setStatusFilter("todas"); setPage(1); }}
+          className="flex flex-col items-start gap-1 rounded-lg border bg-card p-4 text-left hover:shadow-md transition border-l-4 border-l-blue-600">
+          <span className="text-3xl font-extrabold text-blue-700">{counts.total}</span>
+          <span className="text-sm font-semibold text-muted-foreground flex items-center gap-1"><FileText className="w-4 h-4" /> Total</span>
+        </button>
+        <button data-testid="card-ativas" onClick={() => { setStatusFilter("ativas"); setPage(1); }}
+          className="flex flex-col items-start gap-1 rounded-lg border bg-card p-4 text-left hover:shadow-md transition border-l-4 border-l-green-600">
+          <span className="text-3xl font-extrabold text-green-700">{counts.ativas}</span>
+          <span className="text-sm font-semibold text-muted-foreground flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Ativas</span>
+        </button>
+        <button data-testid="card-inativas" onClick={() => { setStatusFilter("inativas"); setPage(1); }}
+          className="flex flex-col items-start gap-1 rounded-lg border bg-card p-4 text-left hover:shadow-md transition border-l-4 border-l-gray-400">
+          <span className="text-3xl font-extrabold text-gray-600">{counts.inativas}</span>
+          <span className="text-sm font-semibold text-muted-foreground flex items-center gap-1"><X className="w-4 h-4" /> Inativas</span>
+        </button>
+        <button data-testid="card-regime-especifico" onClick={() => { setRegimeFilter(TAX_REGIME_OPTIONS.map((o) => o.value)); setStatusFilter("todas"); setPage(1); }}
+          className="flex flex-col items-start gap-1 rounded-lg border bg-card p-4 text-left hover:shadow-md transition border-l-4 border-l-violet-600">
+          <span className="text-3xl font-extrabold text-violet-700">{counts.regimeEspecifico}</span>
+          <span className="text-sm font-semibold text-muted-foreground flex items-center gap-1"><Filter className="w-4 h-4" /> Regime específico</span>
+        </button>
+      </div>
+
       {/* Filtros */}
       <div className="flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[200px]">
@@ -581,29 +672,96 @@ function TabLista({
           </SelectContent>
         </Select>
 
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as typeof statusFilter); setPage(1); }}>
-          <SelectTrigger className="w-[130px]">
-            <SelectValue placeholder="Status" />
+        {/* Status segmentado proeminente (Lista v2) com contagem */}
+        <div className="inline-flex rounded-md border overflow-hidden" role="group" aria-label="Status">
+          {([["ativas", "Ativas", counts.ativas], ["inativas", "Inativas", counts.inativas], ["todas", "Todas", counts.total]] as const).map(([v, l, n], i) => (
+            <button
+              key={v}
+              data-testid={`seg-status-${v}`}
+              onClick={() => { setStatusFilter(v); setPage(1); }}
+              className={`px-3 min-h-[44px] text-sm ${i > 0 ? "border-l" : ""} ${statusFilter === v ? "bg-primary text-primary-foreground font-semibold" : "bg-background hover:bg-muted"}`}
+            >
+              {l} <span className="opacity-70 text-xs">({n})</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Código de Risco (multi — adiciona; remove via chip) */}
+        <Select value="" onValueChange={(v) => { setRiskFilter((p) => (p.includes(v) ? p : [...p, v])); setPage(1); }}>
+          <SelectTrigger className="w-[180px]" data-testid="filter-risk">
+            <SelectValue placeholder={riskFilter.length ? `Risco (${riskFilter.length})` : "Código de Risco"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ativas">Ativas</SelectItem>
-            <SelectItem value="inativas">Inativas</SelectItem>
-            <SelectItem value="todas">Todas</SelectItem>
+            {riskCodes.map((rc) => (<SelectItem key={rc} value={rc}>{rc}</SelectItem>))}
           </SelectContent>
         </Select>
 
+        {/* Grupo CNAE */}
+        <Input
+          data-testid="filter-cnae"
+          placeholder="Grupo CNAE (ex: 28)"
+          value={cnaeFilter}
+          onChange={(e) => { setCnaeFilter(e.target.value); setPage(1); }}
+          className="w-[160px]"
+        />
+
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={clearFilters} data-testid="btn-limpar-tudo" className="text-muted-foreground">
             <X className="w-3 h-3 mr-1" />
-            Limpar filtros
+            Limpar tudo
           </Button>
         )}
       </div>
+
+      {/* Regime (multi) + chips de filtros ativos (Lista v2) */}
+      <div className="flex flex-wrap gap-2 items-center" data-testid="filter-regime">
+        <span className="text-xs text-muted-foreground mr-1">Regime:</span>
+        {([["__uni", "Universal"], ...TAX_REGIME_OPTIONS.map((o) => [o.value, o.label] as [string, string])] as [string, string][]).map(([v, l]) => (
+          <Badge
+            key={v}
+            data-testid={`filter-regime-${v}`}
+            variant={regimeFilter.includes(v) ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => { setRegimeFilter((p) => (p.includes(v) ? p.filter((x) => x !== v) : [...p, v])); setPage(1); }}
+          >
+            {l}
+          </Badge>
+        ))}
+      </div>
+
+      {(regimeFilter.length > 0 || riskFilter.length > 0 || cnaeFilter.trim() !== "") && (
+        <div className="flex flex-wrap gap-2">
+          {regimeFilter.map((r) => (
+            <Badge key={`cr-${r}`} data-testid={`chip-regime-${r}`} variant="secondary" className="cursor-pointer" onClick={() => { setRegimeFilter((p) => p.filter((x) => x !== r)); setPage(1); }}>
+              Regime: {r === "__uni" ? "Universal" : (TAX_REGIME_LABEL[r] ?? r)} ✕
+            </Badge>
+          ))}
+          {riskFilter.map((r) => (
+            <Badge key={`ck-${r}`} data-testid={`chip-risk-${r}`} variant="secondary" className="cursor-pointer" onClick={() => { setRiskFilter((p) => p.filter((x) => x !== r)); setPage(1); }}>
+              Risco: {r} ✕
+            </Badge>
+          ))}
+          {cnaeFilter.trim() !== "" && (
+            <Badge data-testid="chip-cnae" variant="secondary" className="cursor-pointer" onClick={() => { setCnaeFilter(""); setPage(1); }}>
+              CNAE: {cnaeFilter} ✕
+            </Badge>
+          )}
+        </div>
+      )}
 
       {/* Contador + ações em lote */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <div className="flex items-center gap-3">
           <span>Exibindo {questions.length} de {total} perguntas</span>
+          <Select value={clientPageSize} onValueChange={(v) => { setClientPageSize(v as typeof clientPageSize); setPage(1); }}>
+            <SelectTrigger className="w-[110px] h-8" data-testid="pagesize"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="20">20 / pág</SelectItem>
+              <SelectItem value="50">50 / pág</SelectItem>
+              <SelectItem value="100">100 / pág</SelectItem>
+              <SelectItem value="todos">Todos</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             size="sm"
             onClick={() => setCreateOpen(true)}
@@ -646,10 +804,10 @@ function TabLista({
                   className="rounded"
                 />
               </th>
-              <th className="p-3 text-left font-medium w-20">Código</th>
-              <th className="p-3 text-left font-medium">Título</th>
-              <th className="p-3 text-left font-medium w-24">Severidade</th>
-              <th className="p-3 text-left font-medium w-24">Vigência</th>
+              <th className="p-3 text-left font-medium w-20 cursor-pointer select-none" onClick={() => toggleSort("codigo")}>Código{sortKey === "codigo" ? (sortDir > 0 ? " ▲" : " ▼") : ""}</th>
+              <th className="p-3 text-left font-medium cursor-pointer select-none" onClick={() => toggleSort("titulo")}>Título{sortKey === "titulo" ? (sortDir > 0 ? " ▲" : " ▼") : ""}</th>
+              <th className="p-3 text-left font-medium w-24 cursor-pointer select-none" onClick={() => toggleSort("severidade_base")}>Severidade{sortKey === "severidade_base" ? (sortDir > 0 ? " ▲" : " ▼") : ""}</th>
+              <th className="p-3 text-left font-medium w-24 cursor-pointer select-none" onClick={() => toggleSort("vigencia_inicio")}>Vigência{sortKey === "vigencia_inicio" ? (sortDir > 0 ? " ▲" : " ▼") : ""}</th>
               <th className="p-3 text-left font-medium w-40" data-testid="col-tax-regimes">Regimes</th>
               <th className="p-3 text-left font-medium w-40" data-testid="col-cnae-groups">Grupos CNAE</th>
               <th className="p-3 text-left font-medium w-36">Código do Risco</th>
@@ -682,7 +840,7 @@ function TabLista({
               </tr>
             ) : (
               questions.map((q) => (
-                <tr key={q.id} className={`border-t hover:bg-muted/30 ${selected.has(q.id) ? "bg-primary/5" : ""}`}>
+                <tr key={q.id} data-testid={`row-${q.codigo}`} className={`border-t hover:bg-muted/30 ${selected.has(q.id) ? "bg-primary/5" : ""} ${q.ativo ? "" : "opacity-60"}`}>
                   <td className="p-3">
                     <input
                       type="checkbox"
@@ -744,16 +902,16 @@ function TabLista({
         </table>
       </div>
 
-      {/* Paginação */}
-      {total > 20 && (
+      {/* Paginação (client-side) */}
+      {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
             Anterior
           </Button>
           <span className="text-muted-foreground">
-            Página {page} de {Math.ceil(total / 20)}
+            Página {Math.min(page, totalPages)} de {totalPages}
           </span>
-          <Button variant="outline" size="sm" disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(p => p + 1)}>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
             Próxima
           </Button>
         </div>
