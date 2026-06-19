@@ -60,8 +60,86 @@ interface SolarisQuestion {
   risk_category_code?: string | null;
   topicos?: string | null;
   classification_scope?: string | null;
+  tax_regimes?: unknown; // JSON: string[] | null (F5 ADR-0038)
   ativo: number;
   criado_em: number;
+}
+
+// ── F5 (ADR-0038) — regime tributário ────────────────────────────────────────
+const TAX_REGIME_OPTIONS = [
+  { value: "simples_nacional", label: "Simples Nacional" },
+  { value: "lucro_presumido", label: "Lucro Presumido" },
+  { value: "lucro_real", label: "Lucro Real" },
+] as const;
+const TAX_REGIME_LABEL: Record<string, string> = Object.fromEntries(
+  TAX_REGIME_OPTIONS.map((o) => [o.value, o.label]),
+);
+
+/** Parse defensivo de tax_regimes (Lição #72 — mysql2/superjson auto-parseia JSON). */
+function parseTaxRegimes(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.filter((x): x is string => typeof x === "string");
+  if (typeof raw === "string") {
+    try {
+      const p: unknown = JSON.parse(raw);
+      return Array.isArray(p) ? p.filter((x): x is string => typeof x === "string") : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+/** Badges da coluna Regimes — vazio/null → "Todos" (universal). */
+function TaxRegimesBadges({ value }: { value: unknown }) {
+  const arr = parseTaxRegimes(value);
+  if (arr.length === 0) {
+    return <Badge variant="outline" className="text-xs text-muted-foreground">Todos</Badge>;
+  }
+  return (
+    <span className="flex flex-wrap gap-1">
+      {arr.map((r) => (
+        <Badge key={r} variant="outline" className="text-xs text-violet-700 border-violet-300">
+          {TAX_REGIME_LABEL[r] ?? r}
+        </Badge>
+      ))}
+    </span>
+  );
+}
+
+/** Multi-select de regimes. value=[] = "Todos" (universal → persiste NULL). */
+function TaxRegimesMultiSelect({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const isTodos = value.length === 0;
+  const toggle = (regime: string) =>
+    onChange(value.includes(regime) ? value.filter((v) => v !== regime) : [...value, regime]);
+  return (
+    <div className="flex flex-wrap gap-2" data-testid="input-tax-regimes">
+      <Badge
+        data-testid="option-todos"
+        variant={isTodos ? "default" : "outline"}
+        className="cursor-pointer"
+        onClick={() => onChange([])}
+      >
+        Todos
+      </Badge>
+      {TAX_REGIME_OPTIONS.map((o) => (
+        <Badge
+          key={o.value}
+          data-testid={`option-${o.value}`}
+          variant={value.includes(o.value) ? "default" : "outline"}
+          className="cursor-pointer"
+          onClick={() => toggle(o.value)}
+        >
+          {o.label}
+        </Badge>
+      ))}
+    </div>
+  );
 }
 
 interface UndoState {
@@ -214,6 +292,7 @@ function TabLista({
   const [editForm, setEditForm] = useState({
     titulo: "", texto: "", categoria: "", severidade_base: "",
     vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "",
+    tax_regimes: [] as string[],
   });
 
   const openEditModal = (q: SolarisQuestion) => {
@@ -227,6 +306,7 @@ function TabLista({
       topicos: q.topicos || "",
       risk_category_code: q.risk_category_code || "",
       classification_scope: q.classification_scope || "risk_engine",
+      tax_regimes: parseTaxRegimes(q.tax_regimes),
     });
   };
 
@@ -253,6 +333,7 @@ function TabLista({
       topicos: editForm.topicos || undefined,
       risk_category_code: editForm.risk_category_code || undefined,
       classification_scope: (editForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
+      tax_regimes: editForm.tax_regimes, // [] → backend normaliza p/ NULL (universal)
     });
   };
 
@@ -261,13 +342,13 @@ function TabLista({
   const [createForm, setCreateForm] = useState({
     titulo: "", texto: "", categoria: "contabilidade_fiscal", severidade_base: "",
     vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "risk_engine",
-    cnae_groups: "",
+    cnae_groups: "", tax_regimes: [] as string[],
   });
 
   const resetCreateForm = () => setCreateForm({
     titulo: "", texto: "", categoria: "contabilidade_fiscal", severidade_base: "",
     vigencia_inicio: "", topicos: "", risk_category_code: "", classification_scope: "risk_engine",
-    cnae_groups: "",
+    cnae_groups: "", tax_regimes: [] as string[],
   });
 
   const createMutation = trpc.solarisAdmin.createQuestion.useMutation({
@@ -308,6 +389,7 @@ function TabLista({
       risk_category_code: createForm.risk_category_code,
       classification_scope: (createForm.classification_scope as "risk_engine" | "diagnostic_only") || undefined,
       cnae_groups: createForm.cnae_groups || undefined,
+      tax_regimes: createForm.tax_regimes, // [] → backend normaliza p/ NULL (universal)
     });
   };
 
@@ -492,6 +574,7 @@ function TabLista({
               <th className="p-3 text-left font-medium">Título</th>
               <th className="p-3 text-left font-medium w-24">Severidade</th>
               <th className="p-3 text-left font-medium w-24">Vigência</th>
+              <th className="p-3 text-left font-medium w-40" data-testid="col-tax-regimes">Regimes</th>
               <th className="p-3 text-left font-medium w-36">Código do Risco</th>
               <th className="p-3 text-left font-medium w-24">Lote</th>
               <th className="p-3 w-16"></th>
@@ -500,7 +583,7 @@ function TabLista({
           <tbody>
             {isError && (
               <tr>
-                <td colSpan={7} className="p-8 text-center">
+                <td colSpan={8} className="p-8 text-center">
                   <Alert variant="destructive">
                     <AlertDescription>Erro ao carregar perguntas. Tente novamente.</AlertDescription>
                   </Alert>
@@ -509,14 +592,14 @@ function TabLista({
             )}
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                <td colSpan={8} className="p-8 text-center text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
                   Carregando...
                 </td>
               </tr>
             ) : questions.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                <td colSpan={8} className="p-8 text-center text-muted-foreground">
                   Nenhuma pergunta encontrada
                 </td>
               </tr>
@@ -545,6 +628,7 @@ function TabLista({
                     ) : "—"}
                   </td>
                   <td className="p-3 text-xs text-muted-foreground">{formatDate(q.vigencia_inicio)}</td>
+                  <td className="p-3"><TaxRegimesBadges value={q.tax_regimes} /></td>
                   <td className="p-3">
                     {q.risk_category_code ? (
                       <Badge variant="outline" className="text-xs font-mono text-emerald-700 border-emerald-300">
@@ -752,6 +836,14 @@ function TabLista({
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-1">
+              <Label>Regimes tributários aplicáveis</Label>
+              <TaxRegimesMultiSelect
+                value={editForm.tax_regimes}
+                onChange={(v) => setEditForm((f) => ({ ...f, tax_regimes: v }))}
+              />
+              <p className="text-xs text-muted-foreground">"Todos" (nenhum selecionado) = universal (persiste NULL).</p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingQuestion(null)}>Cancelar</Button>
@@ -879,6 +971,14 @@ function TabLista({
                   onChange={(e) => setCreateForm((f) => ({ ...f, cnae_groups: e.target.value }))}
                 />
               </div>
+            </div>
+            <div className="space-y-1">
+              <Label>Regimes tributários aplicáveis</Label>
+              <TaxRegimesMultiSelect
+                value={createForm.tax_regimes}
+                onChange={(v) => setCreateForm((f) => ({ ...f, tax_regimes: v }))}
+              />
+              <p className="text-xs text-muted-foreground">"Todos" (nenhum selecionado) = universal (persiste NULL).</p>
             </div>
           </div>
           <DialogFooter>

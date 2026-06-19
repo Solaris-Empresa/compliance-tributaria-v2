@@ -435,3 +435,21 @@ Ordem: **"Gaps" · "Oportunidades" · "Ações Prioritárias" · "Impactos" · "
 
 ### Vinculadas
 Issue #1344 · UX-LABELS-01 #1342 · UX-LABELS-02 #1346 · `AS-IS-TO-BE-UX-BRIEFING-C-V2-20260603.md` (v5) · `DB-SPEC-UX-BRIEFING-C-V2.md` · `RISCOS-MITIGACAO-UX-BRIEFING-C-V2.md` · `briefingAdapter.test.ts` (Triade ORQ-28 A2) · REGRA-ORQ-09/16/28 · Lição #72.
+
+---
+
+## Admin SOLARIS — Gestão de Perguntas (`AdminSolarisQuestions`)
+
+**Componente:** `client/src/pages/AdminSolarisQuestions.tsx` · **Spec F5:** `docs/governance/relatorios/SPEC-F5-ADMIN-TAX-REGIMES.md` · **Mockup:** `docs/sprints/regime-tributario/MOCKUP_admin_tax_regimes.html` · **ADR-0038**
+
+Tela administrativa (equipe SOLARIS / advogado_senior) para curar as perguntas da Onda 1. Cadastrada no Gate UX em 19/06/2026 (F5).
+
+### F5 — coluna/curadoria de `tax_regimes` (regime tributário)
+- **Listagem:** coluna "Regimes" — badges por regime; `tax_regimes` null/[] → badge **"Todos"** (universal). `data-testid="col-tax-regimes"`.
+- **Cadastro/Edição:** multi-select `[Todos · Simples Nacional · Lucro Presumido · Lucro Real]`. "Todos" (ou nenhum) → persiste **`NULL`** (universal — DoD negativo REGRA-ORQ-44). `data-testid="input-tax-regimes"` + `option-todos|option-simples_nacional|option-lucro_presumido|option-lucro_real`.
+
+### Procedures tRPC (F5)
+`solarisAdmin.listQuestions` (retorna `tax_regimes`) · `solarisAdmin.createQuestion` (aceita `tax_regimes`) · `solarisAdmin.updateQuestion` (aceita `tax_regimes`).
+
+### Vinculadas
+ADR-0038 · #1282 · REGRA-ORQ-09 (Gate UX) · REGRA-ORQ-27/44 · Lição #137 · F1 (#1517) / F2 (#1518) / F3 (#1519) / F4 (#1520).
