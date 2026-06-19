@@ -121,3 +121,30 @@ describe("filterSolarisByContext — backward-compat (zero regressão)", () => {
     expect(filterSolarisByContext(mix, { regime: "simples_nacional" })).toHaveLength(1);
   });
 });
+
+// ── BUG-REGIME-FILTER-01 (A1) — DoD discriminante (cenário F4 do Dr. José) ──────
+// 4 perguntas SOL-301..304 com tax_regimes=["lucro_presumido"], cnae universal.
+// O fix (F4 lê companyProfile.taxRegime) é validado em runtime pelo smoke do Manus
+// (T1/T2/T3); aqui provamos o CONTRATO do filtro com o regime já resolvido — o caso
+// NEGATIVO (lucro_real) é o que distingue "filtra" de "permissivo" (Lição #138/#139).
+describe("BUG-REGIME-FILTER-01 — DoD discriminante (4 perguntas lucro_presumido)", () => {
+  const lp4 = [
+    q(null, ["lucro_presumido"]),
+    q(null, ["lucro_presumido"]),
+    q(null, ["lucro_presumido"]),
+    q(null, ["lucro_presumido"]),
+  ];
+
+  it("POSITIVO — projeto lucro_presumido (9180001) → 4 perguntas exibidas", () => {
+    expect(filterSolarisByContext(lp4, { regime: "lucro_presumido" })).toHaveLength(4);
+  });
+
+  it("NEGATIVO discriminante — projeto lucro_real (9210001) → 0 perguntas (o bug)", () => {
+    expect(filterSolarisByContext(lp4, { regime: "lucro_real" })).toHaveLength(0);
+  });
+
+  it("NEUTRO — projeto sem regime resolvível → permissivo (semântica mantida)", () => {
+    expect(filterSolarisByContext(lp4, { regime: undefined })).toHaveLength(4);
+    expect(filterSolarisByContext(lp4, { regime: null })).toHaveLength(4);
+  });
+});

@@ -5054,7 +5054,15 @@ REGRA OBRIGATÓRIA SOLARIS (Sprint 3 — FIX-VIS-U2 · refinada BUG-2 2026-06-02
       // F4 (ADR-0038 D1) — passa o regime tributário do projeto p/ o filtro CNAE × regime.
       // Perguntas com tax_regimes=null seguem universais (backward-compat). Display LIVE;
       // o gap-check (:1065) permanece cnae-only (coverage é regime-independente).
-      const projectRegime = (project as any).taxRegime ?? undefined;
+      // BUG-REGIME-FILTER-01 (A1): a fonte canônica do regime é companyProfile.taxRegime
+      // (JSON, ~10 consumidores, ex.: :5269). A coluna projects.taxRegime fica NULL em
+      // projetos cujo createProject só gravou o JSON → ler a coluna dava regime=undefined
+      // → filtro permissivo → perguntas de regime específico vazavam p/ todos. Ler o JSON
+      // primeiro, coluna como fallback.
+      const projectRegime =
+        (project as any).companyProfile?.taxRegime
+        ?? (project as any).taxRegime
+        ?? undefined;
       const questions = await db.getOnda1Questions(primaryCnae ?? undefined, projectRegime);
       const existingAnswers = await db.getOnda1Answers(input.projectId);
 
