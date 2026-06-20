@@ -58,10 +58,24 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.use(
+    express.static(distPath, {
+      setHeaders: (res, filePath) => {
+        // index.html NUNCA cacheia → browser/edge sempre revalidam e pegam o index
+        // que aponta para o JS hasheado mais novo (anti deploy-stale — Lição #141).
+        if (filePath.endsWith("index.html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        } else if (/\.(js|css|woff2?|png|jpe?g|svg|gif|ico)$/i.test(filePath)) {
+          // assets têm nome content-hashed → cache longo é seguro.
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    })
+  );
 
-  // fall through to index.html if the file doesn't exist
+  // fall through to index.html if the file doesn't exist (SPA) — também no-cache
   app.use("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
