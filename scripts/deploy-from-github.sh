@@ -32,6 +32,9 @@ echo "=== [4/5] Guard de frescor (aborta se o tree ainda estiver stale) ==="
 node scripts/deploy-guard.cjs
 
 echo "=== [5/5] Install + build (build re-roda o guard + write-build-env + vite + esbuild) ==="
+# Injeta o SHA p/ o marcador build: no header (write-build-env lê SOURCE_COMMIT) —
+# garante verificação visual do artefato servido (Lição #141), mesmo sem git no Docker.
+export SOURCE_COMMIT="$(git rev-parse HEAD)"
 pnpm install --frozen-lockfile
 pnpm build
 
