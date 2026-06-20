@@ -21,16 +21,39 @@ function resolveHash() {
     process.env.VITE_BUILD_HASH;
   if (fromEnv) return String(fromEnv).trim().slice(0, 12);
 
-  // 2) git local (ambiente de dev com .git)
+  // 2) git local (ambiente de dev com .git + binário git no PATH)
   try {
     return require("child_process")
       .execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] })
       .toString()
       .trim();
   } catch {
-    // 3) Docker sem .git → não falha o build
-    return "unknown";
+    /* segue para o fallback via fs */
   }
+
+  // 3) leitura direta do .git via fs (Docker às vezes tem .git mas NÃO o binário git)
+  try {
+    const head = fs.readFileSync(".git/HEAD", "utf8").trim();
+    if (/^[0-9a-f]{7,40}$/.test(head)) return head.slice(0, 12); // detached HEAD
+    if (head.startsWith("ref:")) {
+      const ref = head.slice(4).trim();
+      // 3a) ref solto
+      try {
+        return fs.readFileSync(`.git/${ref}`, "utf8").trim().slice(0, 12);
+      } catch {
+        /* ref empacotado */
+      }
+      // 3b) packed-refs
+      const packed = fs.readFileSync(".git/packed-refs", "utf8");
+      const line = packed.split("\n").find((l) => l.endsWith(" " + ref));
+      if (line) return line.split(" ")[0].slice(0, 12);
+    }
+  } catch {
+    /* sem .git */
+  }
+
+  // 4) último recurso → não falha o build
+  return "unknown";
 }
 
 const content =
