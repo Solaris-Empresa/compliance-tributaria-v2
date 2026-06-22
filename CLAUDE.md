@@ -144,7 +144,7 @@ All governance, backend, frontend, testing, and database rules are in `.claude/r
 | File | Scope | Contents |
 |------|-------|----------|
 | `governance-core.md` | `docs/governance/**` | REGRA-ORQ-00..47, all gates (Gate 0, Gate UX, F7), F1-F7 flow, R-SYNC-01/02, classes A/B/C, RACI, Manus prompt conventions |
-| `governance-lessons.md` | `docs/governance/**` | Lições aprendidas #59..#141 (casos canônicos, anti-padrões, vinculadas) |
+| `governance-lessons.md` | `docs/governance/**` | Lições aprendidas #61..#141 (casos canônicos, anti-padrões, vinculadas) |
 | `governance-spec-first.md` | `docs/governance/**` | SOLARIS-SPEC-FIRST v1.2 + CHECKLIST-VAL-01 + CHECKLIST-REVIEW-01 |
 | `governance-adr-ref.md` | `docs/governance/**` | Índice de ADRs ativos + referências cruzadas (gerado de `docs/adr/`) |
 | `backend.md` | `server/**` | tRPC patterns, LLM integration, content engine rules, risk engine v4, sprint Z-07/Z-09 state |

@@ -1,5 +1,5 @@
 ---
-description: Governance LESSONS — Lições aprendidas #59..#141 (casos canônicos, anti-padrões, vinculadas)
+description: Governance LESSONS — Lições aprendidas #61..#141 (casos canônicos, anti-padrões, vinculadas)
 globs:
   - "docs/governance/**"
 ---

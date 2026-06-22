@@ -106,7 +106,7 @@ fs.writeFileSync(
 
 // ---- write governance-lessons.md ----
 const lessonsHeader = `${FM(
-  "Governance LESSONS — Lições aprendidas #59..#141 (casos canônicos, anti-padrões, vinculadas)"
+  "Governance LESSONS — Lições aprendidas #61..#141 (casos canônicos, anti-padrões, vinculadas)"
 )}\n# Governance Rules — Lições Aprendidas\n\n> Parte 2 de 4 do corpus de governança (split GOVERNANCE-SPLIT-01).\n> REGRA-ORQ/gates/flow → \`governance-core.md\`.\n`;
 fs.writeFileSync(
   path.join(OUT_DIR, "governance-lessons.md"),
