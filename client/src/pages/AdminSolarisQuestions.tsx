@@ -63,6 +63,9 @@ interface SolarisQuestion {
   tax_regimes?: unknown; // JSON: string[] | null (F5 ADR-0038)
   cnae_groups?: unknown; // JSON: string[] | null (F7-A CNAE-ADMIN-01)
   gap_descricao?: string | null; // CSV-TEMPLATE-FIX-01 B.1 — round-trip identidade
+  lei_ref?: string | null;        // CSV-TEMPLATE-FIX-01 B.2 — rastreabilidade normativa
+  artigo_ref?: string | null;     // CSV-TEMPLATE-FIX-01 B.2
+  mapping_review_status?: string | null; // CSV-TEMPLATE-FIX-01 B.2 — gate jurídico
   ativo: number;
   criado_em: number;
 }
@@ -634,6 +637,8 @@ function TabLista({
       "titulo", "conteudo", "topicos", "cnaeGroups", "lei", "artigo", "categoria",
       "severidade_base", "vigencia_inicio", "risk_category_code", "classification_scope",
       "gap_descricao", "taxRegimes",
+      // B.2 — rastreabilidade normativa + gate jurídico
+      "lei_ref", "artigo_ref", "mapping_review_status",
     ];
     const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
     const valueOf = (q: SolarisQuestion, c: string): string => {
@@ -652,6 +657,12 @@ function TabLista({
         case "classification_scope": return q.classification_scope ?? "risk_engine";
         case "gap_descricao": return q.gap_descricao ?? "";
         case "taxRegimes": return parseTaxRegimes(q.tax_regimes).join(";");
+        // B.2 — emitidos fielmente. Nota: mapping_review_status='approved_legal' é exportado
+        // como está, mas o reimport o rejeita (Opção A) — round-trip de approved_legal é
+        // intencionalmente não suportado (aprovação legal é ação humana).
+        case "lei_ref": return q.lei_ref ?? "";
+        case "artigo_ref": return q.artigo_ref ?? "";
+        case "mapping_review_status": return q.mapping_review_status ?? "curated_internal";
         default: return "";
       }
     };
