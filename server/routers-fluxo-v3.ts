@@ -24,6 +24,7 @@ import {
 } from "./lib/cnae-oportunidade-eligibility";
 // FEAT-COB-01 (#1176): regime específico de bens imóveis (Arts. 251-270) no briefing LLM
 import { buildRegimeImoveisRestriction } from "./lib/regime-imoveis-eligibility";
+import { normalizeRespostas } from "./lib/normalize-respostas"; // BUG-RESP-VAZIA #1552
 // PR-B F3 (A-5 · Lição #137) — fonte única de elegibilidade atrás de ENABLE_UNIFIED_ELIGIBILITY.
 import {
   isCategoryEligible,
@@ -6109,7 +6110,7 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       const { getNextStateAfterProductQ } = await import("./flowStateMachine");
       const nextStatus = getNextStateAfterProductQ(operationType);
       await db.updateProject(input.projectId, {
-        productAnswers: JSON.stringify(input.respostas),
+        productAnswers: JSON.stringify(normalizeRespostas(input.respostas)), // BUG-RESP-VAZIA #1552
         status: nextStatus,
       } as any);
       return { ok: true, nextStatus };
@@ -6172,7 +6173,7 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       const { getNextStateAfterServiceQ } = await import("./flowStateMachine");
       const nextStatus = getNextStateAfterServiceQ();
       await db.updateProject(input.projectId, {
-        serviceAnswers: JSON.stringify(input.respostas),
+        serviceAnswers: JSON.stringify(normalizeRespostas(input.respostas)), // BUG-RESP-VAZIA #1552
         status: nextStatus,
       } as any);
       return { ok: true, nextStatus };
