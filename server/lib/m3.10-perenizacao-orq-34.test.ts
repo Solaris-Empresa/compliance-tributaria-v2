@@ -24,10 +24,17 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-const GOVERNANCE_SRC = readFileSync(
-  path.resolve(__dirname, "../../.claude/rules/governance.md"),
-  "utf-8",
-);
+// GOVERNANCE-SPLIT-01 (#1545): governance.md foi dividido em 4 arquivos.
+// Concatena os 4 para preservar as asserções source-static (REGRA/Lição podem
+// estar em governance-core.md OU governance-lessons.md).
+const GOVERNANCE_SRC = [
+  "governance-core.md",
+  "governance-lessons.md",
+  "governance-spec-first.md",
+  "governance-adr-ref.md",
+]
+  .map((f) => readFileSync(path.resolve(__dirname, "../../.claude/rules", f), "utf-8"))
+  .join("\n");
 
 // ---------------------------------------------------------------------------
 // REGRA-ORQ-34 — Pipeline de Dados Bugfix Protocol
