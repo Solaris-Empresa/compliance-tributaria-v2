@@ -62,6 +62,7 @@ interface SolarisQuestion {
   classification_scope?: string | null;
   tax_regimes?: unknown; // JSON: string[] | null (F5 ADR-0038)
   cnae_groups?: unknown; // JSON: string[] | null (F7-A CNAE-ADMIN-01)
+  gap_descricao?: string | null; // CSV-TEMPLATE-FIX-01 B.1 — round-trip identidade
   ativo: number;
   criado_em: number;
 }
@@ -624,17 +625,38 @@ function TabLista({
     });
   }, [allQuestions]);
 
+  // CSV-TEMPLATE-FIX-01 B.1 (#6) — export alinhado ao template de IMPORT (round-trip identidade):
+  // mesmas colunas/ordem/camelCase, separador de coluna VÍRGULA, separador interno ";" (multi-valor),
+  // vigencia_inicio CRUA "YYYY-MM-DD" (não formatDate pt-BR), gap_descricao incluída.
+  // Colunas espelham CsvRowSchema em server/routers/solarisAdmin.ts:61.
   const exportCsv = () => {
-    const cols = ["codigo", "titulo", "severidade_base", "categoria", "vigencia_inicio", "tax_regimes", "cnae_groups", "risk_category_code", "upload_batch_id", "ativo"];
+    const cols = [
+      "titulo", "conteudo", "topicos", "cnaeGroups", "lei", "artigo", "categoria",
+      "severidade_base", "vigencia_inicio", "risk_category_code", "classification_scope",
+      "gap_descricao", "taxRegimes",
+    ];
     const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
-    const lines = sorted.map((q) => cols.map((c) => {
-      if (c === "vigencia_inicio") return esc(formatDate(q.vigencia_inicio));
-      if (c === "tax_regimes") return esc(parseTaxRegimes(q.tax_regimes).join(",") || "Todos");
-      if (c === "cnae_groups") return esc(parseCnaeGroups(q.cnae_groups).join(",") || "Todos");
-      if (c === "ativo") return esc(q.ativo ? "ativa" : "inativa");
-      return esc(String((q as unknown as Record<string, unknown>)[c] ?? ""));
-    }).join(";")).join("\n");
-    const blob = new Blob(["﻿" + cols.join(";") + "\n" + lines], { type: "text/csv;charset=utf-8" });
+    const valueOf = (q: SolarisQuestion, c: string): string => {
+      switch (c) {
+        case "titulo": return q.titulo ?? "";
+        case "conteudo": return q.texto ?? "";
+        case "topicos": return q.topicos ?? "";
+        case "cnaeGroups": return parseCnaeGroups(q.cnae_groups).join(";");
+        case "lei": return "solaris"; // fixo — parser exige z.literal("solaris")
+        case "artigo": return q.codigo ?? ""; // artigo → codigo (SOL-NNN)
+        case "categoria": return q.categoria ?? "";
+        case "severidade_base": return q.severidade_base ?? "";
+        // valor cru "YYYY-MM-DD" (varchar) — NÃO formatDate (quebraria identidade)
+        case "vigencia_inicio": return q.vigencia_inicio == null ? "" : String(q.vigencia_inicio);
+        case "risk_category_code": return q.risk_category_code ?? "";
+        case "classification_scope": return q.classification_scope ?? "risk_engine";
+        case "gap_descricao": return q.gap_descricao ?? "";
+        case "taxRegimes": return parseTaxRegimes(q.tax_regimes).join(";");
+        default: return "";
+      }
+    };
+    const lines = sorted.map((q) => cols.map((c) => esc(valueOf(q, c))).join(",")).join("\n");
+    const blob = new Blob(["﻿" + cols.join(",") + "\n" + lines], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "solaris-questions.csv"; a.click();
     URL.revokeObjectURL(url);

@@ -12,22 +12,25 @@
  * - solarisAdmin.listBatches  — lista lotes de upload
  * - solarisAdmin.deleteBatch  — soft delete de lote inteiro
  *
- * Formato CSV esperado (UTF-8, separador vírgula):
- *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio[,risk_category_code[,classification_scope[,taxRegimes]]]
+ * Formato CSV esperado (UTF-8, separador vírgula). O template em
+ * client/public/template-solaris-questions.csv e o exportCsv da UI Admin usam
+ * exatamente estas 13 colunas nesta ordem (round-trip identidade — CSV-TEMPLATE-FIX-01 B.1):
+ *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio,risk_category_code,classification_scope,gap_descricao,taxRegimes
  *
  * Mapeamento CSV → tabela solaris_questions (DEC-002):
  *   titulo          → titulo
  *   conteudo        → texto
  *   topicos         → topicos
- *   cnaeGroups      → cnae_groups (JSON array)
+ *   cnaeGroups      → cnae_groups (JSON array; separador interno ";"; vazio = null = universal)
  *   taxRegimes      → tax_regimes (JSON array; F6/ADR-0038; separador ";"; coluna ausente/vazia = null = universal)
  *   lei             → fonte (fixo 'solaris' — validado, não inserido como coluna)
  *   artigo          → codigo (SOL-001..N)
  *   categoria       → categoria
  *   severidade_base → severidade_base
- *   vigencia_inicio      → vigencia_inicio (opcional)
- *   risk_category_code   → risk_category_code (opcional, FK → risk_categories.codigo)
+ *   vigencia_inicio      → vigencia_inicio (opcional; "YYYY-MM-DD")
+ *   risk_category_code   → risk_category_code (obrigatório, FK → risk_categories.codigo)
  *   classification_scope → classification_scope (opcional, default 'risk_engine')
+ *   gap_descricao        → gap_descricao (opcional; vazio = fallback G17 "Ausência: {titulo}")
  *
  * Sprint L · DEC-002 · Issue #191
  * Sprint Z-11 · ENTREGA 2 — suporte a risk_category_code + classification_scope
@@ -240,7 +243,8 @@ export const solarisAdminRouter = router({
         const [rows] = await conn.execute(
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
                   vigencia_inicio, upload_batch_id, ativo, criado_em,
-                  risk_category_code, topicos, classification_scope, tax_regimes, cnae_groups
+                  risk_category_code, topicos, classification_scope, tax_regimes, cnae_groups,
+                  gap_descricao
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
            LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
@@ -256,6 +260,7 @@ export const solarisAdminRouter = router({
             classification_scope: string | null;
             tax_regimes: unknown; // JSON: string[] | null (F5 ADR-0038)
             cnae_groups: unknown; // JSON: string[] | null (F7-A CNAE-ADMIN-01)
+            gap_descricao: string | null; // CSV-TEMPLATE-FIX-01 B.1 — round-trip identidade
             ativo: number; criado_em: number;
           }[],
           total,
