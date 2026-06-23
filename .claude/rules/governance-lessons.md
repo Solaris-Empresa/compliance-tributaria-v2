@@ -1898,3 +1898,65 @@ F4 (`routers-fluxo-v3.ts:5057`) lia `(project).taxRegime` (coluna SQL = **NULL**
 
 REGRA-ORQ-25 (checkpoint Manus ≠ git SHA) · ADR-0037 (gate 4 HEADs — agora deve checar artefato) · [[Lição #128]] (gate declarado ≠ enforçado) · [[Lição #87]] (claim ≠ evidência) · R-SYNC-02 · BUG-REGIME-FILTER-01 · PR #1536 (mecanização)
 
+## Lição #143 — "Artigo de disposições finais = transitório" é premissa falsa; chunks podem ser Anexos mis-taggeados
+
+**Origem:** RAG-ART544 (#1551, 23/06/2026) — classificação chunk-a-chunk dos 46 fragmentos `Art. 544` do corpus lc214.
+
+### Texto
+
+Assumir que um artigo de "disposições finais" (ex.: Art. 544 LC 214, a cláusula de vigência) contém **apenas** texto transitório é premissa **não-verificada**. Na ingestão do corpus, os **Anexos** da lei (listas taxativas de NCM/serviços) podem ser **absorvidos** no chunk do último artigo com **tag incorreta** — aparecendo como `Art. 544 (parte N)` quando o conteúdo real é Anexo I/V/XVII etc.
+
+**Gate 0 chunk-a-chunk (preview do conteúdo) é obrigatório antes de qualquer DELETE em lote por artigo.** A tag do chunk ≠ o conteúdo do chunk.
+
+### Caso canônico
+
+Despacho v122/v123 propôs "Art. 544 = transitório → deletar os 46 chunks (Opção B)". Gate 0 chunk-a-chunk (preview do DB, Manus) revelou: **23 dos 46 são substantivos** — cesta básica (Anexo I, carnes `0203`, óleos), saúde (dispositivos médicos `9018.x`, vacinas vet `3002.x`), agro (biofertilizantes `2839.x`), cultura/educação (Art. 139, audiovisual), e **veículos `8704` (id=766) = IS, Art. 409 inciso I**. Deletar todos seria **regressão** (perda de listas NCM que o motor precisa). Opção B cancelada (despacho v124/v125).
+
+### Vinculadas
+
+- [[Lição #144]] (DELETE em lote exige classificação prévia) · [[Lição #145]] (mis-tag + retrieval) · [[Lição #93]] (mecanismo verificado, não inferido) · [[Lição #132]] (afirmar metadado sem ver a fonte)
+- REGRA-INGEST-01 · REGRA-ORQ-45 (Gate 0 do emissor) · RAG-ART544 #1551
+
+## Lição #144 — DELETE em lote por artigo exige classificação individual prévia
+
+**Origem:** RAG-ART544 (#1551, 23/06/2026).
+
+### Texto
+
+`DELETE WHERE artigo LIKE '%X%'` (ou por qualquer predicado de conteúdo) **sem classificação chunk-a-chunk prévia** é anti-padrão — risco de regressão por deletar substantivo junto com ruído. Escopo correto, em 3 passos:
+
+1. **Gate 0 com preview** — `SELECT id, artigo, LEFT(conteudo, N)` de todos os candidatos.
+2. **Classificar** cada chunk: ruído (deletável) vs substantivo (manter/re-tag).
+3. **DELETE apenas por `id IN (...)` confirmados** — nunca por `LIKE` de conteúdo (Gate 0 da sessão provou que `conteudo LIKE '%entra em vigor%'` mira o caput id=751, não o alvo id=766).
+
+Estende [[Lição #143]] e REGRA-INGEST-01.
+
+### Caso canônico
+
+RAG-ART544: script v121 `DELETE ... conteudo LIKE '%entra em vigor%'` deletaria o id=751 (caput) e deixaria o id=766 (alvo). Corrigido para DELETE por IDs confirmados (Tier 1 + Tier 2A: 23 IDs explícitos).
+
+### Vinculadas
+
+- [[Lição #143]] · [[Lição #135]] (predicado fixado em SQL antes do protocolo) · REGRA-ORQ-45 · REGRA-INGEST-01 · RAG-ART544 #1551
+
+## Lição #145 — Bug de retrieval semântico não se resolve com DELETE; exige re-tag + cnaeGroups
+
+**Origem:** RAG-ART544 / bug NCM 2402 (id=766), auditoria E2E 9750001 (23/06/2026).
+
+### Texto
+
+Quando o retrieval traz o **chunk errado** por proximidade semântica (ex.: lista de veículos `8704` casando com query de fumígenos `2402`, pela expressão comum "tratamento tributário diferenciado"), a causa é **mis-tag + semântica**, **não** "chunk indevido no corpus". **Deletar perde dados substantivos** (o chunk de veículos é IS, Art. 409 inciso I). O fix correto é:
+
+1. **`UPDATE artigo`** — corrigir a tag do chunk (`Art. 544 parte N` → `Anexo [real] LC 214`), restaurando a citação correta.
+2. **Revisar `cnaeGroups`** do chunk (evitar match indevido por CNAE).
+
+Estende [[Lição #132]] (afirmar metadado sem verificar a fonte) e [[Lição #134]] (curadoria de dados, não heurística).
+
+### Caso canônico
+
+id=766 (`Art. 544 parte 16`) lista NCMs de veículos `8704`. O projeto 9750001 (NCM 2402 cigarros) gerou pergunta citando "Art. 544 parte 16" para fumígenos. DELETE perderia os veículos (IS). Fix = re-tag (issue RAG-ART544-RETAG, P2) + revisar cnaeGroups, mantendo o dado.
+
+### Vinculadas
+
+- [[Lição #143]] · [[Lição #144]] · [[Lição #132]] · [[Lição #134]] · ADR-0036 (reranker) · RAG-ART544-RETAG (issue P2) · auditoria E2E 9750001
+
