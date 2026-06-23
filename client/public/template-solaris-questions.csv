@@ -1,9 +1,13 @@
-titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio,risk_category_code,classification_scope,gap_descricao,taxRegimes
-Exemplo universal,Texto completo da pergunta aqui,topico1;topico2,,solaris,SOL-100,contabilidade_fiscal,media,,obrigacao_acessoria,risk_engine,,
-Pergunta condicional por CNAE e regime,Texto da pergunta para atacadistas agro,credito_presumido;nf_e,4639-7/01;4632-0/01,solaris,SOL-101,contabilidade_fiscal,alta,2026-07-01,credito_presumido,risk_engine,Empresa nao apropriou credito presumido do agro,simples_nacional;lucro_real
+titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio,risk_category_code,classification_scope,gap_descricao,taxRegimes,lei_ref,artigo_ref,mapping_review_status
+Exemplo universal,Texto completo da pergunta aqui,topico1;topico2,,solaris,SOL-100,contabilidade_fiscal,media,,obrigacao_acessoria,risk_engine,,,,,curated_internal
+Pergunta condicional por CNAE e regime,Texto da pergunta para atacadistas agro,credito_presumido;nf_e,4639-7/01;4632-0/01,solaris,SOL-101,contabilidade_fiscal,alta,2026-07-01,credito_presumido,risk_engine,Empresa nao apropriou credito presumido do agro,simples_nacional;lucro_real,lc214,Art. 138,pending_legal
 # LEGENDA risk_category_code (FK risk_categories.codigo): obrigacao_acessoria = RISCO (gera plano de acao) | credito_presumido = OPORTUNIDADE (nao gera plano)
 # Separador de COLUNA = virgula "," | Separador INTERNO multi-valor (topicos, cnaeGroups, taxRegimes) = ponto-e-virgula ";"
 # Obrigatorios: titulo, conteudo, topicos, lei (=solaris), artigo (SOL-NNN), categoria, severidade_base, risk_category_code
 # Opcionais: vigencia_inicio (YYYY-MM-DD) | classification_scope (risk_engine|diagnostic_only; default risk_engine) | gap_descricao (texto curado do gap; vazio = fallback "Ausencia: {titulo}") | taxRegimes
 # Universal: cnaeGroups vazio = todos os CNAEs | taxRegimes vazio = todos os regimes
 # Dominios: categoria = contabilidade_fiscal|negocio|ti|juridico | severidade_base = baixa|media|alta|critica
+# ATENCAO nomes: coluna "lei" = fonte fixa (sempre "solaris") e "artigo" = codigo (SOL-NNN). NAO confundir com:
+#   lei_ref = lei normativa real ("lc214", "lc224"...) — habilita filtro deterministico por lei (REGRA-ORQ-29); vazio = NULL (nao filtra)
+#   artigo_ref = artigo normativo ("Art. 138") — usado no breadcrumb da fonte; vazio = NULL
+#   mapping_review_status = gate juridico. ACEITA via CSV: curated_internal (default) | pending_legal (oculta ate aprovacao). approved_legal NAO e aceito via CSV (aprovacao legal e acao humana).

@@ -14,8 +14,8 @@
  *
  * Formato CSV esperado (UTF-8, separador vírgula). O template em
  * client/public/template-solaris-questions.csv e o exportCsv da UI Admin usam
- * exatamente estas 13 colunas nesta ordem (round-trip identidade — CSV-TEMPLATE-FIX-01 B.1):
- *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio,risk_category_code,classification_scope,gap_descricao,taxRegimes
+ * exatamente estas 16 colunas nesta ordem (round-trip identidade — CSV-TEMPLATE-FIX-01 B.1+B.2):
+ *   titulo,conteudo,topicos,cnaeGroups,lei,artigo,categoria,severidade_base,vigencia_inicio,risk_category_code,classification_scope,gap_descricao,taxRegimes,lei_ref,artigo_ref,mapping_review_status
  *
  * Mapeamento CSV → tabela solaris_questions (DEC-002):
  *   titulo          → titulo
@@ -31,6 +31,10 @@
  *   risk_category_code   → risk_category_code (obrigatório, FK → risk_categories.codigo)
  *   classification_scope → classification_scope (opcional, default 'risk_engine')
  *   gap_descricao        → gap_descricao (opcional; vazio = fallback G17 "Ausência: {titulo}")
+ *   lei_ref              → lei_ref (B.2; ≠ coluna `lei`; lei normativa "lc214"; vazio = NULL)
+ *   artigo_ref           → artigo_ref (B.2; ≠ coluna `artigo`; "Art. 14-A"; vazio = NULL)
+ *   mapping_review_status → mapping_review_status (B.2; gate jurídico; Opção A: só
+ *                            curated_internal|pending_legal via CSV; vazio = curated_internal)
  *
  * Sprint L · DEC-002 · Issue #191
  * Sprint Z-11 · ENTREGA 2 — suporte a risk_category_code + classification_scope
@@ -47,6 +51,13 @@ import { randomUUID } from "crypto";
 const AREA_VALUES = ["contabilidade_fiscal", "negocio", "ti", "juridico"] as const;
 const SEVERIDADE_VALUES = ["baixa", "media", "alta", "critica"] as const;
 const CLASSIFICATION_SCOPE_VALUES = ["risk_engine", "diagnostic_only"] as const;
+
+// B.2 (CSV-TEMPLATE-FIX-01) — mapping_review_status setável via CSV.
+// Opção A (decisão P.O. 2026-06-23): CSV aceita SÓ 'curated_internal'/'pending_legal'.
+// 'approved_legal' é REJEITADO no parser — aprovação legal é ação humana explícita
+// (preserva o gate jurídico de getOnda1Questions — Lições #61/#103). A coluna do banco
+// mantém os 3 valores (schema.ts:1750); a restrição é só na borda CSV.
+const CSV_MAPPING_REVIEW_STATUS_VALUES = ["curated_internal", "pending_legal"] as const;
 
 // F5 (ADR-0038) — regimes válidos + normalização de tax_regimes para persistência.
 // DoD negativo (REGRA-ORQ-44): "Todos"/vazio/inválido → NULL (universal), preservando
@@ -83,6 +94,24 @@ const CsvRowSchema = z.object({
   // F6 (ADR-0038) — regimes separados por ";" (ex: "simples_nacional;lucro_real").
   // OPCIONAL → coluna ausente no CSV / vazio = null (universal, backward-compat).
   taxRegimes: z.string().optional(),
+  // B.2 (CSV-TEMPLATE-FIX-01) — rastreabilidade normativa determinística (REGRA-ORQ-29).
+  // ATENÇÃO: lei_ref/artigo_ref ≠ colunas `lei` (=fonte fixa 'solaris') e `artigo` (=codigo SOL-NNN).
+  // lei_ref = lei normativa ("lc214"); artigo_ref = artigo ("Art. 14-A"). Consumidos por
+  // solaris-query.ts:90 (filtro por lei) e tracked-question.ts:188 (breadcrumb).
+  // Opcionais → coluna ausente/vazia = NULL (legado, não filtrado por lei).
+  lei_ref: z.string().optional(),
+  artigo_ref: z.string().optional(),
+  // mapping_review_status — gate jurídico (Opção A). "" → undefined → default 'curated_internal'
+  // no INSERT (Lição #112 — emptyToUndefined). 'approved_legal' → erro de linha.
+  mapping_review_status: z.preprocess(
+    (v) => (v === "" || v == null ? undefined : v),
+    z
+      .enum(CSV_MAPPING_REVIEW_STATUS_VALUES, {
+        message:
+          "Campo 'mapping_review_status' aceita apenas 'curated_internal' ou 'pending_legal' via CSV (approved_legal é ação humana — não setável em lote)",
+      })
+      .optional(),
+  ),
 });
 
 type CsvRow = z.infer<typeof CsvRowSchema>;
@@ -244,7 +273,7 @@ export const solarisAdminRouter = router({
           `SELECT id, codigo, titulo, texto, categoria, severidade_base,
                   vigencia_inicio, upload_batch_id, ativo, criado_em,
                   risk_category_code, topicos, classification_scope, tax_regimes, cnae_groups,
-                  gap_descricao
+                  gap_descricao, lei_ref, artigo_ref, mapping_review_status
            FROM solaris_questions ${where}
            ORDER BY codigo ASC
            LIMIT ${limitSafe} OFFSET ${offsetSafe}`,
@@ -261,6 +290,9 @@ export const solarisAdminRouter = router({
             tax_regimes: unknown; // JSON: string[] | null (F5 ADR-0038)
             cnae_groups: unknown; // JSON: string[] | null (F7-A CNAE-ADMIN-01)
             gap_descricao: string | null; // CSV-TEMPLATE-FIX-01 B.1 — round-trip identidade
+            lei_ref: string | null;        // B.2 — rastreabilidade normativa
+            artigo_ref: string | null;     // B.2
+            mapping_review_status: string | null; // B.2 — gate jurídico
             ativo: number; criado_em: number;
           }[],
           total,
@@ -465,7 +497,8 @@ export const solarisAdminRouter = router({
                   titulo = ?, topicos = ?, severidade_base = ?,
                   vigencia_inicio = ?, upload_batch_id = ?, atualizado_em = ?,
                   risk_category_code = ?, classification_scope = ?,
-                  gap_descricao = ?, tax_regimes = ?
+                  gap_descricao = ?, tax_regimes = ?,
+                  lei_ref = ?, artigo_ref = ?, mapping_review_status = ?
                 WHERE codigo = ?`,
                 [
                   r.conteudo, r.categoria, cnaeGroupsJson,
@@ -475,6 +508,10 @@ export const solarisAdminRouter = router({
                   rcc, scope,
                   r.gap_descricao ?? null, // FIX-06: persiste descrição curada (NULL se ausente)
                   taxRegimesJson,          // F6: "Todos"/vazio/coluna ausente → NULL (universal)
+                  // B.2: rastreabilidade normativa + gate. Vazio → NULL/default.
+                  (r.lei_ref && r.lei_ref.trim() !== '' ? r.lei_ref.trim() : null),
+                  (r.artigo_ref && r.artigo_ref.trim() !== '' ? r.artigo_ref.trim() : null),
+                  (r.mapping_review_status ?? 'curated_internal'),
                   r.artigo,
                 ]
               );
@@ -486,8 +523,9 @@ export const solarisAdminRouter = router({
                    criado_em, atualizado_em, upload_batch_id, codigo,
                    titulo, topicos, severidade_base, vigencia_inicio,
                    risk_category_code, classification_scope,
-                   gap_descricao, tax_regimes)
-                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                   gap_descricao, tax_regimes,
+                   lei_ref, artigo_ref, mapping_review_status)
+                VALUES (?, ?, ?, 1, 1, 'solaris', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                   r.conteudo, r.categoria, cnaeGroupsJson,
                   now, now, batchId, r.artigo,
@@ -496,6 +534,10 @@ export const solarisAdminRouter = router({
                   rcc, scope,
                   r.gap_descricao ?? null, // FIX-06: persiste descrição curada (NULL se ausente)
                   taxRegimesJson,          // F6: "Todos"/vazio/coluna ausente → NULL (universal)
+                  // B.2: rastreabilidade normativa + gate. Vazio → NULL/default 'curated_internal'.
+                  (r.lei_ref && r.lei_ref.trim() !== '' ? r.lei_ref.trim() : null),
+                  (r.artigo_ref && r.artigo_ref.trim() !== '' ? r.artigo_ref.trim() : null),
+                  (r.mapping_review_status ?? 'curated_internal'),
                 ]
               );
               inserted++;
