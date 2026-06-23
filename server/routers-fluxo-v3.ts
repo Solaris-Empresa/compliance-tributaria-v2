@@ -1801,7 +1801,7 @@ Gere as perguntas no formato:
       // Fallback hardcoded mantido apenas como last-resort para DB indisponível.
       const artigoIS_brief = await getArticleByCategory("imposto_seletivo");
       const artigoCadastro_brief = await getArticleByCategory("inscricao_cadastral");
-      const artigoISCit_brief = artigoIS_brief ?? "Art. 2 LC 214/2025";
+      const artigoISCit_brief = artigoIS_brief ?? "Art. 409 §1º LC 214/2025"; // ERRATA CONS-IS-ART-01: era "Art. 2" (= neutralidade, não IS)
       // LEGAL-1 fix (04/06/2026): fallback era "Art. 21 §1º" (= "é contribuinte",
       // LC 214 Art. 21) — incorreto p/ cadastro. Correto = Art. 59 ("obrigadas a se
       // registrar em cadastro"), validado contra PDF LC 214 Art. 59.
@@ -4377,7 +4377,7 @@ Gere o veredito final em JSON:
       // Mesma estratégia da procedure generateBriefing (linha ~1583).
       const artigoIS_fromDiag = await getArticleByCategory("imposto_seletivo");
       const artigoCadastro_fromDiag = await getArticleByCategory("inscricao_cadastral");
-      const artigoISCit_fromDiag = artigoIS_fromDiag ?? "Art. 2 LC 214/2025";
+      const artigoISCit_fromDiag = artigoIS_fromDiag ?? "Art. 409 §1º LC 214/2025"; // ERRATA CONS-IS-ART-01: era "Art. 2" (= neutralidade, não IS)
       // LEGAL-1 fix (04/06/2026): Art. 21 §1º (= "é contribuinte") → Art. 59
       // (cadastro), validado contra PDF LC 214. Mesmo fix do caminho generateBriefing.
       const artigoCadastroCit_fromDiag = artigoCadastro_fromDiag ?? "Art. 59 LC 214/2025";
