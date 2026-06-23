@@ -107,6 +107,7 @@ Gaps identificados pela campanha COVERAGE-SUITE-V3 (28/05/2026), confirmados em 
 | v8.1 | 20/05/2026 | 16.129 | 25 | −3 / 0 leis | Correção divergência moc_cte_v4 + 2 DELETEs (REGRA-ORQ-37) |
 | v9.0 | 25/05/2026 | 16.769 | 25 | +640 / 0 leis | CGIBS 6 Livro I re-ingestão (CORPUS-RFC-010 / BUG-IBS-00) + chunker fix (FIX-A) |
 | **v9.1** | **28/05/2026** | **16.769** | **25** | **0 / 0 leis** | **Sync pós-campanha NCM + COVERAGE-V3 + D2/D4 + normative_product_rules 26** |
+| v9.2 | 23/06/2026 | 16.746 _(a confirmar Manus)_ | 25 | −23 / 0 leis | RAG-ART544 Tier1+2A — DELETE chunks Art.544 ruído (caput/signatários/duplicatas + Simples) por IDs; Art.544 46→23. Tier 3 substantivo intacto → re-tag (RAG-ART544-RETAG). #1551 |
 
 ---
 
