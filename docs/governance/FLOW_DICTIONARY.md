@@ -12,7 +12,91 @@ Se o step nao estiver aqui, verificar com o Orquestrador antes de criar a issue.
 
 ---
 
-## FLUXO PRINCIPAL — Diagnostico Tributario
+## ⭐ FLUXO E2E ATUAL — AS-IS (verificado por código 2026-06-23 · HEAD 6560cf75)
+
+> **Fonte autoritativa do AS-IS atual** (PR-0 / despacho v113). As seções legadas mais
+> abaixo ("FLUXO PRINCIPAL STEP 1-7", "FLUXO M1", "FLUXO M2") estão **desatualizadas** —
+> ver a *Nota de reconciliação* ao final desta seção. Toda afirmação aqui tem `arquivo:linha`.
+
+### Ordem real das 11 telas
+
+| # | Etapa | Rota | Componente | Navega p/ frente (evidência) |
+|---|---|---|---|---|
+| 1 | **Novo Projeto** | `/projetos/novo` | `NovoProjeto.tsx` | Pop-up CNAE (modal) · captura NCM/NBS em `NovoProjeto.tsx:294` ("Bloco E") |
+| 2 | **Pop-up CNAE** | modal em `/projetos/novo` | `extractCnaes` (LLM) + `confirmCnaes` | → Perfil Entidade (flag M2 **on** em prod) |
+| 3 | **Confirmação Perfil Entidade** | `/projetos/:id/perfil-entidade` | `ConfirmacaoPerfil.tsx` | → SOLARIS (após `perfil.confirm`) |
+| 4 | **Questionário 1ª Onda — SOLARIS** | `/projetos/:id/questionario-solaris` | `QuestionarioSolaris.tsx` | → hub `/projetos/:id` (usuário clica "Iniciar" na linha IA) |
+| 5 | **Questionário IA Gen — Onda 2** | `/projetos/:id/questionario-iagen` | `QuestionarioIaGen.tsx` | → `questionario-produto` (`:125`) |
+| 6 | **Questionário Produto — NCM** | `/projetos/:id/questionario-produto` | `QuestionarioProduto.tsx` | → Serviço ou CNAE (condicional) |
+| 7 | **Questionário Serviço — NBS** | `/projetos/:id/questionario-servico` | `QuestionarioServico.tsx` | → `questionario-cnae` (`:74`) |
+| 8 | **Questionário dos CNAEs — Q.CNAE** | `/projetos/:id/questionario-cnae` | `QuestionarioCNAE.tsx` | → `briefing-v3` (`:177`) |
+| 9 | **Briefing** | `/projetos/:id/briefing-v3` | `BriefingV3.tsx` | → `risk-dashboard-v4` |
+| 10 | **Matriz de Riscos** | `/projetos/:id/risk-dashboard-v4` | `RiskDashboardV4Page.tsx` | → `planos-v4` |
+| 11 | **Plano de Ação** | `/projetos/:id/planos-v4` | `ActionPlanPage.tsx` | → `consolidacao-v4` |
+| (+) | **Consolidação** ✅ IMPLEMENTADA | `/projetos/:projectId/consolidacao-v4` | `ConsolidacaoV4.tsx` | PDF / dashboard |
+
+### STEP 3 — Confirmação do Perfil da Entidade (ATIVO em produção — corrige o legado)
+
+- Rota `/projetos/:id/perfil-entidade` **registrada e ativa** (`client/src/App.tsx:124`, componente `ConfirmacaoPerfil`). A flag `m2-perfil-entidade-enabled` está **ligada** em produção (≠ "default false" do legado M2).
+- **Não captura** NCM/NBS — apenas **exibe** read-only e **avisa** se faltam (`ConfirmacaoPerfil.tsx:339-371`). Captura é no STEP 1 (`NovoProjeto.tsx:294`).
+- Botão "Confirmar Perfil da Entidade" → mutation `perfil.confirm` (`ConfirmacaoPerfil.tsx:93`); lógica server-side: `buildSnapshot` + `computePerfilHash` + `validateM1Seed` (`server/routers/perfil.ts:10-43`). Write-once (ADR-0031: `archetype IS NOT NULL` → 409) + versionamento (ADR-0032).
+- Gate `status_arquetipo` (`pendente`/`inconsistente`/`bloqueado`/`confirmado`); estado terminal **V-05-DENIED** (grupo econômico + análise consolidada). Só avança a SOLARIS se `confirmado` + 0 hard-blocks.
+- `buildSnapshot` depende **só do seed do projeto** (`buildSeedFromProject(project)`), **zero respostas de questionário** — disponível já no `confirmCnaes`.
+
+### STEP 4 — Questionário SOLARIS (Onda 1) — atualizado
+
+- Perguntas via `getOnda1Questions` (`server/db.ts:1370`). Atributos hoje (ausentes do legado):
+  - **Gate jurídico** `mapping_review_status`: `pending_legal` é **oculto** do questionário (`db.ts:1387` — `inArray(..., ['curated_internal','approved_legal'])`). Lições #61/#103.
+  - **Filtro regime × CNAE** (ADR-0038): `solaris-context-filter.ts` (`filterSolarisByContext`).
+  - **Filtro por lei** `lei_ref`: `querySolarisByCnaes` (`server/lib/solaris-query.ts:90`).
+  - Curadoria via CSV (B.1/B.2 #1546/#1548): `lei_ref`/`artigo_ref`/`gap_descricao`/`mapping_review_status` setáveis em lote (Opção A — `approved_legal` só na tela).
+- **Contagem real de perguntas ativas:** ⚠️ pendente de `SELECT COUNT(*) FROM solaris_questions WHERE ativo=1` (Manus — rule 12; não estimar). A faixa "SOL-015..036" do legado está desatualizada (existem SOL-058..061, SOL-100+ etc.).
+
+### STEPs 6/7/8 — Questionários Produto (NCM) · Serviço (NBS) · CNAEs — AUSENTES no legado, agora documentados
+
+- **Exibição condicional** (Produto/Serviço): `shouldShowNCM` / `shouldShowNBS` por `natureza_operacao_principal` (`ConfirmacaoPerfil.tsx:459-473`; espelha `NATUREZA_TO_TIPO_OBJETO` de `validateM1Input.ts`).
+- **Parada manual NCM/NBS (AS-IS — a Mud.4 vai remover):** quando falta NCM/NBS, o questionário é exibido e o usuário avança/pula **manualmente** (não há roteamento automático). Aviso de NCM/NBS ausente em `ConfirmacaoPerfil.tsx:347/362`.
+- **"Pular questionário" JÁ EXISTE nos 3** (Produto/Serviço/CNAE):
+  - Produto: `btn-pular-questionario-produto` + `btn-pular-pergunta-{id}` (`QuestionarioProduto.tsx:330,269`).
+  - Serviço: `btn-pular-questionario-servico` + `btn-pular-pergunta-{id}` (`QuestionarioServico.tsx:295,237`).
+  - CNAE: `btn-pular-questionario-cnae` + modal (`QuestionarioCNAE.tsx:410,419`; B-Z11-009) — **submete respostas vazias** (`:222`), **sem proteção fiscal**.
+- **Q.CNAE — perguntas que gateiam risco fiscal** (relevante para a proteção DP-2 da Mud.5):
+  - `qcnae02_st` — Substituição Tributária (`QuestionarioCNAE.tsx:74`)
+  - `qcnae03_is` — Imposto Seletivo (`:86`)
+  - `qcnae04_imunidade` — imunidade/isenção (`:97`)
+  - `qcnae04_regime_especial` — regime especial (`:98`)
+
+### Nota de reconciliação (M1/M2 legado)
+
+- A seção **"FLUXO M1"** (Epic #830) está marcada "DRAFT bloqueado" — porém o perfil-entidade está **ativo** (STEP 3 acima). Tratar M1 como **histórico de design**, não estado atual.
+- A seção **"FLUXO M2"** descreve dual-path com flag `m2-perfil-entidade-enabled` **default false** — em produção a flag está **on** (caminho com `/perfil-entidade`). A sequência canônica M2 (`/perfil-entidade → questionario-solaris`) está correta; o "default false" não.
+- STEP 7 legado ("Consolidação A IMPLEMENTAR Z-16") → **implementada** (`ConsolidacaoV4.tsx`, rota `/consolidacao-v4`).
+
+---
+
+## 🔭 TO-BE — Otimização do fluxo E2E (5 mudanças — PROPOSTO, aguarda specs aprovadas)
+
+> Status: **proposto** (despacho v113). Cada mudança entra atrás de **feature flag** (deploy OFF →
+> teste manual P.O. → flip). Não é AS-IS até spec aprovada + implementada. Decisões P.O. fechadas:
+> **DP-1** diagnóstico parcial = **visível** (barra de confiança + "diagnóstico em construção");
+> **DP-2** pular CNAE = **parcial** (mantém obrigatórias as 4 perguntas fiscais-gate acima).
+
+| Mud. | TO-BE | Classe | Observação verificada |
+|---|---|---|---|
+| **1** | Excluir STEP 3 (`/perfil-entidade`) → do Pop-up CNAE ir **direto** ao SOLARIS | B/C | "Mover o gatilho `perfil.confirm` para o `confirmCnaes`" — viável (seed pronto no `confirmCnaes`); snapshot/gate/aviso precisam de destino |
+| **2** | SOLARIS **auto-avança** p/ IA Gen (sem voltar ao hub + clicar "Iniciar") | A | hoje SOLARIS volta ao hub; IA Gen→Produto já é automático (`QuestionarioIaGen.tsx:125`) |
+| **3·4** | Roteamento condicional NCM/NBS (sem parada manual): nenhum→CNAE; só NCM→Produto; só NBS→Serviço; ambos→Produto→Serviço | B | lê fonte canônica `seed.ncms_principais`/`nbss_principais` (GT-3) |
+| **5** | "Pular CNAE" **com proteção fiscal**: `qcnae02_st`/`qcnae03_is`/`qcnae04_imunidade`/`qcnae04_regime_especial` = **não-puláveis** | B | skip já existe (`QuestionarioCNAE.tsx:410`); novo = proteção por-pergunta (DP-2) |
+
+**Fluxo TO-BE (mermaid) — detalhamento canônico será anexado quando cada spec for aprovada.**
+
+---
+
+## FLUXO PRINCIPAL — Diagnostico Tributario (⚠️ LEGADO — ver AS-IS atual acima)
+
+> **Desatualizado.** Mantido como histórico. STEPs 2→3→4 **pulam** os questionários
+> Produto/Serviço/CNAE (documentados no AS-IS atual). A fonte autoritativa é a seção
+> "⭐ FLUXO E2E ATUAL" no topo.
 
 Este e o unico fluxo critico do produto.
 Todas as features de UX fazem parte dele.
