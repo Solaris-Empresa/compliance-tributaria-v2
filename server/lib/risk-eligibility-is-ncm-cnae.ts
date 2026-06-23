@@ -2,19 +2,26 @@
  * risk-eligibility-is-ncm-cnae.ts — Issue #1046
  *
  * Filtro de elegibilidade do Imposto Seletivo (IS) por NCM/CNAE conforme
- * Art. 393 §1º LC 214/2025. Bloqueia geração de risco IS para empresas
+ * Art. 409 §1º LC 214/2025. Bloqueia geração de risco IS para empresas
  * que não comercializam bens/serviços sujeitos ao IS.
  *
- * Lista taxativa do Art. 393 §1º LC 214/2025:
- *   I.   tabaco e produtos fumígenos             → NCM 24
- *   II.  bebidas alcoólicas                       → NCM 22
- *   III. bebidas açucaradas                       → NCM 22 (subset)
- *   IV.  veículos automotores                     → NCM 87
- *   V.   embarcações                              → NCM 89
- *   VI.  aeronaves                                → NCM 88
- *   VII. bens minerais extraídos (petróleo,
- *        ferro, manganês, ouro, etc.)             → NCM 26, 27
- *   VIII. produtos relacionados a apostas         → CNAE 92
+ * Lista taxativa do Art. 409 §1º LC 214/2025 (7 incisos, na ordem da lei):
+ *   I.   veículos                                 → NCM 87
+ *   II.  embarcações e aeronaves                  → NCM 89, 88
+ *   III. produtos fumígenos (tabaco)             → NCM 24
+ *   IV.  bebidas alcoólicas                       → NCM 22
+ *   V.   bebidas açucaradas                       → NCM 22 (subset)
+ *   VI.  bens minerais (petróleo, ferro,
+ *        manganês, ouro, etc.)                    → NCM 26, 27
+ *   VII. concursos de prognósticos e fantasy
+ *        sport (apostas)                          → CNAE 92
+ *
+ * Errata CONS-IS-ART-01 (23/06/2026): a referência "Art. 393 §1º" estava
+ * INCORRETA (Art. 393 = regularização de crédito apurado a maior). O IS é o
+ * Art. 409 §1º (LC 214/2025, Livro II — Do Imposto Seletivo), verificado no PDF
+ * primário (parecer do Consultor). A lei une "embarcações e aeronaves" no inciso
+ * II (o código separava em 2). Substância dos NCMs inalterada — só a referência
+ * legal e a estrutura de incisos.
  *
  * Caso canônico empírico (projeto #5040001 — I COMÉRCIO - UIRES - 6h52):
  *   NCMs: 2306.10.00, 2304.00.10 (Capítulo 23 — farelos de soja)
@@ -31,7 +38,7 @@
 import { isNcmResolverEnabled } from "./ncm-nbs-resolver";
 
 /**
- * Prefixes de NCM elegíveis ao IS conforme Art. 393 §1º LC 214/2025.
+ * Prefixes de NCM elegíveis ao IS conforme Art. 409 §1º LC 214/2025.
  *
  * NOTA sobre conservadorismo: usar prefixo de Capítulo (2 dígitos) é
  * intencionalmente CONSERVADOR — mantém riscos potenciais visíveis ao

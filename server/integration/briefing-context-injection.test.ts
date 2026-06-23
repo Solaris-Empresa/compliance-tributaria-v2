@@ -71,9 +71,9 @@ describe("BCI-04: systemPrompt contém regra QCNAE ESPECIALIZADO (ADR-0018)", ()
     expect(routerContent).toContain("REGRA OBRIGATÓRIA — QCNAE ESPECIALIZADO (ADR-0018)");
   });
 
-  it("deve instruir: IS confirmado → citar Art. 2 LC 214/2025", () => {
+  it("deve instruir: IS confirmado → citar Art. 409 §1º LC 214/2025", () => {
     expect(routerContent).toContain("confirmam sujeição ao IS");
-    expect(routerContent).toContain("Art. 2 LC 214/2025");
+    expect(routerContent).toContain("Art. 409 §1º LC 214/2025"); // ERRATA CONS-IS-ART-01 (era Art. 2)
   });
 
   it("deve instruir: alíquota zero confirmada → citar Art. 14 LC 214/2025", () => {

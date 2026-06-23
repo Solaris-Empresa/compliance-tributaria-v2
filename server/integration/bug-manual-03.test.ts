@@ -14,15 +14,16 @@ const routerContent = readFileSync(routerPath, "utf-8");
 const adrPath = join(process.cwd(), "docs/adr/ADR-0012-art57-vs-art2-is-mapeamento-canonico.md");
 const adrContent = readFileSync(adrPath, "utf-8");
 
-// ─── M03-01: Instrução Art. 2 IS está no prompt do briefing ─────────────────
-describe("M03-01: Instrução Art. 2 IS está no prompt do generateBriefingFromDiagnostic", () => {
-  it("deve conter instrução para citar Art. 2 para riscos IS", () => {
-    expect(routerContent).toContain("Art. 2 da LC 214/2025");
+// ─── M03-01: Instrução IS no prompt do briefing — ERRATA CONS-IS-ART-01 ──────
+// Art. 2 (= princípio da neutralidade) corrigido para Art. 409 §1º (artigo do IS).
+describe("M03-01: Instrução Art. 409 §1º IS está no prompt do generateBriefingFromDiagnostic", () => {
+  it("deve conter instrução para citar Art. 409 §1º para riscos IS", () => {
+    expect(routerContent).toContain("Art. 409 §1º LC 214/2025");
     expect(routerContent).toContain("Imposto Seletivo");
   });
 
-  it("deve conter instrução EXCLUSIVAMENTE para Art. 2", () => {
-    expect(routerContent).toContain("EXCLUSIVAMENTE Art. 2");
+  it("deve conter instrução para citar EXCLUSIVAMENTE o artigo do IS", () => {
+    expect(routerContent).toContain("citar EXCLUSIVAMENTE");
   });
 });
 

@@ -50,7 +50,7 @@ Se o step nao estiver aqui, verificar com o Orquestrador antes de criar a issue.
   - **Filtro regime × CNAE** (ADR-0038): `solaris-context-filter.ts` (`filterSolarisByContext`).
   - **Filtro por lei** `lei_ref`: `querySolarisByCnaes` (`server/lib/solaris-query.ts:90`).
   - Curadoria via CSV (B.1/B.2 #1546/#1548): `lei_ref`/`artigo_ref`/`gap_descricao`/`mapping_review_status` setáveis em lote (Opção A — `approved_legal` só na tela).
-- **Contagem real de perguntas ativas:** ⚠️ pendente de `SELECT COUNT(*) FROM solaris_questions WHERE ativo=1` (Manus — rule 12; não estimar). A faixa "SOL-015..036" do legado está desatualizada (existem SOL-058..061, SOL-100+ etc.).
+- **Contagem real de perguntas (Manus SQL 23/06/2026):** **22 ativas** (de 54 totais; 42 `risk_engine`, das quais 22 ativas + 20 inativas; 12 `diagnostic_only` **todas inativas** — nenhuma em uso no motor hoje). Por `mapping_review_status`: 17 `curated_internal` + 5 `approved_legal` + **0 `pending_legal`** (o gate jurídico não está ocultando nenhuma pergunta hoje). CNAE: **16/22 universais** (sem filtro CNAE), 6 segmentadas. A faixa "SOL-015..036" do legado está desatualizada (existem SOL-058..061, SOL-100+ etc.).
 
 ### STEPs 6/7/8 — Questionários Produto (NCM) · Serviço (NBS) · CNAEs — AUSENTES no legado, agora documentados
 
@@ -62,7 +62,7 @@ Se o step nao estiver aqui, verificar com o Orquestrador antes de criar a issue.
   - CNAE: `btn-pular-questionario-cnae` + modal (`QuestionarioCNAE.tsx:410,419`; B-Z11-009) — **submete respostas vazias** (`:222`), **sem proteção fiscal**.
 - **Q.CNAE — perguntas que gateiam risco fiscal** (relevante para a proteção DP-2 da Mud.5):
   - `qcnae02_st` — Substituição Tributária (`QuestionarioCNAE.tsx:74`)
-  - `qcnae03_is` — Imposto Seletivo (`:86`)
+  - `qcnae03_is` — Imposto Seletivo (`:86`) · **IS regido pelo Art. 409 §1º LC 214/2025** (CONS-IS-ART-01; o código erra ao citar Art. 393/Art. 2)
   - `qcnae04_imunidade` — imunidade/isenção (`:97`)
   - `qcnae04_regime_especial` — regime especial (`:98`)
 
