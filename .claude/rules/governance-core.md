@@ -1781,3 +1781,27 @@ Todo risco **🟡 levantado na skill `impact-tree`/AS-IS** DEVE virar **item exp
 
 REGRA-ORQ-44 (DoD negativo por consumer) — esta estende p/ filtros · REGRA-ORQ-41 (impact-tree) · [[Lição #138]] · [[Lição #139]] · [[Lição #140]] · [[Lição #124]] · BUG-REGIME-FILTER-01
 
+## REGRA-ORQ-48 — Gate 0 de UI: confirmar rota ativa antes de implementar em componente frontend
+
+**Vigência:** permanente, a partir de 24/06/2026
+**Origem:** Mud.5 #1561 — implementação em componente servido por rota inativa (`-legacy`)
+**Severidade:** governança crítica — fecha a classe "código localizado ≠ código que roda"
+
+### Regra
+
+Antes de implementar em componente frontend:
+1. Identificar a **rota alvo**
+2. `grep` da rota em `App.tsx` (**arquivo:linha**)
+3. Confirmar que o **componente servido pela rota = componente alvo**
+4. Só então implementar
+
+❌ **Proibido:** implementar por grep de componente sem verificar a rota ativa.
+
+### Caso canônico
+
+Mud.5 #1561: o `btn-pular-questionario-cnae` foi localizado em `QuestionarioCNAE.tsx` no Gate 0 (despacho v128), mas a rota `/questionario-cnae` serve **`QuestionarioV3`** desde a Issue #1010 (Wave 2). `QuestionarioCNAE` está em `/questionario-cnae-legacy` (rota **inativa**). A Mud.5 foi mergeada+deployada em **dead code** — zero efeito no fluxo real.
+
+### Vinculadas
+
+REGRA-ORQ-35 (NUNCA ASSUMA) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-41 (impact-tree) · [[Lição #59]] (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · [[Lição #147]] · Mud.5 #1561 · Issue #1010
+
