@@ -220,7 +220,14 @@ export default function QuestionarioSolaris() {
   const skipQuestionnaire = trpc.fluxoV3.skipQuestionnaire.useMutation({
     onSuccess: (data) => {
       toast.warning(data.confidenceWarning, { duration: 6000 });
-      setLocation(`/projetos/${projectId}`);
+      // Mud.4 (#1570) — auto-chain: pular SOLARIS também vai direto ao IA Gen (flag ON).
+      const autopilot =
+        (import.meta.env.VITE_ENABLE_AUTO_PILOT as string | undefined) === "true";
+      setLocation(
+        autopilot
+          ? `/projetos/${projectId}/questionario-iagen`
+          : `/projetos/${projectId}`,
+      );
     },
     onError: (err) => toast.error(err.message ?? "Erro ao pular questionário."),
   });
@@ -228,8 +235,14 @@ export default function QuestionarioSolaris() {
   const completeOnda1 = trpc.fluxoV3.completeOnda1.useMutation({
     onSuccess: () => {
       toast.success("Questionário SOLARIS concluído! Avançando para a próxima etapa.");
-      // Navegar de volta ao projeto (provisório até K-4-C existir)
-      setLocation(`/projetos/${projectId}`);
+      // Mud.4 (#1570) — auto-chain: flag ON vai direto ao IA Gen; OFF volta ao hub (atual).
+      const autopilot =
+        (import.meta.env.VITE_ENABLE_AUTO_PILOT as string | undefined) === "true";
+      setLocation(
+        autopilot
+          ? `/projetos/${projectId}/questionario-iagen`
+          : `/projetos/${projectId}`,
+      );
     },
     onError: (err) => {
       toast.error(err.message ?? "Erro ao salvar respostas. Tente novamente.");

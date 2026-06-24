@@ -6435,7 +6435,30 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
       }
       await db.updateProject(input.projectId, updateData as any);
       const confidenceWarning = `Questionário ${input.questionnaire === "solaris" ? "SOLARIS (Onda 1)" : "IA Gen (Onda 2)"} foi pulado — diagnóstico com confiança reduzida. Recomenda-se revisão manual antes da aprovação do briefing.`;
-      return { success: true, nextState, confidenceWarning };
+      // Mud.4 (#1570) Opção A — pular IA Gen roteia por NCM/NBS (espelha completeOnda2),
+      // reusando getNextStateAfterOnda2. Gated por ENABLE_NCM_NBS_ROUTING (Mud.3) — sem
+      // duplicar a lógica (Lição #140). solaris não recebe nextStatus (próximo é fixo).
+      let nextStatus: "q_produto" | "q_servico" | "diagnostico_cnae" | undefined;
+      if (
+        input.questionnaire === "iagen" &&
+        process.env.ENABLE_NCM_NBS_ROUTING === "true"
+      ) {
+        const { getNextStateAfterOnda2 } = await import("./flowStateMachine");
+        const { ncmCodes, nbsCodes } = extractNcmNbsFromProfile(
+          project.operationProfile,
+        );
+        nextStatus = getNextStateAfterOnda2(
+          ncmCodes.length > 0,
+          nbsCodes.length > 0,
+        );
+        // Casos 3/4 (Produto pulado): seta o status-alvo (transição já liberada na FSM).
+        if (nextStatus !== "q_produto") {
+          await db.updateProject(input.projectId, {
+            status: nextStatus as any,
+          });
+        }
+      }
+      return { success: true, nextState, confidenceWarning, nextStatus };
     }),
 
   /**
