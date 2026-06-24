@@ -230,7 +230,13 @@ export default function NovoProjeto() {
       // Mud.1 (#1562): quando o auto-confirm está ativo, o servidor decide o
       // destino via nextStep (string) — o frontend apenas o segue.
       if (data?.nextStep === "questionario-solaris") {
-        toast.success("CNAEs confirmados! Perfil da Entidade confirmado automaticamente...");
+        // MUD-PERFIL-SILENCIOSO (#1572): ramo b silencioso (autoConfirmed:false) NÃO confirma o
+        // perfil — toast neutro, sem mensagem sobre o perfil ao usuário (D4).
+        toast.success(
+          data?.autoConfirmed
+            ? "CNAEs confirmados! Perfil da Entidade confirmado automaticamente..."
+            : "CNAEs confirmados!",
+        );
         setLocation(`/projetos/${projectId}/questionario-solaris`);
         return;
       }

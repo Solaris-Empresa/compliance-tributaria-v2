@@ -920,9 +920,10 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
             };
           }
           // Avaliar confirmabilidade SEM lançar (fallback → ramo b)
+          let snapshot: ReturnType<typeof buildSnapshot> | undefined;
           try {
             const seed = buildSeedFromProject(refreshed);
-            const snapshot = buildSnapshot(seed, DATA_VERSION);
+            snapshot = buildSnapshot(seed, DATA_VERSION);
             if (isPerfilConfirmable(snapshot)) {
               // Ramo (a) — confirmável: auto-confirm interno + pula a página
               await autoConfirmPerfil({
@@ -941,11 +942,32 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
             }
           } catch (e) {
             console.warn(
-              `[Mud.1] confirmCnaes: perfil não-confirmável (project ${input.projectId}) — fallback /perfil-entidade`,
+              `[Mud.1] confirmCnaes: perfil não-confirmável (project ${input.projectId})`,
               e,
             );
           }
-          // Ramo (b) — não-confirmável: exibe /perfil-entidade (resolução)
+          // Ramo (b) — não-confirmável.
+          // MUD-PERFIL-SILENCIOSO (#1572): flag ON → avança ao SOLARIS sem página/mensagem.
+          if (process.env.ENABLE_PERFIL_SILENCIOSO === "true") {
+            // D3 Opção B — rastro interno (log server-side, sem migration) quando V-05-DENIED
+            // (grupo econômico): avança silencioso, mas NÃO sem rastro. Persistir em
+            // projects.flags_internos é follow-up P3 (exige migration, fora deste PR).
+            const isV05Denied =
+              snapshot?.blockers_triggered?.some(
+                (b) => b.id === "V-05-DENIED",
+              ) ?? false;
+            if (isV05Denied) {
+              console.warn(
+                `[PERFIL-SILENCIOSO][V-05-GRUPO-ECONOMICO] project=${input.projectId} — perfil avançou ao SOLARIS com grupo econômico (V-05-DENIED) detectado, sem página/mensagem (MUD-PERFIL-SILENCIOSO D3-B). Rastro p/ briefing/Dr. José.`,
+              );
+            }
+            return {
+              success: true,
+              nextStep: "questionario-solaris",
+              autoConfirmed: false,
+            };
+          }
+          // Flag OFF — comportamento atual: exibe /perfil-entidade (resolução)
           return {
             success: true,
             nextStep: "perfil-entidade",
