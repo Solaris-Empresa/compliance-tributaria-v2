@@ -5655,7 +5655,9 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
           message: "Sem acesso a este projeto",
         });
       }
-      const { assertValidTransition } = await import("./flowStateMachine");
+      const { assertValidTransition, getNextStateAfterOnda2 } = await import(
+        "./flowStateMachine"
+      );
       try {
         assertValidTransition(project.status, "onda2_iagen"); // BUG-UAT-07 fix: BUG-UAT-05 havia pulado onda2_iagen incorretamente
       } catch (err: any) {
@@ -5713,11 +5715,31 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
           );
         });
       }
+      // Mud.3 (#1568) — roteamento condicional por NCM/NBS real (Bloco E), atrás de flag.
+      // finalNcmCodes/finalNbsCodes já extraídos do operationProfile acima (Lição #140 —
+      // fonte canônica, não resolver downstream).
+      const ncmNbsRoutingEnabled =
+        process.env.ENABLE_NCM_NBS_ROUTING === "true";
+      let nextStatus: "q_produto" | "q_servico" | "diagnostico_cnae" =
+        "q_produto";
+      if (ncmNbsRoutingEnabled) {
+        nextStatus = getNextStateAfterOnda2(
+          finalNcmCodes.length > 0,
+          finalNbsCodes.length > 0,
+        );
+        // Casos 3/4 (Produto pulado): seta o status-alvo p/ refletir a posição real.
+        if (nextStatus !== "q_produto") {
+          await db.updateProject(input.projectId, {
+            status: nextStatus as any,
+          });
+        }
+      }
       return {
         success: true,
         projectId: input.projectId,
         newStatus: "onda2_iagen", // BUG-UAT-07 fix
         answersCount: input.answers.length,
+        nextStatus, // Mud.3 — frontend roteia por aqui (flag OFF = q_produto = comportamento atual)
       };
     }),
   // ───────────────────────────────────────────────────────────────────────────
@@ -6171,11 +6193,22 @@ confidence_score entre 0.7 e 1.0 para perguntas de alta qualidade.`;
           });
         }
       }
-      // Determinar próximo status (DIV-Z02-003: usar português)
+      // Determinar próximo status. Mud.3 (#1568): flag ON decide por NBS REAL
+      // (Bloco E, extractNcmNbsFromProfile) — não por operationType, alinhando
+      // com a entrada (completeOnda2). Sem a troca, caso 2 (só NCM) iria ao
+      // Serviço vazio. operationType permanece intacto (elegibilidade de risco).
       const op = (project as any).operationProfile ?? {};
-      const operationType: string = op.operationType ?? "misto";
-      const { getNextStateAfterProductQ } = await import("./flowStateMachine");
-      const nextStatus = getNextStateAfterProductQ(operationType);
+      const ncmNbsRoutingEnabled =
+        process.env.ENABLE_NCM_NBS_ROUTING === "true";
+      let nextStatus: "q_servico" | "diagnostico_cnae";
+      if (ncmNbsRoutingEnabled) {
+        const { nbsCodes } = extractNcmNbsFromProfile(op);
+        nextStatus = nbsCodes.length > 0 ? "q_servico" : "diagnostico_cnae";
+      } else {
+        const operationType: string = op.operationType ?? "misto";
+        const { getNextStateAfterProductQ } = await import("./flowStateMachine");
+        nextStatus = getNextStateAfterProductQ(operationType);
+      }
       await db.updateProject(input.projectId, {
         productAnswers: JSON.stringify(normalizeRespostas(input.respostas)), // BUG-RESP-VAZIA #1552
         status: nextStatus,
