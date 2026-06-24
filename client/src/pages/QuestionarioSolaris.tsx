@@ -174,6 +174,13 @@ export default function QuestionarioSolaris() {
   );
   useEffect(() => {
     if (!m2EnabledQuery.data) return; // flag false: comportamento legado preservado
+    // MUD-PERFIL-SILENCIOSO (#1572): flag ON → NÃO redireciona para /perfil-entidade.
+    // Perfil não-confirmável avança silencioso; a página nunca aparece.
+    if (
+      (import.meta.env.VITE_ENABLE_PERFIL_SILENCIOSO as string | undefined) ===
+      "true"
+    )
+      return;
     if (perfilGetQuery.isLoading) return;
     if (perfilGetQuery.data && perfilGetQuery.data.confirmed === false) {
       setLocation(`/projetos/${projectId}/perfil-entidade`, { replace: true });
