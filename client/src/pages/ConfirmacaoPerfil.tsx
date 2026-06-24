@@ -90,9 +90,17 @@ export default function ConfirmacaoPerfil() {
     },
   );
 
+  // Mud.2 (#1558) — auto-advance perfil-entidade → SOLARIS atrás de flag (default OFF).
+  // Flag ON: navega direto após confirm; OFF: comportamento atual (2 botões) preservado.
+  const ENABLE_AUTO_ADVANCE_PERFIL =
+    (import.meta.env.VITE_ENABLE_AUTO_ADVANCE_PERFIL as string | undefined) === "true";
   const confirmMutation = trpc.perfil.confirm.useMutation({
     onSuccess: () => {
       toast.success("Perfil da Entidade confirmado.");
+      if (ENABLE_AUTO_ADVANCE_PERFIL) {
+        navigate(`/projetos/${projectId}/questionario-solaris`); // Mud.2 auto-advance
+        return;
+      }
       perfilGet.refetch();
       setConfirming(false);
     },
