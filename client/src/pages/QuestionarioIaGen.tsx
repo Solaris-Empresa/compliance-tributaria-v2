@@ -120,9 +120,19 @@ export default function QuestionarioIaGen() {
 
   // Mutation para salvar respostas e avançar status
   const completeOnda2 = trpc.fluxoV3.completeOnda2.useMutation({
-    onSuccess: () => {
-      toast.success("Onda 2 concluída! Iniciando Questionário Corporativo...");
-      setLocation(`/projetos/${projectId}/questionario-produto`);
+    onSuccess: (result) => {
+      toast.success("Onda 2 concluída!");
+      // Mud.3 (#1568): roteia pelo nextStatus do servidor (NCM/NBS real).
+      // Flag OFF → nextStatus = q_produto (comportamento atual preservado).
+      const rota: Record<string, string> = {
+        q_produto: `/projetos/${projectId}/questionario-produto`,
+        q_servico: `/projetos/${projectId}/questionario-servico`,
+        diagnostico_cnae: `/projetos/${projectId}/questionario-cnae`,
+      };
+      setLocation(
+        rota[result?.nextStatus ?? "q_produto"] ??
+          `/projetos/${projectId}/questionario-produto`,
+      );
     },
     onError: (err) => {
       toast.error(err.message ?? "Erro ao concluir Onda 2. Tente novamente.");

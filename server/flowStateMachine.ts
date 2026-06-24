@@ -423,7 +423,7 @@ export function createHistoryEntry(
 export const VALID_TRANSITIONS: Record<string, string[]> = {
   'rascunho':                  ['consistencia_pendente'],  // rascunho → consistência (não pula para Onda 1)
   'onda1_solaris':             ['onda2_iagen', 'rascunho'],
-  'onda2_iagen':               ['diagnostico_corporativo', 'q_produto'],  // K-4-C: sem retrocesso para Onda 1 | Z-02: TO-BE adiciona q_produto
+  'onda2_iagen':               ['diagnostico_corporativo', 'q_produto', 'q_servico', 'diagnostico_cnae'],  // K-4-C | Z-02 q_produto | Mud.3 (#1568): q_servico/diagnostico_cnae (roteamento NCM/NBS — casos 3/4)
   // Z-02 TO-BE — ADR-0010 — Q.Produtos (NCM) e Q.Serviços (NBS)
   // Estratégia ADITIVA: diagnostico_corporativo/operacional preservados para projetos legados
   'q_produto':                 ['q_servico', 'diagnostico_cnae', 'onda2_iagen'],  // produto/comercio → cnae; demais → q_servico
@@ -536,6 +536,22 @@ export function getNextStateAfterProductQ(operationType: string | undefined | nu
  * @returns 'diagnostico_cnae'
  */
 export function getNextStateAfterServiceQ(): 'diagnostico_cnae' {
+  return 'diagnostico_cnae';
+}
+
+/**
+ * Mud.3 (#1568) — próximo estado após a Onda 2, por presença REAL de NCM/NBS
+ * (Bloco E — operationProfile.principaisProdutos/Servicos). NÃO usa operationType.
+ *  - tem NCM            → q_produto       (casos 1 e 2)
+ *  - só NBS (sem NCM)   → q_servico       (caso 3)
+ *  - nenhum             → diagnostico_cnae (caso 4 — pula Produto e Serviço)
+ */
+export function getNextStateAfterOnda2(
+  hasNcm: boolean,
+  hasNbs: boolean,
+): 'q_produto' | 'q_servico' | 'diagnostico_cnae' {
+  if (hasNcm) return 'q_produto';
+  if (hasNbs) return 'q_servico';
   return 'diagnostico_cnae';
 }
 
