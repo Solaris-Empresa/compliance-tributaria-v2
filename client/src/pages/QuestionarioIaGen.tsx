@@ -103,7 +103,19 @@ export default function QuestionarioIaGen() {
   const skipQuestionnaire = trpc.fluxoV3.skipQuestionnaire.useMutation({
     onSuccess: (data) => {
       toast.warning(data.confidenceWarning, { duration: 6000 });
-      setLocation(`/projetos/${projectId}`);
+      // Mud.4 (#1570) — auto-chain: pular IA Gen roteia por nextStatus (NCM/NBS, server) sob flag.
+      const autopilot =
+        (import.meta.env.VITE_ENABLE_AUTO_PILOT as string | undefined) === "true";
+      if (autopilot && data.nextStatus) {
+        const rota: Record<string, string> = {
+          q_produto: `/projetos/${projectId}/questionario-produto`,
+          q_servico: `/projetos/${projectId}/questionario-servico`,
+          diagnostico_cnae: `/projetos/${projectId}/questionario-cnae`,
+        };
+        setLocation(rota[data.nextStatus] ?? `/projetos/${projectId}`);
+      } else {
+        setLocation(`/projetos/${projectId}`);
+      }
     },
     onError: (err) => toast.error(err.message ?? "Erro ao pular questionário."),
   });
