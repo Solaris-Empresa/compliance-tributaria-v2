@@ -87,6 +87,14 @@ estado_B → [acao] → estado_C
 // Indicar arquivo + linha aproximada de insercao
 ```
 
+### Gate 0 UI (obrigatorio se toca componente frontend)
+
+> REGRA-ORQ-48 — codigo localizado != codigo que roda. Confirmar a rota ativa.
+
+- [ ] Rota alvo: `___`
+- [ ] Componente confirmado via App.tsx (arquivo:linha): `___`
+- [ ] Rota "-legacy"/"-v2" descartada: `___`
+
 ---
 
 ## Bloco 4 — Schema do banco

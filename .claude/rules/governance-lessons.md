@@ -1993,3 +1993,19 @@ A premissa "Mud.1 = mover o código do botão Confirmar Perfil para o confirmCna
 - [[Lição #93]] (mecanismo verificado, não inferido) · [[Lição #142]] (severidade pelo runtime, não pela string) · [[Lição #74]] (fix downstream incompleto / gates não rastreados) · REGRA-ORQ-35 (NUNCA ASSUMA) · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-45 (Gate 0 do emissor)
 - Mud.1 #1562 · despacho v130/v131 · ADR-MUDANCA-01 (página condicional)
 
+## Lição #147 — Encontrar o código ≠ confirmar que ele roda (rota ativa)
+
+**Origem:** Mud.5 #1561 — Gate 0 localizou o botão no componente legado (24/06/2026).
+
+### Texto
+
+Localizar um componente/handler por grep **não** confirma que ele está no fluxo ativo. Um componente pode existir, compilar e ter o `data-testid` certo, mas estar servido por uma **rota inativa** (`-legacy`, `-v2`, `-old`) que o usuário nunca alcança. Antes de implementar/Gate 0 em frontend: verificar a **rota ativa** em `App.tsx` (`arquivo:linha`) e confirmar que ela serve o componente-alvo. **Encontrar o código ≠ confirmar que roda.**
+
+### Caso canônico
+
+Mud.5 #1561: `btn-pular-questionario-cnae` localizado em `QuestionarioCNAE.tsx` (Gate 0 v128). Mas `App.tsx:134` mapeia `/questionario-cnae → QuestionarioV3` (desde Issue #1010 Wave 2); `QuestionarioCNAE` está em `/questionario-cnae-legacy` (`:135`, **inativa**). A Mud.5 modificou o componente **legado** → dead code no fluxo real. Descoberto só no teste E2E do P.O. (PDF da tela mostrando `QuestionarioV3`, sem o botão).
+
+### Vinculadas
+
+REGRA-ORQ-48 (Gate 0 de UI — operacionaliza esta lição) · [[Lição #59]] (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · REGRA-ORQ-45 (Gate 0 do emissor) · Mud.5 #1561 · Issue #1010
+
