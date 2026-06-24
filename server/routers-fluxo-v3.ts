@@ -71,6 +71,15 @@ import { formatQ3PilarDetalhe } from "./lib/format-confidence-breakdown";
 // Arquitetura Max (FIX-08): G17 monta gap diretamente dos metadados da pergunta.
 import { analyzeSolarisAnswers } from "./lib/solaris-gap-analyzer";
 import { getArchetypeContext } from "./lib/archetype/getArchetypeContext";
+// Mud.1 (#1562) — auto-confirm condicional do Perfil da Entidade no confirmCnaes
+import { buildSeedFromProject } from "./routers/perfil";
+import { buildSnapshot } from "./lib/archetype/buildSnapshot";
+import { DATA_VERSION } from "./lib/archetype/versioning";
+import { isM2PerfilEntidadeEnabled } from "./config/feature-flags";
+import {
+  isPerfilConfirmable,
+  autoConfirmPerfil,
+} from "./lib/archetype/autoConfirmPerfil";
 import { analyzeIagenAnswers } from "./lib/iagen-gap-analyzer";
 import {
   listActiveCategories,
@@ -858,7 +867,7 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
         cnaes: z.array(CnaeSchema).min(1, "Selecione pelo menos 1 CNAE"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       if (!project) throw new TRPCError({ code: "NOT_FOUND" });
       // BUG-E2E-01: transição atômica rascunho → consistencia_pendente → cnaes_confirmados
@@ -887,6 +896,64 @@ Retorne entre 2 e 6 CNAEs revisados com base no feedback.
           stepUpdatedAt: new Date(),
         } as any)
         .where(eq(projects.id, input.projectId));
+      // Mud.1 (#1562, v132) — auto-confirm condicional do Perfil da Entidade.
+      // Sub-gate server `ENABLE_PERFIL_AUTO_CONFIRM` (default OFF) dentro do
+      // caminho M2-ON. Flag OFF ou m2 OFF → legado (nextStep 4) preservado.
+      const autoConfirmEnabled =
+        process.env.ENABLE_PERFIL_AUTO_CONFIRM === "true";
+      const m2Enabled = isM2PerfilEntidadeEnabled({
+        role: ctx.user?.role,
+        projectId: input.projectId,
+      });
+      if (autoConfirmEnabled && m2Enabled) {
+        const refreshed = (await db.getProjectById(input.projectId)) as Record<
+          string,
+          unknown
+        > | null;
+        if (refreshed) {
+          // Ramo (c) — já confirmado (ADR-0031 write-once): pular para SOLARIS
+          if (refreshed.archetype != null) {
+            return {
+              success: true,
+              nextStep: "questionario-solaris",
+              alreadyConfirmed: true,
+            };
+          }
+          // Avaliar confirmabilidade SEM lançar (fallback → ramo b)
+          try {
+            const seed = buildSeedFromProject(refreshed);
+            const snapshot = buildSnapshot(seed, DATA_VERSION);
+            if (isPerfilConfirmable(snapshot)) {
+              // Ramo (a) — confirmável: auto-confirm interno + pula a página
+              await autoConfirmPerfil({
+                db: database,
+                projectId: input.projectId,
+                project: refreshed,
+                seed,
+                snapshot,
+                userId: ctx.user?.id ?? null,
+              });
+              return {
+                success: true,
+                nextStep: "questionario-solaris",
+                autoConfirmed: true,
+              };
+            }
+          } catch (e) {
+            console.warn(
+              `[Mud.1] confirmCnaes: perfil não-confirmável (project ${input.projectId}) — fallback /perfil-entidade`,
+              e,
+            );
+          }
+          // Ramo (b) — não-confirmável: exibe /perfil-entidade (resolução)
+          return {
+            success: true,
+            nextStep: "perfil-entidade",
+            autoConfirmed: false,
+          };
+        }
+      }
+      // Ramo (d) in-flight + legado: /perfil-entidade permanece acessível
       return { success: true, nextStep: 4, stepName: "confirmacao_cnaes" };
     }),
 

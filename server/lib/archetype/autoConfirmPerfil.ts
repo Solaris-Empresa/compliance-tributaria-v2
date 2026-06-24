@@ -11,10 +11,11 @@
  */
 import { eq } from "drizzle-orm";
 import { projects } from "../../../drizzle/schema";
-import { computePerfilHash, RULES_HASH } from "./perfilHash";
-import { MODEL_VERSION, DATA_VERSION, RULES_VERSION } from "./versioning";
+import { computePerfilHash, RULES_HASH, RULES_VERSION } from "./perfilHash";
+import { MODEL_VERSION, DATA_VERSION } from "./versioning";
 import { assertValidTransition } from "../../flowStateMachine";
-import type { BuildResult, Seed } from "./types";
+import type { Seed } from "./types";
+import type { BuildSnapshotOutput } from "./buildSnapshot";
 
 const ARCHETYPE_VERSION_INITIAL = "v1.0.0"; // ADR-0032 — versão inicial
 
@@ -31,7 +32,7 @@ export interface AutoConfirmResult {
  * Avalia confirmabilidade do snapshot SEM lançar (para roteamento condicional).
  * confirmável = status_arquetipo 'confirmado' E zero HARD_BLOCK.
  */
-export function isPerfilConfirmable(snapshot: BuildResult): boolean {
+export function isPerfilConfirmable(snapshot: BuildSnapshotOutput): boolean {
   return (
     snapshot.perfil.status_arquetipo === "confirmado" &&
     snapshot.blockers_triggered.filter((b) => b.severity === "HARD_BLOCK").length === 0
@@ -48,7 +49,7 @@ export async function autoConfirmPerfil(args: {
   projectId: number;
   project: Record<string, unknown>;
   seed: Seed;
-  snapshot: BuildResult;
+  snapshot: BuildSnapshotOutput;
   userId: number | null;
 }): Promise<AutoConfirmResult> {
   const { db, projectId, project, seed, snapshot, userId } = args;
