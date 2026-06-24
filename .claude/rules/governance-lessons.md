@@ -2009,3 +2009,63 @@ Mud.5 #1561: `btn-pular-questionario-cnae` localizado em `QuestionarioCNAE.tsx` 
 
 REGRA-ORQ-48 (Gate 0 de UI — operacionaliza esta lição) · [[Lição #59]] (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · REGRA-ORQ-45 (Gate 0 do emissor) · Mud.5 #1561 · Issue #1010
 
+## Lição #148 — "5 otimizações pontuais" ≠ "auto-pilot do fluxo"; o escopo escrito ficou aquém da intenção
+
+**Origem:** Sessão E2E auto-pilot (24/06/2026) — Mud.1-5 + MUD-PERFIL-SILENCIOSO.
+
+### Texto
+
+Um conjunto de **otimizações pontuais** ("pular a página X", "rotear por Y", "auto-confirmar Z") **não é** equivalente a um **auto-pilot do fluxo inteiro**. O conceito do P.O. (fluidez ponta-a-ponta) pode estar certo, mas o **escopo escrito** das mudanças individuais fica **aquém** se a peça que costura tudo (o auto-chain — remover as paradas manuais entre etapas) **nunca for especificada**. No teste E2E, a soma das otimizações não entrega a percepção de "auto-pilot" porque os botões "Iniciar" entre questionários **continuam manuais** — ninguém os removeu, pois nenhuma das otimizações os cobria. O gap não é bug: é **escopo vs intenção**.
+
+### Caso canônico
+
+Mud.1 (auto-confirm perfil), Mud.2 (auto-advance), Mud.3 (roteamento NCM/NBS) foram implementadas e validadas — mas o P.O. testou e percebeu que "ainda há paradas". Diagnóstico: o **auto-chain** (SOLARIS → IA Gen → Produto → Serviço sem voltar ao hub) **nunca tinha sido especificado** — virou a **Mud.4**, a peça que faltava. As observações "IA Gen não foi auto-chamado", "Produto não foi auto-chamado" eram **esperadas** (fora do escopo das 1-3), não bugs.
+
+### Aplicação prospectiva
+
+Ao receber um objetivo de **experiência** ("fluxo sem fricção", "auto-pilot", "sem cliques extras"), mapear **explicitamente** todas as paradas/transições do fluxo end-to-end **antes** de fatiar em mudanças pontuais — para garantir que a soma das partes entrega o todo. A peça de "costura" (auto-chain/orquestração) deve ser uma mudança declarada, não emergir só no teste.
+
+### Vinculadas
+
+[[Lição #65]] (rastrear fluxo end-to-end) · [[Lição #66]] (spec sem dados = ilusão) · [[Lição #109]] (spec sem modelo conceitual entrega contrato, não produto) · REGRA-ORQ-41 (impact-tree) · Mud.4 (auto-chain) · auditoria v7.81
+
+## Lição #149 — Teste de roteamento/condicional exige caso que DIFERE entre as opções (senão não discrimina)
+
+**Origem:** GATE-PO-FLUXO Mud.3 — projeto 10020001 (NCM+NBS) não validava o roteamento (24/06/2026).
+
+### Texto
+
+Para validar um **roteamento condicional** (ou qualquer gate com múltiplos caminhos), o caso-teste precisa **diferir entre as opções** — produzir resultado **distinto** no caminho novo vs no antigo. Um caso que cai no ramo onde **ambos os roteamentos convergem** ao mesmo destino **não discrimina** nada (passa por sorte de convergência). Escolher o caso-teste pela **variável do gate**, garantindo que ele separa as opções.
+
+### Caso canônico
+
+Mud.3 (roteamento NCM/NBS): o projeto 10020001 tinha **NCM + NBS** = **Caso 1** → Produto → Serviço → CNAE. Mas o roteamento **antigo** (por `operationType` misto) **também** ia Produto → Serviço → CNAE → mesmo destino. Logo 10020001 **não discriminava** a Mud.3. O teste discriminante correto foi o **Caso 3 (só-NBS, zero NCM)** — antigo iria ao Q.Produto vazio; novo vai direto ao Q.Serviço — e o **Caso 4 (nenhum)** → CNAE direto. Os 4 casos SQL (10110001-10110004) então provaram o roteamento.
+
+### Aplicação prospectiva
+
+DoD de roteamento/gate (REGRA-ORQ-47): incluir o caso **discriminante** (que separa novo×antigo), não só um caso "feliz" que pode convergir. Antes de declarar PASS, perguntar: "este caso daria resultado **diferente** sem a mudança?". Se não → não discrimina.
+
+### Vinculadas
+
+[[Lição #124]] (DoD negativo falsifica a condição mais próxima do positivo) · [[Lição #139]] (filtro só prova com o negativo discriminante) · REGRA-ORQ-47 (DoD de filtro/gate) · REGRA-ORQ-34 Protocolo 4 (3 cenários ortogonais) · Mud.3 #1569
+
+## Lição #150 — Campo no prompt LLM (Onda 2) ≠ campo no archetype; verificar o CAMINHO real de consumo
+
+**Origem:** Análise de consumers dos campos do formulário de projeto (24/06/2026, REGRA-ORQ-27).
+
+### Texto
+
+Ao defender que um campo "é usado", **verificar o CAMINHO real de consumo** — não assumir o caminho intuitivo. Um campo pode **não** alimentar o pipeline que se imagina (ex.: o **archetype**) e ainda assim ser consumido por **outro** caminho (ex.: injeção direta no **prompt do questionário IA Gen / Onda 2**). Afirmar "usamos para o archetype" sem rastrear é mecanismo presumido (anti-padrão REGRA-ORQ-27 / Lição #59). A evidência forte e rastreável é a **citação `arquivo:linha` do prompt LLM final** onde o valor é interpolado (`${campo}`) — isso prova que o valor **chega ao LLM** (ORQ-27 critério b); se o LLM **gera saída diferente** por causa dele é uma camada a mais (spy/A-B, critério a).
+
+### Caso canônico
+
+Hipótese do P.O.: "os campos do form alimentam o **archetype**, usado na IA Gen/briefing". Rastreamento (3 agentes, `arquivo:linha`): o **archetype consome só ~9 campos** (identidade + derivação dimensional); a **maioria** (clientType, paymentMethods, governança, etc.) é injetada **direto no prompt da Onda 2** (`routers-fluxo-v3.ts:5367-5476`), **sem** passar pelo archetype. Defesa correta = "IA Gen Onda 2", não "archetype". Achados de remoção: `hasSpecialRegimes` (DEAD, declarado não-lido) e `taxCentralization` (só testes).
+
+### Aplicação prospectiva
+
+Antes de afirmar (ou negar) que um campo é usado: rastrear os **3 caminhos** (archetype, prompt de questionário, prompt de briefing/RAG) + o inventário downstream, com `arquivo:linha`. Distinguir VALOR injetado (consumo) de label fixa (assemble). Antes de **remover** um campo: AS-IS/TO-BE via skill `impact-tree` + confirmar o **nome exato** form↔código (Lição #140 — dual-name).
+
+### Vinculadas
+
+REGRA-ORQ-27 (assemble ≠ consumption — critérios a/b) · [[Lição #59]] · [[Lição #62]] (contexto vs evidência) · [[Lição #140]] (dual-storage / nome canônico) · REGRA-ORQ-41 (impact-tree) · análise de campos do form (`0-Projeto-1o.Form`)
+
