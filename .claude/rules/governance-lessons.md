@@ -1976,3 +1976,20 @@ id=766 (`Art. 544 parte 16`) lista NCMs de veículos `8704`. O projeto 9750001 (
 
 - [[Lição #143]] · [[Lição #144]] · [[Lição #132]] · [[Lição #134]] · ADR-0036 (reranker) · RAG-ART544-RETAG (issue P2) · auditoria E2E 9750001
 
+## Lição #146 — Ler os caminhos de rejeição do código ANTES de assumir que "mover o gatilho" é trivial
+
+**Origem:** Gate 0 Mud.1 (UI-FORM/otimização do fluxo E2E, 23/06/2026) — relocação de `perfil.confirm` para `confirmCnaes`.
+
+### Texto
+
+Antes de propor "mover/relocar um gatilho" (procedure, evento, botão), **ler os caminhos de REJEIÇÃO** do código que se vai mover. Uma procedure que parece "só persistir" pode **lançar erro** em validações intermediárias — e a tela/superfície de onde ela é chamada hoje pode ser exatamente o **lugar onde o usuário resolve** essas rejeições. Mover o gatilho sem mapear as rejeições + sua superfície de resolução = **regressão garantida** para os casos que rejeitam. Verificar o que o código **faz**, não o que se **presume** — preventivamente, antes da spec.
+
+### Caso canônico
+
+A premissa "Mud.1 = mover o código do botão Confirmar Perfil para o confirmCnaes (1 dia, Classe A)" estava certa na essência (maioria nunca mais vê a página) — mas o Gate 0 do corpo de `perfil.confirm` (`server/routers/perfil.ts:309/335/346`) revelou **3 caminhos de rejeição** invisíveis na premissa: 409 já-confirmado (ADR-0031), 400 PERFIL_NOT_CONFIRMABLE (perfil inconsistente), 400 PERFIL_HARD_BLOCKED (ex.: V-05-DENIED grupo econômico). A página `/perfil-entidade` é a **superfície de resolução** desses casos. Excluí-la (absoluto) seria regressão; o TO-BE correto é **condicional** (4 ramos: confirmável→skip, não-confirmável→página, já-confirmado→skip, in-flight→página acessível). Mesmo objetivo do P.O., um ramo a mais. Classe A → B.
+
+### Vinculadas
+
+- [[Lição #93]] (mecanismo verificado, não inferido) · [[Lição #142]] (severidade pelo runtime, não pela string) · [[Lição #74]] (fix downstream incompleto / gates não rastreados) · REGRA-ORQ-35 (NUNCA ASSUMA) · REGRA-ORQ-41 (impact-tree) · REGRA-ORQ-45 (Gate 0 do emissor)
+- Mud.1 #1562 · despacho v130/v131 · ADR-MUDANCA-01 (página condicional)
+
