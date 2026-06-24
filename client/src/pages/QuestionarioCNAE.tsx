@@ -219,41 +219,8 @@ export default function QuestionarioCNAE() {
     });
   }
 
-  // B-Z11-009: pular questionário CNAE — submete com respostas vazias.
-  // Mud.5 (#1559) — DP-2: com VITE_ENABLE_CNAE_FISCAL_GATE=true, as 4 perguntas
-  // fiscais-gate (ST/IS/imunidade/regime especial) são NÃO-PULÁVEIS — o skip exige
-  // respondê-las antes de avançar (contexto fiscal obrigatório p/ o briefing — Lição #62).
+  // B-Z11-009: pular questionário CNAE — submete com respostas vazias
   function handleSkipAll() {
-    const FISCAL_GATE_IDS = ["qcnae02_st", "qcnae03_is", "qcnae04_imunidade", "qcnae04_regime_especial"];
-    const enableFiscalGate =
-      (import.meta.env.VITE_ENABLE_CNAE_FISCAL_GATE as string | undefined) === "true";
-
-    if (enableFiscalGate) {
-      const isVazia = (r: unknown) =>
-        r === undefined || r === null || r === "" || (Array.isArray(r) && r.length === 0);
-      const naoRespondidas = FISCAL_GATE_IDS.filter((id) => isVazia(respostas[id]));
-
-      if (naoRespondidas.length > 0) {
-        toast.warning(
-          `Para pular, responda as ${FISCAL_GATE_IDS.length} perguntas fiscais obrigatórias (ST, IS, imunidade, regime especial).`,
-          { duration: 6000 },
-        );
-        setConfirmSkipAll(false);
-        // leva o usuário à seção da 1ª pergunta fiscal não respondida
-        const idx = SECOES_CNAE.findIndex((s) => s.campos.some((c) => c.id === naoRespondidas[0]));
-        if (idx >= 0) setSecaoAtual(idx);
-        return;
-      }
-
-      // todas as 4 fiscais respondidas → pular mantendo só elas
-      const fiscalAnswers = Object.fromEntries(FISCAL_GATE_IDS.map((id) => [id, respostas[id]]));
-      toast.warning("Questionário CNAE pulado — mantidas as 4 perguntas fiscais obrigatórias.", { duration: 6000 });
-      completarCamada.mutate({ projectId, layer: "cnae", answers: fiscalAnswers });
-      setConfirmSkipAll(false);
-      return;
-    }
-
-    // Flag OFF — comportamento atual (pula tudo)
     toast.warning("Questionário Setorial CNAE pulado — diagnóstico com confiança reduzida.", { duration: 6000 });
     completarCamada.mutate({ projectId, layer: "cnae", answers: {} });
     setConfirmSkipAll(false);
