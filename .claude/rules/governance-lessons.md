@@ -1898,6 +1898,22 @@ F4 (`routers-fluxo-v3.ts:5057`) lia `(project).taxRegime` (coluna SQL = **NULL**
 
 REGRA-ORQ-25 (checkpoint Manus ≠ git SHA) · ADR-0037 (gate 4 HEADs — agora deve checar artefato) · [[Lição #128]] (gate declarado ≠ enforçado) · [[Lição #87]] (claim ≠ evidência) · R-SYNC-02 · BUG-REGIME-FILTER-01 · PR #1536 (mecanização)
 
+## Lição #142 — Severidade do bug é medida pelo que o runtime CONSOME, não pela string no código-fonte
+
+**Origem:** Errata IS Art.409 (CONS-IS-ART-01 / ERRATA-IS-ART-01, 23/06/2026).
+
+### Texto
+
+A severidade de um bug deve ser medida pelo que o **runtime consome** (valor no DB / resultado de query), **não** pela **string no código-fonte**. Classificar um bug pela **string de fallback** sem verificar o **valor do banco** é o anti-padrão de REGRA-ORQ-27 / Lições #59/#113. O gate correto é o **teste manual P.O. + query SQL direta** — e foi ele que revelou a verdade.
+
+### Caso canônico
+
+A errata "Art. 2 → Art. 409" no briefing IS foi disparada pela leitura do **fallback** `?? "Art. 2 LC 214/2025"` no código (`routers-fluxo-v3.ts:1804/4380`). Mas a **fonte primária** do artigo é `getArticleByCategory("imposto_seletivo")` = `risk_categories.artigo_base` = **"Art. 409"** (desde 21/05, migration 0099 / LEGAL-3). O fallback "Art. 2" era **dead code** (DB não-nulo) → o advogado já via Art. 409 na matriz (`categoria-artigos.ts:43`) e no briefing (DB). **Impacto user-facing da errata = zero** (higiene). Comprovado por query SQL direta (Manus: `artigo_base='Art. 409 LC 214/2025'`) + teste manual E2E (projeto 9750001 cita Art. 409). A errata foi correta de fazer, mas a **severidade** foi mal-classificada (lida da string, não do runtime).
+
+### Vinculadas
+
+- REGRA-ORQ-27 (assemble ≠ consumption) · [[Lição #59]] · [[Lição #113]] (UI/fonte ≠ DB persiste) · [[Lição #87]] (claim ≠ evidência) · [[Lição #93]] (mecanismo verificado)
+- ERRATA-IS-ART-01 / CONS-IS-ART-01 · `risk_categories.artigo_base` / migration 0099 / LEGAL-3 #1388 · teste manual P.O. (gate correto)
 ## Lição #143 — "Artigo de disposições finais = transitório" é premissa falsa; chunks podem ser Anexos mis-taggeados
 
 **Origem:** RAG-ART544 (#1551, 23/06/2026) — classificação chunk-a-chunk dos 46 fragmentos `Art. 544` do corpus lc214.
