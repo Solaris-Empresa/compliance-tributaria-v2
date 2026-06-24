@@ -224,10 +224,22 @@ export default function NovoProjeto() {
   const trpcUtils = trpc.useUtils();
 
   const confirmCnaes = trpc.fluxoV3.confirmCnaes.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       clearTempData(DRAFT_PROJECT_ID, 'etapa1');
       setShowCnaeModal(false);
-      // M2 PR-B: redirect condicional baseado na feature flag m2-perfil-entidade-enabled
+      // Mud.1 (#1562): quando o auto-confirm está ativo, o servidor decide o
+      // destino via nextStep (string) — o frontend apenas o segue.
+      if (data?.nextStep === "questionario-solaris") {
+        toast.success("CNAEs confirmados! Perfil da Entidade confirmado automaticamente...");
+        setLocation(`/projetos/${projectId}/questionario-solaris`);
+        return;
+      }
+      if (data?.nextStep === "perfil-entidade") {
+        toast.success("CNAEs confirmados! Confirme o Perfil da Entidade...");
+        setLocation(`/projetos/${projectId}/perfil-entidade`);
+        return;
+      }
+      // Legado (nextStep 4, flag OFF): redirect condicional pela flag m2
       // - flag true (Step 3+): vai para /perfil-entidade (rota nova)
       // - flag false (default): mantém comportamento legado /questionario-solaris
       let m2Enabled = false;
