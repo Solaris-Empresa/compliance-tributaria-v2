@@ -2117,3 +2117,23 @@ Ao bater num bloqueio que force trocar o mecanismo aprovado: (1) parar; (2) repo
 
 REGRA-ORQ-22 (crítica Nível 1) · REGRA-ORQ-33 (RACI — A=P.O. decide abordagem) · REGRA-ORQ-35 (NUNCA ASSUMA) · [[Lição #74]] (fix incompleto) · CI-HYGIENE-02 #1585 · #1584
 
+## Lição #153 — Branch = frente: plano aprovado e implementação são branches separadas
+
+**Origem:** F2-refactor (PR #1589, 25/06/2026) — o commit do F2.1 foi para a mesma branch do plano aprovado.
+
+### Texto
+
+Uma branch deve corresponder a **uma frente**. Um **plano** (AS-IS/TO-BE, docs-only, para aprovação P.O.) e a **implementação** que ele descreve são **frentes distintas** → **branches/PRs separados**, mesmo que o plano seja curto e a implementação venha logo após a aprovação. Misturar os dois numa branch: (a) muda uma PR já em review do revisor; (b) acopla o merge do plano ao da implementação; (c) confunde o título/diff (PR "docs" com código).
+
+### Caso canônico
+
+O plano impact-tree do F2-refactor foi entregue como PR docs-only #1589 (aprovado P.O.). Em vez de abrir branch nova para o F2.1, o commit do F2.1 foi para a **mesma branch** (`docs/f2-refactor-impact-tree`) → #1589 virou "plano + F2.1", com título "docs(...)" stale. Remediado tornando a PR coerente (título/body), mas o ideal era branch separada.
+
+### Aplicação prospectiva
+
+Ao terminar um plano aprovado, **`git checkout -b` nova** a partir da branch do plano (ou de main, após o plano mergear) antes do primeiro commit de implementação. Plano e impl podem ser stacked (impl baseia no plano), mas são PRs distintos.
+
+### Vinculadas
+
+REGRA-ORQ-26 (branch obrigatória) · REGRA-ORQ-33 (RACI — review do Validador) · [[Lição #122]] (review source-controlled) · F2-refactor #1589/#1590/#1591
+
