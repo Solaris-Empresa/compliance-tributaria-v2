@@ -12,9 +12,9 @@ import {
 } from "./briefing-confidence-signals";
 
 describe("computePerfilCompleteness — replica calcProfileScore do frontend", () => {
-  it("7 obrigatórios + 12 opcionais", () => {
+  it("7 obrigatórios + 11 opcionais", () => {
     expect(PERFIL_CAMPOS_OBRIGATORIOS.length).toBe(7);
-    expect(PERFIL_CAMPOS_OPCIONAIS.length).toBe(12);
+    expect(PERFIL_CAMPOS_OPCIONAIS.length).toBe(11);
   });
 
   it("perfil vazio → 0%", () => {
@@ -40,7 +40,7 @@ describe("computePerfilCompleteness — replica calcProfileScore do frontend", (
     });
     expect(r.obrigatoriosPreenchidos).toBe(7);
     expect(r.opcionaisPreenchidos).toBe(0);
-    // 7/7 · 0.7 + 0/12 · 0.3 = 0.7
+    // 7/7 · 0.7 + 0/11 · 0.3 = 0.7
     expect(r.completude).toBeCloseTo(0.7, 5);
   });
 
@@ -77,7 +77,7 @@ describe("computePerfilCompleteness — replica calcProfileScore do frontend", (
       },
     });
     expect(r.obrigatoriosPreenchidos).toBe(7);
-    expect(r.opcionaisPreenchidos).toBe(12);
+    expect(r.opcionaisPreenchidos).toBe(11);
     expect(r.completude).toBe(1);
   });
 

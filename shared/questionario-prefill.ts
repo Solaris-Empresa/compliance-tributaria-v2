@@ -98,7 +98,6 @@ export interface NormalizedProjectForPrefill {
   taxComplexity?: {
     hasMultipleEstablishments?: boolean | null;
     hasImportExport?: boolean | null;
-    hasSpecialRegimes?: boolean | null;
   } | null;
   confirmedCnaes?: Array<{ code: string; description?: string }> | null;
 }

@@ -246,8 +246,6 @@ export const appRouter = router({
         name: z.string().min(1),
         clientId: z.number(),
         planPeriodMonths: z.number().optional(),
-        notificationFrequency: z.enum(["diaria", "semanal", "apenas_atrasos", "marcos_importantes", "personalizada"]).optional(),
-        notificationEmail: z.string().email().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const projectId = await db.createProject({
@@ -255,7 +253,6 @@ export const appRouter = router({
           status: "rascunho",
           createdById: ctx.user.id,
           createdByRole: ctx.user.role as any,
-          notificationFrequency: input.notificationFrequency || "semanal",
         });
         // K-4-E: log de auditoria — criação de projeto (from_status: null)
         await db.insertStatusLog(projectId, null, 'rascunho', String(ctx.user.id));
@@ -267,8 +264,6 @@ export const appRouter = router({
         projectId: z.number(),
         name: z.string().optional(),
         planPeriodMonths: z.number().optional(),
-        notificationFrequency: z.enum(["diaria", "semanal", "apenas_atrasos", "marcos_importantes", "personalizada"]).optional(),
-        notificationEmail: z.string().email().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { projectId, ...data } = input;

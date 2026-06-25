@@ -14,7 +14,6 @@ export interface ProfileQualityInput {
   multiState?: boolean | null;
   hasMultipleEstablishments?: boolean | null;
   hasImportExport?: boolean | null;
-  hasSpecialRegimes?: boolean | null;
   hasIntermediaries?: boolean | null;
   hasTaxTeam?: boolean | null;
   hasAudit?: boolean | null;
@@ -41,7 +40,6 @@ const BOOLEAN_FIELDS = [
   "multiState",
   "hasMultipleEstablishments",
   "hasImportExport",
-  "hasSpecialRegimes",
   "hasIntermediaries",
   "hasTaxTeam",
   "hasAudit",

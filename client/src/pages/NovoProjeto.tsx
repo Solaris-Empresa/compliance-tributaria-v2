@@ -323,7 +323,6 @@ export default function NovoProjeto() {
     const taxComplexity = {
       hasMultipleEstablishments: perfilData.hasMultipleEstablishments ?? false,
       hasImportExport: perfilData.hasImportExport ?? false,
-      hasSpecialRegimes: perfilData.hasSpecialRegimes ?? false,
     };
     const financialProfile = {
       paymentMethods: perfilData.paymentMethods ?? [],

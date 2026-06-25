@@ -51,7 +51,6 @@ export interface CorporateAnswers {
   hasTaxIssues?: boolean;
   hasInternationalOps?: boolean;
   usesTaxIncentives?: boolean;
-  hasSpecialRegimes?: boolean;
   hasImportExport?: boolean;
 }
 

@@ -46,7 +46,6 @@ export interface PerfilEmpresaData {
   multiState: boolean | null;
   hasMultipleEstablishments: boolean | null;
   hasImportExport: boolean | null;
-  hasSpecialRegimes: boolean | null;
   paymentMethods: string[];
   hasIntermediaries: boolean | null;
   hasTaxTeam: boolean | null;
@@ -74,7 +73,6 @@ export const PERFIL_VAZIO: PerfilEmpresaData = {
   multiState: null,
   hasMultipleEstablishments: null,
   hasImportExport: null,
-  hasSpecialRegimes: null,
   paymentMethods: [],
   hasIntermediaries: null,
   hasTaxTeam: null,
@@ -205,7 +203,6 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
     [!!p.annualRevenueRange, "Faturamento Anual"],
     [p.hasMultipleEstablishments !== null, "Múltiplos estabelecimentos"],
     [p.hasImportExport !== null, "Importação/Exportação"],
-    [p.hasSpecialRegimes !== null, "Regimes Especiais"],
     [p.paymentMethods.length > 0, "Meios de Pagamento"],
     [p.hasIntermediaries !== null, "Intermediários financeiros"],
     [p.hasTaxTeam !== null, "Equipe tributária"],
@@ -1387,9 +1384,6 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           <SimNaoToggle value={value.hasImportExport} onChange={(v) => set("hasImportExport", v)}
             label="Realiza operações de importação ou exportação?"
             tooltip="Impacta IBS, CBS e regimes aduaneiros especiais." />
-          <SimNaoToggle value={value.hasSpecialRegimes} onChange={(v) => set("hasSpecialRegimes", v)}
-            label="Possui regimes tributários especiais (REIDI, ZFM, RECOF, Drawback, etc.)?"
-            tooltip="Regimes especiais podem ser impactados pela transição para o IBS/CBS." />
         </div>
       </section>
 

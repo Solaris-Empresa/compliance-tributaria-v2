@@ -436,7 +436,6 @@ export const fluxoV3Router = router({
             usesMarketplace: z.boolean().optional(),
             hasMultipleEstablishments: z.boolean().optional(),
             hasImportExport: z.boolean().optional(),
-            hasSpecialRegimes: z.boolean().optional(),
           })
           .optional(),
         financialProfile: z
@@ -489,7 +488,6 @@ export const fluxoV3Router = router({
         status: "rascunho",
         createdById: ctx.user.id,
         createdByRole: ctx.user.role as any,
-        notificationFrequency: "semanal",
         currentStep: 1,
         faturamentoAnual: input.faturamentoAnual,
         // v2.1: Company Profile Layer

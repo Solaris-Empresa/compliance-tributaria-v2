@@ -6,21 +6,21 @@ describe("computeProfileQuality", () => {
     expect(computeProfileQuality(null)).toEqual({
       percent: 0,
       filled: 0,
-      total: 16,
+      total: 15,
     });
     expect(computeProfileQuality(undefined)).toEqual({
       percent: 0,
       filled: 0,
-      total: 16,
+      total: 15,
     });
   });
 
   it("retorna 0% para perfil vazio (todos os campos nulos)", () => {
     const result = computeProfileQuality({});
-    expect(result).toEqual({ percent: 0, filled: 0, total: 16 });
+    expect(result).toEqual({ percent: 0, filled: 0, total: 15 });
   });
 
-  it("retorna 100% quando todos os 16 campos estao preenchidos", () => {
+  it("retorna 100% quando todos os 15 campos estao preenchidos", () => {
     const result = computeProfileQuality({
       cnpj: "12345678000199",
       companyType: "ltda",
@@ -33,13 +33,12 @@ describe("computeProfileQuality", () => {
       multiState: true,
       hasMultipleEstablishments: false,
       hasImportExport: true,
-      hasSpecialRegimes: false,
       hasIntermediaries: true,
       hasTaxTeam: true,
       hasAudit: false,
       hasTaxIssues: false,
     });
-    expect(result).toEqual({ percent: 100, filled: 16, total: 16 });
+    expect(result).toEqual({ percent: 100, filled: 15, total: 15 });
   });
 
   it("CNPJ com menos de 14 digitos nao conta como preenchido", () => {
@@ -83,10 +82,10 @@ describe("computeProfileQuality", () => {
       companySize: "medio",
     });
     expect(result.filled).toBe(3);
-    expect(result.percent).toBe(Math.round((3 / 16) * 100));
+    expect(result.percent).toBe(Math.round((3 / 15) * 100));
   });
 
-  it("calcula 50% quando 8 de 16 campos preenchidos", () => {
+  it("calcula 53% quando 8 de 15 campos preenchidos", () => {
     const result = computeProfileQuality({
       cnpj: "12345678000199",
       companyType: "ltda",
@@ -97,6 +96,6 @@ describe("computeProfileQuality", () => {
       clientType: ["b2b"],
       paymentMethods: ["pix"],
     });
-    expect(result).toEqual({ percent: 50, filled: 8, total: 16 });
+    expect(result).toEqual({ percent: 53, filled: 8, total: 15 });
   });
 });
