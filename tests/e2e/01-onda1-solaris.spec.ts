@@ -54,6 +54,7 @@ test.describe('Onda 1 SOLARIS', () => {
   });
 
   test('CT-07 — concluir Onda 1 avança para Onda 2', async ({ page }) => {
+    test.setTimeout(180_000); // LLM-op (carrega 17 perguntas SOLARIS) — convenção testing.md
     await loginViaTestEndpoint(page);
     const id = await criarProjetoViaApi(page, 'UAT CT-07');
     await page.goto(`/projetos/${id}/questionario-solaris`);
