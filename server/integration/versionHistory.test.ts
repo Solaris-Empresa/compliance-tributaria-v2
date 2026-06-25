@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import { createTestContext } from "../test-helpers";
 import * as db from "../db";
 
-describe("Version History - Briefing", () => {
+dbDescribe("Version History - Briefing", () => {
   let ctx: Awaited<ReturnType<typeof createTestContext>>;
   let caller: ReturnType<typeof appRouter.createCaller>;
   let projectId: number;
@@ -113,7 +114,7 @@ describe("Version History - Briefing", () => {
   });
 });
 
-describe("Version History - Action Plan", () => {
+dbDescribe("Version History - Action Plan", () => {
   let ctx: Awaited<ReturnType<typeof createTestContext>>;
   let caller: ReturnType<typeof appRouter.createCaller>;
   let projectId: number;
@@ -207,7 +208,7 @@ describe("Version History - Action Plan", () => {
   });
 });
 
-describe("Version History - Access Control", () => {
+dbDescribe("Version History - Access Control", () => {
   it("should deny access to versions of projects user doesn't have access to", async () => {
     // Criar contexto de usuário sem acesso ao projeto
     const ctx = await createTestContext({

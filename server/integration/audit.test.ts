@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import type { TrpcContext } from "../_core/context";
 import { getDb } from "../db";
 
-describe("Sistema de Auditoria", () => {
+dbDescribe("Sistema de Auditoria", () => {
   let caller: ReturnType<typeof appRouter.createCaller>;
   let projectId: number;
   let taskId: number;

@@ -4,6 +4,7 @@
  *        gates de aprovação, geração IA em cada etapa, aprovação por área
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { dbDescribe } from "../test-helpers";
 
 vi.mock("./db", () => ({
   getDb: vi.fn(),
@@ -78,7 +79,7 @@ const mockActionPlans = {
 };
 
 // ─── E2E: Fluxo Completo ──────────────────────────────────────────────────────
-describe("E2E — Fluxo Completo V3 (Etapas 1 a 5)", () => {
+dbDescribe("E2E — Fluxo Completo V3 (Etapas 1 a 5)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.createProject).mockResolvedValue(42);
@@ -333,7 +334,7 @@ describe("E2E — Fluxo Completo V3 (Etapas 1 a 5)", () => {
 });
 
 // ─── Persistência entre Sessões ───────────────────────────────────────────────
-describe("Persistência — Auto-save e Recuperação de Rascunho", () => {
+dbDescribe("Persistência — Auto-save e Recuperação de Rascunho", () => {
   it("deve salvar rascunho no localStorage com chave por projectId e etapa", () => {
     const projectId = 42;
     const etapa = "etapa2";
@@ -377,7 +378,7 @@ describe("Persistência — Auto-save e Recuperação de Rascunho", () => {
 });
 
 // ─── RF-2 UX: Tela de entrada por CNAE com persistência ──────────────────────
-describe("RF-2 UX: Tela de entrada por CNAE com persistência (startedCnaes)", () => {
+dbDescribe("RF-2 UX: Tela de entrada por CNAE com persistência (startedCnaes)", () => {
   it("startedCnaes começa vazio — nenhum CNAE iniciado automaticamente", () => {
     const startedCnaes = new Set<string>();
     expect(startedCnaes.size).toBe(0);

@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from '../routers';
 import { db } from '../db';
 
-describe('riskMatrix.generate - Teste com SQL Direto', () => {
+dbDescribe('riskMatrix.generate - Teste com SQL Direto', () => {
   it('deve gerar riscos automaticamente após criar briefing', async () => {
     // 1. Criar usuário e cliente usando SQL direto
     const timestamp = Date.now();

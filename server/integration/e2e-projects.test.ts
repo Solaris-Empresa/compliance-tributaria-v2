@@ -14,6 +14,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { getDb } from "../db";
 import { projects, users } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
@@ -61,7 +62,7 @@ const createdProjectIds: number[] = [];
 
 // ─── BLOCO A — Criação de Usuários e Clientes ─────────────────────────────────
 
-describe("BLOCO A — Criação de Usuários e Clientes", () => {
+dbDescribe("BLOCO A — Criação de Usuários e Clientes", () => {
   it("A01 — deve criar usuário equipe_solaris com todos os campos", async () => {
     const user = await createTestUser({ name: "Ana SOLARIS", role: "equipe_solaris" });
     createdUserIds.push(user.id);
@@ -98,7 +99,7 @@ describe("BLOCO A — Criação de Usuários e Clientes", () => {
 
 // ─── BLOCO B — Criação de Projetos ────────────────────────────────────────────
 
-describe("BLOCO B — Criação de Projetos", () => {
+dbDescribe("BLOCO B — Criação de Projetos", () => {
   let solaris: Awaited<ReturnType<typeof createTestUser>>;
   let cliente: Awaited<ReturnType<typeof createTestUser>>;
 
@@ -214,7 +215,7 @@ describe("BLOCO B — Criação de Projetos", () => {
 
 // ─── BLOCO C — Listagem de Projetos ───────────────────────────────────────────
 
-describe("BLOCO C — Listagem de Projetos", () => {
+dbDescribe("BLOCO C — Listagem de Projetos", () => {
   let solaris: Awaited<ReturnType<typeof createTestUser>>;
   let cliente: Awaited<ReturnType<typeof createTestUser>>;
   let projId: number;
@@ -261,7 +262,7 @@ describe("BLOCO C — Listagem de Projetos", () => {
 
 // ─── BLOCO D — Leitura de Projeto por ID ─────────────────────────────────────
 
-describe("BLOCO D — Leitura de Projeto por ID", () => {
+dbDescribe("BLOCO D — Leitura de Projeto por ID", () => {
   let projId: number;
   let solaris: Awaited<ReturnType<typeof createTestUser>>;
   let cliente: Awaited<ReturnType<typeof createTestUser>>;
@@ -312,7 +313,7 @@ describe("BLOCO D — Leitura de Projeto por ID", () => {
 
 // ─── BLOCO E — Alteração de Projeto ──────────────────────────────────────────
 
-describe("BLOCO E — Alteração de Projeto", () => {
+dbDescribe("BLOCO E — Alteração de Projeto", () => {
   let projId: number;
   let solaris: Awaited<ReturnType<typeof createTestUser>>;
   let cliente: Awaited<ReturnType<typeof createTestUser>>;
@@ -409,7 +410,7 @@ describe("BLOCO E — Alteração de Projeto", () => {
 
 // ─── BLOCO F — Mudança de Status ─────────────────────────────────────────────
 
-describe("BLOCO F — Mudança de Status (Permissões por Papel)", () => {
+dbDescribe("BLOCO F — Mudança de Status (Permissões por Papel)", () => {
   let projId: number;
   let solaris: Awaited<ReturnType<typeof createTestUser>>;
   let cliente: Awaited<ReturnType<typeof createTestUser>>;
@@ -541,7 +542,7 @@ describe("BLOCO F — Mudança de Status (Permissões por Papel)", () => {
 
 // ─── BLOCO G — Fluxo E2E Completo ────────────────────────────────────────────
 
-describe("BLOCO G — Fluxo E2E Completo (criar → editar → avançar status → arquivar)", () => {
+dbDescribe("BLOCO G — Fluxo E2E Completo (criar → editar → avançar status → arquivar)", () => {
   it("G01 — fluxo completo de vida de um projeto", async () => {
     const db = await getConn();
     const { updateProject, getProjectById, getProjectsByUser } = await import("./db");
@@ -674,7 +675,7 @@ describe("BLOCO G — Fluxo E2E Completo (criar → editar → avançar status �
 
 // ─── BLOCO H — Limpeza Pós-Teste ─────────────────────────────────────────────
 
-describe("BLOCO H — Limpeza Pós-Teste", () => {
+dbDescribe("BLOCO H — Limpeza Pós-Teste", () => {
   it("H01 — deve deletar todos os projetos criados nos testes", async () => {
     const db = await getConn();
     if (createdProjectIds.length > 0) {

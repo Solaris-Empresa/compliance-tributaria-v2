@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import * as db from "../db";
 
-describe("Fluxo Completo: Questionários + Planos por Ramo", () => {
+dbDescribe("Fluxo Completo: Questionários + Planos por Ramo", () => {
   let projectId: number;
   let branchId1: number;
   let branchId2: number;

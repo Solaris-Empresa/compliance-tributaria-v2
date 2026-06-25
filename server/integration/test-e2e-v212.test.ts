@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { z } from "zod";
 import * as db from "../db";
 
@@ -151,7 +152,7 @@ const PAYLOAD_SEM_COMPANY_PROFILE = {
 // ─── Testes ───────────────────────────────────────────────────────────────────
 let createdProjectId: number | null = null;
 
-describe("v2.1.2 — Perfil da Empresa Obrigatório (E2E)", () => {
+dbDescribe("v2.1.2 — Perfil da Empresa Obrigatório (E2E)", () => {
 
   // ── EVIDÊNCIA 3: Validação de CNPJ/CPF inválido (BUG-AGRO-CPF F1 #1290) ──────
   // Em F0, cnpj era min(14) — erro tinha path ["cnpj"]. Em F1, refine é no objeto

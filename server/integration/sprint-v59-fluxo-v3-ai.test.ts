@@ -23,6 +23,7 @@
 
 // IMPORTANTE: vi.mock deve vir antes de qualquer import que use o módulo mockado
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
+import { dbDescribe } from "../test-helpers";
 
 vi.mock("./_core/llm", () => ({
   invokeLLM: vi.fn(),
@@ -122,7 +123,7 @@ afterEach(async () => {
 // =============================================================================
 // A. extractCnaes
 // =============================================================================
-describe("A. extractCnaes", () => {
+dbDescribe("A. extractCnaes", () => {
   const desc = "Empresa de fabricação de vinhos e comércio varejista de bebidas alcoólicas com distribuição nacional.";
 
   it("A01 — sucesso: retorna CNAEs válidos quando IA responde corretamente", async () => {
@@ -213,7 +214,7 @@ describe("A. extractCnaes", () => {
 // =============================================================================
 // B. refineCnaes
 // =============================================================================
-describe("B. refineCnaes", () => {
+dbDescribe("B. refineCnaes", () => {
   const desc = "Empresa de fabricação de vinhos e comércio varejista de bebidas alcoólicas com distribuição nacional.";
   const currentCnaes = [{ code: "1112-7/00", description: "Fabricação de vinho", confidence: 90 }];
 
@@ -284,7 +285,7 @@ describe("B. refineCnaes", () => {
 // =============================================================================
 // C. generateQuestions
 // =============================================================================
-describe("C. generateQuestions", () => {
+dbDescribe("C. generateQuestions", () => {
   it("C01 — sucesso: retorna perguntas nível 1 para um CNAE", async () => {
     const payload = {
       questions: [
@@ -367,7 +368,7 @@ describe("C. generateQuestions", () => {
 // =============================================================================
 // G. saveAnswer / getProgress (sem IA)
 // =============================================================================
-describe("G. saveAnswer e getProgress", () => {
+dbDescribe("G. saveAnswer e getProgress", () => {
   it("G01 — saveAnswer: salva nova resposta com sucesso", async () => {
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     const result = await caller.saveAnswer({
@@ -429,7 +430,7 @@ describe("G. saveAnswer e getProgress", () => {
 // =============================================================================
 // D. generateBriefing
 // =============================================================================
-describe("D. generateBriefing", () => {
+dbDescribe("D. generateBriefing", () => {
   const sampleAnswers = [{
     cnaeCode: "1112-7/00",
     cnaeDescription: "Fabricação de vinho",
@@ -499,7 +500,7 @@ describe("D. generateBriefing", () => {
 // =============================================================================
 // H. approveBriefing (sem IA)
 // =============================================================================
-describe("H. approveBriefing", () => {
+dbDescribe("H. approveBriefing", () => {
   it("H01 — sucesso: avança status para matriz_riscos e salva briefing", async () => {
     const caller = fluxoV3Router.createCaller(makeCtx(testUserId));
     const result = await caller.approveBriefing({
@@ -521,7 +522,7 @@ describe("H. approveBriefing", () => {
 // =============================================================================
 // E. generateRiskMatrices
 // =============================================================================
-describe("E. generateRiskMatrices", () => {
+dbDescribe("E. generateRiskMatrices", () => {
   const briefingContent = "# Briefing\nEmpresa de fabricação de vinhos com alto impacto do IBS.";
   const mockRisks = {
     risks: [
@@ -582,7 +583,7 @@ describe("E. generateRiskMatrices", () => {
 // =============================================================================
 // H2. approveMatrices (sem IA)
 // =============================================================================
-describe("H2. approveMatrices", () => {
+dbDescribe("H2. approveMatrices", () => {
   it("H2-01 — sucesso: avança status para plano_acao e persiste matrizes no banco", async () => {
     const matrices = {
       contabilidade: [{ id: "r1", evento: "Risco fiscal", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Revisar" }],
@@ -605,7 +606,7 @@ describe("H2. approveMatrices", () => {
 // =============================================================================
 // F. generateActionPlan
 // =============================================================================
-describe("F. generateActionPlan", () => {
+dbDescribe("F. generateActionPlan", () => {
   const matrices = {
     contabilidade: [{ id: "r1", evento: "Mudança IBS", probabilidade: "Alta", impacto: "Alto", severidade: "Crítica", plano_acao: "Revisar" }],
     negocio: [],
@@ -683,7 +684,7 @@ describe("F. generateActionPlan", () => {
 // =============================================================================
 // H3. approveActionPlan (sem IA)
 // =============================================================================
-describe("H3. approveActionPlan", () => {
+dbDescribe("H3. approveActionPlan", () => {
   it("H3-01 — sucesso: avança status para aprovado e persiste plano no banco", async () => {
     const plans = {
       contabilidade: [{ id: "t1", titulo: "Revisar NF-e", status: "nao_iniciado", progress: 0 }],
@@ -734,7 +735,7 @@ describe("H3. approveActionPlan", () => {
 // =============================================================================
 // I. Cenários de falha de infraestrutura
 // =============================================================================
-describe("I. Cenários de falha de infraestrutura", () => {
+dbDescribe("I. Cenários de falha de infraestrutura", () => {
   const desc = "Empresa de fabricação de vinhos e comércio varejista de bebidas alcoólicas com distribuição nacional.";
 
   it("I01 — IA retorna choices vazio → lança erro", async () => {

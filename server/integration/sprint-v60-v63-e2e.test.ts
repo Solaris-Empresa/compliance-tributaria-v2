@@ -16,6 +16,7 @@
  */
 
 import { vi, describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 
 vi.mock("./_core/llm", () => ({
   invokeLLM: vi.fn(),
@@ -351,7 +352,7 @@ afterAll(async () => {
 // TESTES UNITÁRIOS: MÓDULOS V60-V63
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("V60 — generateWithRetry: schemas Zod e temperatura 0.2", () => {
+dbDescribe("V60 — generateWithRetry: schemas Zod e temperatura 0.2", () => {
   it("V60-01 — CnaesResponseSchema valida payload correto", () => {
     const payload = {
       cnaes: [
@@ -439,7 +440,7 @@ describe("V60 — generateWithRetry: schemas Zod e temperatura 0.2", () => {
   });
 });
 
-describe("V61 — calculateGlobalScore: scoring financeiro determinístico", () => {
+dbDescribe("V61 — calculateGlobalScore: scoring financeiro determinístico", () => {
   it("V61-01 — score crítico com 2 riscos Crítica e faturamento", () => {
     const risks = [
       { severidade: "Crítica", severidade_score: 9 },
@@ -529,7 +530,7 @@ describe("V61 — calculateGlobalScore: scoring financeiro determinístico", () 
   });
 });
 
-describe("V62 — getArticlesForCnaes: pré-RAG inteligente", () => {
+dbDescribe("V62 — getArticlesForCnaes: pré-RAG inteligente", () => {
   it("V62-01 — P1 (Alimentícia): retorna artigos de cesta básica e IS", () => {
     const cnaes = [
       { code: "1099-6/99", description: "Fabricação de alimentos" },
@@ -618,7 +619,7 @@ describe("V62 — getArticlesForCnaes: pré-RAG inteligente", () => {
   });
 });
 
-describe("V63 — generateDecision: motor de decisão explícito", () => {
+dbDescribe("V63 — generateDecision: motor de decisão explícito", () => {
   it("V63-01 — DecisaoResponseSchema valida payload completo", () => {
     const payload = JSON.parse(buildDecisaoPayload());
     expect(() => DecisaoResponseSchema.parse(payload)).not.toThrow();
@@ -948,7 +949,7 @@ describe.each(PROJECTS.map((p, i) => ({ ...p, index: i + 1 })))(
 // TESTES DE INTEGRAÇÃO: CENÁRIOS DE FALHA E EDGE CASES
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("Edge Cases e Falhas — V60-V63", () => {
+dbDescribe("Edge Cases e Falhas — V60-V63", () => {
   it("EC-01 — extractCnaes: falha em todas as tentativas → lança TRPCError (BAD_REQUEST ou INTERNAL_SERVER_ERROR)", async () => {
     const db = await getDb();
     if (!db) throw new Error("DB connection failed");

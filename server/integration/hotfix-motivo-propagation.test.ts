@@ -36,6 +36,7 @@
  * Paridade frontend Q.NBS pendente para sprint futura.
  */
 import { describe, it, expect } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import type { QuestionResult, NoQuestionMotivo } from "../lib/tracked-question";
 
 /**
@@ -59,7 +60,7 @@ function applyRouterTransform(result: QuestionResult): {
   };
 }
 
-describe("Hotfix #1006 — router propaga motivo + alerta de generateProductQuestions", () => {
+dbDescribe("Hotfix #1006 — router propaga motivo + alerta de generateProductQuestions", () => {
   // ── T1: caso primary do bug — corpus_gap_setorial ──────────────────────────
   it("T1 — propaga motivo='corpus_gap_setorial' + alerta para frontend (Issue #997 V1)", () => {
     const innerResult: QuestionResult = {

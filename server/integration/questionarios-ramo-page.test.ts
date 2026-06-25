@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import type { TrpcContext } from "../_core/context";
 import { getDb } from "../db";
 
-describe("Questionários por Ramo - Integração Frontend/Backend", () => {
+dbDescribe("Questionários por Ramo - Integração Frontend/Backend", () => {
   let caller: ReturnType<typeof appRouter.createCaller>;
   let projectId: number;
   let branchId: number;

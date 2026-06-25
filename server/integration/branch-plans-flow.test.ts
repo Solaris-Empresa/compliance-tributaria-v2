@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import * as db from "../db";
 
-describe("Branch Plans Flow - Geração de Planos por Ramo", () => {
+dbDescribe("Branch Plans Flow - Geração de Planos por Ramo", () => {
   let testProjectId: number;
   let testBranchIds: number[] = [];
   let testUserId: number;

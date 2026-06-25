@@ -8,6 +8,7 @@
  *   3. Falha no insert do log não propaga — transição retorna sucesso
  */
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import type { TrpcContext } from "../_core/context";
 import { getDb } from "../db";
@@ -32,7 +33,7 @@ function makeCtx(userId = 1, role = "equipe_solaris"): TrpcContext {
 }
 
 // ─── Suite principal ───────────────────────────────────────────────────────
-describe("K-4-E — project_status_log: auditoria jurídica de transições", () => {
+dbDescribe("K-4-E — project_status_log: auditoria jurídica de transições", () => {
   let projectId: number;
   let caller: ReturnType<typeof appRouter.createCaller>;
 
