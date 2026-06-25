@@ -5,7 +5,7 @@
 // `form-wizard-steps` para habilitar "Avançar" (inv. 6). NÃO toca lógica de campo.
 // F1: o slot renderiza o conteúdo do form (children). O F2-refactor particiona
 // os campos por passo. Submit só no último passo (inv. 2).
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Loader2, Check } from "lucide-react";
 import { STEP_DEFS, LAST_STEP, stepValid } from "@/lib/form-wizard-steps";
@@ -14,13 +14,20 @@ import { type PerfilEmpresaData } from "@/components/PerfilEmpresaIntelligente";
 interface FormWizardProps {
   value: PerfilEmpresaData;
   descriptionLength: number;
+  /** F2.2: quando false (flag OFF), passthrough — renderiza só os children, sem chrome. */
+  enabled?: boolean;
+  /** F2.2: controlado pelo pai (NovoProjeto) — o mesmo step é passado ao PerfilEmpresa. */
+  currentStep: number;
+  onStepChange: (step: number) => void;
   submitting?: boolean;
   onSubmit: () => void;
   children: React.ReactNode;
 }
 
-export function FormWizard({ value, descriptionLength, submitting, onSubmit, children }: FormWizardProps) {
-  const [step, setStep] = useState(0);
+export function FormWizard({ value, descriptionLength, enabled = true, currentStep, onStepChange, submitting, onSubmit, children }: FormWizardProps) {
+  // F2.2: flag OFF → passthrough total (baseline idêntica; o submit fica no NovoProjeto).
+  if (!enabled) return <>{children}</>;
+  const step = currentStep;
   const canAdvance = stepValid(value, step, descriptionLength);
   const isLast = step === LAST_STEP;
 
@@ -59,7 +66,7 @@ export function FormWizard({ value, descriptionLength, submitting, onSubmit, chi
           variant="outline"
           data-testid="btn-wizard-voltar"
           disabled={step === 0 || submitting}
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          onClick={() => onStepChange(Math.max(0, step - 1))}
         >
           <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
         </Button>
@@ -72,7 +79,7 @@ export function FormWizard({ value, descriptionLength, submitting, onSubmit, chi
           <Button
             data-testid="btn-wizard-avancar"
             disabled={!canAdvance || submitting}
-            onClick={() => setStep((s) => Math.min(LAST_STEP, s + 1))}
+            onClick={() => onStepChange(Math.min(LAST_STEP, step + 1))}
           >
             Avançar <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
