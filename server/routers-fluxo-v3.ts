@@ -25,6 +25,7 @@ import {
 // FEAT-COB-01 (#1176): regime específico de bens imóveis (Arts. 251-270) no briefing LLM
 import { buildRegimeImoveisRestriction } from "./lib/regime-imoveis-eligibility";
 import { normalizeRespostas } from "./lib/normalize-respostas"; // BUG-RESP-VAZIA #1552
+import { alignIntlOps } from "./lib/align-intl-ops"; // F2 dual-name (ENABLE_INTL_OPS_ALIGN)
 // PR-B F3 (A-5 · Lição #137) — fonte única de elegibilidade atrás de ENABLE_UNIFIED_ELIGIBILITY.
 import {
   isCategoryEligible,
@@ -493,7 +494,7 @@ export const fluxoV3Router = router({
         // v2.1: Company Profile Layer
         companyProfile: input.companyProfile ?? null,
         operationProfile: input.operationProfile ?? null,
-        taxComplexity: input.taxComplexity ?? null,
+        taxComplexity: alignIntlOps(input.taxComplexity) ?? null,
         financialProfile: input.financialProfile ?? null,
         governanceProfile: input.governanceProfile ?? null,
         // BUG-CPF-COL-#4 — coluna SQL dedicada `tax_id_type` (migration 0119)
