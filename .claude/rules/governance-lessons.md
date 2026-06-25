@@ -2069,3 +2069,27 @@ Antes de afirmar (ou negar) que um campo é usado: rastrear os **3 caminhos** (a
 
 REGRA-ORQ-27 (assemble ≠ consumption — critérios a/b) · [[Lição #59]] · [[Lição #62]] (contexto vs evidência) · [[Lição #140]] (dual-storage / nome canônico) · REGRA-ORQ-41 (impact-tree) · análise de campos do form (`0-Projeto-1o.Form`)
 
+## Lição #151 — Gate 0 / impact-tree deve cobrir `shared/` explicitamente (não só server/ + client/src)
+
+**Origem:** PR F1 FORM-NOVO-PROJETO-V2 (24/06/2026) — `taxCentralization` quase removido como "dead".
+
+### Texto
+
+O mapa de consumers de um campo/tipo DEVE varrer `shared/` **explicitamente**, além de `server/` e `client/src`. Código compartilhado (helpers de prefill, validação, tipos canônicos) é consumido por backend **e** frontend — o caminho real de consumo pode estar **só** em `shared/` e escapar de um Gate 0 escopado às duas pastas de app. Afirmar "campo DEAD" sem grep em `shared/` é incompleto (REGRA-ORQ-27 / Lição #150).
+
+### Caso canônico
+
+No PR F1, o Gate 0 inicial varreu `server/` + `client/src` e classificou `taxCentralization` como DEAD (só `isPresent()` em confidence). Os **testes de integração** (`fase2-e2e-validation`) revelaram, **antes do commit**, o consumer real: `buildCorporatePrefill` em **`shared/questionario-prefill.ts:191-194`** — lê `companyProfile.taxCentralization` e **prefilla a pergunta `qc02_centralizacao`** (contrato ISSUE-001, evita o usuário responder duas vezes). O grep escopado a server/+client/src nunca tocou `shared/`. Resultado: `taxCentralization` foi **revertido** do PR F1; os 3 campos sem consumer (`hasSpecialRegimes`, `notificationFrequency`, `notificationEmail`) seguiram. Pego pela Lição #74 (fix downstream incompleto) + REGRA-ORQ-22 (parada Nível 1) — antes do commit.
+
+### Aplicação prospectiva
+
+Em todo Gate 0 / `impact-tree` (Passo 1/4/10), incluir:
+```bash
+grep -rn "\.<campo>\b" server/ client/src shared/   # shared/ OBRIGATÓRIO
+```
+A skill `impact-tree` Passo 1 já lista `shared/` no ast-grep — esta lição cristaliza que **pular `shared/` é a falha**, não a ferramenta.
+
+### Vinculadas
+
+[[Lição #74]] (fix downstream incompleto / gate não rastreado) · [[Lição #150]] (campo no prompt ≠ caminho real de consumo) · [[Lição #65]] (writers/readers end-to-end) · REGRA-ORQ-27 · REGRA-ORQ-22 (Nível 1) · REGRA-ORQ-41 (impact-tree — `shared/` no Passo 1) · PR F1 #1575 · `shared/questionario-prefill.ts:191-194` (ISSUE-001)
+
