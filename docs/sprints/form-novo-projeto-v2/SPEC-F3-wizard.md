@@ -203,13 +203,15 @@ DET-001 `taxRegime`×`annualRevenueRange` · DET-002 `companySize`×`annualReven
 3. **State único + cascata PF/PJ (R3):** um único `perfilData` compartilhado entre passos; o toggle PF/PJ dispara a cascata (#1299) que limpa os 8 campos — propaga a todos os passos.
 4. **Persistência multi-stage (R5):** o wizard salva `perfilData` completo (não só name+description) no localStorage por passo + resume.
 5. **Validação por passo replica calcProfileScore (R7):** "Avançar" reusa `calcProfileScore` (PJ 6 / PF 2) — não reimplementa.
+6. **Label-map por passo (Dúvida 1):** o gate de "Avançar" é uma constante estática `STEP_LABELS[passo] ⊆ labels de calcProfileScore`, aplicada sobre `missingRequired`. Nenhum check booleano novo — só partição de exibição. Fonte de verdade = `calcProfileScore` + Zod.
+7. **Isolamento de stage-key na persistência (Dúvida 4):** `perfilData` salvo em stage-key novo (`'etapa1-perfil'`), sem tocar `'etapa1'` (name+desc). Garante backward-compat com draft antigo e rollback flag-OFF.
 
 ### Fases
-- **F0** — extrair grupos de campos em sub-componentes (sem mudar comportamento; flag OFF = idêntico; **zero rename**).
-- **F1** — casca wizard (passos 0-5 + progress + voltar/avançar) sob flag ON; **submit só no Passo 5** (inv. 2); state único (inv. 3).
-- **F2** — progressive disclosure (Passo 4 colapsado) + microcopy + preview + **persistência multi-stage** (inv. 4).
+- **F0** — extrair grupos de campos em sub-componentes (sem mudar comportamento; flag OFF = idêntico; **zero rename**). **DoD bloqueante (Dúvida 5):** teste de NÃO-REGRESSÃO próprio — suite verde + 1 E2E do form atual (flag OFF) **idêntico antes×depois do F0**. Não construir a casca (F1) sobre sub-blocos não-validados.
+- **F1** — casca wizard (passos 0-5 + progress + voltar/avançar) sob flag ON; **submit só no Passo 5** (inv. 2); state único (inv. 3); validação por passo = label-map sobre `calcProfileScore.missingRequired` (inv. 6).
+- **F2** — progressive disclosure (Passo 4 colapsado) + microcopy + preview + **persistência multi-stage** (inv. 4, stage-key novo).
 - **F3** — sugestões internas (Regime★Porte, Operação★CNAE-IA — pré-seleção editável).
-- **F4** — E2E (3 cenários) + unit `calcProfileScore`/toggle (gap Manus §8) + GATE-PO-FLUXO.
+- **F4** — E2E **4 cenários** (incl. troca PJ→PF) + **unit OBRIGATÓRIO no DoD (Dúvida 6):** `calcProfileScore` (PJ 6/PF 2 + confidence -20/-15) + cascata toggle PF/PJ (8 campos) + label-map por passo. + GATE-PO-FLUXO.
 
 ## 8. PLANO-TESTES E2E (ancorado nos 63 data-testid de #1577)
 
@@ -218,8 +220,9 @@ DET-001 `taxRegime`×`annualRevenueRange` · DET-002 `companySize`×`annualReven
 | 1 | **PJ completo** | `card-tipo-pj` → `input-cnpj`+`input-razao-social` → `card-porte-*`+`card-regime-*`+`card-operacao-*`+`card-cliente-*` → `textarea-descricao`(≥100) → `btn-expandir-opcionais`+opcionais → `btn-criar-projeto` | projeto criado; payload PJ completo; `taxIdType='cnpj'` |
 | 2 | **PF completo** (#1299) | `card-tipo-pf` → `input-cpf`+`input-nome` → **Porte/Regime/Tipo Jurídico OCULTOS** → `card-operacao-*`+`card-cliente-*` → descrição → criar | projeto criado; `taxIdType='cpf'`; sem campos PJ no payload |
 | 3 | **Pular opcionais** | PJ até Passo 3, Passo 4 colapsado (não expandir) → `btn-criar-projeto` | criado só com obrigatórios; opcionais `null` |
+| 4 | **Troca PJ→volta→PF no meio** (Dúvida 3 do Consultor) | `card-tipo-pj` → preenche Passos 1-4 completos → `btn-wizard-voltar`×N → `card-tipo-pf` → re-avança | cascata #1299 limpa os 8 campos PJ; passos PJ-only (TJ/Porte/Regime) SOMEM; progresso recomputa; `taxIdType='cpf'`; payload sem campos PJ; **NÃO re-cria projeto** (submit só no Passo 5) |
 
-**DoD negativo (REGRA-ORQ-44/47):** flag OFF → layout atual idêntico (regressão zero); `mode='edit'` (NcmNbsEditCard) inalterado nas 2 páginas; grep confirma 3 campos F1 ausentes do wizard.
+**DoD negativo (REGRA-ORQ-44/47):** flag OFF → layout atual idêntico (regressão zero); `mode='edit'` (NcmNbsEditCard) inalterado nas 2 páginas; grep confirma 3 campos F1 ausentes do wizard; **cenário 4 verde é BLOQUEANTE** (é o caso que quebra — Dúvida 3).
 
 ## 9. Rollback / abort criteria
 
@@ -232,6 +235,33 @@ DET-001 `taxRegime`×`annualRevenueRange` · DET-002 `companySize`×`annualReven
 Sem migration, sem mudança de schema/Zod/payload → rollback = flag OFF ou revert simples.
 
 ## 10. Pendências para a implementação
-- Confirmar com P.O.: `taxCentralization` **mantido** (Passo 4) — assumido por esta spec.
+- ✅ `taxCentralization` **MANTER** (Passo 4, prefill ISSUE-001) — confirmado pelo P.O. (despacho 24/06).
 - F4 (CNPJ-lookup Receita Federal) **fora** desta spec (feature nova).
 - Mockup já tem os 63 data-testid; o E2E ancora neles.
+- Dúvida 7 (toggle import/export inerte) — **decisão de produto P.O.** (§11).
+
+## 11. Respostas às dúvidas do Consultor (review #1578) — verificadas no código
+
+### 🔴 Dúvida 1 — "validação por passo" vs `calcProfileScore` global → **há subset, mas NÃO é lógica nova**
+`calcProfileScore` (`PerfilEmpresaIntelligente.tsx:179-226`) retorna `missingRequired` = **lista de LABELS** dos obrigatórios não-preenchidos (condicional: PJ 6 / PF 2). A validação por passo é um **mapa estático label→passo** (presentation map) aplicado sobre essa saída: `Avançar(passo) = passo.labels.every(l => !missingRequired.includes(l))`. **A verdade de validação continua só em `calcProfileScore` (fonte única) + Zod** — o mapa é uma partição de exibição, não uma regra booleana nova. **Zero risco de divergência com Zod** (nenhum check booleano é reimplementado). DoD: `git diff` mostra só uma constante `STEP_LABELS` — nenhuma nova validação.
+
+### 🔴 Dúvida 2 — DET cross-field entre passos → **premissa do Consultor incorreta (verificado)**
+O Consultor assume "hoje o usuário vê a inconsistência DET ANTES de submeter (inline)". **Falso:** grep em `NovoProjeto.tsx` = **0 chamadas** a consistency/DET. As 8 regras DET rodam **pós-create**, via `consistencyRouter.runConsistencyAnalysis` (`:102`), no fluxo de diagnóstico — **não no form**. O ÚNICO sinal inline no form é a heurística **soft de `confidence`** (2 regras em `calcProfileScore:219-220`: simples+faturamento-alto −20; MEI+não-simples −15) — um % mostrado onde o score aparece. → **O wizard NÃO muda quando o usuário vê o DET** (continua pós-create). Sem mudança de comportamento. A heurística soft é preservada (vem do `calcProfileScore`, exibida no Passo de revisão). **Voltar é pré-submit (Passos 0-4 = state local) → seguro, NÃO re-cria projeto** (inv. 2).
+
+### 🔴 Dúvida 3 — cenário PJ→volta→PF → **adicionado como Cenário 4 BLOQUEANTE** (§8). Concordo: é o caso que quebra.
+
+### 🟠 Dúvida 4 — draft antigo + rollback → **backward-compat estrutural (verificado)**
+`loadTempData<T>` (`usePersistenceV3.ts:51`) é genérico: `JSON.parse(raw) as {data:T}` — só parseia e faz cast. Logo:
+- **draft antigo** (`{name,description}`) no wizard novo → name/desc presentes, `perfilData` campos `undefined` → começa no Passo 0 com name+desc, resto vazio. ✅
+- **draft novo + flag OFF (rollback)** → o form de página única tipa como `<{name?,description?}>` → lê só name/desc, **ignora** as chaves extras de perfilData (cast não acessa). ✅ sem crash.
+- **Invariante 7 (novo):** o wizard salva `perfilData` em **stage-key NOVO** (ex.: `'etapa1-perfil'`), **sem tocar** o `'etapa1'` (name+desc) que o form atual lê → flag OFF nunca encontra formato inesperado. Backward-compat garantido por isolamento de chave.
+
+### 🟠 Dúvida 5 — F0 não-regressão → **incorporado ao DoD do F0** (teste antes×depois, flag OFF idêntico). Bloqueante.
+
+### 🟠 Dúvida 6 — unit obrigatórios → **F4 DoD agora exige** unit de `calcProfileScore` + cascata toggle PF/PJ + label-map (não "sugestão").
+
+### 🟡 Dúvida 7 — toggle import/export inerte (dual-name) → **decisão de produto do P.O.**
+`toggle-importexport` escreve `hasImportExport`, que os engines não leem (leem `hasInternationalOps`, nunca escrito — bug dual-name, fix é F2 separado). O F3 só reorganiza; não cria nem conserta o bug. **Opções para o P.O.:**
+- (a) **manter visível** (status quo) — F3 é layout-only, não muda visibilidade de campo; o fix vem no F2 dual-name. *(recomendo — não acoplar decisão de produto a um PR de layout)*
+- (b) ocultar o toggle até o F2 consertar o dual-name.
+Não misturar com o F3 — apenas registrar a decisão.
