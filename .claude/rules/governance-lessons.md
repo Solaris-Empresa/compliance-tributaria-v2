@@ -2093,3 +2093,27 @@ A skill `impact-tree` Passo 1 já lista `shared/` no ast-grep — esta lição c
 
 [[Lição #74]] (fix downstream incompleto / gate não rastreado) · [[Lição #150]] (campo no prompt ≠ caminho real de consumo) · [[Lição #65]] (writers/readers end-to-end) · REGRA-ORQ-27 · REGRA-ORQ-22 (Nível 1) · REGRA-ORQ-41 (impact-tree — `shared/` no Passo 1) · PR F1 #1575 · `shared/questionario-prefill.ts:191-194` (ISSUE-001)
 
+## Lição #152 — Pivot de mecanismo vs spec aprovada exige aprovação ANTES de implementar
+
+**Origem:** CI-HYGIENE-02 (PR #1585, 25/06/2026) — CC pivotou a abordagem e comunicou depois.
+
+### Texto
+
+Quando o P.O. aprova uma **abordagem específica** (mecanismo) e, durante a implementação, descobre-se que ela é inviável/quebradiça, a mudança para um **mecanismo alternativo** deve ser **comunicada e aprovada ANTES de implementar** — não implementada e comunicada depois. Mesmo que o pivot esteja **tecnicamente correto** (mesmo objetivo, fix mais robusto), trocar o mecanismo sem aval prévio é um gap de processo (RACI: o P.O. é Accountable pela decisão de abordagem; o CC é Responsible pela execução — REGRA-ORQ-33).
+
+Distinção (NUNCA ASSUMA / REGRA-ORQ-22):
+- **Bug técnico durante a impl** (ex.: regex errada) → decisão autônoma do CC (corrige e segue).
+- **Mudança de MECANISMO vs o aprovado** (ex.: "dbDescribe nos testes" → "test:unit no CI") → **PARAR e pedir aval ANTES** (Nível 1).
+
+### Caso canônico
+
+P.O. aprovou "Opção (b) — dbDescribe nos 13 testes de integração". Gate 0 revelou +12 DB-tests; remover `DATABASE_URL` quebrou ~60 testes com dependências indiretas. CC **pivotou** para `test-suite.yml → pnpm test:unit` (mesmo objetivo: CI não roda integração → não polui prod) e **só então comunicou**. O pivot estava correto, mas a ordem certa era: *descobri que (b) é inviável por X; proponho test:unit; aprova?* **antes** de editar.
+
+### Aplicação prospectiva
+
+Ao bater num bloqueio que force trocar o mecanismo aprovado: (1) parar; (2) reportar o achado + o mecanismo alternativo proposto (REGRA-ORQ-22 Nível 1); (3) implementar só após o "ok". Severidade baixa quando o pivot é correto — mas o gap de processo é real e repetível.
+
+### Vinculadas
+
+REGRA-ORQ-22 (crítica Nível 1) · REGRA-ORQ-33 (RACI — A=P.O. decide abordagem) · REGRA-ORQ-35 (NUNCA ASSUMA) · [[Lição #74]] (fix incompleto) · CI-HYGIENE-02 #1585 · #1584
+
