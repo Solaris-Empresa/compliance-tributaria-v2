@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!--
+  MOCKUP F3 — Wizard de cadastro de projeto (FORM-NOVO-PROJETO-V2)
+  Gate UX (REGRA-ORQ-09). Componente-alvo: client/src/components/PerfilEmpresaIntelligente.tsx + client/src/pages/NovoProjeto.tsx
+  Spec: docs/sprints/form-novo-projeto-v2/SPEC-F3-wizard.md (a produzir)
+  Base: HEAD pós-F1 4593ed7e (3 campos DEAD removidos em #1575 — NÃO reintroduzir).
+
+  ORTOGONALIDADE (cravar no ADR): este wizard divide o FORMULÁRIO DE CADASTRO INICIAL em passos.
+  É camada anterior e distinta do auto-pilot (Mud.1-4 + MUD-PERFIL-SILENCIOSO), que remove
+  paradas do FLUXO DE DIAGNÓSTICO. Adicionar passos aqui ≠ remover paradas lá. Superfícies diferentes.
+
+  data-testids (E2E anchors — TODOS os interativos):
+   step0: card-tipo-pj · card-tipo-pf
+   nav:   btn-wizard-voltar · btn-wizard-avancar · btn-criar-projeto · btn-expandir-opcionais
+   step1: input-cnpj · input-razao-social · input-cpf · input-nome
+   step2: card-tipojuridico-{ltda|sa|mei|eireli|slu|outros} · card-porte-{mei|micro|pequena|media|grande}
+          · card-regime-{simples|lucro_presumido|lucro_real} · card-operacao-{industria|comercio|servicos|misto|agro|financeiro}
+          · card-cliente-{b2b|b2c|b2g|b2b2c}
+   step3: textarea-descricao · counter-descricao
+   step4: toggle-multiestado · toggle-importexport · toggle-marketplace · toggle-multiplosestab
+          · card-faturamento-{ate81k|ate360k|ate48m|ate300m|acima300m} · toggle-equipe · toggle-auditoria
+          · toggle-passivo · toggle-grupoeconomico · card-centralizacao-{centralized|decentralized|partial}
+   step5: resumo-confirmacao
+   geral: wizard-progress · step-indicator-{0..5}
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup F3 — Wizard Novo Projeto</title>
+<style>
+  :root { --brand:#5319E7; --ok:#047857; --muted:#6b7280; --line:#e5e7eb; }
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; color:#1f2937; background:#f9fafb; }
+  h1 { font-size: 20px; } h2 { font-size: 15px; color: var(--brand); margin: 4px 0 2px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .note { background:#fef9c3; border:1px solid #fde68a; border-radius:6px; padding:10px; font-size:12px; margin:10px 0; }
+  .ortho { background:#eef2ff; border:1px solid #c7d2fe; }
+  /* progress */
+  .progress { display:flex; gap:6px; align-items:center; margin:14px 0 6px; }
+  .dot { width:26px; height:26px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--muted); background:#fff; }
+  .dot.active { border-color:var(--brand); color:var(--brand); font-weight:700; }
+  .dot.done { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .bar { flex:1; height:2px; background:var(--line); }
+  /* step panel */
+  .step { background:#fff; border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin:14px 0; }
+  .step .lbl { font-size:11px; font-weight:700; color:var(--brand); letter-spacing:.04em; text-transform:uppercase; }
+  .micro { font-size:12px; color:var(--muted); margin:2px 0 12px; }
+  label { display:block; font-size:12px; font-weight:600; margin:12px 0 4px; }
+  .req { color:#dc2626; } .pf-hidden { opacity:.4; }
+  .input { border:1px solid #d1d5db; border-radius:6px; padding:8px 10px; width:100%; font-size:13px; box-sizing:border-box; }
+  /* cards */
+  .cards { display:flex; flex-wrap:wrap; gap:8px; }
+  .card { border:1px solid #d1d5db; border-radius:8px; padding:10px 14px; font-size:13px; cursor:pointer; user-select:none; background:#fff; min-width:88px; text-align:center; }
+  .card .ic { font-size:18px; display:block; }
+  .card.sel { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .card.sug { border-color:var(--brand); box-shadow:0 0 0 2px #ddd6fe; }
+  .bigcard { border:2px solid #d1d5db; border-radius:12px; padding:22px; font-size:15px; cursor:pointer; text-align:center; flex:1; min-width:200px; }
+  .bigcard.sel { border-color:var(--brand); background:#f5f3ff; }
+  .bigcard .ic { font-size:34px; display:block; margin-bottom:6px; }
+  /* toggles */
+  .tog { display:flex; align-items:center; gap:8px; padding:8px 0; font-size:13px; border-bottom:1px solid #f3f4f6; }
+  .sw { width:38px; height:20px; border-radius:9999px; background:#d1d5db; position:relative; cursor:pointer; flex:none; }
+  .sw.on { background:var(--brand); } .sw::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.15s; } .sw.on::after { left:20px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { padding:6px 12px; border-radius:9999px; border:1px solid #d1d5db; font-size:12px; cursor:pointer; }
+  .chip.on { background:var(--brand); color:#fff; border-color:var(--brand); }
+  /* nav */
+  .nav { display:flex; justify-content:space-between; margin-top:14px; }
+  .btn { border:none; border-radius:8px; padding:10px 18px; font-size:14px; font-weight:600; cursor:pointer; }
+  .btn.prim { background:var(--brand); color:#fff; } .btn.ghost { background:#fff; border:1px solid #d1d5db; color:#374151; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .expander { border:1px dashed var(--brand); border-radius:8px; padding:12px 16px; color:var(--brand); font-weight:600; cursor:pointer; font-size:13px; }
+  .sugbadge { font-size:10px; background:#ede9fe; color:var(--brand); border-radius:4px; padding:1px 5px; margin-left:6px; }
+  .preview { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:6px; padding:8px 10px; font-size:12px; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mockup F3 — Wizard <em>Novo Projeto</em> (FORM-NOVO-PROJETO-V2)</h1>
+  <div class="note ortho"><strong>Ortogonalidade (cravar no ADR):</strong> este wizard divide o <strong>formulário de cadastro inicial</strong> em passos — superfície <em>anterior e distinta</em> do auto-pilot, que remove paradas do <strong>fluxo de diagnóstico</strong> (questionários). Adicionar passos aqui ≠ remover paradas lá.</div>
+  <div class="note"><strong>Base pós-F1 (#1575):</strong> os campos <code>hasSpecialRegimes</code>, <code>notificationFrequency</code>, <code>notificationEmail</code> foram removidos e <strong>não reaparecem</strong>. <code>taxCentralization</code> <strong>permanece</strong> (Passo 4) — prefill ISSUE-001.</div>
+
+  <!-- PROGRESS -->
+  <div class="progress" data-testid="wizard-progress">
+    <div class="dot done" data-testid="step-indicator-0">0</div><div class="bar"></div>
+    <div class="dot active" data-testid="step-indicator-1">1</div><div class="bar"></div>
+    <div class="dot" data-testid="step-indicator-2">2</div><div class="bar"></div>
+    <div class="dot" data-testid="step-indicator-3">3</div><div class="bar"></div>
+    <div class="dot" data-testid="step-indicator-4">4</div><div class="bar"></div>
+    <div class="dot" data-testid="step-indicator-5">✓</div>
+  </div>
+  <p class="micro">As 6 telas estão empilhadas abaixo para revisão. Em runtime, exibe-se 1 passo por vez.</p>
+
+  <!-- STEP 0 -->
+  <div class="step">
+    <span class="lbl">Passo 0 — Tipo de pessoa</span>
+    <div class="micro">Primeira escolha, visual. Define a trilha (NÃO colapsa — bifurca PJ/PF).</div>
+    <div class="cards">
+      <div class="bigcard sel" data-testid="card-tipo-pj"><span class="ic">🏢</span>Empresa<br/><small>tenho CNPJ</small></div>
+      <div class="bigcard" data-testid="card-tipo-pf"><span class="ic">🌾</span>Produtor Rural / PF<br/><small>tenho CPF</small></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <span class="lbl">Passo 1 — Identificação</span>
+    <div class="micro">Usaremos para identificar sua empresa.</div>
+    <div data-pf="pj">
+      <label>CNPJ <span class="req">*</span></label>
+      <input class="input" data-testid="input-cnpj" placeholder="00.000.000/0000-00" />
+      <label>Razão Social <span class="req">*</span></label>
+      <input class="input" data-testid="input-razao-social" placeholder="Empresa LTDA" />
+    </div>
+    <div class="micro" style="margin-top:10px">— ou, se Produtor Rural / PF (Passo 0 = PF): —</div>
+    <div data-pf="pf">
+      <label>CPF <span class="req">*</span></label>
+      <input class="input" data-testid="input-cpf" placeholder="000.000.000-00" />
+      <label>Nome <span class="req">*</span></label>
+      <input class="input" data-testid="input-nome" placeholder="Nome do produtor" />
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step">
+    <span class="lbl">Passo 2 — Perfil</span>
+    <div class="micro">Seleção por cards (reusa <code>SelectCard</code> atual). PF não vê Tipo Jurídico/Porte/Regime (#1299).</div>
+
+    <label class="pf-only">Tipo Jurídico <span class="req">*</span> <small>(só PJ)</small></label>
+    <div class="cards pf-only">
+      <div class="card" data-testid="card-tipojuridico-ltda">LTDA</div>
+      <div class="card" data-testid="card-tipojuridico-sa">S.A.</div>
+      <div class="card" data-testid="card-tipojuridico-mei">MEI</div>
+      <div class="card" data-testid="card-tipojuridico-eireli">EIRELI</div>
+      <div class="card" data-testid="card-tipojuridico-slu">SLU</div>
+      <div class="card" data-testid="card-tipojuridico-outros">Outros</div>
+    </div>
+
+    <label class="pf-only">Porte <span class="req">*</span> <small>(só PJ · faixas em linguagem simples)</small></label>
+    <div class="cards pf-only">
+      <div class="card" data-testid="card-porte-mei">MEI<br/><small>Até R$ 81 mil</small></div>
+      <div class="card" data-testid="card-porte-micro">Micro<br/><small>Até R$ 360 mil</small></div>
+      <div class="card sel" data-testid="card-porte-pequena">Pequena<br/><small>Até R$ 4,8 mi</small></div>
+      <div class="card" data-testid="card-porte-media">Média<br/><small>Até R$ 300 mi</small></div>
+      <div class="card" data-testid="card-porte-grande">Grande<br/><small>+R$ 300 mi</small></div>
+    </div>
+
+    <label class="pf-only">Regime Tributário <span class="req">*</span> <span class="sugbadge">★ sugerido pelo Porte</span></label>
+    <div class="cards pf-only">
+      <div class="card sug sel" data-testid="card-regime-simples">Simples Nacional</div>
+      <div class="card" data-testid="card-regime-lucro_presumido">Lucro Presumido</div>
+      <div class="card" data-testid="card-regime-lucro_real">Lucro Real</div>
+    </div>
+
+    <label>Tipo de Operação <span class="req">*</span> <span class="sugbadge">★ sugerido pelo CNAE-IA</span></label>
+    <div class="cards">
+      <div class="card" data-testid="card-operacao-industria"><span class="ic">🏭</span>Indústria</div>
+      <div class="card" data-testid="card-operacao-comercio"><span class="ic">🛒</span>Comércio</div>
+      <div class="card sug sel" data-testid="card-operacao-servicos"><span class="ic">🧰</span>Serviços</div>
+      <div class="card" data-testid="card-operacao-misto"><span class="ic">🔀</span>Misto</div>
+      <div class="card" data-testid="card-operacao-agro"><span class="ic">🌾</span>Agro</div>
+      <div class="card" data-testid="card-operacao-financeiro"><span class="ic">🏦</span>Financeiro</div>
+    </div>
+
+    <label>Tipo de Cliente <span class="req">*</span></label>
+    <div class="cards">
+      <div class="card sel" data-testid="card-cliente-b2b">B2B</div>
+      <div class="card" data-testid="card-cliente-b2c">B2C</div>
+      <div class="card" data-testid="card-cliente-b2g">B2G</div>
+      <div class="card" data-testid="card-cliente-b2b2c">B2B2C</div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step">
+    <span class="lbl">Passo 3 — Descrição</span>
+    <div class="micro">Descreva o que sua empresa faz — a IA identifica os riscos tributários.</div>
+    <textarea class="input" data-testid="textarea-descricao" rows="4" placeholder="Ex.: Fabricação e venda de vinhos..."></textarea>
+    <div class="micro" data-testid="counter-descricao">0 / 100 caracteres (mínimo)</div>
+    <div class="preview">💡 A IA vai analisar: <strong>[chips dos CNAEs prováveis aparecem conforme o usuário digita]</strong></div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <span class="lbl">Passo 4 — Melhorar meu diagnóstico</span>
+    <div class="micro">Opcional. Colapsado por padrão — clique para expandir.</div>
+    <div class="expander" data-testid="btn-expandir-opcionais">▸ Melhorar meu diagnóstico (opcional)</div>
+    <div style="margin-top:12px">
+      <label>Características da operação</label>
+      <div class="chips">
+        <div class="chip" data-testid="toggle-multiestado">Opera em +1 estado</div>
+        <div class="chip" data-testid="toggle-importexport">Importação / Exportação</div>
+        <div class="chip" data-testid="toggle-marketplace">Vende em marketplace</div>
+        <div class="chip" data-testid="toggle-multiplosestab">Múltiplos estabelecimentos</div>
+      </div>
+
+      <label>Faturamento Anual</label>
+      <div class="cards">
+        <div class="card" data-testid="card-faturamento-ate81k">Até R$ 81 mil</div>
+        <div class="card" data-testid="card-faturamento-ate360k">Até R$ 360 mil</div>
+        <div class="card" data-testid="card-faturamento-ate48m">Até R$ 4,8 mi</div>
+        <div class="card" data-testid="card-faturamento-ate300m">Até R$ 300 mi</div>
+        <div class="card" data-testid="card-faturamento-acima300m">Acima R$ 300 mi</div>
+      </div>
+
+      <label>Governança Tributária</label>
+      <div class="tog"><div class="sw" data-testid="toggle-equipe"></div> Possui equipe tributária interna?</div>
+      <div class="tog"><div class="sw" data-testid="toggle-auditoria"></div> Faz auditoria fiscal periódica?</div>
+      <div class="tog"><div class="sw" data-testid="toggle-passivo"></div> Possui passivo tributário / pendências?</div>
+
+      <label>Estrutura Societária</label>
+      <div class="tog"><div class="sw on" data-testid="toggle-grupoeconomico"></div> A empresa integra grupo econômico?</div>
+      <div data-testid="bloco-centralizacao" style="margin-top:8px">
+        <div class="micro">Centralização das operações fiscais (aparece quando grupo = sim) — <strong>prefilável via ISSUE-001</strong></div>
+        <div class="cards">
+          <div class="card sel" data-testid="card-centralizacao-centralized">Centralizadas na matriz</div>
+          <div class="card" data-testid="card-centralizacao-decentralized">Descentralizadas</div>
+          <div class="card" data-testid="card-centralizacao-partial">Parcial</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step">
+    <span class="lbl">Passo 5 — Confirmação</span>
+    <div class="micro">Resumo do preenchido (editável por "Voltar").</div>
+    <div class="preview" data-testid="resumo-confirmacao">
+      <strong>Empresa (CNPJ)</strong> · Pequena · Simples Nacional · Serviços · B2B<br/>
+      "Fabricação e venda de vinhos..." · Grupo econômico: sim (centralizado)
+    </div>
+    <div class="nav">
+      <button class="btn ghost" data-testid="btn-wizard-voltar">← Voltar</button>
+      <button class="btn prim" data-testid="btn-criar-projeto">Criar projeto e iniciar diagnóstico →</button>
+    </div>
+  </div>
+
+  <!-- NAV (passos 0-4) -->
+  <div class="step">
+    <span class="lbl">Navegação (passos 0–4)</span>
+    <div class="nav">
+      <button class="btn ghost" data-testid="btn-wizard-voltar">← Voltar</button>
+      <button class="btn prim" data-testid="btn-wizard-avancar">Avançar →</button>
+    </div>
+    <div class="micro">"Avançar" só habilita quando os obrigatórios do passo estão preenchidos.</div>
+  </div>
+
+  <div class="note"><strong>Sugestões internas (sem API externa):</strong> Regime ★ pré-selecionado pelo Porte · Operação ★ pré-selecionada pelo CNAE-IA da descrição. Ambas <em>editáveis</em> (não auto-submit). F4 (CNPJ-lookup Receita Federal) NÃO faz parte deste mockup — integração externa, decisão separada.</div>
+</div>
+</body>
+</html>
