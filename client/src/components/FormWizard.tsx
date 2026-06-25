@@ -8,7 +8,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Loader2, Check } from "lucide-react";
-import { STEP_DEFS, LAST_STEP, stepValid } from "@/lib/form-wizard-steps";
+import { STEP_DEFS, LAST_STEP, stepValid, nextStep, prevStep } from "@/lib/form-wizard-steps";
 import { type PerfilEmpresaData } from "@/components/PerfilEmpresaIntelligente";
 
 interface FormWizardProps {
@@ -28,6 +28,8 @@ export function FormWizard({ value, descriptionLength, enabled = true, currentSt
   // F2.2: flag OFF → passthrough total (baseline idêntica; o submit fica no NovoProjeto).
   if (!enabled) return <>{children}</>;
   const step = currentStep;
+  // F3 (D10): navegação pula passos sem conteúdo para o tipo de pessoa (hoje PF não pula nada).
+  const isPF = value.taxIdType === "cpf";
   const canAdvance = stepValid(value, step, descriptionLength);
   const isLast = step === LAST_STEP;
 
@@ -66,7 +68,7 @@ export function FormWizard({ value, descriptionLength, enabled = true, currentSt
           variant="outline"
           data-testid="btn-wizard-voltar"
           disabled={step === 0 || submitting}
-          onClick={() => onStepChange(Math.max(0, step - 1))}
+          onClick={() => onStepChange(prevStep(step, isPF))}
         >
           <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
         </Button>
@@ -79,7 +81,7 @@ export function FormWizard({ value, descriptionLength, enabled = true, currentSt
           <Button
             data-testid="btn-wizard-avancar"
             disabled={!canAdvance || submitting}
-            onClick={() => onStepChange(Math.min(LAST_STEP, step + 1))}
+            onClick={() => onStepChange(nextStep(step, isPF))}
           >
             Avançar <ArrowRight className="h-4 w-4 ml-2" />
           </Button>

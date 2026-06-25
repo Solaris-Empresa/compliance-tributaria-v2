@@ -1,6 +1,6 @@
 // form-wizard-steps.test.ts — F1 (módulo puro do stepper)
 import { describe, it, expect } from "vitest";
-import { STEP_DEFS, LAST_STEP, stepValid, canSubmit } from "./form-wizard-steps";
+import { STEP_DEFS, LAST_STEP, stepValid, canSubmit, stepHasContentFor, nextStep, prevStep } from "./form-wizard-steps";
 import { type PerfilEmpresaData } from "../components/PerfilEmpresaIntelligente";
 
 const CNPJ_OK = "11222333000181";
@@ -64,4 +64,27 @@ describe("canSubmit — todos os passos anteriores válidos", () => {
   it("PJ completo mas desc<100 → NÃO pode", () => expect(canSubmit(pj(), 50)).toBe(false));
   it("PJ sem Porte → NÃO pode", () => expect(canSubmit(pj({ companySize: "" }), 100)).toBe(false));
   it("PF completo + desc≥100 → pode submeter", () => expect(canSubmit(pf(), 100)).toBe(true));
+});
+
+describe("F3 — stepHasContentFor (DoD: PJ todos têm · PF todos têm hoje)", () => {
+  it.each([0, 1, 2, 3, 4, 5])("passo %i tem conteúdo para PJ", (s) =>
+    expect(stepHasContentFor(s, false)).toBe(true));
+  it.each([0, 1, 2, 3, 4, 5])("passo %i tem conteúdo para PF (hoje)", (s) =>
+    expect(stepHasContentFor(s, true)).toBe(true));
+  it("passo inexistente → false", () => expect(stepHasContentFor(99, false)).toBe(false));
+});
+
+describe("F3 — nextStep/prevStep com dados atuais (PF não pula nada hoje)", () => {
+  it.each([[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 5]] as const)(
+    "nextStep(%i, PF) = %i", (from, to) => expect(nextStep(from, true)).toBe(to));
+  it.each([[5, 4], [4, 3], [3, 2], [2, 1], [1, 0], [0, 0]] as const)(
+    "prevStep(%i, PF) = %i", (from, to) => expect(prevStep(from, true)).toBe(to));
+});
+
+describe("F3 — skip prova-de-futuro (predicado injetável: passos 1 e 2 sem conteúdo p/ PF)", () => {
+  // se um passo virar só-PJ no futuro, a navegação pula automaticamente.
+  const skip12 = (s: number, isPF: boolean) => (isPF && (s === 1 || s === 2) ? false : true);
+  it("nextStep(0, PF) pula 1 e 2 → 3", () => expect(nextStep(0, true, skip12)).toBe(3));
+  it("prevStep(3, PF) pula 2 e 1 → 0", () => expect(prevStep(3, true, skip12)).toBe(0));
+  it("PJ não pula (skip só afeta PF)", () => expect(nextStep(0, false, skip12)).toBe(1));
 });
