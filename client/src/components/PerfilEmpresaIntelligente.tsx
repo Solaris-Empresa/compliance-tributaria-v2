@@ -748,6 +748,8 @@ interface PerfilEmpresaIntelligenteProps {
   mode?: 'create' | 'edit';
   /** Chamado após sucesso do save em mode='edit'. */
   onSave?: () => void;
+  /** F2.1 wizard (FORM-NOVO-PROJETO-V2): passo ativo. undefined OU flag OFF = renderiza tudo (baseline). */
+  currentStep?: number;
   /** K2: Callback chamado quando o score CPIE v2 é calculado/atualizado */
   onCpieScore?: (data: {
     // Compat v1 (mantido para não quebrar usos legados)
@@ -764,11 +766,16 @@ interface PerfilEmpresaIntelligenteProps {
   externalCpieV2Gate?: CpieV2GateResult | null;
 }
 
-export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore: _onCpieScore, externalCpieV2Gate, mode = 'create', onSave }: PerfilEmpresaIntelligenteProps) {
+export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = true, description, projectId, projectName, onCpieScore: _onCpieScore, externalCpieV2Gate, mode = 'create', onSave, currentStep }: PerfilEmpresaIntelligenteProps) {
   // BUG-AGRO-CPF F2 (#1290) — feature flag UI dual PJ/PF
   // Flag OFF (default) → comportamento idêntico ao atual (zero regressão)
   // Flag ON → radio Tipo de Pessoa + campo dinâmico CNPJ/CPF
   const enableTaxIdDual = (import.meta.env.VITE_ENABLE_TAX_ID_DUAL as string | undefined) === "true";
+  // F2.1 (FORM-NOVO-PROJETO-V2 · Approach A): gate de visibilidade por passo do wizard.
+  // Flag OFF OU currentStep ausente → true → renderiza tudo (baseline idêntica ao atual).
+  // Flag ON + currentStep → só o(s) passo(s) ativo(s). NÃO altera nenhum campo/set() (zero rename).
+  const formWizardOn = (import.meta.env.VITE_ENABLE_FORM_WIZARD as string | undefined) === "true";
+  const showStep = (...steps: number[]) => !formWizardOn || currentStep == null || steps.includes(currentStep);
   const taxIdType = value.taxIdType ?? "cnpj"; // default PJ para retrocompat
   const [cnpjError, setCnpjError] = useState("");
   const [cpfError, setCpfError] = useState("");
@@ -884,14 +891,14 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
 
       {/* ── Seção 1: Identidade ─────────────────────────────────────────── */}
       <section className="space-y-4">
-        <div className="flex items-center gap-2 pb-1 border-b">
+        {showStep(0, 1, 2) && (<div className="flex items-center gap-2 pb-1 border-b">
           <Building2 className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">Identificação</h3>
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
-        </div>
+        </div>)}
 
         {/* BUG-AGRO-CPF F2 (#1290) — Radio Tipo de Pessoa (sob flag ENABLE_TAX_ID_DUAL) */}
-        {enableTaxIdDual && (
+        {showStep(0) && enableTaxIdDual && (
           <div className="space-y-1.5">
             <Label className="text-sm">Tipo de Pessoa <span className="text-destructive">*</span></Label>
             <div className="flex gap-2">
@@ -926,7 +933,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* CNPJ — exibido sempre quando flag OFF · ou quando taxIdType === 'cnpj' */}
-        {(!enableTaxIdDual || taxIdType === "cnpj") && (
+        {showStep(1) && (!enableTaxIdDual || taxIdType === "cnpj") && (
           <div className="space-y-1.5">
             <Label data-testid="label-documento" className="text-sm">CNPJ <span className="text-destructive">*</span></Label>
             <Input
@@ -950,7 +957,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* BUG-AGRO-CPF F2 (#1290) — CPF (exibido apenas sob flag ON + taxIdType='cpf') */}
-        {enableTaxIdDual && taxIdType === "cpf" && (
+        {showStep(1) && enableTaxIdDual && taxIdType === "cpf" && (
           <div className="space-y-1.5">
             <Label data-testid="label-documento" className="text-sm">CPF <span className="text-destructive">*</span></Label>
             <Input
@@ -974,7 +981,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* BUG-AGRO-CPF-UX (#1299) — Tipo Jurídico + Porte: PJ-only (ocultos em PF). */}
-        {!isPF && (
+        {showStep(2) && !isPF && (
           <>
             {/* Tipo Jurídico */}
             <div className="space-y-2">
@@ -1032,7 +1039,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       {/* BUG-AGRO-CPF-UX-F7 (#1299) — F7 ocultou Faturamento também em PF.
           Toda a Seção 2 vira PJ-only; cabeçalho volta a ser "Regime Tributário"
           fixo (REGRA-ORQ-42 §1 — tabela de visibilidade). */}
-      {!isPF && (
+      {showStep(2) && !isPF && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-1 border-b">
             <CreditCard className="h-4 w-4 text-primary" />
@@ -1087,16 +1094,16 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
 
       {/* ── Seção 3: Operações ───────────────────────────────────────────── */}
       <section className="space-y-4">
-        <div className="flex items-center gap-2 pb-1 border-b">
+        {showStep(2, 4) && (<div className="flex items-center gap-2 pb-1 border-b">
           <Globe className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">Operações</h3>
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
-        </div>
+        </div>)}
 
         {/* BUG-AGRO-CPF-UX-F7 (#1299) — Tipo de Operação Principal: PJ-only.
             PF agro é implicitamente "Agronegócio" e não precisa selecionar — o
             cliente é produtor rural por declaração via radio PF. */}
-        {!isPF && (
+        {showStep(2) && !isPF && (
           <div className="space-y-2">
             <Label className="text-sm">Tipo de Operação Principal <span className="text-destructive">*</span></Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1123,6 +1130,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Tipo de Cliente */}
+        {showStep(2) && (
         <div className="space-y-2">
           <Label className="text-sm">Tipo de Cliente <span className="text-destructive">*</span></Label>
           <p className="text-xs text-muted-foreground">Selecione todos que se aplicam.</p>
@@ -1145,9 +1153,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
             ))}
           </div>
         </div>
+        )}
 
         {/* Bloco E (CNT-01c): Produtos e Serviços da Empresa — NCM */}
-        {(value.operationType === "industria" || value.operationType === "comercio" || value.operationType === "misto" || value.operationType === "agronegocio") && (
+        {showStep(4) && (value.operationType === "industria" || value.operationType === "comercio" || value.operationType === "misto" || value.operationType === "agronegocio") && (
           <div className="space-y-2">
             <div>
               <Label className="text-sm flex items-center gap-1.5">
@@ -1256,7 +1265,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Bloco E (CNT-01c): Produtos e Serviços da Empresa — NBS */}
-        {(value.operationType === "servicos" || value.operationType === "misto" || value.operationType === "financeiro") && (
+        {showStep(4) && (value.operationType === "servicos" || value.operationType === "misto" || value.operationType === "financeiro") && (
           <div className="space-y-2">
             <div>
               <Label className="text-sm flex items-center gap-1.5">
@@ -1365,6 +1374,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Multi-estado */}
+        {showStep(2) && (
         <div className="space-y-2">
           <Label className="text-sm">Opera em múltiplos estados? <span className="text-destructive">*</span></Label>
           <SimNaoToggle
@@ -1374,9 +1384,11 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
             tooltip="Impacta diretamente o cálculo do ICMS e as obrigações acessórias estaduais sob a nova Reforma Tributária."
           />
         </div>
+        )}
       </section>
 
       {/* ── Seção 4: Complexidade ────────────────────────────────────────── */}
+      {showStep(4) && (
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
           <AlertCircle className="h-4 w-4 text-primary" />
@@ -1392,8 +1404,10 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
             tooltip="Impacta IBS, CBS e regimes aduaneiros especiais." />
         </div>
       </section>
+      )}
 
       {/* ── Seção 5: Financeiro ──────────────────────────────────────────── */}
+      {showStep(4) && (
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
           <CreditCard className="h-4 w-4 text-primary" />
@@ -1427,11 +1441,12 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
           label="Utiliza intermediários financeiros (factoring, FIDC, antecipação de recebíveis)?"
           tooltip="Pode gerar obrigações adicionais de IOF e retenção na fonte." />
       </section>
+      )}
 
       {/* ── Seção 6.5: Estrutura Societária (QC-02) — ISSUE-001 Prefill Contract Fase 1 ── */}
       {/* BUG-AGRO-CPF-UX (#1299) — PJ-only: grupo econômico + centralização matriz/filial
           são conceitos de pessoa jurídica; PF agro não tem estrutura societária. */}
-      {!isPF && (
+      {showStep(4) && !isPF && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-1 border-b">
             <Network className="h-4 w-4 text-primary" />
@@ -1472,7 +1487,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       {/* ── Seção 6: Governança ──────────────────────────────────────────── */}
       {/* BUG-AGRO-CPF-UX (#1299) — "Equipe tributária interna" pressupõe estrutura
           empresarial PJ. PF agro não tem equipe tributária formal — oculto. */}
-      {!isPF && (
+      {showStep(4) && !isPF && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-1 border-b">
             <Shield className="h-4 w-4 text-primary" />
