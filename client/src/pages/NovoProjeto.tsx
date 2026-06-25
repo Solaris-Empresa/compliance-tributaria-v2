@@ -469,7 +469,7 @@ export default function NovoProjeto() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="project-name" className="text-sm font-semibold">Nome do Projeto <span className="text-destructive">*</span></Label>
-              <Input id="project-name" placeholder="Ex: Diagnóstico Tributário 2025 — Empresa ABC" value={name} onChange={(e) => setName(e.target.value)} className="h-10" />
+              <Input id="project-name" data-testid="input-nome-projeto" placeholder="Ex: Diagnóstico Tributário 2025 — Empresa ABC" value={name} onChange={(e) => setName(e.target.value)} className="h-10" />
             </div>
 
             <div className="space-y-2">
@@ -479,6 +479,7 @@ export default function NovoProjeto() {
               </div>
               <Textarea
                 id="description"
+                data-testid="textarea-descricao"
                 placeholder={"Descreva o negócio da empresa: principais atividades, como funciona a operação, desafios tributários atuais, regime tributário, setores de atuação, produtos/serviços oferecidos...\n\nQuanto mais detalhada a descrição, mais precisos serão os CNAEs identificados pela IA."}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -546,7 +547,7 @@ export default function NovoProjeto() {
         {/* CTA principal — contextual por estado */}
         {/* fix(z22) Wave A.2+B: botão simplificado — sem gate CPIE v2. */}
         <div className="flex justify-end pb-4">
-          <Button size="lg" onClick={handleSubmit} disabled={
+          <Button size="lg" data-testid="btn-criar-projeto" onClick={handleSubmit} disabled={
             isLoading ||
             !name.trim() ||
             descLength < 100 ||

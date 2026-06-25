@@ -226,13 +226,14 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
 /** Card de seleção única — substitui dropdowns frios */
-function SelectCard({ value, selected, onClick, icon, label, sublabel }: {
+function SelectCard({ value, selected, onClick, icon, label, sublabel, testId }: {
   value: string; selected: boolean; onClick: () => void;
-  icon?: React.ReactNode; label: string; sublabel?: string;
+  icon?: React.ReactNode; label: string; sublabel?: string; testId?: string;
 }) {
   return (
     <button
       type="button"
+      data-testid={testId}
       onClick={onClick}
       className={cn(
         "relative flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all duration-150 w-full",
@@ -990,6 +991,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                   <SelectCard
                     key={opt.value}
                     value={opt.value}
+                    testId={`card-tipojuridico-${opt.value}`}
                     selected={value.companyType === opt.value}
                     onClick={() => set("companyType", opt.value)}
                     label={opt.label}
@@ -1013,6 +1015,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                   <SelectCard
                     key={opt.value}
                     value={opt.value}
+                    testId={`card-porte-${opt.value}`}
                     selected={value.companySize === opt.value}
                     onClick={() => set("companySize", opt.value)}
                     label={opt.label}
@@ -1049,6 +1052,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                 <SelectCard
                   key={opt.value}
                   value={opt.value}
+                  testId={`card-regime-${opt.value}`}
                   selected={value.taxRegime === opt.value}
                   onClick={() => set("taxRegime", opt.value)}
                   label={opt.label}
@@ -1107,6 +1111,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
                 <SelectCard
                   key={opt.value}
                   value={opt.value}
+                  testId={`card-operacao-${opt.value}`}
                   selected={value.operationType === opt.value}
                   onClick={() => set("operationType", opt.value)}
                   label={opt.label}
@@ -1131,6 +1136,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
               <SelectCard
                 key={opt.value}
                 value={opt.value}
+                testId={`card-cliente-${opt.value}`}
                 selected={value.clientType.includes(opt.value)}
                 onClick={() => toggleArray("clientType", opt.value)}
                 label={opt.label}
