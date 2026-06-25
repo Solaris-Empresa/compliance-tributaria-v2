@@ -2,7 +2,7 @@
  * Suite E2E — Onda 1 SOLARIS
  * CT-01: CNAE universal carrega perguntas SOLARIS
  * CT-04: badge, progresso e steps visíveis
- * CT-06: campo obrigatório bloqueia avanço
+ * CT-06: pergunta SOLARIS pode ser pulada (ADR-0016 Opção B — sem obrigatório-bloqueante)
  * CT-07: concluir Onda 1 avança para Onda 2
  *
  * Rota: /projetos/:id/questionario-solaris
@@ -20,8 +20,11 @@ test.describe('Onda 1 SOLARIS', () => {
     // Aguardar carregamento do questionário
     await expect(page.locator('text=Questionário SOLARIS')).toBeVisible({ timeout: 15000 });
     await expect(page.locator('text=Equipe técnica SOLARIS')).toBeVisible();
-    // Primeira pergunta deve ser SOL-001
-    await expect(page.locator('text=SOL-001')).toBeVisible();
+    // 1ª pergunta visível p/ o contexto E2E (lucro_real, sem CNAE) = SOL-039.
+    // SOL-001..037 desativadas (ativo=0, novo lote curado); SOL-038 filtrada por
+    // filterSolarisByContext (ADR-0038, tax_regimes=["simples_nacional"] ≠ lucro_real).
+    // Mudança de CONTEÚDO intencional, não regressão (query Manus 25/06).
+    await expect(page.locator('text=SOL-039')).toBeVisible();
   });
 
   test('CT-04 — badge, progresso e steps visíveis', async ({ page }) => {
@@ -36,7 +39,7 @@ test.describe('Onda 1 SOLARIS', () => {
     await expect(page.locator('text=Etapa 1 de 8')).toBeVisible();
   });
 
-  test('CT-06 — campo obrigatório bloqueia avanço', async ({ page }) => {
+  test('CT-06 — pergunta SOLARIS pode ser pulada (ADR-0016 Opção B)', async ({ page }) => {
     await loginViaTestEndpoint(page);
     const id = await criarProjetoViaApi(page, 'UAT CT-06');
     await page.goto(`/projetos/${id}/questionario-solaris`);
@@ -44,12 +47,10 @@ test.describe('Onda 1 SOLARIS', () => {
     // Aguardar carregamento
     await expect(page.locator('text=Questionário SOLARIS')).toBeVisible({ timeout: 15000 });
 
-    // Clicar em Próxima sem preencher
-    await page.click('button:has-text("Próxima")');
-
-    // Deve aparecer mensagem de campo obrigatório
-    const obrigatorio = page.locator('text=/obrigatória|obrigatório/i').first();
-    await expect(obrigatorio).toBeVisible({ timeout: 5000 });
+    // ADR-0016 Opção B: o SOLARIS NÃO tem perguntas obrigatórias-bloqueantes →
+    // a pergunta pode ser pulada ("Pular esta pergunta"). A rota /questionario-solaris
+    // serve QuestionarioSolaris (App.tsx:125 — REGRA-ORQ-48), que cita ADR-0016 em :310.
+    await expect(page.locator('[data-testid^="btn-pular-pergunta"]')).toBeVisible({ timeout: 5000 });
   });
 
   test('CT-07 — concluir Onda 1 avança para Onda 2', async ({ page }) => {
