@@ -9,7 +9,7 @@
  * Sprint v5.5.0
  */
 
-import { it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // CI hygiene 2026-05-08 (PR ci/hygiene): openaiDescribe skipa quando OPENAI_API_KEY ausente
 // (tracer faz HTTP fetch interno que falha sem chave configurada).
 import { openaiDescribe } from "./test-helpers";
@@ -228,7 +228,11 @@ openaiDescribe("getBuildVersionInfo — Versão do build", () => {
 
 // ─── Testes: endpoint GET /api/version ───────────────────────────────────────
 
-openaiDescribe("GET /api/version — Endpoint de versão", () => {
+// CI-HYGIENE-02 follow-up: este bloco faz fetch a http://localhost:3000 → exige
+// um servidor rodando. openaiDescribe era o guard errado (skipa por OPENAI, não por
+// servidor) → rodava no CI com OPENAI_API_KEY setado e falhava com ECONNREFUSED.
+// Skip por SERVER_RUNNING: roda só quando há servidor local (SERVER_RUNNING=true).
+describe.skipIf(!process.env.SERVER_RUNNING)("GET /api/version — Endpoint de versão (requer servidor :3000)", () => {
   it("deve retornar JSON com campo version via curl local", async () => {
     // Teste de integração leve: verifica que o servidor responde ao endpoint
     const response = await fetch("http://localhost:3000/api/version");
