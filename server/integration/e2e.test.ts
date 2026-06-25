@@ -14,11 +14,12 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import { createTestContext, generateFakeAssessmentPhase1 } from "../test-helpers";
 import * as db from "../db";
 
-describe("E2E: Fluxo Completo do Usuário", () => {
+dbDescribe("E2E: Fluxo Completo do Usuário", () => {
   let projectId: number;
   let clientId: number;
   let equipeUserId: number;
@@ -257,7 +258,7 @@ describe("E2E: Fluxo Completo do Usuário", () => {
 // TESTES E2E COM MOCKS DE LLM
 // ============================================================================
 
-describe("E2E com Mocks LLM: Fluxo Completo com Geração de Conteúdo", () => {
+dbDescribe("E2E com Mocks LLM: Fluxo Completo com Geração de Conteúdo", () => {
   let projectId: number;
   let clientId: number;
   const ctx = createTestContext({ userId: 1, role: "equipe_solaris" });

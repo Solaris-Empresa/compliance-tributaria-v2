@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import type { TrpcContext } from "../_core/context";
 import { getDb } from "../db";
 
-describe("Analytics Router - Dashboard Executivo", () => {
+dbDescribe("Analytics Router - Dashboard Executivo", () => {
   let caller: ReturnType<typeof appRouter.createCaller>;
   let projectId: number;
 

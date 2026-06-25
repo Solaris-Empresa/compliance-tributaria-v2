@@ -3,6 +3,7 @@
  * Cobre: createProject, extractCnaes, confirmCnaes, createClientOnTheFly
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { TRPCError } from "@trpc/server";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ const mockCtx = { user: mockUser, req: {} as any, res: {} as any };
 
 // ─── Testes ───────────────────────────────────────────────────────────────────
 
-describe("fluxoV3Router — Etapa 1: Criação do Projeto", () => {
+dbDescribe("fluxoV3Router — Etapa 1: Criação do Projeto", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.getDb).mockResolvedValue(mockDb as any);
@@ -206,7 +207,7 @@ describe("fluxoV3Router — Etapa 1: Criação do Projeto", () => {
   });
 });
 
-describe("fluxoV3Router — Validações de Schema", () => {
+dbDescribe("fluxoV3Router — Validações de Schema", () => {
   it("deve validar que confidence está entre 0 e 100", () => {
     const validValues = [0, 50, 100];
     const invalidValues = [-1, 101, 150];

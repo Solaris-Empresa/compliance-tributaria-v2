@@ -26,7 +26,9 @@ jobs:
       - name: Run all tests
         run: pnpm test
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # CI-HYGIENE-02: DATABASE_URL removido deste step. Os testes de integração
+          # (db.insert(projects)) skipam via dbDescribe (REGRA-ORQ-CI-01) quando
+          # DATABASE_URL ausente, em vez de poluir o DB de PRODUÇÃO a cada PR.
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Verify invariants
         run: pnpm vitest run server/prefill-contract.test.ts server/invariants-606-607-608.test.ts

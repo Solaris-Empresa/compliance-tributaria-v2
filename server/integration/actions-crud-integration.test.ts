@@ -4,11 +4,12 @@
  */
 
 import { describe, it, expect, beforeAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import { getDb } from "../db";
 import { users, projects, projectParticipants } from "../drizzle/schema";
 
-describe("Actions CRUD tRPC Integration", () => {
+dbDescribe("Actions CRUD tRPC Integration", () => {
   let testUserId: number;
   let testProjectId: number;
   let caller: any;

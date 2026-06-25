@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { dbDescribe } from "../test-helpers";
 import * as db from '../db';
 
-describe('Risk Matrix Versions - Database Functions', () => {
+dbDescribe('Risk Matrix Versions - Database Functions', () => {
   let testProjectId: number;
   let testUserId: number;
 

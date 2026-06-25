@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from '../routers';
 import * as db from '../db';
 
-describe('riskMatrix.generate - Teste End-to-End', () => {
+dbDescribe('riskMatrix.generate - Teste End-to-End', () => {
   let testProjectId: number;
   let testUserId: number;
   const testUserName = 'Test User - Risk Generation';

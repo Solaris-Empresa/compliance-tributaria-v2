@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { appRouter } from "../routers";
 import { getDb } from "../db";
 
-describe("Branches System - Complete Tests", () => {
+dbDescribe("Branches System - Complete Tests", () => {
   let testUserId: number;
   let testProjectId: number;
 
