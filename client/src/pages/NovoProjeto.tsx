@@ -559,6 +559,33 @@ export default function NovoProjeto() {
             </div>
           </div>
         )}
+
+        {/* F2.3 — Passo 5 "Confirmação": resumo read-only (D6). O ScorePanel já vem do
+            sidebar do PerfilEmpresaIntelligente; aqui o usuário revisa os dados antes do submit. */}
+        {formWizardOn && wizardStep === 5 && (
+          <div data-testid="wizard-confirmacao" className="rounded-xl border p-4 space-y-3">
+            <h3 className="text-sm font-semibold">Revise os dados antes de criar o projeto</h3>
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div><dt className="text-xs text-muted-foreground">Tipo</dt><dd>{perfilData.taxIdType === "cpf" ? "Pessoa Física" : "Pessoa Jurídica"}</dd></div>
+              <div><dt className="text-xs text-muted-foreground">Documento</dt><dd>{perfilData.taxIdType === "cpf" ? (perfilData.cpf || "—") : (perfilData.cnpj || "—")}</dd></div>
+              {perfilData.taxIdType !== "cpf" && (
+                <>
+                  <div><dt className="text-xs text-muted-foreground">Tipo Jurídico</dt><dd>{perfilData.companyType || "—"}</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Porte</dt><dd>{perfilData.companySize || "—"}</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Regime</dt><dd>{perfilData.taxRegime || "—"}</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Operação</dt><dd>{perfilData.operationType || "—"}</dd></div>
+                </>
+              )}
+              <div><dt className="text-xs text-muted-foreground">Tipo de Cliente</dt><dd>{perfilData.clientType.length ? perfilData.clientType.join(", ") : "—"}</dd></div>
+              <div><dt className="text-xs text-muted-foreground">Nome do projeto</dt><dd>{name || "—"}</dd></div>
+              <div><dt className="text-xs text-muted-foreground">Descrição</dt><dd>{descLength} caracteres</dd></div>
+            </dl>
+            <div className="flex gap-4 pt-2 border-t text-sm">
+              <span data-testid="wizard-completude">Completude: {profileScore.completeness}%</span>
+              <span data-testid="wizard-confianca">Confiança: {profileScore.confidence}%</span>
+            </div>
+          </div>
+        )}
         </FormWizard>
 
         {/* CTA principal — oculto no wizard (FormWizard provê o submit no passo 5 "Confirmação") */}
