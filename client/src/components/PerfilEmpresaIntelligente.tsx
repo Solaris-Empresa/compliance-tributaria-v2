@@ -728,6 +728,27 @@ function ScorePanel({
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
+/**
+ * F4 (#1299 cascata PF) — zera os 8 campos PJ-only ao alternar para PF. Função PURA
+ * extraída do `useEffect` (testável sem RTL). NÃO mexe em cpf/cnpj/taxIdType/clientType
+ * nem em produtos/serviços — o backend ignora cpf "lixo" e o refine usa cnpj (#1299).
+ * Os 8: companyType · companySize · taxRegime · isEconomicGroup · taxCentralization ·
+ * hasTaxTeam · annualRevenueRange · operationType (nomes reais do tipo, zero-rename).
+ */
+export function clearPjOnlyFields(perfil: PerfilEmpresaData): PerfilEmpresaData {
+  return {
+    ...perfil,
+    companyType: "",
+    companySize: "",
+    taxRegime: "",
+    isEconomicGroup: null,
+    taxCentralization: null,
+    hasTaxTeam: null,
+    annualRevenueRange: "",
+    operationType: "",
+  };
+}
+
 interface PerfilEmpresaIntelligenteProps {
   value: PerfilEmpresaData;
   onChange: (data: PerfilEmpresaData) => void;
@@ -842,17 +863,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
     // BUG-AGRO-CPF-UX-F7 (#1299) — F7 limpa mais 2 campos (annualRevenueRange,
     // operationType) que viraram PJ-only. Nomes reais do tipo PerfilEmpresaData:
     // annualRevenueRange (não annualRevenue) e operationType são `string` (não null).
-    onChange({
-      ...value,
-      companyType: "",
-      companySize: "",
-      taxRegime: "",
-      isEconomicGroup: null,
-      taxCentralization: null,
-      hasTaxTeam: null,
-      annualRevenueRange: "",
-      operationType: "",
-    });
+    onChange(clearPjOnlyFields(value)); // F4: extraído para função pura (mesmo objeto)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPF]);
 
