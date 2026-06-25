@@ -23,12 +23,14 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: TypeScript check
         run: pnpm exec tsc --noEmit
-      - name: Run all tests
-        run: pnpm test
+      - name: Run unit tests
+        # CI-HYGIENE-02: era `pnpm test` (suite completa) com DATABASE_URL=prod →
+        # testes de integração faziam db.insert(projects) e poluíam PRODUÇÃO a cada PR.
+        # Agora roda só `test:unit` (sem DB). A integração roda LOCAL (`pnpm test`),
+        # onde os testes DB-dependentes skipam graciosamente via dbDescribe (REGRA-ORQ-CI-01)
+        # quando DATABASE_URL ausente. Sem staging (REGRA-E2E-PROD-01), CI não toca prod.
+        run: pnpm test:unit
         env:
-          # CI-HYGIENE-02: DATABASE_URL removido deste step. Os testes de integração
-          # (db.insert(projects)) skipam via dbDescribe (REGRA-ORQ-CI-01) quando
-          # DATABASE_URL ausente, em vez de poluir o DB de PRODUÇÃO a cada PR.
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Verify invariants
         run: pnpm vitest run server/prefill-contract.test.ts server/invariants-606-607-608.test.ts
