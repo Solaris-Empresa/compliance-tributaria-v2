@@ -197,6 +197,11 @@ export function calcProfileScore(p: PerfilEmpresaData): { completeness: number; 
         [!!p.companySize, "Porte da empresa"],
         [!!p.taxRegime, "Regime Tributário"],
         [!!p.operationType, "Tipo de Operação"],
+        // BUG-MULTISTATE-GATE (#1602): multiState é obrigatório p/ PJ no backend
+        // (superRefine routers-fluxo-v3.ts:472) mas estava ausente deste gate → wizard
+        // permitia avançar com null → 400 no submit. Paridade frontend↔backend (Lição #74).
+        // Só PJ (REGRA-ORQ-42: PF dispensa). null = não respondeu → bloqueia.
+        [p.multiState !== null, "Operação multiestadual"],
         [p.clientType.length > 0, "Tipo de Cliente"],
       ];
   const optional: Array<[boolean, string]> = [

@@ -17,7 +17,7 @@ import { calcProfileScore, type PerfilEmpresaData } from "./PerfilEmpresaIntelli
 const CNPJ_OK = "11222333000181";
 const CPF_OK = "52998224725";
 
-/** Fixture PJ com TODOS os 6 obrigatórios preenchidos e 0 opcionais. */
+/** Fixture PJ com TODOS os 7 obrigatórios preenchidos e 0 opcionais (multiState incl. — #1602). */
 function pj(over: Partial<PerfilEmpresaData> = {}): PerfilEmpresaData {
   return {
     cnpj: CNPJ_OK,
@@ -30,7 +30,7 @@ function pj(over: Partial<PerfilEmpresaData> = {}): PerfilEmpresaData {
     operationType: "industria",
     clientType: ["b2b"],
     paymentMethods: [],
-    multiState: null,
+    multiState: false, // #1602: multiState é obrigatório p/ PJ → fixture "completo" precisa preenchê-lo
     hasMultipleEstablishments: null,
     hasImportExport: null,
     hasIntermediaries: null,
@@ -61,8 +61,12 @@ function pf(over: Partial<PerfilEmpresaData> = {}): PerfilEmpresaData {
 }
 
 describe("calcProfileScore — baseline F0.5 (PJ obrigatórios)", () => {
-  it("PJ com os 6 obrigatórios preenchidos → missingRequired vazio", () => {
+  it("PJ com os 7 obrigatórios preenchidos → missingRequired vazio", () => {
     expect(calcProfileScore(pj()).missingRequired).toEqual([]);
+  });
+
+  it("PJ sem responder multiState (null) → falta 'Operação multiestadual' (BUG-MULTISTATE-GATE #1602)", () => {
+    expect(calcProfileScore(pj({ multiState: null })).missingRequired).toContain("Operação multiestadual");
   });
 
   it.each([
@@ -108,7 +112,7 @@ describe("calcProfileScore — baseline F0.5 (PF condicional #1299)", () => {
 });
 
 describe("calcProfileScore — baseline F0.5 (completeness + confidence)", () => {
-  it("PJ 6/6 obrigatórios + 0 opcionais → completeness 70 (70% req + 0% opt)", () => {
+  it("PJ 7/7 obrigatórios + 0 opcionais → completeness 70 (70% req + 0% opt)", () => {
     expect(calcProfileScore(pj()).completeness).toBe(70);
   });
 
@@ -116,7 +120,7 @@ describe("calcProfileScore — baseline F0.5 (completeness + confidence)", () =>
     expect(calcProfileScore(pf()).completeness).toBe(70);
   });
 
-  it("PJ 6/6 + 11/11 opcionais → completeness 100", () => {
+  it("PJ 7/7 + 11/11 opcionais → completeness 100", () => {
     const full = pj({
       annualRevenueRange: "ate_360k",
       hasMultipleEstablishments: false,
@@ -135,7 +139,7 @@ describe("calcProfileScore — baseline F0.5 (completeness + confidence)", () =>
 
   it("confidence −20 quando simples_nacional + faturamento alto (10m_50m | acima_50m)", () => {
     const r = calcProfileScore(pj({ taxRegime: "simples_nacional", annualRevenueRange: "acima_50m" }));
-    // completeness = round(6/6*70 + 1/11*30) = round(70+2.72) = 73; confidence = 73-20 = 53
+    // completeness = round(7/7*70 + 1/11*30) = round(70+2.72) = 73; confidence = 73-20 = 53
     expect(r.confidence).toBe(r.completeness - 20);
   });
 
