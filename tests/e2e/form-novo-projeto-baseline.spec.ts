@@ -25,9 +25,11 @@ test.describe("Baseline adaptativo — Novo Projeto (golden-path PJ · wizard ON
   test("PJ: preenche → submit → fluxo chega ao passo de CNAE (createProject OK)", async ({ page }) => {
     await loginViaTestEndpoint(page);
     await page.goto("/projetos/novo");
+    // Cold start pode levar 7-8s (serverless); aguardar networkidle antes de detectar wizard
+    await page.waitForLoadState("networkidle");
 
     const nome = NOME();
-    const isWizard = await page.getByTestId("form-wizard").isVisible({ timeout: 5000 }).catch(() => false);
+    const isWizard = await page.getByTestId("form-wizard").isVisible({ timeout: 15000 }).catch(() => false);
 
     if (isWizard) {
       // ── Wizard ON: navega os 5 passos (UX-PASSO1 #1598) ─────────────────────

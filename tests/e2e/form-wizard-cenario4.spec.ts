@@ -24,47 +24,87 @@ test.describe("F2.4 — Cenário 4 (PJ → volta → PF)", () => {
   test("cascata: PJ→PF esconde TJ/Porte/Regime e limpa os obrigatórios (submit volta a bloquear)", async ({ page }) => {
     await loginViaTestEndpoint(page);
     await page.goto("/projetos/novo");
+    await page.waitForLoadState("networkidle");
 
     // Sem o radio dual (ENABLE_TAX_ID_DUAL OFF) não há PJ/PF → cenário não se aplica.
     const radioPf = page.getByTestId("radio-pf");
-    if (!(await radioPf.isVisible().catch(() => false))) {
+    if (!(await radioPf.isVisible({ timeout: 15000 }).catch(() => false))) {
       test.skip(true, "ENABLE_TAX_ID_DUAL OFF — sem radio PJ/PF neste ambiente.");
     }
 
-    // Preenche como PJ até o submit habilitar.
-    await page.getByTestId("input-nome-projeto").fill(`E2E-TEST-cenario4-${Date.now()}`);
-    await page.getByTestId("textarea-descricao").fill(DESC);
-    await page.getByTestId("radio-pj").click();
-    await page.getByTestId("input-cnpj").fill("11222333000181");
-    await page.getByTestId("card-tipojuridico-ltda").click();
-    await page.getByTestId("card-porte-media").click();
-    await page.getByTestId("card-regime-lucro_real").click();
-    await page.getByTestId("card-operacao-industria").click();
-    await page.getByTestId("card-cliente-b2b").click();
-    await expect(page.getByTestId("btn-criar-projeto")).toBeEnabled();
+    // Detecta se wizard está ativo (adaptativo)
+    const isWizard = await page.getByTestId("form-wizard").isVisible().catch(() => false);
 
-    // Troca para PF → os campos PJ-only somem (gate !isPF) e o CPF aparece.
-    await radioPf.click();
-    await expect(page.getByTestId("card-tipojuridico-ltda")).toBeHidden();
-    await expect(page.getByTestId("card-porte-media")).toBeHidden();
-    await expect(page.getByTestId("card-regime-lucro_real")).toBeHidden();
-    await expect(page.getByTestId("input-cpf")).toBeVisible();
+    if (isWizard) {
+      // Wizard ON: navega até ter todos os campos preenchidos, depois testa cascata no passo 0
+      // Passo 0: PJ + CNPJ
+      await page.getByTestId("radio-pj").click();
+      await page.getByTestId("input-cnpj").fill("11222333000181");
+      await page.getByTestId("btn-wizard-avancar").click();
+      // Passo 1 (Perfil): preenche obrigatórios PJ
+      await page.getByTestId("card-tipojuridico-ltda").click();
+      await page.getByTestId("card-porte-media").click();
+      await page.getByTestId("card-regime-lucro_real").click();
+      await page.getByTestId("card-operacao-industria").click();
+      await page.getByTestId("card-cliente-b2b").click();
+      // Verifica que TJ/Porte/Regime estão visíveis (PJ)
+      await expect(page.getByTestId("card-tipojuridico-ltda")).toBeVisible();
 
-    // Volta para PJ → os campos reaparecem, mas VAZIOS (cascata limpou) → submit BLOQUEADO.
-    // (prova da limpeza: TJ/Porte/Regime/Operação ficaram missing-required.)
-    await page.getByTestId("radio-pj").click();
-    await expect(page.getByTestId("card-tipojuridico-ltda")).toBeVisible();
-    await expect(page.getByTestId("btn-criar-projeto")).toBeDisabled();
+      // Volta ao passo 0 e troca para PF → cascata deve limpar campos PJ-only
+      await page.getByTestId("btn-wizard-voltar").click();
+      await page.getByTestId("radio-pf").click();
+      await page.getByTestId("input-cpf").fill("52998224725");
+      await page.getByTestId("btn-wizard-avancar").click(); // volta ao Perfil
+
+      // No Perfil (PF): TJ/Porte/Regime OCULTOS (gate isPF)
+      await expect(page.getByTestId("card-tipojuridico-ltda")).toBeHidden();
+      await expect(page.getByTestId("card-porte-media")).toBeHidden();
+      await expect(page.getByTestId("card-regime-lucro_real")).toBeHidden();
+
+      // Volta ao passo 0 e troca de volta para PJ → campos reaparecem VAZIOS (cascata limpou)
+      await page.getByTestId("btn-wizard-voltar").click();
+      await page.getByTestId("radio-pj").click();
+      await page.getByTestId("input-cnpj").fill("11222333000181");
+      await page.getByTestId("btn-wizard-avancar").click(); // volta ao Perfil
+      await expect(page.getByTestId("card-tipojuridico-ltda")).toBeVisible();
+      // Cards visíveis mas NENHUM selecionado (cascata limpou) → Avançar BLOQUEADO
+      await expect(page.getByTestId("btn-wizard-avancar")).toBeDisabled();
+    } else {
+      // Wizard OFF: flat form (fluxo original)
+      await page.getByTestId("input-nome-projeto").fill(`E2E-TEST-cenario4-${Date.now()}`);
+      await page.getByTestId("textarea-descricao").fill(DESC);
+      await page.getByTestId("radio-pj").click();
+      await page.getByTestId("input-cnpj").fill("11222333000181");
+      await page.getByTestId("card-tipojuridico-ltda").click();
+      await page.getByTestId("card-porte-media").click();
+      await page.getByTestId("card-regime-lucro_real").click();
+      await page.getByTestId("card-operacao-industria").click();
+      await page.getByTestId("card-cliente-b2b").click();
+      await expect(page.getByTestId("btn-criar-projeto")).toBeEnabled();
+
+      // Troca para PF → os campos PJ-only somem (gate !isPF) e o CPF aparece.
+      await radioPf.click();
+      await expect(page.getByTestId("card-tipojuridico-ltda")).toBeHidden();
+      await expect(page.getByTestId("card-porte-media")).toBeHidden();
+      await expect(page.getByTestId("card-regime-lucro_real")).toBeHidden();
+      await expect(page.getByTestId("input-cpf")).toBeVisible();
+
+      // Volta para PJ → os campos reaparecem, mas VAZIOS (cascata limpou) → submit BLOQUEADO.
+      await page.getByTestId("radio-pj").click();
+      await expect(page.getByTestId("card-tipojuridico-ltda")).toBeVisible();
+      await expect(page.getByTestId("btn-criar-projeto")).toBeDisabled();
+    }
   });
 
   // ── Camada 2: NAVEGAÇÃO WIZARD (flag ON) — skip se wizard ausente; gateia o flip ──
   test("wizard: passo1 Perfil (PJ) → volta passo0 → PF → passo1 esconde TJ/Porte/Regime", async ({ page }) => {
     await loginViaTestEndpoint(page);
     await page.goto("/projetos/novo");
+    await page.waitForLoadState("networkidle");
 
     // Skip-guard: sem o wizard (flag VITE_ENABLE_FORM_WIZARD OFF) este cenário não existe.
     const wizard = page.getByTestId("form-wizard");
-    if (!(await wizard.isVisible().catch(() => false))) {
+    if (!(await wizard.isVisible({ timeout: 15000 }).catch(() => false))) {
       test.skip(true, "VITE_ENABLE_FORM_WIZARD OFF — wizard inativo; spec gateia o flip (pós-F4).");
     }
 
@@ -98,9 +138,10 @@ test.describe("F2.4 — Cenário 4 (PJ → volta → PF)", () => {
   test("UX-PASSO1: 4 painéis ocultos no Passo 0 → reaparecem no Passo 1 (Perfil)", async ({ page }) => {
     await loginViaTestEndpoint(page);
     await page.goto("/projetos/novo");
+    await page.waitForLoadState("networkidle");
 
     const wizard = page.getByTestId("form-wizard");
-    if (!(await wizard.isVisible().catch(() => false))) {
+    if (!(await wizard.isVisible({ timeout: 15000 }).catch(() => false))) {
       test.skip(true, "VITE_ENABLE_FORM_WIZARD OFF — wizard inativo; spec gateia o flip.");
     }
 
