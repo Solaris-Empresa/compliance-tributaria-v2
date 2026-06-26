@@ -56,6 +56,21 @@ Com `ENABLE_INTL_OPS_ALIGN=true` em prod (verificado `/proc/.../environ`), o hel
 
 `ADR-0039` (a criar) — decisão: import/export de bens ≠ operações internacionais; remover ponte dual-name; engine lê apenas a fonte direta. Base: parecer Dr. José LC 214 Arts. 64/65/80/81/231.
 
+## Bloco 9 — Referências de código
+
+Callsites tocados (Componente 3): `routers-fluxo-v3.ts:28` (import), `:497` (call `alignIntlOps`). Deletados: `server/lib/align-intl-ops.ts`, `align-intl-ops.test.ts`. **Não tocados:** leitores de `hasInternationalOps` (`:158`, `:5445`, `consistencyEngine.ts:172/179/189`, `db-requirements.ts:99`, `diagnostic-consolidator.ts:186/189/329`) + tipos/schema (`consistencyEngine:44`, `diagnostic-consolidator:52`, `diagnostic-source:85`, `consistencyRouter:38`, `routers-fluxo-v3:435`).
+
+## Contrato (input/output da procedure)
+
+`createProject` (`routers-fluxo-v3.ts:363`) — **contrato inalterado**. Input `taxComplexity` (Zod `:433-441`) e output (id do projeto) idênticos. Única mudança interna: o valor persistido em `taxComplexity` deixa de passar por `alignIntlOps` (não deriva mais `hasInternationalOps`). Sem mudança de assinatura, sem nova procedure.
+
+## Fluxo E2E (passo a passo — runtime, Manus pós-deploy)
+
+1. Criar projeto novo em `/projetos/novo`, passo "Opcionais" → marcar **"Realiza operações de importação ou exportação?" = Sim** → finalizar.
+2. `SELECT taxComplexity FROM projects WHERE id=<novo>` → `hasInternationalOps` **ausente/null** (não derivado); `hasImportExport=true` preservado.
+3. Verificar prompt da Onda 2 do projeto → **não** contém "Operações internacionais".
+4. Desligar flag `ENABLE_INTL_OPS_ALIGN` no env de prod (redundância; código já neutraliza).
+
 ## Evidência arquivada
 - Parecer Dr. José · prova runtime Manus (taxComplexity 3/3 + 10590001 + ConsistencyGate dormente) · `git=71dbf4ff / checkpoint=1eb2f974`
 - Análise: `docs/governance/relatorios/` (tabelas de campos)
