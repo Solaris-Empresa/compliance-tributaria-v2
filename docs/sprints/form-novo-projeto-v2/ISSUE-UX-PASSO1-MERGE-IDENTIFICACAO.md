@@ -120,7 +120,11 @@ Passo 1 (step 0) contém **apenas**: header "Identificação [Obrigatório]" · 
 | bloco vermelho (`:542-561`) | guard `(!formWizardOn \|\| wizardStep !== 0)` |
 
 ### data-testid a adicionar (Bloco 9)
-`status-perfil` (ScorePanel `:345`), `obrigatorios-faltantes` (`:667`), `banner-cnae` (`NovoProjeto.tsx:528`), `gate-perfil-vermelho` (`:542`) — para asserts de ausência/presença no E2E.
+Para asserts de ausência/presença no E2E (DoD discriminante):
+- `data-testid="status-perfil"` — ScorePanel (`PerfilEmpresaIntelligente.tsx:345`)
+- `data-testid="obrigatorios-faltantes"` — ScorePanel (`PerfilEmpresaIntelligente.tsx:668`)
+- `data-testid="banner-cnae"` — banner CNAE (`NovoProjeto.tsx:529`)
+- `data-testid="gate-perfil-vermelho"` — bloco vermelho (`NovoProjeto.tsx:545`)
 
 ---
 
