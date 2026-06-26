@@ -35,7 +35,9 @@ export const STEP_DEFS: readonly WizardStepDef[] = [
     id: 1,
     key: "perfil",
     label: "Perfil",
-    requiredLabels: ["Tipo Jurídico", "Porte da empresa", "Regime Tributário", "Tipo de Operação", "Tipo de Cliente"],
+    // BUG-MULTISTATE-GATE (#1602): "Operação multiestadual" obrigatória p/ PJ — paridade
+    // com calcProfileScore + superRefine backend. String idêntica (Lição #74: dessincronizar = gate não casa).
+    requiredLabels: ["Tipo Jurídico", "Porte da empresa", "Regime Tributário", "Tipo de Operação", "Operação multiestadual", "Tipo de Cliente"],
   },
   { id: 2, key: "descricao", label: "Descrição", requiredLabels: [] },
   { id: 3, key: "opcionais", label: "Melhorar diagnóstico", requiredLabels: [] },

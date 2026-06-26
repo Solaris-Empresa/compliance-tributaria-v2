@@ -11,7 +11,7 @@ function pj(over: Partial<PerfilEmpresaData> = {}): PerfilEmpresaData {
     cnpj: CNPJ_OK, cpf: "", taxIdType: "cnpj",
     companyType: "ltda", companySize: "media", taxRegime: "lucro_real",
     annualRevenueRange: "", operationType: "industria", clientType: ["b2b"],
-    paymentMethods: [], multiState: null, hasMultipleEstablishments: null,
+    paymentMethods: [], multiState: false, hasMultipleEstablishments: null, // #1602: multiState obrigatório p/ PJ
     hasImportExport: null, hasIntermediaries: null, hasTaxTeam: null,
     hasAudit: null, hasTaxIssues: null, isEconomicGroup: null, taxCentralization: null,
     principaisProdutos: [], principaisServicos: [],
@@ -47,8 +47,10 @@ describe("stepValid — Passo 0 Tipo+Identificação (CNPJ/CPF na mesma tela)", 
   it("PF CPF inválido → inválido", () => expect(stepValid(pf({ cpf: "111" }), 0, 0)).toBe(false));
 });
 
-describe("stepValid — Passo 1 Perfil (PJ 5 obrig · PF só Cliente)", () => {
-  it("PJ com os 5 → válido", () => expect(stepValid(pj(), 1, 0)).toBe(true));
+describe("stepValid — Passo 1 Perfil (PJ 6 obrig · PF só Cliente)", () => {
+  it("PJ com os 6 → válido", () => expect(stepValid(pj(), 1, 0)).toBe(true));
+  it("PJ sem multiState (null) → inválido (#1602 — gate em paridade c/ backend)", () =>
+    expect(stepValid(pj({ multiState: null }), 1, 0)).toBe(false));
   it.each(["companyType", "companySize", "taxRegime", "operationType"] as const)(
     "PJ sem %s → inválido", (campo) => expect(stepValid(pj({ [campo]: "" } as Partial<PerfilEmpresaData>), 1, 0)).toBe(false)
   );
