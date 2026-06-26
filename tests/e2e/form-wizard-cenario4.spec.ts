@@ -2,7 +2,8 @@
  * form-wizard-cenario4.spec.ts — F2.4 (FORM-NOVO-PROJETO-V2)
  *
  * DoD bloqueante do F2: **Cenário 4 — PJ → (volta) → PF** (cascata #1299 limpa os 6 campos
- * PJ-only e o passo 2 esconde TJ/Porte/Regime).
+ * PJ-only e o passo de Perfil esconde TJ/Porte/Regime).
+ * UX-PASSO1 (#1598): Passo 0 funde Tipo+CNPJ/CPF → Perfil passa a ser o passo 1 (era 2).
  *
  * D8 (decisão P.O.): duas camadas, por causa da REGRA-E2E-PROD-01 (só prod, flag wizard OFF):
  *  1. CASCATA (core do risco) — roda no form ATUAL (flag wizard OFF) → valida AGORA em prod.
@@ -57,7 +58,7 @@ test.describe("F2.4 — Cenário 4 (PJ → volta → PF)", () => {
   });
 
   // ── Camada 2: NAVEGAÇÃO WIZARD (flag ON) — skip se wizard ausente; gateia o flip ──
-  test("wizard: passo2 (PJ) → volta passo0 → PF → passo2 esconde TJ/Porte/Regime", async ({ page }) => {
+  test("wizard: passo1 Perfil (PJ) → volta passo0 → PF → passo1 esconde TJ/Porte/Regime", async ({ page }) => {
     await loginViaTestEndpoint(page);
     await page.goto("/projetos/novo");
 
@@ -67,13 +68,11 @@ test.describe("F2.4 — Cenário 4 (PJ → volta → PF)", () => {
       test.skip(true, "VITE_ENABLE_FORM_WIZARD OFF — wizard inativo; spec gateia o flip (pós-F4).");
     }
 
-    // Passo 0 (Tipo): PJ → Avançar.
+    // Passo 0 (Tipo + Identificação): PJ + CNPJ na mesma tela → Avançar.
     await page.getByTestId("radio-pj").click();
-    await page.getByTestId("btn-wizard-avancar").click();
-    // Passo 1 (Identificação): CNPJ → Avançar.
     await page.getByTestId("input-cnpj").fill("11222333000181");
     await page.getByTestId("btn-wizard-avancar").click();
-    // Passo 2 (Perfil): preenche os obrigatórios PJ.
+    // Passo 1 (Perfil): preenche os obrigatórios PJ.
     await page.getByTestId("card-tipojuridico-ltda").click();
     await page.getByTestId("card-porte-media").click();
     await page.getByTestId("card-regime-lucro_real").click();
@@ -81,18 +80,43 @@ test.describe("F2.4 — Cenário 4 (PJ → volta → PF)", () => {
     await page.getByTestId("card-cliente-b2b").click();
     await expect(page.getByTestId("card-tipojuridico-ltda")).toBeVisible();
 
-    // Volta ao passo 0 (Voltar ×2) e troca para PF.
-    await page.getByTestId("btn-wizard-voltar").click();
+    // Volta ao passo 0 (Voltar ×1 — Perfil agora é o passo 1) e troca para PF.
     await page.getByTestId("btn-wizard-voltar").click();
     await page.getByTestId("radio-pf").click();
 
-    // Avança até o passo 2 e confirma que TJ/Porte/Regime estão escondidos (PF) e Cliente visível.
-    await page.getByTestId("btn-wizard-avancar").click(); // passo 1 (CPF)
+    // No passo 0 (PF): CPF na mesma tela → avança ao passo 1 (Perfil); TJ/Porte/Regime escondidos.
     await page.getByTestId("input-cpf").fill("52998224725");
-    await page.getByTestId("btn-wizard-avancar").click(); // passo 2 (Perfil)
+    await page.getByTestId("btn-wizard-avancar").click(); // → passo 1 (Perfil)
     await expect(page.getByTestId("card-tipojuridico-ltda")).toBeHidden();
     await expect(page.getByTestId("card-porte-media")).toBeHidden();
     await expect(page.getByTestId("card-regime-lucro_real")).toBeHidden();
     await expect(page.getByTestId("card-cliente-b2b")).toBeVisible();
+  });
+
+  // ── DoD discriminante UX-PASSO1 (#1598) — REGRA-ORQ-47 / Lição #139 ───────────────
+  // Prova o gate por-passo: os 4 painéis estão OCULTOS no Passo 0 e REAPARECEM no Passo 1.
+  test("UX-PASSO1: 4 painéis ocultos no Passo 0 → reaparecem no Passo 1 (Perfil)", async ({ page }) => {
+    await loginViaTestEndpoint(page);
+    await page.goto("/projetos/novo");
+
+    const wizard = page.getByTestId("form-wizard");
+    if (!(await wizard.isVisible().catch(() => false))) {
+      test.skip(true, "VITE_ENABLE_FORM_WIZARD OFF — wizard inativo; spec gateia o flip.");
+    }
+
+    // Passo 0 (Tipo+Identificação): radio + CNPJ visíveis; os 4 painéis OCULTOS.
+    await expect(page.getByTestId("radio-pj")).toBeVisible();
+    await expect(page.getByTestId("input-cnpj")).toBeVisible();
+    await expect(page.getByTestId("status-perfil")).toBeHidden();
+    await expect(page.getByTestId("obrigatorios-faltantes")).toBeHidden();
+    await expect(page.getByTestId("banner-cnae")).toBeHidden();
+    await expect(page.getByTestId("gate-perfil-vermelho")).toBeHidden();
+
+    // Avança ao Passo 1 (Perfil): sidebar "Status do Perfil" + banner CNAE REAPARECEM.
+    await page.getByTestId("radio-pj").click();
+    await page.getByTestId("input-cnpj").fill("11222333000181");
+    await page.getByTestId("btn-wizard-avancar").click();
+    await expect(page.getByTestId("status-perfil")).toBeVisible();
+    await expect(page.getByTestId("banner-cnae")).toBeVisible();
   });
 });

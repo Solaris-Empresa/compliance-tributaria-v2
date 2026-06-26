@@ -22,41 +22,45 @@ function pf(over: Partial<PerfilEmpresaData> = {}): PerfilEmpresaData {
   return pj({ taxIdType: "cpf", cnpj: "", cpf: CPF_OK, companyType: "", companySize: "", taxRegime: "", operationType: "", ...over });
 }
 
-describe("STEP_DEFS — D2 (Passo 0 separado)", () => {
-  it("6 passos, Passo 0 = tipo, último = confirmacao", () => {
-    expect(STEP_DEFS).toHaveLength(6);
+describe("STEP_DEFS — UX-PASSO1 (Tipo+Identificação fundidos)", () => {
+  it("5 passos, Passo 0 = tipo, último = confirmacao", () => {
+    expect(STEP_DEFS).toHaveLength(5);
     expect(STEP_DEFS[0].key).toBe("tipo");
     expect(STEP_DEFS[LAST_STEP].key).toBe("confirmacao");
   });
+  it("step 'identificacao' não existe mais (absorvido pelo step 0 'tipo')", () => {
+    expect(STEP_DEFS.some((d) => (d.key as string) === "identificacao")).toBe(false);
+  });
+  it("LAST_STEP === 4", () => expect(LAST_STEP).toBe(4));
 });
 
 describe("stepValid — passos sem gate", () => {
-  it.each([0, 4, 5])("passo %i (sem requiredLabels) sempre válido", (s) => {
+  it.each([3, 4])("passo %i (sem requiredLabels) sempre válido", (s) => {
     expect(stepValid(pj(), s, 0)).toBe(true);
   });
 });
 
-describe("stepValid — Passo 1 Identificação (CNPJ/CPF)", () => {
-  it("PJ CNPJ válido → válido", () => expect(stepValid(pj(), 1, 0)).toBe(true));
-  it("PJ CNPJ inválido → inválido", () => expect(stepValid(pj({ cnpj: "123" }), 1, 0)).toBe(false));
-  it("PF CPF válido → válido (CNPJ irrelevante não bloqueia)", () => expect(stepValid(pf(), 1, 0)).toBe(true));
-  it("PF CPF inválido → inválido", () => expect(stepValid(pf({ cpf: "111" }), 1, 0)).toBe(false));
+describe("stepValid — Passo 0 Tipo+Identificação (CNPJ/CPF na mesma tela)", () => {
+  it("PJ CNPJ válido → válido", () => expect(stepValid(pj(), 0, 0)).toBe(true));
+  it("PJ CNPJ inválido → inválido", () => expect(stepValid(pj({ cnpj: "123" }), 0, 0)).toBe(false));
+  it("PF CPF válido → válido (CNPJ irrelevante não bloqueia)", () => expect(stepValid(pf(), 0, 0)).toBe(true));
+  it("PF CPF inválido → inválido", () => expect(stepValid(pf({ cpf: "111" }), 0, 0)).toBe(false));
 });
 
-describe("stepValid — Passo 2 Perfil (PJ 5 obrig · PF só Cliente)", () => {
-  it("PJ com os 5 → válido", () => expect(stepValid(pj(), 2, 0)).toBe(true));
+describe("stepValid — Passo 1 Perfil (PJ 5 obrig · PF só Cliente)", () => {
+  it("PJ com os 5 → válido", () => expect(stepValid(pj(), 1, 0)).toBe(true));
   it.each(["companyType", "companySize", "taxRegime", "operationType"] as const)(
-    "PJ sem %s → inválido", (campo) => expect(stepValid(pj({ [campo]: "" } as Partial<PerfilEmpresaData>), 2, 0)).toBe(false)
+    "PJ sem %s → inválido", (campo) => expect(stepValid(pj({ [campo]: "" } as Partial<PerfilEmpresaData>), 1, 0)).toBe(false)
   );
-  it("PJ sem clientType → inválido", () => expect(stepValid(pj({ clientType: [] }), 2, 0)).toBe(false));
+  it("PJ sem clientType → inválido", () => expect(stepValid(pj({ clientType: [] }), 1, 0)).toBe(false));
   it("PF não cobra TJ/Porte/Regime/Operação (vazios) → válido com Cliente", () =>
-    expect(stepValid(pf(), 2, 0)).toBe(true));
-  it("PF sem clientType → inválido", () => expect(stepValid(pf({ clientType: [] }), 2, 0)).toBe(false));
+    expect(stepValid(pf(), 1, 0)).toBe(true));
+  it("PF sem clientType → inválido", () => expect(stepValid(pf({ clientType: [] }), 1, 0)).toBe(false));
 });
 
-describe("stepValid — Passo 3 Descrição (≥100)", () => {
-  it("descrição < 100 → inválido", () => expect(stepValid(pj(), 3, 99)).toBe(false));
-  it("descrição = 100 → válido", () => expect(stepValid(pj(), 3, 100)).toBe(true));
+describe("stepValid — Passo 2 Descrição (≥100)", () => {
+  it("descrição < 100 → inválido", () => expect(stepValid(pj(), 2, 99)).toBe(false));
+  it("descrição = 100 → válido", () => expect(stepValid(pj(), 2, 100)).toBe(true));
 });
 
 describe("canSubmit — todos os passos anteriores válidos", () => {
@@ -67,17 +71,17 @@ describe("canSubmit — todos os passos anteriores válidos", () => {
 });
 
 describe("F3 — stepHasContentFor (DoD: PJ todos têm · PF todos têm hoje)", () => {
-  it.each([0, 1, 2, 3, 4, 5])("passo %i tem conteúdo para PJ", (s) =>
+  it.each([0, 1, 2, 3, 4])("passo %i tem conteúdo para PJ", (s) =>
     expect(stepHasContentFor(s, false)).toBe(true));
-  it.each([0, 1, 2, 3, 4, 5])("passo %i tem conteúdo para PF (hoje)", (s) =>
+  it.each([0, 1, 2, 3, 4])("passo %i tem conteúdo para PF (hoje)", (s) =>
     expect(stepHasContentFor(s, true)).toBe(true));
   it("passo inexistente → false", () => expect(stepHasContentFor(99, false)).toBe(false));
 });
 
 describe("F3 — nextStep/prevStep com dados atuais (PF não pula nada hoje)", () => {
-  it.each([[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 5]] as const)(
+  it.each([[0, 1], [1, 2], [2, 3], [3, 4], [4, 4]] as const)(
     "nextStep(%i, PF) = %i", (from, to) => expect(nextStep(from, true)).toBe(to));
-  it.each([[5, 4], [4, 3], [3, 2], [2, 1], [1, 0], [0, 0]] as const)(
+  it.each([[4, 3], [3, 2], [2, 1], [1, 0], [0, 0]] as const)(
     "prevStep(%i, PF) = %i", (from, to) => expect(prevStep(from, true)).toBe(to));
 });
 

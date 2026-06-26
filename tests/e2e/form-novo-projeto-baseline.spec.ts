@@ -2,8 +2,8 @@
  * form-novo-projeto-baseline.spec.ts — F0 + D-BASELINE (FORM-NOVO-PROJETO-V2)
  *
  * Golden-path PJ de /projetos/novo, **ADAPTATIVO** ao layout:
- *  - Wizard ON  (VITE_ENABLE_FORM_WIZARD): navega os 6 passos com btn-wizard-avancar →
- *    submit no passo 5 (btn-criar-projeto-wizard).
+ *  - Wizard ON  (VITE_ENABLE_FORM_WIZARD): navega os 5 passos com btn-wizard-avancar →
+ *    submit no passo 4 (btn-criar-projeto-wizard). UX-PASSO1 (#1598): Passo 0 funde Tipo+CNPJ/CPF.
  *  - Wizard OFF: preenche single-page → btn-criar-projeto.
  * Mesmos data-testid nos dois fluxos → cumpre o "antes×depois" de verdade (corrige a
  * premissa do F0 que assumia todos os campos numa página só — o wizard pagina por passo).
@@ -30,19 +30,16 @@ test.describe("Baseline adaptativo — Novo Projeto (golden-path PJ · wizard ON
     const isWizard = await page.getByTestId("form-wizard").isVisible({ timeout: 5000 }).catch(() => false);
 
     if (isWizard) {
-      // ── Wizard ON: navega os 6 passos ───────────────────────────────────────
+      // ── Wizard ON: navega os 5 passos (UX-PASSO1 #1598) ─────────────────────
       const avancar = page.getByTestId("btn-wizard-avancar");
 
-      // Passo 0 — Tipo (PJ)
+      // Passo 0 — Tipo + Identificação (PJ + CNPJ na mesma tela)
       await page.getByTestId("radio-pj").click();
-      await avancar.click();
-
-      // Passo 1 — Identificação (CNPJ)
       await page.getByTestId("input-cnpj").fill("11222333000181");
       await expect(avancar).toBeEnabled();
       await avancar.click();
 
-      // Passo 2 — Perfil (5 obrigatórios)
+      // Passo 1 — Perfil (5 obrigatórios)
       await page.getByTestId("card-tipojuridico-ltda").click();
       await page.getByTestId("card-porte-media").click();
       await page.getByTestId("card-regime-lucro_real").click();
@@ -51,16 +48,16 @@ test.describe("Baseline adaptativo — Novo Projeto (golden-path PJ · wizard ON
       await expect(avancar).toBeEnabled();
       await avancar.click();
 
-      // Passo 3 — Descrição (nome + descrição ≥ 100)
+      // Passo 2 — Descrição (nome + descrição ≥ 100)
       await page.getByTestId("input-nome-projeto").fill(nome);
       await page.getByTestId("textarea-descricao").fill(DESCRICAO);
       await expect(avancar).toBeEnabled();
       await avancar.click();
 
-      // Passo 4 — Opcionais (sem obrigatório) → avançar
+      // Passo 3 — Opcionais (sem obrigatório) → avançar
       await avancar.click();
 
-      // Passo 5 — Confirmação → submit
+      // Passo 4 — Confirmação → submit
       const submit = page.getByTestId("btn-criar-projeto-wizard");
       await expect(submit).toBeEnabled();
       await submit.click();
