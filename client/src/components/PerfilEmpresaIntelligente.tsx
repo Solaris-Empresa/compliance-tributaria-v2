@@ -342,7 +342,7 @@ function ScorePanel({
     <div className="sticky top-4 space-y-3">
 
       {/* ── BLOCO 1: Status do Perfil (3 scores) ── */}
-      <div className="rounded-2xl border bg-card p-5 space-y-4">
+      <div data-testid="status-perfil" className="rounded-2xl border bg-card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold">Status do Perfil</span>
@@ -665,7 +665,7 @@ function ScorePanel({
 
       {/* Campos obrigatórios faltantes (estado neutro — sem análise) */}
       {!hasAnalysis && missingRequired.length > 0 && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-2">
+        <div data-testid="obrigatorios-faltantes" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-2">
           <div className="flex items-center gap-1.5">
             <Lock className="h-3.5 w-3.5 text-destructive" />
             <span className="text-xs font-semibold text-destructive">Obrigatórios ({missingRequired.length})</span>
@@ -902,7 +902,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
 
       {/* ── Seção 1: Identidade ─────────────────────────────────────────── */}
       <section className="space-y-4">
-        {showStep(0, 1, 2) && (<div className="flex items-center gap-2 pb-1 border-b">
+        {showStep(0, 1) && (<div className="flex items-center gap-2 pb-1 border-b">
           <Building2 className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">Identificação</h3>
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
@@ -944,7 +944,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* CNPJ — exibido sempre quando flag OFF · ou quando taxIdType === 'cnpj' */}
-        {showStep(1) && (!enableTaxIdDual || taxIdType === "cnpj") && (
+        {showStep(0) && (!enableTaxIdDual || taxIdType === "cnpj") && (
           <div className="space-y-1.5">
             <Label data-testid="label-documento" className="text-sm">CNPJ <span className="text-destructive">*</span></Label>
             <Input
@@ -968,7 +968,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* BUG-AGRO-CPF F2 (#1290) — CPF (exibido apenas sob flag ON + taxIdType='cpf') */}
-        {showStep(1) && enableTaxIdDual && taxIdType === "cpf" && (
+        {showStep(0) && enableTaxIdDual && taxIdType === "cpf" && (
           <div className="space-y-1.5">
             <Label data-testid="label-documento" className="text-sm">CPF <span className="text-destructive">*</span></Label>
             <Input
@@ -992,7 +992,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* BUG-AGRO-CPF-UX (#1299) — Tipo Jurídico + Porte: PJ-only (ocultos em PF). */}
-        {showStep(2) && !isPF && (
+        {showStep(1) && !isPF && (
           <>
             {/* Tipo Jurídico */}
             <div className="space-y-2">
@@ -1050,7 +1050,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       {/* BUG-AGRO-CPF-UX-F7 (#1299) — F7 ocultou Faturamento também em PF.
           Toda a Seção 2 vira PJ-only; cabeçalho volta a ser "Regime Tributário"
           fixo (REGRA-ORQ-42 §1 — tabela de visibilidade). */}
-      {showStep(2) && !isPF && (
+      {showStep(1) && !isPF && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-1 border-b">
             <CreditCard className="h-4 w-4 text-primary" />
@@ -1105,7 +1105,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
 
       {/* ── Seção 3: Operações ───────────────────────────────────────────── */}
       <section className="space-y-4">
-        {showStep(2, 4) && (<div className="flex items-center gap-2 pb-1 border-b">
+        {showStep(1, 3) && (<div className="flex items-center gap-2 pb-1 border-b">
           <Globe className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">Operações</h3>
           <Badge variant="secondary" className="text-xs">Obrigatório</Badge>
@@ -1114,7 +1114,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         {/* BUG-AGRO-CPF-UX-F7 (#1299) — Tipo de Operação Principal: PJ-only.
             PF agro é implicitamente "Agronegócio" e não precisa selecionar — o
             cliente é produtor rural por declaração via radio PF. */}
-        {showStep(2) && !isPF && (
+        {showStep(1) && !isPF && (
           <div className="space-y-2">
             <Label className="text-sm">Tipo de Operação Principal <span className="text-destructive">*</span></Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1141,7 +1141,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Tipo de Cliente */}
-        {showStep(2) && (
+        {showStep(1) && (
         <div className="space-y-2">
           <Label className="text-sm">Tipo de Cliente <span className="text-destructive">*</span></Label>
           <p className="text-xs text-muted-foreground">Selecione todos que se aplicam.</p>
@@ -1167,7 +1167,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Bloco E (CNT-01c): Produtos e Serviços da Empresa — NCM */}
-        {showStep(4) && (value.operationType === "industria" || value.operationType === "comercio" || value.operationType === "misto" || value.operationType === "agronegocio") && (
+        {showStep(3) && (value.operationType === "industria" || value.operationType === "comercio" || value.operationType === "misto" || value.operationType === "agronegocio") && (
           <div className="space-y-2">
             <div>
               <Label className="text-sm flex items-center gap-1.5">
@@ -1276,7 +1276,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Bloco E (CNT-01c): Produtos e Serviços da Empresa — NBS */}
-        {showStep(4) && (value.operationType === "servicos" || value.operationType === "misto" || value.operationType === "financeiro") && (
+        {showStep(3) && (value.operationType === "servicos" || value.operationType === "misto" || value.operationType === "financeiro") && (
           <div className="space-y-2">
             <div>
               <Label className="text-sm flex items-center gap-1.5">
@@ -1385,7 +1385,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
         )}
 
         {/* Multi-estado */}
-        {showStep(2) && (
+        {showStep(1) && (
         <div className="space-y-2">
           <Label className="text-sm">Opera em múltiplos estados? <span className="text-destructive">*</span></Label>
           <SimNaoToggle
@@ -1399,7 +1399,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       </section>
 
       {/* ── Seção 4: Complexidade ────────────────────────────────────────── */}
-      {showStep(4) && (
+      {showStep(3) && (
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
           <AlertCircle className="h-4 w-4 text-primary" />
@@ -1418,7 +1418,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       )}
 
       {/* ── Seção 5: Financeiro ──────────────────────────────────────────── */}
-      {showStep(4) && (
+      {showStep(3) && (
       <section className="space-y-4">
         <div className="flex items-center gap-2 pb-1 border-b">
           <CreditCard className="h-4 w-4 text-primary" />
@@ -1457,7 +1457,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       {/* ── Seção 6.5: Estrutura Societária (QC-02) — ISSUE-001 Prefill Contract Fase 1 ── */}
       {/* BUG-AGRO-CPF-UX (#1299) — PJ-only: grupo econômico + centralização matriz/filial
           são conceitos de pessoa jurídica; PF agro não tem estrutura societária. */}
-      {showStep(4) && !isPF && (
+      {showStep(3) && !isPF && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-1 border-b">
             <Network className="h-4 w-4 text-primary" />
@@ -1498,7 +1498,7 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       {/* ── Seção 6: Governança ──────────────────────────────────────────── */}
       {/* BUG-AGRO-CPF-UX (#1299) — "Equipe tributária interna" pressupõe estrutura
           empresarial PJ. PF agro não tem equipe tributária formal — oculto. */}
-      {showStep(4) && !isPF && (
+      {showStep(3) && !isPF && (
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-1 border-b">
             <Shield className="h-4 w-4 text-primary" />
@@ -1537,7 +1537,11 @@ export function PerfilEmpresaIntelligente({ value, onChange, showScorePanel = tr
       )}
     </div>
   );
-  if (!showScorePanel) return formContent;
+  // UX-PASSO1 (#1598): no Passo 1 do wizard (step 0 — Tipo+Identificação), ocultar o
+  // sidebar inteiro (Status do Perfil + Obrigatórios). Reaparece do step 1 (Perfil) em diante.
+  // Flag OFF ou currentStep ausente → sidebar normal (zero regressão).
+  const hideSidebarStep0 = formWizardOn && currentStep === 0;
+  if (!showScorePanel || hideSidebarStep0) return formContent;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">

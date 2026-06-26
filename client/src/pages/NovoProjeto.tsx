@@ -473,8 +473,8 @@ export default function NovoProjeto() {
           submitting={isLoading}
           onSubmit={handleSubmit}
         >
-        {/* Informações do Projeto — Nome + Descrição (passo 3 "Descrição" quando wizard ON) */}
-        {(!formWizardOn || wizardStep === 3) && (
+        {/* Informações do Projeto — Nome + Descrição (passo 2 "Descrição" quando wizard ON — UX-PASSO1 #1598: era 3) */}
+        {(!formWizardOn || wizardStep === 2) && (
         <Card className="shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg">Informações do Projeto</CardTitle>
@@ -524,8 +524,9 @@ export default function NovoProjeto() {
           /* fix(z22) Wave A.2+B: externalCpieV2Gate + onCpieScore não mais usados — gate CPIE removido. */
         />
 
-        {/* Banner de análise IA */}
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
+        {/* Banner de análise IA — UX-PASSO1 (#1598): oculto no Passo 1 (step 0) do wizard */}
+        {(!formWizardOn || wizardStep !== 0) && (
+        <div data-testid="banner-cnae" className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
           <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-primary">Análise Inteligente de CNAEs</p>
@@ -534,13 +535,14 @@ export default function NovoProjeto() {
             </p>
           </div>
         </div>
+        )}
 
 
         {/* EXCLUIR-CLIENTE-PROJETO — banner "Selecione um cliente" removido. */}
 
-        {/* Gate de validação do perfil */}
-        {!profileValid && (
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/8 border-2 border-destructive/30">
+        {/* Gate de validação do perfil — UX-PASSO1 (#1598): oculto no Passo 1 (step 0) do wizard */}
+        {(!formWizardOn || wizardStep !== 0) && !profileValid && (
+          <div data-testid="gate-perfil-vermelho" className="flex items-start gap-3 p-4 rounded-xl bg-destructive/8 border-2 border-destructive/30">
             <Lock className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-destructive">Preencha os dados obrigatórios do Perfil da Empresa para continuar.</p>
@@ -562,7 +564,7 @@ export default function NovoProjeto() {
 
         {/* F2.3 — Passo 5 "Confirmação": resumo read-only (D6). O ScorePanel já vem do
             sidebar do PerfilEmpresaIntelligente; aqui o usuário revisa os dados antes do submit. */}
-        {formWizardOn && wizardStep === 5 && (
+        {formWizardOn && wizardStep === 4 && (
           <div data-testid="wizard-confirmacao" className="rounded-xl border p-4 space-y-3">
             <h3 className="text-sm font-semibold">Revise os dados antes de criar o projeto</h3>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">

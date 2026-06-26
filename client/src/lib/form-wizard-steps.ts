@@ -9,7 +9,6 @@ import { calcProfileScore, type PerfilEmpresaData } from "../components/PerfilEm
 
 export type WizardStepKey =
   | "tipo"
-  | "identificacao"
   | "perfil"
   | "descricao"
   | "opcionais"
@@ -24,22 +23,23 @@ export interface WizardStepDef {
 }
 
 /**
- * D2: Passo 0 (Tipo PJ/PF) SEPARADO. Os labels batem com calcProfileScore
- * (PerfilEmpresaIntelligente.tsx). CNPJ/CPF ambos no passo 1: calcProfileScore só
- * coloca o relevante em missingRequired (PF-condicional) → o irrelevante nunca bloqueia.
+ * UX-PASSO1 (#1598): Passo 0 "Tipo" FUNDE radio PJ/PF + campo CNPJ/CPF na mesma tela
+ * (antes: radio no step 0, documento no step 1 "Identificação"). Wizard passa de 6 → 5 passos.
+ * O `requiredLabels` de step 0 = ["CNPJ válido","CPF válido"] é UNION dos dois cenários, NÃO
+ * "ambos obrigatórios": calcProfileScore é PF-condicional e só coloca o label relevante em
+ * missingRequired (CNPJ p/ PJ, CPF p/ PF) → o irrelevante nunca bloqueia o "Avançar".
  */
 export const STEP_DEFS: readonly WizardStepDef[] = [
-  { id: 0, key: "tipo", label: "Tipo", requiredLabels: [] },
-  { id: 1, key: "identificacao", label: "Identificação", requiredLabels: ["CNPJ válido", "CPF válido"] },
+  { id: 0, key: "tipo", label: "Tipo", requiredLabels: ["CNPJ válido", "CPF válido"] },
   {
-    id: 2,
+    id: 1,
     key: "perfil",
     label: "Perfil",
     requiredLabels: ["Tipo Jurídico", "Porte da empresa", "Regime Tributário", "Tipo de Operação", "Tipo de Cliente"],
   },
-  { id: 3, key: "descricao", label: "Descrição", requiredLabels: [] },
-  { id: 4, key: "opcionais", label: "Melhorar diagnóstico", requiredLabels: [] },
-  { id: 5, key: "confirmacao", label: "Confirmação", requiredLabels: [] },
+  { id: 2, key: "descricao", label: "Descrição", requiredLabels: [] },
+  { id: 3, key: "opcionais", label: "Melhorar diagnóstico", requiredLabels: [] },
+  { id: 4, key: "confirmacao", label: "Confirmação", requiredLabels: [] },
 ] as const;
 
 export const LAST_STEP = STEP_DEFS.length - 1;
@@ -71,12 +71,11 @@ export function canSubmit(perfil: PerfilEmpresaData, descriptionLength: number):
 // `nextStep`/`prevStep` NÃO pulam nada. É rede de segurança à prova de futuro: se um passo
 // virar só-PJ (pf:false), a navegação o pula automaticamente para PF, sem nova intervenção.
 const STEP_CONTENT: Record<number, { pj: boolean; pf: boolean }> = {
-  0: { pj: true, pf: true }, // Tipo (radio PJ/PF)
-  1: { pj: true, pf: true }, // CNPJ (PJ) / CPF (PF)
-  2: { pj: true, pf: true }, // PJ: TJ/Porte/Regime/Operação/Cliente · PF: Cliente/multiState
-  3: { pj: true, pf: true }, // Nome + Descrição
-  4: { pj: true, pf: true }, // PJ: tudo · PF: Complexidade/Financeiro
-  5: { pj: true, pf: true }, // Confirmação
+  0: { pj: true, pf: true }, // Tipo (radio PJ/PF + CNPJ/CPF na mesma tela — UX-PASSO1 #1598)
+  1: { pj: true, pf: true }, // PJ: TJ/Porte/Regime/Operação/Cliente · PF: Cliente/multiState
+  2: { pj: true, pf: true }, // Nome + Descrição
+  3: { pj: true, pf: true }, // PJ: tudo · PF: Complexidade/Financeiro
+  4: { pj: true, pf: true }, // Confirmação
 };
 
 /** O passo tem ao menos 1 campo visível para o tipo de pessoa (isPF)? */

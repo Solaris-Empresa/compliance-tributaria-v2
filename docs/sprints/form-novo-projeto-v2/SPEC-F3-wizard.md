@@ -1,5 +1,15 @@
 # SPEC F3 — Wizard de cadastro · Novo Projeto (FORM-NOVO-PROJETO-V2)
 
+> ⚠️ **SUPERSEDE PARCIAL — UX-PASSO1 (#1598, 26/06/2026):** este spec documenta o wizard
+> de **6 passos** como construído no F3 (Tipo · Identificação · Perfil · Descrição · Opcionais ·
+> Confirmação). A partir de UX-PASSO1, o **Passo 0 "Tipo" funde radio PJ/PF + campo CNPJ/CPF** na
+> mesma tela → o passo "Identificação" deixa de existir → wizard passa a **5 passos** (Tipo ·
+> Perfil · Descrição · Opcionais · Confirmação) e a UI exibe "Passo X de 5". Adicionalmente, os 4
+> painéis (Status do Perfil, Obrigatórios, banner CNAE, bloco vermelho) ficam **ocultos no Passo 0**
+> e reaparecem do Passo 1 (Perfil). Onde este doc disser "6 passos" / "Passo 5 = submit" / "passos
+> 0-5", leia "5 passos" / "Passo 4 = submit" / "passos 0-4". Fonte: `UX-CHANGE-PASSO1-PF-CLEANUP.md`
+> + impact-tree `AS-IS-TO-BE-UX-PASSO1-MERGE-IDENTIFICACAO-20260626.md`.
+
 **Classe:** C (REGRA-ORQ-24/41) · **Data:** 24/06/2026 · **HEAD base:** `4593ed7e` (pós-F1 #1575)
 **Mockup aprovado:** `docs/sprints/form-novo-projeto-v2/MOCKUP_F3_wizard.html` (#1577, 63 data-testid)
 **Flag:** `VITE_ENABLE_FORM_WIZARD` (build-time, default **OFF**) · **Componente-alvo:** `client/src/components/PerfilEmpresaIntelligente.tsx` + `client/src/pages/NovoProjeto.tsx`
