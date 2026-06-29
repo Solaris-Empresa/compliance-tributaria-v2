@@ -1,87 +1,138 @@
-# Relatório determinístico — Cruzamento Riscos Construção Civil × Regulamentação
+# Cruzamento determinístico — Riscos Construção Civil × Regulamentação (v2)
 
-> **Tipo:** evidência literal extraída de fonte primária. **Sem conclusão, sem veredito jurídico.**
-> **Método:** `pdftotext -enc UTF-8 -layout` (extração direta, não-OCR) sobre os PDFs primários.
-> **Data:** 2026-06-29 · **Autor:** Claude Code (extração) · **Referência:** Issue #1607 (construção civil).
-> **Curadoria jurídica = gate humano (Dr. José).** Este relatório expõe a evidência; não atribui artigo final por risco.
+> **v2 (2026-06-29):** reconcilia a v1 (LC 214/2025 + CGIBS 6) com os 3 documentos do Manus
+> (DOC1/DOC2/DOC3, PR #1617), incorpora o **Decreto 12.955/2026** (regulamento da CBS) e adiciona
+> a **análise de mecanismo do CR-02** (geração de risco vs. retrieval). Issue #1607.
+> **Método:** `pdftotext -enc UTF-8 -layout` (fonte primária) + verificação de código `arquivo:linha`.
+> **Natureza:** evidência + crítica de mecanismo. **Não emite veredito jurídico** (curadoria = gate humano, Dr. José).
 
 ## Fontes
 
 | Sigla | Arquivo | Natureza |
 |---|---|---|
-| **LC** | `Lcp 214.pdf` — Lei Complementar 214/2025 (02/mai/2025) | Fonte primária (lei) |
-| **CG** | `resolucao-cgibs-6-...-regulamenta-o-ibs.pdf` — Resolução CGIBS nº 6 (30/abr/2026) | Regulamento do IBS |
-| **DS** | `AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md` §4 (committed) | Doc secundário — lista dos 13 riscos do Dr. José + artigos citados |
+| **LC** | `Lcp 214.pdf` — LC 214/2025 (16/jan/2025) | Lei Complementar — primária |
+| **DEC** | `rag-corpus-decreto12955.ts` / Decreto 12.955/2026 | Regulamento da **CBS** (federal) |
+| **CG** | Resolução CGIBS nº 6/2026 | Regulamento do **IBS** |
+| **M1/M3** | `DOC1-TABELA-QUESTAO-FUNDAMENTACAO.pdf` · `DOC3-RELATORIO-TOBE.pdf` (Manus, PR #1617) | Mapeamento + TO-BE do Manus |
 
-> **Provenância dos 13 riscos:** a lista vem do doc secundário (DS), derivado do PDF do Dr. José
-> `Principaisriscosparaumaconstrutora.pdf` — **não fornecido nesta sessão**. Logo, a coluna "artigo citado (DS)"
-> é de segunda mão. As colunas LC/CG são primárias (texto literal da lei e do regulamento).
-
-## Localização do regime na LC 214/2025
-
-- **Capítulo do Regime Específico de Operações com Bens Imóveis:** Arts. **251–270**.
-- **SINTER / CIB / valor de referência:** Art. 256 §2º/§4º + Art. 265.
-- **Art. 365** (texto literal): *"As alíquotas de referência estadual e municipal do IBS para 2033 serão fixadas
-  de modo que..."* — **regime de alíquotas de transição, fora do regime de imóveis.**
+> **Nota de nomenclatura:** os documentos do Manus rotulam "LC 214/**2024**"; o texto dos próprios chunks diz
+> *"Lei Complementar nº 214, de 16 de janeiro de **2025**"*. O canônico é **2025** (2.171 refs no código). Typo de rótulo, não de conteúdo.
 
 ---
 
-## Tabela de cruzamento (evidência literal)
+## 1. Convergência com o Manus (DOC1 corrigiu divergências que a v1 apontou)
 
-| # | Risco (DS) | Artigo citado (DS) | Artigo real na LC 214/2025 (trecho literal) | Regulamento CG | Casamento citação×conteúdo |
-|---|---|---|---|---|---|
-| 1 | Perda de créditos IBS / gestão da obra | **Art. 365** | **Art. 255 §5º**: *"...o prestador do serviço só poderá apropriar o crédito de IBS e CBS relativo à aquisição dos materiais de construção até o valor do débito relativo à prestação..."* · **Art. 262 §2º–§3º**: compensação de créditos + ressarcimento via patrimônio de afetação · **Art. 269/270** (cadastro da obra) | CG Art. 390 | ✗ **Art. 365 não casa** (365 = alíquotas 2033). Conteúdo real: 255§5 / 262 / 269 / 270 |
-| 2 | Perda do Redutor de Ajuste | **Arts. 260–268** | **Art. 257**: *"A partir de 1º de janeiro de 2027, será vinculado a cada imóvel... valor correspondente ao respectivo redutor de ajuste..."* · **Art. 258** (valor inicial) | CG Arts. 369–375 | ⚠ **Impreciso** — redutor de **ajuste** = Art. **257–258**. Arts. 259–260 = redutor **social** (distinto) |
-| 3 | SINTER (avaliação de imóveis) | "regulamentação SINTER" (fora da LC) | **Art. 256**: *"...apurar o valor de referência do imóvel, na forma do regulamento, por meio de metodologia específica para estimar o valor de mercado..."*; §2º I: *"divulgado e disponibilizado no Sistema Nacional de Gestão de Informações Territoriais (Sinter)"* · **Art. 265**: *"...inscritos no CIB, integrante do Sinter..."* | CG (Art. 256) · CG Art. 385 | ✗ **Correção** — SINTER/avaliação **estão na LC 214** (Art. 256 + 265), não só em norma externa |
-| 4 | Venda por permuta | Arts. 251–270 | **Art. 252 §2º I**: *"O IBS e a CBS não incidem... nas operações de permuta de bens imóveis, exceto sobre a torna, que será tributada..."* · §3º, §5º, §6º | CG §§ permuta (Art. 252) | ✓ casa · precisão: **Art. 252** |
-| 5 | Controle por empreendimento | Arts. 269–270 | **Art. 270**: *"A apuração do IBS e da CBS será feita para cada empreendimento de construção civil, vinculada a um CNPJ ou CPF específico... considerada cada obra... como um centro de custo distinto."* | CG Art. 390 | ✓ casa · precisão: **Art. 270** |
-| 6 | Documentação fiscal da obra | **Art. 365** | **Art. 270 §único**: *"...o documento fiscal deverá indicar o número do cadastro da obra nas aquisições de bens e serviços utilizados na obra..."* · **Art. 265 §2º**: *"O CIB deverá constar obrigatoriamente de todos os documentos relativos à obra..."* | CG Art. 390 | ✗ **Art. 365 não casa**. Conteúdo real: 270§único / 265§2º |
-| 7 | CIB | Arts. 269–270 | **Art. 265**: inscrição no CIB · **Art. 266**: prazos de inscrição | CG Art. 385/386 | ⚠ CIB propriamente = **Art. 265–266**; 269–270 referenciam o cadastro do 265 |
-| 8 | Custos históricos < 2027 | Arts. 260–268 | **Art. 258, II, b**: *"do valor dos bens e serviços que possam ser contabilizados como custo de produção... adquiridos anteriormente a 1º de janeiro de 2027, comprovado com base em documentos fiscais idôneos..."* | CG Art. 375 (Art. 258) | ⚠ conteúdo em **Art. 258** (anterior a 260; fora do intervalo citado) |
-| 9 | Contrapartidas urbanísticas | Arts. 260–268 | **Art. 258 §6º II**: *"as contrapartidas de ordem urbanística e ambientais pagas ou entregues aos entes públicos..."* · §7º (contrapartidas municipais) | CG Art. 375 (Art. 258) | ⚠ conteúdo em **Art. 258 §6º–§7º** (fora do intervalo citado) |
-| 10 | Recálculo posterior do IBS | Arts. 260–268 | **Candidatos:** Art. 256 §2º III (*"atualizado anualmente"* — valor de referência) · Art. 258 §3º (*"...a autoridade fiscal instaurar processo administrativo... para determinar o efetivo valor de aquisição..."*) | CG (Art. 256/258) | ⚠ **artigo único não identificável deterministicamente** — descrição ampla; **confirmar com PDF Dr. José** |
-| 11 | Tributação por parcelas | Arts. 251–270 | **Art. 262**: *"Na incorporação imobiliária e no parcelamento de solo, o IBS e a CBS incidentes na alienação das unidades imobiliárias serão devidos em cada pagamento."* · Art. 254 §2º · Art. 262 §4º (redutores por parcela) | CG Seção V (Incorporação) | ✓ casa · precisão: **Art. 262** |
-| 12 | Revisão de contratos (SPE/SCP) | Arts. 251–270 | **Art. 264**: *"Nas sociedades em conta de participação, o sócio ostensivo fica obrigado a efetuar o recolhimento do IBS e da CBS..."* · Art. 263 §2º (copropriedade CNPJ único) | CG (Art. 263/264) | ✓ casa · precisão: **Art. 264** (SCP). **"SPE" não aparece literal**; SCP sim |
-| 13 | Risco tecnológico (ERP) | Arts. 269–270 | **Art. 270**: centro de custo distinto + §único (cadastro da obra no documento fiscal) | CG Art. 390 | ✓ casa · **"ERP" não aparece literal** — é o meio para cumprir o Art. 270 (centro de custo + rastreio por obra) |
+A v1 deste relatório sinalizou que o doc secundário antigo (`AS-IS-TO-BE...20260628`) tinha citações erradas.
+O **DOC1 do Manus corrigiu a maioria** — convergência factual com a fonte primária:
+
+| Risco | v1 (doc antigo) | DOC1 Manus | Primária LC | Convergiu? |
+|---|---|---|---|---|
+| #1/#6 créditos/doc fiscal | Art. **365** (errado) | Art. 269/270 | 269/270 | ✅ Art. 365 removido |
+| #2 Redutor de Ajuste | 260–268 | **257–258** | 257–258 | ✅ |
+| #7 CIB | 269–270 | **265–266** | 265–266 | ✅ |
+| #8 custos / #9 contrapartidas | 260–268 | **258** | 258 (II b / §6º-§7º) | ✅ |
+| #12 contratos | 251–270 | **263–264** | 264 (SCP) | ✅ |
+
+→ O **Art. 365** era erro de transcrição do doc secundário, **não** do Dr. José nem da lei. Resolvido.
 
 ---
 
-## Resumo factual das divergências citação×conteúdo (evidência)
+## 2. Divergências REMANESCENTES no DOC1 (evidência literal do próprio DOC1)
 
-| Categoria | Riscos | Observação determinística |
+O DOC1 declara *"apenas citações literais dos chunks do banco, nenhuma inferência"*. As citações literais
+**são reais**, mas a **atribuição artigo→risco** contém erros — o texto literal impresso pelo DOC1 os expõe:
+
+| # | Risco | DOC1 cita | Texto literal que o DOC1 imprimiu | Constatação |
+|---|---|---|---|---|
+| **4** | **Permuta** | **LC Art. 259** | *"Art. 259. Na alienação de bem imóvel residencial novo... redutor social no valor de R$ 100.000..."* | ✗ **Art. 259 = redutor social, NÃO permuta.** O artigo da permuta — **LC Art. 252 §2º I** (*"...não incidem... nas operações de permuta de bens imóveis, exceto sobre a torna..."*) + §3º/§5º/§6º — **está ausente** do #4 |
+| 2 | Redutor de Ajuste | DEC Art. 360–362 | 360 = incidência (LC 252) · 361 = locação 90d (LC 253) · 362 = acessório (LC 7º) | ⚠ Decreto do redutor é **369–375** (369=LC257, 375=LC258). 360–362 é off-topic |
+| 3 | SINTER/avaliação | DEC Art. 363–364 | 363 = fato gerador (LC 254) · 364 = base de cálculo (LC 255) | ⚠ Decreto da avaliação é **366–368** (366=LC256, 368=Sinter). 363–364 off-topic |
+| 5/11/etc. | vários | DEC 370/371/372 | redutor composto/alienação/fusão (LC 257) | ⚠ citados em riscos não-redutor |
+| todos | — | CG Art. 10, 106, 15, 6… | imunidades · estabelecimento · energia elétrica · não-incidência | ⚠ **genéricos** — não tratam do risco; padrão de **ruído de retrieval** |
+
+**Padrão observado:** as citações **LC 214** (corpus bem indexado) acertam quase sempre; as de **Decreto 12.955 e
+CGIBS 6** são **sistematicamente off-topic** — coerente com geração por **recuperação semântica (RAG)**, não por
+curadoria de tópico. (Ver despacho DM-3.) Isto é exatamente a classe de falso-positivo de retrieval que motiva o #1607
+([[Lição #134]] — reranker/retrieval não substitui curadoria; [[Lição #93]] — mecanismo verificado, não inferido).
+
+---
+
+## 3. CR-02 — análise de mecanismo (geração de risco ≠ retrieval) — **bloqueante técnico**
+
+O DOC3 afirma: *"cnaeGroups='' em todos os artigos... Motor não roteia riscos setoriais → 13 riscos não aparecem"*
+e propõe *"Popular cnaeGroups='41,42,43,68' → Motor passa a rotear todos os 13 riscos → 13/13 Briefing+Matriz+Plano"*.
+
+**Verificação de código (REGRA-ORQ-27, assemble≠consumption):**
+
+| Quem consome `ragDocuments.cnaeGroups` | `arquivo:linha` | Função |
 |---|---|---|
-| ✗ **Artigo citado não casa** | #1, #6 (Art. 365) · #3 (SINTER "fora da LC") | Art. 365 = alíquotas 2033. SINTER está em Art. 256/265 da LC |
-| ⚠ **Citação imprecisa** (intervalo não contém o artigo do conteúdo) | #2 (257–258 vs 260–268) · #8, #9 (258 vs 260–268) · #7 (265–266 vs 269–270) | conteúdo existe na LC, em artigo diferente do citado |
-| ⚠ **Artigo não identificável** | #10 | descrição ampla; candidatos 256§2ºIII / 258§3º |
-| ✓ **Casa** (citação consistente) | #4 (252) · #5 (270) · #11 (262) · #12 (264) · #13 (270) | termo "ERP"/"SPE" não literal; obrigação correspondente sim |
+| **RAG retriever** (grounding) | `rag-retriever.ts:134` (`like(ragDocuments.cnaeGroups, '%${g}%')`) | filtro de relevância CNAE na **recuperação** de chunks p/ o briefing |
+| RAG category sensor | `rag-category-sensor.ts:77` | sensor de categoria |
+| **Motor de geração de risco** | `normative-inference.ts` · `risk-engine-v4.ts` → **grep vazio** | **NÃO lê** `ragDocuments.cnaeGroups` |
 
-## Mapa LC 214/2025 → Resolução CGIBS nº 6 (regulamento)
+Os riscos de imóveis **geram via Path B**, gated por **`isRegimeImoveisRisco(profile.cnaes)`**
+(`normative-inference.ts:250` → `regime-imoveis-eligibility.ts`, **CNAE do projeto**), **não** por `cnaeGroups` do corpus.
 
-| Tema | LC 214/2025 | Resolução CGIBS 6 |
-|---|---|---|
-| Valor de referência do imóvel | Art. 256 | Subseção II (art. base Art. 256) |
-| Redutor de ajuste | Art. 257–258 | Arts. 369–375 |
-| Permuta | Art. 252 | §§ permuta (Art. 252) |
-| Incorporação / parcelamento | Art. 262 | Seção V — Da Incorporação Imobiliária e do Parcelamento de Solo |
-| CIB / Sinter | Art. 265–266 | Arts. 385–386 |
-| Identificação cadastral da obra | Art. 269 | Art. 389 |
-| Apuração por empreendimento / centro de custo / cadastro no doc fiscal | Art. 270 | Art. 390 |
+**Conclusão de mecanismo:**
+- Popular `ragDocuments.cnaeGroups='41,42,43,68'` muda **qual artigo é recuperado para fundamentar (grounding)** o
+  briefing — **não** faz o motor **gerar** novos riscos.
+- Os ~8 riscos ausentes (Redutor, SINTER, permuta, parcelas, custos, contrapartidas, recálculo, contratos) **não
+  têm ramo de inferência** (Path B) **nem requisito/pergunta** (Path A) — então **não geram** mesmo com cnaeGroups populado.
+- Logo, a meta do DOC3 **"13/13 Briefing + Matriz + Plano"** está **superestimada**: o CR-02 sozinho cobre **grounding/citação**,
+  não **geração**. (Confirmação empírica before/after = **despacho DM-1**, Manus.)
+
+> Isto **não invalida** popular `cnaeGroups` — é necessário para o **grounding** correto (e para o filtro de **perguntas**,
+> que lê `solarisQuestions.cnaeGroups`, tabela distinta). Apenas **não é suficiente** para os 13 riscos aparecerem na matriz.
+> O caminho de geração exige **ramos de inferência** e/ou a cadeia **requisito→gap→risco** (CR-03 + camada setorial F1-F4 do
+> `AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md`).
 
 ---
 
-## Notas de método
+## 4. CR-01 — nota sobre o fallback proposto
 
-1. **Divergência de citação ≠ inexistência do risco** (Lição #133). O conteúdo normativo de **12 dos 13 riscos
-   foi localizado na LC 214/2025**; apenas #10 fica como precisão pendente. A atribuição final de artigo por risco
-   é **curadoria jurídica do Dr. José** — gate humano, não automatizável.
-2. **Não foi emitido veredito.** A coluna "Casamento" compara o artigo *citado no doc secundário* com o *conteúdo
-   literal da lei* — é uma constatação factual, não uma recomendação de correção.
-3. **Pendência para fechar #10 e atribuir a origem das divergências** (Art. 365; intervalos imprecisos): cruzar a
-   coluna "citado (DS)" contra o **PDF primário do Dr. José** (`Principaisriscosparaumaconstrutora.pdf`), ainda
-   não fornecido. Sem ele não é possível determinar se a divergência é da fonte (Dr. José) ou da transcrição (DS).
+DOC3 propõe: `taxRegime = project.taxRegime ?? companyProfile?.taxRegime ?? 'lucro_real'`.
+- ✅ Ler `companyProfile.taxRegime` é correto ([[Lição #140]] — fonte canônica é o JSON).
+- ⚠ **Hardcode final `'lucro_real'`** é desaconselhado (REGRA-ORQ-29/32 — no hardcode) e **inverte o DoD discriminante**
+  ([[Lição #139]]): uma construtora **Simples Nacional** sem regime persistido receberia `'lucro_real'` → passaria o gate
+  `!== "simples_nacional"` → **falso-positivo** de riscos de imóveis. Fallback correto: **`?? null`** + DoD discriminante
+  (SN→exclui · lucro_real→inclui).
+
+---
+
+## 5. Tabela consolidada — Risco × Artigo (corrigida contra a primária)
+
+| # | Risco | LC 214/2025 (primária) | Decreto 12.955 (CBS) | Res. CGIBS 6 (IBS) |
+|---|---|---|---|---|
+| 1 | Créditos IBS / gestão da obra | 255 §5º · 262 · 269 · 270 | 365 (=LC255§5) | 113 (docs) |
+| 2 | Redutor de Ajuste | **257–258** | **369–375** (≠ 360–362 do DOC1) | — |
+| 3 | SINTER / avaliação | **256** · 265 | **366–368** (≠ 363–364 do DOC1) | 16 (arbitramento) |
+| 4 | **Permuta** | **252 §2º** (≠ 259 do DOC1) | 360 (=LC252) | — |
+| 5 | Controle por empreendimento | **270** | (art. =LC270) | 112 (doc fiscal) |
+| 6 | Documentação fiscal da obra | 270 §único · 265 §2º | 369? (rever) | 113/114 (NF-e ABI) |
+| 7 | CIB | **265–266** | 367–368 (Sinter) | 105/110 (cadastro) |
+| 8 | Custos históricos < 2027 | **258 II b** | 375 (=LC258) | — |
+| 9 | Contrapartidas urbanísticas | **258 §6º-§7º** | 375 (=LC258) | — |
+| 10 | Recálculo posterior do IBS | 256 §2ºIII / 258 §3º (candidatos) · DOC1 propõe 262 | — | — |
+| 11 | Tributação por parcelas | **262** · 254 §2º | (art. =LC262) | 11 (fato gerador) |
+| 12 | Revisão de contratos (SPE/SCP) | **263–264** | — | 114 (DeRE/NF-e ABI) |
+| 13 | Risco tecnológico (ERP) | **270** | 371 (parcial) | — |
+
+> Colunas Decreto/CGIBS marcadas "≠ DOC1" indicam onde o DOC1 atribuiu artigo divergente do tópico (ver §2).
+> "ERP"/"SPE" não aparecem literais na lei — a obrigação correspondente (centro de custo Art. 270 / SCP Art. 264) sim.
+
+---
+
+## 6. Pendências (→ Despacho Manus `DESPACHO-MANUS-1607-CRUZAMENTO-CNAEGROUPS-20260629.md`)
+
+| ID | Pendência | Por quê só o Manus |
+|---|---|---|
+| DM-1 | **Prova before/after** de que cnaeGroups gera risco (ou só grounding) — `risks_v4` count/DISTINCT categoria p/ CONSTRUTORA VII greenfield, antes e depois | empirismo em DB de produção ("sem empirismo" pelo Claude) |
+| DM-2 | Re-extrair o chunk de **permuta (LC Art. 252 §2º)** e corrigir o #4 do DOC1 (hoje cita Art. 259 = redutor social) | leitura do banco |
+| DM-3 | DOC1 foi gerado por **retrieval semântico** ou curadoria por tópico? (mismatches sistemáticos Decreto/CGIBS) | metadado de geração |
+| DM-4 | Escopo do UPDATE cnaeGroups: subconjunto construção-civil-**específico** vs imóveis-geral (68xx) — **gate jurídico por artigo** ([[Lição #133]]) antes de qualquer UPDATE | curadoria Dr. José + DB |
 
 ## Vinculadas
 
-- Issue #1607 (construção civil) · `PARECER-FINAL-DR-JOSE-CONSTRUCAO-CIVIL-20260628.md` · `AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md`
-- Lição #126 (fonte primária, não corpus) · Lição #133 (cnaeGroups/atribuição normativa = camada interpretativa, gate jurídico) · Lição #93 (mecanismo/strings verificados, não inferidos)
-- REGRA-ORQ-37 (evidência de fonte) · REGRA-ORQ-45 (Gate 0 do emissor)
+- Issue #1607 · DOC1/DOC2/DOC3 (Manus, PR #1617) · `AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md` (camada setorial F1-F4) · `PARECER-FINAL-DR-JOSE-CONSTRUCAO-CIVIL-20260628.md`
+- REGRA-ORQ-27 (assemble≠consumption) · [[Lição #59]] · [[Lição #93]] · [[Lição #126]] (fonte primária) · [[Lição #133]] (cnaeGroups = camada interpretativa, gate jurídico) · [[Lição #134]] (retrieval não substitui curadoria) · [[Lição #139]]/[[Lição #140]] (DoD discriminante / dual-storage taxRegime)
+- Código: `rag-retriever.ts:134` · `normative-inference.ts:250` · `regime-imoveis-eligibility.ts` · `solaris-context-filter.ts:91`
