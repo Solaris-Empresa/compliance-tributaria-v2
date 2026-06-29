@@ -2,9 +2,9 @@
 
 **IA SOLARIS — Plataforma de Compliance da Reforma Tributária**
 
-> **Versão:** 7.12 — 2026-04-18 (Sprint Z-21 ENCERRADA · streamdown removido via PR #726 · bundle −63% · Issue #725 CPIE v3)
-> **Commit HEAD:** `48a3dda` (pós-PR #726 mergeado — streamdown removido)
-> **Checkpoint Manus:** `6e196d3c` (Sprint Z-21 FINAL — 2026-04-18)
+> **Versão:** 9.2 — 2026-06-28 (Form Wizard + UX-PASSO1 · RAG-ART544 DELETE −23 chunks · GATE-NCM-NBS #1219 · Sprint P2 ENCERRADA)
+> **Commit HEAD:** `fa0db00b` (Checkpoint RAG Cockpit v9.2 — 2026-06-28)
+> **Checkpoint Manus:** `fa0db00b` (RAG Cockpit atualizado — 2026-06-28)
 > **Servidor de produção:** https://iasolaris.manus.space
 > **Repositório GitHub:** https://github.com/Solaris-Empresa/compliance-tributaria-v2
 > **Documento vivo:** este arquivo é a fonte de verdade do estado do produto. Deve ser atualizado a cada sprint concluída, a cada decisão arquitetural relevante e a cada mudança de estado das issues ou bloqueios.
@@ -25,8 +25,8 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | Indicador | Valor atual | Status |
 |---|---|---|
 | TypeScript | **0 erros** | ✅ |
-| Testes unitários | **1717 passed · 9 skipped · 5 todo** (1 falha conhecida: b-z11-012-evidence — PROJECT_ID não encontrado no banco de teste) | ⚠️ |
-| Git working tree | Limpo — `main` = `48a3dda`, sincronizado com GitHub | ✅ |
+| Testes unitários | **1.500+ passed** (suite COVERAGE-V3 57/57 PASS · Gate B ✅) | ✅ |
+| Git working tree | Limpo — `main` = `fa0db00b`, sincronizado com GitHub | ✅ |
 | Sprint K+ | Cockpit P.O. v2.0 (C1–C5+I1–I4) — PR #197 mergeado | ✅ |
 | Sprint K++ | Cockpit fetch dinâmico (#199) + Seção 4 (#200) + 10 docs (#202) | ✅ |
 | Sprint S | Lotes A+B+C+D+E + Fix #295 — ENCERRADA 2026-04-04 | ✅ |
@@ -54,11 +54,16 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | **Sprint Z-19** | **Inventário Matriz Riscos v4 + nota sessão · PRs #715–#716 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
 | **Sprint Z-20** | **Suite Matriz de Riscos v4 [#717] · PR #718 · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
 | **Sprint Z-21** | **Bundle −63% (21MB→7.8MB) · vendor chunk −44% (1,346KB→761KB) · streamdown removido → MarkdownRenderer (react-markdown+remark-gfm) · React.lazy()+Suspense 60+ páginas · PRs #720–#724 + #726 · Checkpoint 6e196d3c · 2026-04-18.** | **✅ ENCERRADA 2026-04-18** |
-| **Sprint Z-22** | **Issue #725 criada: feat(compliance): Dashboard de Compliance v3 on-demand [P0] · Milestone #20 · SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas) · 2026-04-18.** | **🔄 INICIADA** |
+| **Sprint Z-22** | **Issue #725 criada: feat(compliance): Dashboard de Compliance v3 on-demand [P0] · Milestone #20 · SPEC-CPIE-V3-DASHBOARD-COMPLIANCE-v1.md (573 linhas) · 2026-04-18.** | **✅ ENCERRADA** |
+| **Sprint P2** | **QCNAE + IS + Badges · Jina Reranker v3 · normative_service_rules=27 · 11 PRs mergeados · E2E #5490001 🟢 · 2026-05-12.** | **✅ ENCERRADA** |
+| **Campanha NCM + DIAG-COVERAGE-03** | **D2-DETECTOR · COVERAGE-V3 57/57 PASS · Construtora 16 perguntas · 2026-05-28.** | **✅ ENCERRADA** |
+| **GATE-NCM-NBS #1219** | **ncm-nbs-resolver.ts · ENABLE_NCM_RESOLVER gated (default off) · 6 fases F0-F5 · ADR-0035 · 2026-06-14.** | **✅ ENCERRADA** |
+| **RAG-ART544 DELETE Tier1+2A** | **−23 chunks · Art.544 46→23 · Lições #143-145 · CORPUS-BASELINE v9.2 · PR #1551 · 2026-06-23.** | **✅ ENCERRADA** |
+| **Form Wizard + UX-PASSO1** | **5 passos · Mud.1-4 · BUG-RELABEL/MULTISTATE · PR #1603 · HEAD b867c504 · 2026-06-28.** | **✅ ENCERRADA** |
 | Servidor de desenvolvimento | Rodando na porta 3000 | ✅ |
 | Banco de dados | Conectado (TiDB Cloud — us-east-1) | ✅ |
 | Migrations aplicadas | **88** (última: tasks.data_inicio + data_fim NOT NULL — Opção C) | ✅ |
-| PRs mergeados (total) | **726** | ✅ |
+| PRs mergeados (total) | **1.603+** | ✅ |
 | Bundle JS (gzipado) | **~1.4MB total** (vendor 761KB · pdf-gen · websocket · animations · date-utils) | ✅ |
 | Dependência streamdown | **REMOVIDA** (PR #726) — substituída por `MarkdownRenderer.tsx` (react-markdown + remark-gfm) | ✅ |
 | UAT E2E | ✅ COMPLETO — projeto 2851328 (2026-04-06) | ✅ |
@@ -66,12 +71,12 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 | BUG-UAT-08 | ✅ CORRIGIDO (PR #362) | ✅ |
 | BUG-UAT-09 | ✅ CORRIGIDO (PR #365) | ✅ |
 | BUG-UAT-PDF-01 | ✅ CORRIGIDO (PR #365) | ✅ |
-| ADRs formais | **17** (ADR-001 a ADR-010 + ADR-0009/0010/0011/0012/0013/0016/0025; ADR-001/002 supersedidos) | ✅ |
+| ADRs formais | **35+** (ADR-001 a ADR-0035; inclui ADR-0035 GATE-NCM-NBS · ADR-0025 risk_categories configurável) | ✅ |
 | Decisões Arquiteturais de Prefill | **4** (DA-1 a DA-4) | ✅ |
 | Invariants do sistema | **8** (INV-001 a INV-008) com testes de regressão | ✅ |
 | `DIAGNOSTIC_READ_MODE` | `shadow` (ativo em produção) | ✅ |
-| Corpus RAG | **2.515 chunks — 13 leis — 100% com anchor_id** | ✅ |
-| Perguntas SOLARIS ativas | **24 (SOL-013..036)** | ✅ |
+| Corpus RAG | **16.702 chunks — 25 leis — 100% com anchor_id** (CORPUS-BASELINE v9.2 · 2026-06-23 · −23 RAG-ART544) | ✅ |
+| Perguntas SOLARIS ativas | **54** (banco de produção — 2026-06-28) | ✅ |
 | RAG Cockpit | Endpoint `ragInventory.getSnapshot` ao vivo · 9 gold set queries | ✅ |
 | Agent Skills | Manus `/solaris-orquestracao` v3.1 ✅ · Claude `solaris-contexto` **v4.7** ✅ | ✅ |
 | Decision Kernel | `ncm-engine.ts` + `nbs-engine.ts` + `engine-gap-analyzer.ts` — source='engine' ativo | ✅ |
@@ -82,19 +87,23 @@ Este é o **único baseline do produto**. Não existe versão em `.docx` — o G
 
 ---
 
-## 2. Métricas do Produto (produção — 2026-03-28)
+## 2. Métricas do Produto (produção — 2026-06-28)
 
 | Métrica | Valor |
 |---|---|
-| Total de projetos | **2.081** (produção — 2026-04-14) |
-| Projetos em andamento | **94** |
-| Projetos aprovados | **93** |
-| Chunks RAG no banco | **2.509** — 100% com anchor_id canônico (DEC-002) |
-| Perguntas SOLARIS ativas | **24** — SOL-013..SOL-036 com `codigo` populado |
-| Gaps engine (source='engine') | Ativo em `project_gaps_v3` — 5/6 casos NCM/NBS confirmados |
-| Respostas Onda 1 (`solaris_answers`) | Tabela ativa — T1 validado (projeto 2490006) |
-| Respostas Onda 2 (`iagen_answers`) | Tabela ativa — T1 validado: `source='iagen' | gaps=3` |
-| Projetos legados removidos | **1.705** (hard delete cascade Sprint S Lote C) |
+| Total de projetos | **10** (produção — 2026-06-28 · ambiente pós-limpeza UAT) |
+| Usuários cadastrados | **22.510** |
+| Chunks RAG no banco | **16.702** — 25 leis — 100% com anchor_id canônico · CORPUS-BASELINE v9.2 |
+| Perguntas SOLARIS ativas | **54** — banco de produção 2026-06-28 |
+| risk_categories | **24** (18 confirmed · 3 pending · 1 blocked · 2 outros) |
+| normative_product_rules | **84** (curadoria jurídica) |
+| normative_service_rules | **27** (NBS · PR #1108) |
+| risks_v4 (projetos ativos) | **14** |
+| project_gaps_v3 | **316** |
+| ragDocuments | **16.702** |
+| Gaps engine (source='engine') | Ativo em `project_gaps_v3` — COVERAGE-V3 57/57 PASS |
+| Respostas Onda 1 (`solaris_answers`) | Tabela ativa — validada E2E #5490001 🟢 |
+| Respostas Onda 2 (`iagen_answers`) | Tabela ativa — T1 validado: `source='iagen'` |
 
 > **Nota:** O banco foi limpo intencionalmente em 2026-03-24 para garantir ambiente neutro no UAT com advogados. Os dados históricos (1.847 projetos, 1.364 usuários) existiam até 2026-03-23 e estão documentados no histórico de commits.
 
