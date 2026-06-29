@@ -2139,3 +2139,34 @@ Ao terminar um plano aprovado, **`git checkout -b` nova** a partir da branch do 
 
 REGRA-ORQ-26 (branch obrigatória) · REGRA-ORQ-33 (RACI — review do Validador) · [[Lição #122]] (review source-controlled) · F2-refactor #1589/#1590/#1591
 
+
+## Lição #154 — Template do repo dessincronizado do validador: risco PT Baixo/Médio/Alto + chaves JSON (28/06/2026)
+
+**Origem:** PR #1609 (docs/painel-po-v10) — gotcha identificado durante a sessão de merge e auditoria do painel PO v10.
+
+### Texto
+
+O `validate-pr-body.js` (validador de CI) e o template do PR body (`.github/PULL_REQUEST_TEMPLATE.md`) podem ficar **dessincronizados** quando o validador é atualizado sem atualizar o template (ou vice-versa). Isso gera falhas silenciosas: o PR body parece correto visualmente, mas o validador rejeita por não encontrar as chaves exatas.
+
+Dois gotchas específicos desta dessincronização:
+
+| # | Gotcha | Sintoma | Solução |
+|---|---|---|---|
+| 1 | **Nível de risco textual vs. enum** | Validador espera `PT Baixo`, `PT Médio`, `PT Alto` (com acento + maiúscula exata). Template antigo usa `Baixo`, `Médio`, `Alto` sem prefixo `PT`. Resultado: `grep` falha → "Nenhum nível de risco marcado" mesmo com risco preenchido. | Sempre usar `PT Baixo` / `PT Médio` / `PT Alto` no body. Verificar `.github/scripts/validate-pr-body.js` linha `riskLevel` antes de abrir PR. |
+| 2 | **Chaves JSON do bloco de evidência** | Validador espera chaves `rag_impact`, `unexpected_behavior`, `tests_passed` no JSON do Bloco 9. Template antigo usa `impacto_rag`, `comportamento_inesperado`, `testes_passaram`. Resultado: parse do JSON falha → gate `autoaudit` rejeita. | Copiar o JSON de evidência de um PR recente aprovado (ex.: #1603, #1607) — não do template em disco. |
+
+### Causa raiz
+
+O template `.github/PULL_REQUEST_TEMPLATE.md` é atualizado com menos frequência que o validador `validate-pr-body.js`. A fonte canônica é o **validador**, não o template.
+
+### Regra derivada
+
+> Antes de abrir qualquer PR, rodar localmente: `PR_BODY="$(cat body.md)" PR_TITLE="..." node .github/scripts/validate-pr-body.js` e esperar `✅ PR body validado com sucesso`. Não confiar no template em disco como fonte de verdade.
+
+### Caso canônico
+
+PR #1609 (docs/painel-po-v10): o body foi escrito com o template em disco (chaves antigas), o validador rejeitou em `autoaudit`. Corrigido com empty commit após atualizar as chaves JSON e o nível de risco para `PT Baixo`.
+
+### Vinculadas
+
+[[Lição #91]] (gotchas dos gates de CI — origem desta extensão) · REGRA-ORQ-46 (lição identificada = PR obrigatório) · REGRA-ORQ-15 (PR body template) · `.github/scripts/validate-pr-body.js` · PR #1609
