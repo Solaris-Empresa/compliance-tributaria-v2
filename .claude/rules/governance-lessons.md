@@ -2187,55 +2187,41 @@ A redação original acima estava **imprecisa** (escrita de memória, sem verifi
 
 [[Lição #91]] (gotchas dos gates de CI — origem desta extensão) · [[Lição #93]] (mecanismo/strings verificados, não inferidos) · [[Lição #129]] (template que reprova o gate = armadilha — resolvida aqui) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-46 (lição = PR obrigatório) · REGRA-ORQ-15 (PR body template) · `.github/scripts/validate-pr-body.js` · `.github/pull_request_template.md` (corrigido) · PR #1609
 
-## Lição #155 — `git show origin/main:caminho` no Git Bash do Windows sofre path-mangling silencioso (29/06/2026)
+## Lição #155 — Dupla-atribuição CC×Manus gera colisão: despacho deve nomear UM implementador
 
-**Contexto:** Durante a sessão 28/06/2026, o Orquestrador (Claude no Git Bash do Windows) rodou `git show origin/main:.claude/rules/governance-lessons.md` e recebeu saída vazia — interpretou como "arquivo não encontrado" e reportou falso-negativo. A causa real era path-mangling do MSYS2 (caminho `:caminho` convertido para `;caminho` ou `\caminho`), não ausência do arquivo.
+### Contexto
+No Despacho 29/06/2026 12h16, a Fase 0 (CR-01) foi atribuída ao CC como implementador, mas o Manus também implementou em paralelo (branch `fix/cr-01-companyprofile-taxregime`). O CC corrigiu o body do PR do Manus usando o PAT compartilhado, gerando confusão de autoria e risco de merge duplicado. Convergência técnica confirmada — mesma solução, mesma linha — mas o processo foi ineficiente.
 
-**Gotcha:** O Git Bash do Windows (MSYS2) converte automaticamente strings que parecem paths Unix em paths Windows. O separador `:` em `ref:path` é interpretado como separador de drive (C:), e `/` é convertido para `\`. O resultado é um comando malformado que retorna vazio **sem mensagem de erro visível** — o silêncio é o perigo.
+### Causa-raiz
+O despacho usou a notação `CC → Fase 0 (CR-01)` sem marcar o Manus como "standby". Ambos interpretaram como GO simultâneo.
 
-**Sintomas:**
-- `git show origin/main:.claude/rules/arquivo.md` → retorna vazio (parece "não encontrado")
-- `git show origin/main:docs/painel-po/index.html` → retorna vazio
-- Nenhum erro explícito — falha silenciosa
+### Regra derivada
+> Todo despacho que atribui implementação a um agente (CC ou Manus) DEVE incluir explicitamente o status do outro: `Manus: standby até PR aberto` ou `CC: standby até PR aberto`. Sem essa marcação, ambos podem iniciar em paralelo.
 
-**Correção determinística (duas opções equivalentes):**
-```bash
-# Opção 1: desabilitar path-mangling para o comando
-MSYS_NO_PATHCONV=1 git show origin/main:.claude/rules/governance-lessons.md
-
-# Opção 2: aspas no ref:path (força MSYS2 a não converter)
-git show "origin/main:.claude/rules/governance-lessons.md"
-```
-
-**Regra derivada:** Toda verificação de conteúdo de arquivo via `git show` a partir do Git Bash do Windows DEVE usar `MSYS_NO_PATHCONV=1` ou aspas no argumento `ref:path`. Verificações que retornam vazio sem erro devem ser suspeitas de path-mangling antes de concluir "arquivo ausente".
-
-**Impacto na sessão:** O Orquestrador fez 2 checagens que deram falso-vazio (`git show origin/main:...`) e reportou "não encontrado" — reconfirmadas como presentes após aplicar `MSYS_NO_PATHCONV=1`. Nenhum dado foi perdido; apenas tempo de verificação.
+### Corolário
+Quando dois agentes produzem a mesma solução em paralelo (convergência técnica), o PR do agente designado no despacho tem precedência. O outro agente fecha sua branch sem merge.
 
 ### Vinculadas
+Despacho 29/06/2026 12h16 · PR #1625 · REGRA-ORQ-46 (lição = PR obrigatório)
 
-[[Lição #91]] (gotchas operacionais de CI/git — origem desta extensão) · [[Lição #93]] (mecanismo/strings verificados, não inferidos) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-46 (lição identificada = PR na mesma sessão) · Sessão 28/06/2026
+---
 
-## Lição #156 — Despacho deve atribuir implementação a UM responsável; o outro fica em standby (anti-bifurcação)
+## Lição #156 — Teste que chama getDb() é DB-dependente: extrair helper puro (padrão resolveTaxRegime)
 
-**Origem:** CR-01 #1607 Fase 0 (PR #1625, 29/06/2026) — CC e Manus implementaram a MESMA tarefa em paralelo.
+### Contexto
+O teste DoD CR-01 (`project-profile-extractor.cr01.test.ts`) mockava `drizzle-orm/mysql2` para interceptar chamadas ao banco. Esse padrão funciona em ambiente com `DATABASE_URL` configurado, mas falha em CI sem banco (o mock precisa ser aplicado antes da importação do módulo).
 
-### Texto
+### Causa-raiz
+`extractProjectProfile` instancia `getDb()` no momento da chamada, não no momento do import. O mock de `drizzle-orm/mysql2` funciona porque o `vi.mock` é hoistado pelo Vitest — mas qualquer teste que chame `getDb()` diretamente (sem mock) faz uma conexão real ao banco.
 
-Quando um despacho dá "GO" de **implementação** para uma tarefa, deve nomear **um único responsável**; o segundo ator (CC ou Manus) fica em **standby até o PR estar aberto**. Atribuir (ou deixar ambíguo) a mesma implementação a dois atores em paralelo produz **bifurcação** (REGRA-ORQ-26): duas branches/commits para o mesmo fix, push rejeitado por non-fast-forward, e retrabalho de reconciliação.
+### Regra derivada
+> Funções que dependem de banco devem expor um helper puro extraível para teste unitário. Padrão: `resolveTaxRegime(row: ProjectRow): string | null` — função pura, sem I/O, testável sem mock. O teste unitário testa o helper puro; o teste de integração testa o `extractProjectProfile` completo.
 
-### Caso canônico
-
-Despacho 29/06 12h35 deu "CR-01 | CC | GO". O Manus também implementou (PR #1625, mesma branch `fix/cr-01-companyprofile-taxregime`). As duas implementações foram **funcionalmente idênticas** (companyProfile no SELECT + `?? null`) — convergência técnica confirmada, mas o push do CC foi rejeitado (non-fast-forward) e o CC teve de reconciliar sobre a versão do Manus. Como a identidade git é compartilhada (PAT, [[Lição #122]]), o CC pôde corrigir o PR do Manus na mesma branch em vez de abrir uma terceira (mitigação, não solução).
-
-### Aplicação prospectiva
-
-- Todo "GO" de implementação no board nomeia **1 responsável**; o outro = `standby até PR aberto`.
-- Se ambos precisam tocar, sequenciar (um abre o PR, o outro revisa/complementa) — nunca em paralelo na mesma tarefa.
-- Pacote/artefato também: D2 atribuiu o pacote de curadoria ao CC; o Manus entregou (#1624) — mesma classe de dupla-atribuição.
+### Extensão de REGRA-ORQ-CI-01
+> Adicionar ao checklist de PR: "O teste usa banco real ou mock? Se mock, o `vi.mock` está hoistado antes do import?"
 
 ### Vinculadas
-
-REGRA-ORQ-26 (branch obrigatória / anti-bifurcação) · REGRA-ORQ-33 (RACI) · [[Lição #122]] (PAT compartilhado) · R-SYNC-01 · CR-01 #1625 / pacote #1624 (casos)
+[[Lição #110]] (testes DB-dependentes) · REGRA-ORQ-CI-01 · PR #1625 · `server/lib/project-profile-extractor.cr01.test.ts`
 
 ## Lição #157 — Teste que chama `getDb()` é DB-dependente; extrair helper puro (padrão `resolveTaxRegime`)
 
