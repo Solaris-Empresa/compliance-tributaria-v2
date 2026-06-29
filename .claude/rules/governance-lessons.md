@@ -2167,6 +2167,22 @@ O template `.github/PULL_REQUEST_TEMPLATE.md` é atualizado com menos frequênci
 
 PR #1609 (docs/painel-po-v10): o body foi escrito com o template em disco (chaves antigas), o validador rejeitou em `autoaudit`. Corrigido com empty commit após atualizar as chaves JSON e o nível de risco para `PT Baixo`.
 
+### Errata + extensão (29/06/2026) — strings EXATAS verificadas na fonte + template corrigido
+
+A redação original acima estava **imprecisa** (escrita de memória, sem verificar as strings — anti-padrão que a própria Lição #93 alerta). Correção determinística, lida em `origin/main`:
+
+**Risco — strings reais (não há prefixo "PT"):**
+- Template (ANTES, `.github/pull_request_template.md:42-44`): `- [ ] **low** — hotfix, chore, docs…` / `**medium**` / `**high**` — **inglês, em negrito**. (Não era "Baixo/Médio/Alto sem PT".)
+- Validador (`validate-pr-body.js:99-101`) exige EXATAMENTE: `- [x] Baixo — sem impacto em dados ou fluxo principal` · `- [x] Médio — impacto controlado e reversível` · `- [x] Alto — impacto estrutural, requer aprovação explícita`. **Sem "PT", com o sufixo literal.**
+
+**JSON — chaves reais:**
+- Template (ANTES, `:86`): `testes_passando` + **faltavam** `rag_impact` e `unexpected_behavior`. (Não eram `impacto_rag`/`comportamento_inesperado`/`testes_passaram`.)
+- Validador exige (`:62-70`): `data_integrity, regression, rag_impact, unexpected_behavior, tests_passed, typescript_errors, risk_level`.
+
+**Fix de raiz aplicado (não só registro):** o template `.github/pull_request_template.md` foi **corrigido** para casar o validador (checkboxes PT exatos + JSON com `tests_passed`/`rag_impact`/`unexpected_behavior`). Isso resolve a armadilha da [[Lição #129]] (template que reprova o required check). A partir de agora, copiar o template em disco passa no Governance gate.
+
+**Corolário reforçado:** registrar uma lição **de memória** reproduz o erro que ela denuncia. Toda lição que cita strings/arquivos DEVE ser escrita com as strings lidas na fonte (REGRA-ORQ-45 / Lição #93).
+
 ### Vinculadas
 
-[[Lição #91]] (gotchas dos gates de CI — origem desta extensão) · REGRA-ORQ-46 (lição identificada = PR obrigatório) · REGRA-ORQ-15 (PR body template) · `.github/scripts/validate-pr-body.js` · PR #1609
+[[Lição #91]] (gotchas dos gates de CI — origem desta extensão) · [[Lição #93]] (mecanismo/strings verificados, não inferidos) · [[Lição #129]] (template que reprova o gate = armadilha — resolvida aqui) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-46 (lição = PR obrigatório) · REGRA-ORQ-15 (PR body template) · `.github/scripts/validate-pr-body.js` · `.github/pull_request_template.md` (corrigido) · PR #1609
