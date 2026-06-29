@@ -2214,3 +2214,47 @@ git show "origin/main:.claude/rules/governance-lessons.md"
 ### Vinculadas
 
 [[Lição #91]] (gotchas operacionais de CI/git — origem desta extensão) · [[Lição #93]] (mecanismo/strings verificados, não inferidos) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-46 (lição identificada = PR na mesma sessão) · Sessão 28/06/2026
+
+## Lição #156 — Despacho deve atribuir implementação a UM responsável; o outro fica em standby (anti-bifurcação)
+
+**Origem:** CR-01 #1607 Fase 0 (PR #1625, 29/06/2026) — CC e Manus implementaram a MESMA tarefa em paralelo.
+
+### Texto
+
+Quando um despacho dá "GO" de **implementação** para uma tarefa, deve nomear **um único responsável**; o segundo ator (CC ou Manus) fica em **standby até o PR estar aberto**. Atribuir (ou deixar ambíguo) a mesma implementação a dois atores em paralelo produz **bifurcação** (REGRA-ORQ-26): duas branches/commits para o mesmo fix, push rejeitado por non-fast-forward, e retrabalho de reconciliação.
+
+### Caso canônico
+
+Despacho 29/06 12h35 deu "CR-01 | CC | GO". O Manus também implementou (PR #1625, mesma branch `fix/cr-01-companyprofile-taxregime`). As duas implementações foram **funcionalmente idênticas** (companyProfile no SELECT + `?? null`) — convergência técnica confirmada, mas o push do CC foi rejeitado (non-fast-forward) e o CC teve de reconciliar sobre a versão do Manus. Como a identidade git é compartilhada (PAT, [[Lição #122]]), o CC pôde corrigir o PR do Manus na mesma branch em vez de abrir uma terceira (mitigação, não solução).
+
+### Aplicação prospectiva
+
+- Todo "GO" de implementação no board nomeia **1 responsável**; o outro = `standby até PR aberto`.
+- Se ambos precisam tocar, sequenciar (um abre o PR, o outro revisa/complementa) — nunca em paralelo na mesma tarefa.
+- Pacote/artefato também: D2 atribuiu o pacote de curadoria ao CC; o Manus entregou (#1624) — mesma classe de dupla-atribuição.
+
+### Vinculadas
+
+REGRA-ORQ-26 (branch obrigatória / anti-bifurcação) · REGRA-ORQ-33 (RACI) · [[Lição #122]] (PAT compartilhado) · R-SYNC-01 · CR-01 #1625 / pacote #1624 (casos)
+
+## Lição #157 — Teste que chama `getDb()` é DB-dependente; extrair helper puro (padrão `resolveTaxRegime`)
+
+**Origem:** CR-01 #1607 Fase 0 (PR #1625, 29/06/2026) — teste falhou 5/8 no CI por DATABASE_URL.
+
+### Texto
+
+Um teste unitário que chama uma função cujo caminho passa por `getDb()` (ou qualquer acesso a `process.env.DATABASE_URL`) é **DB-dependente** e **falha no CI** sem banco — mesmo com `vi.mock("drizzle-orm/mysql2")`, porque o guard `if (!_db && process.env.DATABASE_URL)` **não cria `_db`** quando a env está ausente e então lança `"DATABASE_URL não configurado"` antes do mock ajudar. Para tornar a **lógica** testável de forma determinística, **extrair um helper puro** (sem DB) e testá-lo diretamente — padrão `resolveTaxRegime` (`project-profile-extractor.ts`).
+
+### Caso canônico
+
+O teste inicial do CR-01 chamava `extractProjectProfile(projectId)` → `query()` → `getDb()` → throw sem `DATABASE_URL`. 5 de 8 casos falharam no CI e localmente. Fix: extrair `export function resolveTaxRegime(rootTaxRegime, companyProfileRaw)` (lógica de resolução pura) e testar o helper → 7/7 PASS sem banco.
+
+### Aplicação prospectiva
+
+- Lógica de resolução/normalização/decisão dentro de função DB-bound → extrair helper puro exportado + testar o helper.
+- Se o teste **precisa** exercitar o caminho com DB, usar `dbDescribe` (skipIf sem `DATABASE_URL`, REGRA-ORQ-CI-01) — mas isso **pula** no CI; o helper puro é preferível para cobertura real.
+- Estende [[Lição #110]] (teste com schema/DB real) e REGRA-ORQ-CI-01 (dbDescribe).
+
+### Vinculadas
+
+REGRA-ORQ-CI-01 (dbDescribe / skipIf ambiental) · [[Lição #110]] (schema replicado / DB em teste) · [[Lição #72]] (mysql2 auto-parse) · CR-01 #1625 (`resolveTaxRegime`)
