@@ -122,7 +122,7 @@ DOC3 propõe: `taxRegime = project.taxRegime ?? companyProfile?.taxRegime ?? 'lu
 
 ---
 
-## 6. Pendências (→ Despacho Manus `DESPACHO-MANUS-1607-CRUZAMENTO-CNAEGROUPS-20260629.md`)
+## 6. Pendências (→ Despacho Manus `DESPACHO-MANUS-1607-CRUZAMENTO-CR02-20260629.md`)
 
 | ID | Pendência | Por quê só o Manus |
 |---|---|---|
