@@ -60,7 +60,8 @@ interface ProjectRow {
   confirmedCnaes: string | null;       // camelCase no banco
   operationProfile: string | null;     // camelCase no banco
   product_answers: string | null;      // snake_case no banco (migration posterior)
-  taxRegime: string | null;            // camelCase no banco
+  taxRegime: string | null;            // camelCase no banco (coluna direta — prioridade 1)
+  companyProfile: string | null;       // CR-01: JSON com taxRegime quando coluna direta é null
   companySize: string | null;          // camelCase no banco
   archetype: string | null;            // M3 NOVA-06: JSON column (PerfilDimensional)
 }
@@ -101,6 +102,31 @@ function safeParseObject(raw: unknown): Record<string, unknown> {
   return {};
 }
 
+/**
+ * CR-01 (#1607 Fase 0): resolve o regime tributário.
+ *
+ * Prioridade: coluna direta `projects.taxRegime` → `companyProfile.taxRegime`
+ * (JSON, fonte canônica do formulário legado — Lição #140 / BUG-REGIME-FILTER-01
+ * `routers-fluxo-v3.ts:5148`) → `null`. Sem o fallback, o engine recebia
+ * `taxRegime=null` e não distinguia Simples Nacional (falso-positivo de riscos de
+ * imóveis para construtora SN — `normative-inference.ts:230`).
+ *
+ * Fallback final = `null` (nunca hardcode `'lucro_real'` — REGRA-ORQ-29/32).
+ * Helper puro (sem DB) para o DoD P1/P2 ser testável sem DATABASE_URL
+ * (Lição #110 / REGRA-ORQ-CI-01). `safeParseObject` trata objeto auto-parseado
+ * (mysql2, Lição #72) e string JSON.
+ */
+export function resolveTaxRegime(
+  rootTaxRegime: string | null | undefined,
+  companyProfileRaw: unknown
+): string | null {
+  return (
+    rootTaxRegime ??
+    (safeParseObject(companyProfileRaw).taxRegime as string | null | undefined) ??
+    null
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Extrator principal
 // ─────────────────────────────────────────────────────────────────────────────
@@ -121,6 +147,7 @@ export async function extractProjectProfile(
        operationProfile,
        product_answers,
        taxRegime,
+       companyProfile,
        companySize,
        archetype
      FROM projects
@@ -187,7 +214,9 @@ export async function extractProjectProfile(
   return {
     projectId: row.id,
     cnaes,
-    taxRegime: row.taxRegime ?? null,
+    // CR-01 fix: taxRegime pode estar na coluna direta (novo formulário) OU
+    // embutido no JSON companyProfile (formulário legado). Prioridade: coluna direta.
+    taxRegime: resolveTaxRegime(row.taxRegime, row.companyProfile),
     companySize: row.companySize ?? null,
     tipoOperacao: tipoOperacaoRaw,
     tipoCliente: tipoClienteRaw,
