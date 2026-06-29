@@ -1,0 +1,923 @@
+{
+  "generatedAt": "2026-06-29T02:07:05.180Z",
+  "head": "fbc91ee1",
+  "panelVersion": "v10",
+  "summary": {
+    "regraOrq": 44,
+    "licoes": 67,
+    "licaoMax": 153,
+    "skills": 9,
+    "adrs": 31,
+    "ruleFiles": 8,
+    "audits": 34,
+    "postMortems": 2,
+    "relatorios": 51
+  },
+  "claudeMd": {
+    "file": "CLAUDE.md",
+    "updated": "2026-06-22",
+    "sizeKB": 8,
+    "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/CLAUDE.md"
+  },
+  "ruleFiles": [
+    {
+      "file": ".claude/rules/backend.md",
+      "name": "backend.md",
+      "sizeKB": 5,
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/backend.md"
+    },
+    {
+      "file": ".claude/rules/database.md",
+      "name": "database.md",
+      "sizeKB": 3,
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/database.md"
+    },
+    {
+      "file": ".claude/rules/frontend.md",
+      "name": "frontend.md",
+      "sizeKB": 2,
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/frontend.md"
+    },
+    {
+      "file": ".claude/rules/governance-adr-ref.md",
+      "name": "governance-adr-ref.md",
+      "sizeKB": 5,
+      "updated": "2026-06-22",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/governance-adr-ref.md"
+    },
+    {
+      "file": ".claude/rules/governance-core.md",
+      "name": "governance-core.md",
+      "sizeKB": 85,
+      "updated": "2026-06-24",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/governance-core.md",
+      "regraOrqCount": 44
+    },
+    {
+      "file": ".claude/rules/governance-lessons.md",
+      "name": "governance-lessons.md",
+      "sizeKB": 140,
+      "updated": "2026-06-26",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/governance-lessons.md",
+      "licoesCount": 67
+    },
+    {
+      "file": ".claude/rules/governance-spec-first.md",
+      "name": "governance-spec-first.md",
+      "sizeKB": 7,
+      "updated": "2026-06-22",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/governance-spec-first.md"
+    },
+    {
+      "file": ".claude/rules/testing.md",
+      "name": "testing.md",
+      "sizeKB": 3,
+      "updated": "2026-04-19",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/testing.md"
+    }
+  ],
+  "stackRules": [
+    "backend.md",
+    "frontend.md",
+    "database.md",
+    "testing.md"
+  ],
+  "regraOrq": [
+    {
+      "id": "REGRA-ORQ-00",
+      "title": "Leitura obrigatoria pre-sprint"
+    },
+    {
+      "id": "REGRA-ORQ-08",
+      "title": ""
+    },
+    {
+      "id": "REGRA-ORQ-09",
+      "title": ""
+    },
+    {
+      "id": "REGRA-ORQ-10",
+      "title": ""
+    },
+    {
+      "id": "REGRA-ORQ-11",
+      "title": "Fast-track hotfix P0"
+    },
+    {
+      "id": "REGRA-ORQ-12",
+      "title": "Manus sempre em paralelo"
+    },
+    {
+      "id": "REGRA-ORQ-13",
+      "title": "Fluxo declarado obrigatorio"
+    },
+    {
+      "id": "REGRA-ORQ-14",
+      "title": "Efeitos cascata obrigatorios (4 elementos)"
+    },
+    {
+      "id": "REGRA-ORQ-15",
+      "title": "PR body template obrigatorio"
+    },
+    {
+      "id": "REGRA-ORQ-16",
+      "title": "GOVERNANCE GATE (HARD-ENFORCED)"
+    },
+    {
+      "id": "REGRA-ORQ-17",
+      "title": "PRE-CLOSE-CHECKLIST (obrigatorio antes de fechar issue)"
+    },
+    {
+      "id": "REGRA-ORQ-18",
+      "title": "Sincronizacao board obrigatoria"
+    },
+    {
+      "id": "REGRA-ORQ-19",
+      "title": "Auditoria de fim de sessão (obrigatória)"
+    },
+    {
+      "id": "REGRA-ORQ-20",
+      "title": "Avaliação de risco estrutural obrigatória"
+    },
+    {
+      "id": "REGRA-ORQ-21",
+      "title": "Caminho C é default (última spec é formal)"
+    },
+    {
+      "id": "REGRA-ORQ-22",
+      "title": "Crítica de spec em 3 níveis"
+    },
+    {
+      "id": "REGRA-ORQ-23",
+      "title": "Tempo-box de aprovação (1 round)"
+    },
+    {
+      "id": "REGRA-ORQ-24",
+      "title": "Classe de impacto determina governança"
+    },
+    {
+      "id": "REGRA-ORQ-25",
+      "title": "Anti-drift SHA Manus.space sandbox"
+    },
+    {
+      "id": "REGRA-ORQ-26",
+      "title": "Branch obrigatória para arquivos source-controlled"
+    },
+    {
+      "id": "REGRA-ORQ-27",
+      "title": "Validação de consumo (Lição #59)"
+    },
+    {
+      "id": "REGRA-ORQ-28",
+      "title": "Triade de Garantia para Bugs/Features Técnicas"
+    },
+    {
+      "id": "REGRA-ORQ-29",
+      "title": "Sem Requisito = Sem Pergunta = Sem Gap"
+    },
+    {
+      "id": "REGRA-ORQ-30",
+      "title": "Temperature Máxima 0.1"
+    },
+    {
+      "id": "REGRA-ORQ-31",
+      "title": "Meta de Confiança 98%"
+    },
+    {
+      "id": "REGRA-ORQ-32",
+      "title": "Proibição de Hardcode (Visão Sistêmica)"
+    },
+    {
+      "id": "REGRA-ORQ-33",
+      "title": "Matriz RACI Operacional"
+    },
+    {
+      "id": "REGRA-ORQ-34",
+      "title": "Pipeline de Dados Bugfix Protocol"
+    },
+    {
+      "id": "REGRA-ORQ-35",
+      "title": "NUNCA ASSUMA (Read Before Write Enforcement)"
+    },
+    {
+      "id": "REGRA-ORQ-36",
+      "title": "Técnicas de Investigação Profunda"
+    },
+    {
+      "id": "REGRA-ORQ-37",
+      "title": "Evidência Obrigatória de Ingestão de Corpus"
+    },
+    {
+      "id": "REGRA-ORQ-CI-01",
+      "title": "CI verde como pré-requisito de merge"
+    },
+    {
+      "id": "REGRA-INGEST-01",
+      "title": "Contrato de Ingestão (19/05/2026)"
+    },
+    {
+      "id": "REGRA-ORQ-40",
+      "title": "Threshold Chunk Size (19/05/2026)"
+    },
+    {
+      "id": "REGRA-ORQ-41",
+      "title": "Protocolo AS-IS/TO-BE com impact-tree (29/05/2026)"
+    },
+    {
+      "id": "REGRA-ORQ-SPEC-01",
+      "title": "Precisão em Specs de CI (19/05/2026)"
+    },
+    {
+      "id": "REGRA-ORQ-FILENAME-01",
+      "title": "Migrations em tabelas com \"rag\" no nome (20/05/2026)"
+    },
+    {
+      "id": "REGRA-ORQ-42",
+      "title": "Spec de formulário multi-perfil exige tabela de visibilidade"
+    },
+    {
+      "id": "REGRA-ORQ-43",
+      "title": "SPEC-FIRST (índice consolidador da metodologia)"
+    },
+    {
+      "id": "REGRA-ORQ-44",
+      "title": "DoD negativo obrigatório por consumer crítico"
+    },
+    {
+      "id": "REGRA-ORQ-45",
+      "title": "Gate 0 do Emissor de Despacho"
+    },
+    {
+      "id": "REGRA-ORQ-46",
+      "title": "Lição identificada = PR obrigatório na mesma sessão"
+    },
+    {
+      "id": "REGRA-ORQ-47",
+      "title": "DoD obrigatório de filtro + 🟡 do impact-tree vira item rastreável"
+    },
+    {
+      "id": "REGRA-ORQ-48",
+      "title": "Gate 0 de UI: confirmar rota ativa antes de implementar em componente frontend"
+    }
+  ],
+  "licoes": [
+    {
+      "n": 61,
+      "title": "Metadado determinístico antes da pergunta"
+    },
+    {
+      "n": 62,
+      "title": "Separação Contexto vs Evidência"
+    },
+    {
+      "n": 63,
+      "title": "Spec arquiteturalmente correta ≠ implementável"
+    },
+    {
+      "n": 64,
+      "title": "Audit-greps insuficientes vs runtime tests"
+    },
+    {
+      "n": 65,
+      "title": "Sempre rastrear o fluxo de DADOS end-to-end antes de diagnosticar"
+    },
+    {
+      "n": 66,
+      "title": "Spec arquitetural sem dados reais é ilusão"
+    },
+    {
+      "n": 67,
+      "title": "Try/catch + degradação graciosa em sequências assíncronas"
+    },
+    {
+      "n": 68,
+      "title": "Coluna mono-valor + JSON multi-valor: ler do JSON na UI"
+    },
+    {
+      "n": 69,
+      "title": "Multi-fonte agregado vs multi-fonte por risco"
+    },
+    {
+      "n": 70,
+      "title": "Assimetria de auth em procedures aparentemente similares"
+    },
+    {
+      "n": 71,
+      "title": "Scripts de validação DoD devem ser commitados + autor valida o parser"
+    },
+    {
+      "n": 72,
+      "title": "Driver mysql2 auto-parseia colunas JSON: NÃO usar `JSON.parse`"
+    },
+    {
+      "n": 74,
+      "title": "Fix downstream incompleto (caso canônico: PR #1015)"
+    },
+    {
+      "n": 83,
+      "title": "Verificar issues pré-existentes antes de criar nova"
+    },
+    {
+      "n": 84,
+      "title": "Fix de consumidor sem fix de origem: marcar explicitamente"
+    },
+    {
+      "n": 85,
+      "title": "DoD de persistência exige verificação SQL, não estado de UI"
+    },
+    {
+      "n": 86,
+      "title": "Persistência crítica não depende de estado efêmero do frontend"
+    },
+    {
+      "n": 87,
+      "title": "Smoke estático ≠ prova de consumo (extensão REGRA-ORQ-27 / Lição #59)"
+    },
+    {
+      "n": 88,
+      "title": "Acoplamento de engine oculto deve ser declarado no PR (extensão Lição #63)"
+    },
+    {
+      "n": 89,
+      "title": "scripts/ fora do tsconfig: tsc não valida seeds"
+    },
+    {
+      "n": 90,
+      "title": "Nudge é necessário, não suficiente: citação de normativa infralegal exige injeção determinística"
+    },
+    {
+      "n": 91,
+      "title": "Gotchas dos gates de CI (validate-pr-body / Guard / autoaudit)"
+    },
+    {
+      "n": 92,
+      "title": "`touchesRag` casa `cnae`: falso-positivo em CNAE tributário (24/05/2026)"
+    },
+    {
+      "n": 93,
+      "title": "\"Ausência na base\" ≠ \"não-regressão\"; mudança aditiva prova-se pelo diff"
+    },
+    {
+      "n": 103,
+      "title": "cnae_groups NULL = pergunta universal"
+    },
+    {
+      "n": 101,
+      "title": "boundary é por match-de-grupo (não LENGTH); casar o WHERE ≠ sobreviver ao LIMIT"
+    },
+    {
+      "n": 107,
+      "title": "oráculo de cobertura é shouldInjectCategory sobre risk_categories, não o texto do grounding"
+    },
+    {
+      "n": 109,
+      "title": "Spec sem modelo conceitual entrega contrato técnico, não produto"
+    },
+    {
+      "n": 110,
+      "title": "Test que replica schema simplificado passa por motivo errado"
+    },
+    {
+      "n": 113,
+      "title": "\"UI mostra X\" ≠ \"DB persiste X\" (extensão da REGRA-ORQ-27)"
+    },
+    {
+      "n": 114,
+      "title": "Restrições de escopo no despacho devem ser verificadas contra o contrato real do backend"
+    },
+    {
+      "n": 115,
+      "title": "Smoke via script tRPC ≠ smoke via UI"
+    },
+    {
+      "n": 116,
+      "title": "Callsite audit obrigatório pós-migration"
+    },
+    {
+      "n": 117,
+      "title": "Registrar lição em governance.md ≠ aplicar fix no código"
+    },
+    {
+      "n": 120,
+      "title": "Join path `tasks → risks_v4` é SEMPRE mediado por `action_plans`"
+    },
+    {
+      "n": 121,
+      "title": "Metodologia existia fragmentada; consolidada por ORQ-43"
+    },
+    {
+      "n": 122,
+      "title": "Review de PR de governança deve ser registrado no GitHub (Approve)"
+    },
+    {
+      "n": 123,
+      "title": "Hotfix anti-truncado pode conflitar com feature de granularidade variável"
+    },
+    {
+      "n": 124,
+      "title": "DoD negativo deve falsificar a condição mais próxima do positivo (mudar 1 variável, não a principal)"
+    },
+    {
+      "n": 125,
+      "title": "Snippet proposto é direcional, não copiável"
+    },
+    {
+      "n": 126,
+      "title": "Fato normativo: PDF primário, nunca o corpus RAG"
+    },
+    {
+      "n": 127,
+      "title": "Despacho/board não citam issue planejada (extensão Lição #83)"
+    },
+    {
+      "n": 128,
+      "title": "Gates declarados ≠ gates enforçados (auditar branch protection)"
+    },
+    {
+      "n": 129,
+      "title": "Template de PR que reprova o required check é uma armadilha"
+    },
+    {
+      "n": 130,
+      "title": "`enforce_admins: false` → required checks não bloqueiam admins"
+    },
+    {
+      "n": 131,
+      "title": "Regenerar questionário ≠ confirmar fix de corpus"
+    },
+    {
+      "n": 132,
+      "title": "Afirmar cnaeGroups sem verificar o arquivo fonte é anti-padrão"
+    },
+    {
+      "n": 133,
+      "title": "cnaeGroups é camada interpretativa, nunca normativa"
+    },
+    {
+      "n": 134,
+      "title": "Reranker não substitui curadoria de dados"
+    },
+    {
+      "n": 135,
+      "title": "Fixar o predicado de um fix (ex: \"pontilhado\") em SQL único antes do protocolo, não inferir por ator/sessão"
+    },
+    {
+      "n": 137,
+      "title": "Consolidação em helper único exige conectar TODOS os gates consumers (frontend E backend) no mesmo PR"
+    },
+    {
+      "n": 138,
+      "title": "DoD negativo deve EXERCITAR a escrita, não observar ausência"
+    },
+    {
+      "n": 139,
+      "title": "Teste de filtro/gate só prova com o caso NEGATIVO discriminante"
+    },
+    {
+      "n": 140,
+      "title": "Campo com dupla persistência: confirmar a fonte canônica antes de ler"
+    },
+    {
+      "n": 141,
+      "title": "\"Deploy OK / HEADs alinhados\" pelo checkpoint ≠ artefato servido (verificar o que roda, não o id)"
+    },
+    {
+      "n": 142,
+      "title": "Severidade do bug é medida pelo que o runtime CONSOME, não pela string no código-fonte"
+    },
+    {
+      "n": 143,
+      "title": "\"Artigo de disposições finais = transitório\" é premissa falsa; chunks podem ser Anexos mis-taggeados"
+    },
+    {
+      "n": 144,
+      "title": "DELETE em lote por artigo exige classificação individual prévia"
+    },
+    {
+      "n": 145,
+      "title": "Bug de retrieval semântico não se resolve com DELETE; exige re-tag + cnaeGroups"
+    },
+    {
+      "n": 146,
+      "title": "Ler os caminhos de rejeição do código ANTES de assumir que \"mover o gatilho\" é trivial"
+    },
+    {
+      "n": 147,
+      "title": "Encontrar o código ≠ confirmar que ele roda (rota ativa)"
+    },
+    {
+      "n": 148,
+      "title": "\"5 otimizações pontuais\" ≠ \"auto-pilot do fluxo\"; o escopo escrito ficou aquém da intenção"
+    },
+    {
+      "n": 149,
+      "title": "Teste de roteamento/condicional exige caso que DIFERE entre as opções (senão não discrimina)"
+    },
+    {
+      "n": 150,
+      "title": "Campo no prompt LLM (Onda 2) ≠ campo no archetype; verificar o CAMINHO real de consumo"
+    },
+    {
+      "n": 151,
+      "title": "Gate 0 / impact-tree deve cobrir `shared/` explicitamente (não só server/ + client/src)"
+    },
+    {
+      "n": 152,
+      "title": "Pivot de mecanismo vs spec aprovada exige aprovação ANTES de implementar"
+    },
+    {
+      "n": 153,
+      "title": "Branch = frente: plano aprovado e implementação são branches separadas"
+    }
+  ],
+  "skills": [
+    {
+      "name": "db-schema-check",
+      "slug": "db-schema-check",
+      "description": "Validar campo no DATA_DICTIONARY antes de implementar. Use ao fazer Gate 0, verificar schema, conferir tipo de campo no banco.",
+      "file": ".claude/skills/db-schema-check/SKILL.md",
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/db-schema-check/SKILL.md"
+    },
+    {
+      "name": "gate-check",
+      "slug": "gate-check",
+      "description": "Verificar labels e seções de uma issue GitHub para F3. Use ao auditar spec, checar gate, verificar issue antes de implementar.",
+      "file": ".claude/skills/gate-check/SKILL.md",
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/gate-check/SKILL.md"
+    },
+    {
+      "name": "impact-tree",
+      "slug": "impact-tree",
+      "description": "Análise de impacto cross-cutting ANTES de qualquer AS-IS/TO-BE. Roda 11 passos obrigatórios (ast-grep semântico + knip dead-read + LOC + gh issue + ADR/snapshot scan + writers/readers map + auto-auditoria). Evita o erro recorrente de AS-IS com 75% de confiabilidade.",
+      "file": ".claude/skills/impact-tree/SKILL.md",
+      "updated": "2026-06-15",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/impact-tree/SKILL.md"
+    },
+    {
+      "name": "investigate-deep",
+      "slug": "investigate-deep",
+      "description": "Deep investigation before editing critical files. Reads full context, maps dependencies, documents findings to evidence file.",
+      "file": ".claude/skills/investigate-deep/SKILL.md",
+      "updated": "2026-05-22",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/investigate-deep/SKILL.md"
+    },
+    {
+      "name": "pre-commit",
+      "slug": "pre-commit",
+      "description": "Gate de qualidade antes de commit — tsc + testes. Use antes de commitar, ao verificar qualidade, antes de criar PR.",
+      "file": ".claude/skills/pre-commit/SKILL.md",
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/pre-commit/SKILL.md"
+    },
+    {
+      "name": "safe-fix-pipeline",
+      "slug": "safe-fix-pipeline",
+      "description": "Full pipeline for fixing bugs in critical files: investigate → plan → implement → verify. Use before any Edit in pipeline-critical paths.",
+      "file": ".claude/skills/safe-fix-pipeline/SKILL.md",
+      "updated": "2026-05-22",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/safe-fix-pipeline/SKILL.md"
+    },
+    {
+      "name": "solaris-contexto",
+      "slug": "solaris-contexto",
+      "description": "Contexto permanente do projeto IA SOLARIS para o Orquestrador Claude. Use ao iniciar qualquer sessão do projeto IA SOLARIS, ao planejar sprints, ao revisar PRs, ao gerar prompts para o Manus, ou ao analisar o estado do produto. Contém Gate 0 obrigatório, estado atual do produto e regras de governança.",
+      "file": ".claude/skills/solaris-contexto/SKILL.md",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/solaris-contexto/SKILL.md"
+    },
+    {
+      "name": "sync",
+      "slug": "sync",
+      "description": "R-SYNC-01 sincronizar com origin/main e mostrar estado do repositório. Use ao iniciar sessão, antes de implementar, ao verificar estado.",
+      "file": ".claude/skills/sync/SKILL.md",
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/sync/SKILL.md"
+    },
+    {
+      "name": "ux-spec-check",
+      "slug": "ux-spec-check",
+      "description": "Diff data-testid entre mockup e componente (ORQ-16). Use ao verificar gap mockup, checar data-testid, validar implementação frontend.",
+      "file": ".claude/skills/ux-spec-check/SKILL.md",
+      "updated": "2026-04-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/skills/ux-spec-check/SKILL.md"
+    }
+  ],
+  "adrs": [
+    {
+      "file": "0002-arquitetura-3-ondas-perguntas.md",
+      "title": "0002-arquitetura-3-ondas-perguntas",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/0002-arquitetura-3-ondas-perguntas.md"
+    },
+    {
+      "file": "ADR-0009-fluxo-canonico-fontes-diagnostico.md",
+      "title": "ADR-0009 — Fluxo Canônico e Fontes do Diagnóstico",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0009-fluxo-canonico-fontes-diagnostico.md"
+    },
+    {
+      "file": "ADR-0010-substituicao-qc-qo-por-ncm-nbs.md",
+      "title": "ADR-0010 — Substituição de QC/QO por Q.Produtos (NCM) e Q.Serviços (NBS)",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0010-substituicao-qc-qo-por-ncm-nbs.md"
+    },
+    {
+      "file": "ADR-0011-consolidacao-respostas-pipeline.md",
+      "title": "ADR-0011 — Consolidação de Respostas no Pipeline de Briefing",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0011-consolidacao-respostas-pipeline.md"
+    },
+    {
+      "file": "ADR-0012-art57-vs-art2-is-mapeamento-canonico.md",
+      "title": "ADR-0012 — Mapeamento Canônico: Art. 57 vs Art. 2 LC 214/2025 (Imposto Seletivo)",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0012-art57-vs-art2-is-mapeamento-canonico.md"
+    },
+    {
+      "file": "ADR-0013-badge-risk-category-l2-frontend.md",
+      "title": "ADR-0013 — Badge risk_category_l2 no Frontend (RisksV3)",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0013-badge-risk-category-l2-frontend.md"
+    },
+    {
+      "file": "ADR-0016-completude-confianca-questionarios.md",
+      "title": "ADR-0016 — Modelo de Completude e Confiança dos Questionários",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0016-completude-confianca-questionarios.md"
+    },
+    {
+      "file": "ADR-0017-aviso-ncm-nbs-ausente.md",
+      "title": "ADR-0017 — Aviso de Diagnóstico Genérico quando NCM/NBS Ausente",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0017-aviso-ncm-nbs-ausente.md"
+    },
+    {
+      "file": "ADR-0018-context-injection-briefing.md",
+      "title": "ADR-0018 — Context Injection: Fontes Ausentes no Briefing",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0018-context-injection-briefing.md"
+    },
+    {
+      "file": "ADR-0020-schema-drift-0063.md",
+      "title": "ADR-0020 — Schema Drift: Migration 0063 (hash divergente)",
+      "updated": "2026-04-09",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0020-schema-drift-0063.md"
+    },
+    {
+      "file": "ADR-0022-hot-swap-risk-engine-v4.md",
+      "title": "ADR-0022 — Hot Swap: Risk Engine v4 (Determinístico) substitui generateRiskMatrices (LLM)",
+      "updated": "2026-04-12",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0022-hot-swap-risk-engine-v4.md"
+    },
+    {
+      "file": "ADR-0023-cpie-score-opcao-a-sprint-z07.md",
+      "title": "ADR-0023 — Score CPIE: Opção A para Sprint Z-07",
+      "updated": "2026-04-10",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0023-cpie-score-opcao-a-sprint-z07.md"
+    },
+    {
+      "file": "ADR-0025-risk-categories-configurable-rag-sensor.md",
+      "title": "ADR-0025 — Categorias de Risco Configuráveis via Banco + RAG Sensor",
+      "updated": "2026-04-10",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0025-risk-categories-configurable-rag-sensor.md"
+    },
+    {
+      "file": "ADR-0026-anti-corruption-layer-gap-risk.md",
+      "title": "ADR-0026 — Anti-Corruption Layer Gap→Risk",
+      "updated": "2026-04-10",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0026-anti-corruption-layer-gap-risk.md"
+    },
+    {
+      "file": "ADR-0027-fonte-verdade-respostas-por-onda.md",
+      "title": "ADR-0027 — Fonte de Verdade das Respostas por Onda",
+      "updated": "2026-06-02",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0027-fonte-verdade-respostas-por-onda.md"
+    },
+    {
+      "file": "ADR-0028-categorizacao-onda2-iagen.md",
+      "title": "ADR-0028 — Categorização da Onda 2 (IA GEN)",
+      "updated": "2026-04-10",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0028-categorizacao-onda2-iagen.md"
+    },
+    {
+      "file": "ADR-0029-cpie-v3-drop-estrategia-excecoes.md",
+      "title": "ADR-0029 — CPIE v3: Mudança de estratégia @deprecated → DROP + exceções autorizadas a restrições absolutas",
+      "updated": "2026-04-19",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0029-cpie-v3-drop-estrategia-excecoes.md"
+    },
+    {
+      "file": "ADR-0030-fonte-canonica-gap-solaris.md",
+      "title": "ADR-0030 — Fonte Canônica de Gap SOLARIS · Arquitetura Max",
+      "updated": "2026-06-03",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0030-fonte-canonica-gap-solaris.md"
+    },
+    {
+      "file": "ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md",
+      "title": "ADR-0030 AMENDMENT — Hotfix IS: ajustes pós-crítica do implementador (v1.1)",
+      "updated": "2026-06-18",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0030-hotfix-is-elegibilidade-por-operationtype-v1.1.md"
+    },
+    {
+      "file": "ADR-0031-imutabilidade-snapshot.md",
+      "title": "ADR-0031 — Imutabilidade do Snapshot do Perfil da Entidade",
+      "updated": "2026-05-22",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0031-imutabilidade-snapshot.md"
+    },
+    {
+      "file": "ADR-0032-versionamento-perfil-entidade.md",
+      "title": "ADR-0032 — Versionamento do Snapshot do Perfil da Entidade",
+      "updated": "2026-05-29",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0032-versionamento-perfil-entidade.md"
+    },
+    {
+      "file": "ADR-0033-identidade-fiscal-dual.md",
+      "title": "ADR-0033 — Identidade Fiscal Dual (CPF/CNPJ)",
+      "updated": "2026-05-29",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0033-identidade-fiscal-dual.md"
+    },
+    {
+      "file": "ADR-0034-drop-compliance-v3-legado.md",
+      "title": "ADR-0034 — Remoção do dashboard compliance-v3 legado (Fase 1: frontend órfão + router)",
+      "updated": "2026-06-03",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0034-drop-compliance-v3-legado.md"
+    },
+    {
+      "file": "ADR-0035-ncm-nbs-resolver-cascata.md",
+      "title": "ADR-0035 — Resolver NCM/NBS em cascata (ponto único de decisão)",
+      "updated": "2026-06-17",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0035-ncm-nbs-resolver-cascata.md"
+    },
+    {
+      "file": "ADR-0036-reranker-ncm-aware-opcao-a.md",
+      "title": "ADR-0036 — Reranker NCM-aware (Opção A: instrução de aderência ao NCM no `rerankWithLLM`)",
+      "updated": "2026-06-17",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0036-reranker-ncm-aware-opcao-a.md"
+    },
+    {
+      "file": "ADR-0037-gate-deploy-4-heads-obrigatorio.md",
+      "title": "ADR-0037 — Gate de deploy obrigatório: 4 HEADs alinhados (BLOQUEANTE)",
+      "updated": "2026-06-19",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0037-gate-deploy-4-heads-obrigatorio.md"
+    },
+    {
+      "file": "ADR-0038-regime-tributario-filtro-questionario.md",
+      "title": "ADR-0038 — Gate Regime Tributário no Questionário SOLARIS Onda 1",
+      "updated": "2026-06-19",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0038-regime-tributario-filtro-questionario.md"
+    },
+    {
+      "file": "ADR-0039-remover-ponte-dual-name-intl-ops.md",
+      "title": "ADR-0039 — Remover ponte dual-name `hasImportExport` → `hasInternationalOps`",
+      "updated": "2026-06-26",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-0039-remover-ponte-dual-name-intl-ops.md"
+    },
+    {
+      "file": "ADR-010-content-architecture-98.md",
+      "title": "ADR-010 — Arquitetura Canônica de Conteúdo Diagnóstico para Confiabilidade 98%",
+      "updated": "2026-06-03",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-010-content-architecture-98.md"
+    },
+    {
+      "file": "ADR-ARCH-01-modelo-tributario.md",
+      "title": "ADR-ARCH-01 — Governança do Modelo Tributário",
+      "updated": "2026-05-26",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-ARCH-01-modelo-tributario.md"
+    },
+    {
+      "file": "ADR-GP-001-guia-pratico-llm-efemero.md",
+      "title": "ADR-GP-001 — Guia Prático: Modal IA Generativa efêmero no Plano de Ação",
+      "updated": "2026-06-13",
+      "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-GP-001-guia-pratico-llm-efemero.md"
+    }
+  ],
+  "audits": {
+    "count": 34,
+    "recent": [
+      {
+        "file": "v7.81-2026-06-24-sessao-mud1-4-silencioso.md",
+        "updated": "2026-06-25",
+        "path": "docs/governance/audits/v7.81-2026-06-24-sessao-mud1-4-silencioso.md"
+      },
+      {
+        "file": "AUDITORIA_PROFUNDA_01de1c47.md",
+        "updated": "2026-06-19",
+        "path": "docs/governance/audits/AUDITORIA_PROFUNDA_01de1c47.md"
+      },
+      {
+        "file": "PARECER_AUDITORIA_01de1c47.md",
+        "updated": "2026-06-19",
+        "path": "docs/governance/audits/PARECER_AUDITORIA_01de1c47.md"
+      },
+      {
+        "file": "v7.80-2026-06-19-bug-regime-filter-01.md",
+        "updated": "2026-06-19",
+        "path": "docs/governance/audits/v7.80-2026-06-19-bug-regime-filter-01.md"
+      },
+      {
+        "file": "v7.80-2026-06-19-sessao-adr0038-regime-tributario.md",
+        "updated": "2026-06-19",
+        "path": "docs/governance/audits/v7.80-2026-06-19-sessao-adr0038-regime-tributario.md"
+      },
+      {
+        "file": "v7.79-2026-06-18-sessao-clienttype-eligibility.md",
+        "updated": "2026-06-18",
+        "path": "docs/governance/audits/v7.79-2026-06-18-sessao-clienttype-eligibility.md"
+      },
+      {
+        "file": "auditoria-solaris-spec-first-18jun2026-30330277.md",
+        "updated": "2026-06-17",
+        "path": "docs/governance/audits/auditoria-solaris-spec-first-18jun2026-30330277.md"
+      },
+      {
+        "file": "v7.77.1-2026-06-17-adendo-corpus-fix.md",
+        "updated": "2026-06-17",
+        "path": "docs/governance/audits/v7.77.1-2026-06-17-adendo-corpus-fix.md"
+      },
+      {
+        "file": "v7.76-2026-06-16-sessao-gov-fixes-gate-ncm-nbs.md",
+        "updated": "2026-06-16",
+        "path": "docs/governance/audits/v7.76-2026-06-16-sessao-gov-fixes-gate-ncm-nbs.md"
+      },
+      {
+        "file": "v7.77-2026-06-16-sessao-corpus-reranker-parcial.md",
+        "updated": "2026-06-16",
+        "path": "docs/governance/audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md"
+      },
+      {
+        "file": "v7.74-2026-06-14-sessao-spec-first-v1.2.md",
+        "updated": "2026-06-15",
+        "path": "docs/governance/audits/v7.74-2026-06-14-sessao-spec-first-v1.2.md"
+      },
+      {
+        "file": "v7.75-2026-06-14-gate-ncm-nbs-1219.md",
+        "updated": "2026-06-15",
+        "path": "docs/governance/audits/v7.75-2026-06-14-gate-ncm-nbs-1219.md"
+      }
+    ]
+  },
+  "postMortems": {
+    "count": 2,
+    "recent": [
+      {
+        "file": "2026-05-05-mono-fonte-matriz-riscos.md",
+        "updated": "2026-05-22",
+        "path": "docs/governance/post-mortems/2026-05-05-mono-fonte-matriz-riscos.md"
+      },
+      {
+        "file": "2026-03-31-g17-insert-silencioso.md",
+        "updated": "2026-04-09",
+        "path": "docs/governance/post-mortems/2026-03-31-g17-insert-silencioso.md"
+      }
+    ]
+  },
+  "relatorios": {
+    "count": 51,
+    "recent": [
+      {
+        "file": "AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md",
+        "updated": "2026-06-29",
+        "path": "docs/governance/relatorios/AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md"
+      },
+      {
+        "file": "ISSUE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md",
+        "updated": "2026-06-29",
+        "path": "docs/governance/relatorios/ISSUE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md"
+      },
+      {
+        "file": "AS-IS-TO-BE-UX-PASSO1-MERGE-IDENTIFICACAO-20260626.md",
+        "updated": "2026-06-26",
+        "path": "docs/governance/relatorios/AS-IS-TO-BE-UX-PASSO1-MERGE-IDENTIFICACAO-20260626.md"
+      },
+      {
+        "file": "AS-IS-TO-BE-CSV-PARSER-NORMATIVO-B2-20260623.md",
+        "updated": "2026-06-24",
+        "path": "docs/governance/relatorios/AS-IS-TO-BE-CSV-PARSER-NORMATIVO-B2-20260623.md"
+      },
+      {
+        "file": "AS-IS-TO-BE-ADMIN-SOLARIS-QUESTIONS-UX-20260619.md",
+        "updated": "2026-06-20",
+        "path": "docs/governance/relatorios/AS-IS-TO-BE-ADMIN-SOLARIS-QUESTIONS-UX-20260619.md"
+      },
+      {
+        "file": "DESPACHO-UX-ADMIN-SOLARIS-QUESTIONS-v2-UNIFICADO.md",
+        "updated": "2026-06-20",
+        "path": "docs/governance/relatorios/DESPACHO-UX-ADMIN-SOLARIS-QUESTIONS-v2-UNIFICADO.md"
+      },
+      {
+        "file": "AS-IS-TO-BE-REGIME-TRIBUTARIO-QUESTIONARIO.md",
+        "updated": "2026-06-19",
+        "path": "docs/governance/relatorios/AS-IS-TO-BE-REGIME-TRIBUTARIO-QUESTIONARIO.md"
+      },
+      {
+        "file": "HANDOFF-DEPLOY-BUNDLE-STALE-20260619.md",
+        "updated": "2026-06-19",
+        "path": "docs/governance/relatorios/HANDOFF-DEPLOY-BUNDLE-STALE-20260619.md"
+      }
+    ]
+  }
+}
