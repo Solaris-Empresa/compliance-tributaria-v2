@@ -2186,3 +2186,31 @@ A redação original acima estava **imprecisa** (escrita de memória, sem verifi
 ### Vinculadas
 
 [[Lição #91]] (gotchas dos gates de CI — origem desta extensão) · [[Lição #93]] (mecanismo/strings verificados, não inferidos) · [[Lição #129]] (template que reprova o gate = armadilha — resolvida aqui) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-46 (lição = PR obrigatório) · REGRA-ORQ-15 (PR body template) · `.github/scripts/validate-pr-body.js` · `.github/pull_request_template.md` (corrigido) · PR #1609
+
+## Lição #155 — `git show origin/main:caminho` no Git Bash do Windows sofre path-mangling silencioso (29/06/2026)
+
+**Contexto:** Durante a sessão 28/06/2026, o Orquestrador (Claude no Git Bash do Windows) rodou `git show origin/main:.claude/rules/governance-lessons.md` e recebeu saída vazia — interpretou como "arquivo não encontrado" e reportou falso-negativo. A causa real era path-mangling do MSYS2 (caminho `:caminho` convertido para `;caminho` ou `\caminho`), não ausência do arquivo.
+
+**Gotcha:** O Git Bash do Windows (MSYS2) converte automaticamente strings que parecem paths Unix em paths Windows. O separador `:` em `ref:path` é interpretado como separador de drive (C:), e `/` é convertido para `\`. O resultado é um comando malformado que retorna vazio **sem mensagem de erro visível** — o silêncio é o perigo.
+
+**Sintomas:**
+- `git show origin/main:.claude/rules/arquivo.md` → retorna vazio (parece "não encontrado")
+- `git show origin/main:docs/painel-po/index.html` → retorna vazio
+- Nenhum erro explícito — falha silenciosa
+
+**Correção determinística (duas opções equivalentes):**
+```bash
+# Opção 1: desabilitar path-mangling para o comando
+MSYS_NO_PATHCONV=1 git show origin/main:.claude/rules/governance-lessons.md
+
+# Opção 2: aspas no ref:path (força MSYS2 a não converter)
+git show "origin/main:.claude/rules/governance-lessons.md"
+```
+
+**Regra derivada:** Toda verificação de conteúdo de arquivo via `git show` a partir do Git Bash do Windows DEVE usar `MSYS_NO_PATHCONV=1` ou aspas no argumento `ref:path`. Verificações que retornam vazio sem erro devem ser suspeitas de path-mangling antes de concluir "arquivo ausente".
+
+**Impacto na sessão:** O Orquestrador fez 2 checagens que deram falso-vazio (`git show origin/main:...`) e reportou "não encontrado" — reconfirmadas como presentes após aplicar `MSYS_NO_PATHCONV=1`. Nenhum dado foi perdido; apenas tempo de verificação.
+
+### Vinculadas
+
+[[Lição #91]] (gotchas operacionais de CI/git — origem desta extensão) · [[Lição #93]] (mecanismo/strings verificados, não inferidos) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-46 (lição identificada = PR na mesma sessão) · Sessão 28/06/2026
