@@ -2222,3 +2222,25 @@ O teste DoD CR-01 (`project-profile-extractor.cr01.test.ts`) mockava `drizzle-or
 
 ### Vinculadas
 [[Lição #110]] (testes DB-dependentes) · REGRA-ORQ-CI-01 · PR #1625 · `server/lib/project-profile-extractor.cr01.test.ts`
+
+## Lição #157 — Teste que chama `getDb()` é DB-dependente; extrair helper puro (padrão `resolveTaxRegime`)
+
+**Origem:** CR-01 #1607 Fase 0 (PR #1625, 29/06/2026) — teste falhou 5/8 no CI por DATABASE_URL.
+
+### Texto
+
+Um teste unitário que chama uma função cujo caminho passa por `getDb()` (ou qualquer acesso a `process.env.DATABASE_URL`) é **DB-dependente** e **falha no CI** sem banco — mesmo com `vi.mock("drizzle-orm/mysql2")`, porque o guard `if (!_db && process.env.DATABASE_URL)` **não cria `_db`** quando a env está ausente e então lança `"DATABASE_URL não configurado"` antes do mock ajudar. Para tornar a **lógica** testável de forma determinística, **extrair um helper puro** (sem DB) e testá-lo diretamente — padrão `resolveTaxRegime` (`project-profile-extractor.ts`).
+
+### Caso canônico
+
+O teste inicial do CR-01 chamava `extractProjectProfile(projectId)` → `query()` → `getDb()` → throw sem `DATABASE_URL`. 5 de 8 casos falharam no CI e localmente. Fix: extrair `export function resolveTaxRegime(rootTaxRegime, companyProfileRaw)` (lógica de resolução pura) e testar o helper → 7/7 PASS sem banco.
+
+### Aplicação prospectiva
+
+- Lógica de resolução/normalização/decisão dentro de função DB-bound → extrair helper puro exportado + testar o helper.
+- Se o teste **precisa** exercitar o caminho com DB, usar `dbDescribe` (skipIf sem `DATABASE_URL`, REGRA-ORQ-CI-01) — mas isso **pula** no CI; o helper puro é preferível para cobertura real.
+- Estende [[Lição #110]] (teste com schema/DB real) e REGRA-ORQ-CI-01 (dbDescribe).
+
+### Vinculadas
+
+REGRA-ORQ-CI-01 (dbDescribe / skipIf ambiental) · [[Lição #110]] (schema replicado / DB em teste) · [[Lição #72]] (mysql2 auto-parse) · CR-01 #1625 (`resolveTaxRegime`)
