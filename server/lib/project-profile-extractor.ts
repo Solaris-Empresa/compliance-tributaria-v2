@@ -102,6 +102,31 @@ function safeParseObject(raw: unknown): Record<string, unknown> {
   return {};
 }
 
+/**
+ * CR-01 (#1607 Fase 0): resolve o regime tributário.
+ *
+ * Prioridade: coluna direta `projects.taxRegime` → `companyProfile.taxRegime`
+ * (JSON, fonte canônica do formulário legado — Lição #140 / BUG-REGIME-FILTER-01
+ * `routers-fluxo-v3.ts:5148`) → `null`. Sem o fallback, o engine recebia
+ * `taxRegime=null` e não distinguia Simples Nacional (falso-positivo de riscos de
+ * imóveis para construtora SN — `normative-inference.ts:230`).
+ *
+ * Fallback final = `null` (nunca hardcode `'lucro_real'` — REGRA-ORQ-29/32).
+ * Helper puro (sem DB) para o DoD P1/P2 ser testável sem DATABASE_URL
+ * (Lição #110 / REGRA-ORQ-CI-01). `safeParseObject` trata objeto auto-parseado
+ * (mysql2, Lição #72) e string JSON.
+ */
+export function resolveTaxRegime(
+  rootTaxRegime: string | null | undefined,
+  companyProfileRaw: unknown
+): string | null {
+  return (
+    rootTaxRegime ??
+    (safeParseObject(companyProfileRaw).taxRegime as string | null | undefined) ??
+    null
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Extrator principal
 // ─────────────────────────────────────────────────────────────────────────────
@@ -191,7 +216,7 @@ export async function extractProjectProfile(
     cnaes,
     // CR-01 fix: taxRegime pode estar na coluna direta (novo formulário) OU
     // embutido no JSON companyProfile (formulário legado). Prioridade: coluna direta.
-    taxRegime: row.taxRegime ?? (safeParseObject(row.companyProfile)?.taxRegime as string | undefined) ?? null,
+    taxRegime: resolveTaxRegime(row.taxRegime, row.companyProfile),
     companySize: row.companySize ?? null,
     tipoOperacao: tipoOperacaoRaw,
     tipoCliente: tipoClienteRaw,
