@@ -20,6 +20,24 @@ Responda com: `[CÓDIGO] OK` ou `[CÓDIGO] CORRIGIR: severidade=X, artigo=Y, cna
 
 ---
 
+## EMENDA pós-gate jurídico (Dr. José · 29/06/2026 14h35)
+
+> Gate: LC 214 SHA cd9969 + Decreto 12.955 SHA 88a9f8. **7 aprovadas · 2 corrigidas · 1 renomear · 1 rejeitada · 1 UPDATE Fase 4.**
+
+| Item | Veredito do gate | Ação aplicada nesta emenda |
+|---|---|---|
+| B1, B2, B4, B5, B6, A1, A2 | ✅ Aprovadas | sem alteração |
+| **B3** `risco_permuta_imoveis` | 🔴 Corrigir artigo: **Art. 259 → Art. 252 §2º I e §5º** | ✅ artigo-fonte corrigido (abaixo) |
+| **B7** `risco_tributacao_parcelas` | 🔴 Corrigir cnaeGroups do **chunk de corpus** do Art. 262: `64,65,66 → 41,42,43,68` | ⚪ corpus → **Fase 4** (UPDATE, junto com DIV-3); categoria B7 mantém `41,42,43,68` |
+| **B8** `risco_revisao_contratos` | ⚠️ Renomear: é **sujeição passiva / SCP** (Arts. 263–264), não "revisão" | ✅ renomeado → `risco_sujeicao_passiva_scp` (abaixo) |
+| **A3** `regime_diferenciado_reabilitacao_urbana` | ❌ Rejeitada: Art. 234 é **saúde** | 🟡 **pendente decisão P.O. (D3):** descartar OU reescopar p/ Arts. 158–163 (reabilitação de zonas históricas — condicional, não universal) |
+| DIV-3 | Decreto Arts. 360–372 | ⚪ Fase 4 — **UPDATE já executado** (D4: 18/18 chunks → `41,42,43,68`) |
+
+> **Artigos do Decreto 12.955 (coluna secundária do Grupo B):** corrigidos/marcados re-extrair em `REVISAO-PACOTE-CURADORIA-1624-vs-FONTE-PRIMARIA-20260629.md` (#1627, mergeado). O `artigo_base` das categorias é o **artigo LC** (primário) — o Decreto é regulamento secundário.
+> **Para Fase 1:** criar **9 categorias** = 7 aprovadas + B3 (artigo corrigido) + B8 (renomeada). A3 fora até D3.
+
+---
+
 ## Grupo A — Categorias de Risco Existentes com Lacuna de Curadoria
 
 As categorias abaixo já existem no banco (`normative_status = 'confirmed'`) mas têm lacunas identificadas pelo CC que precisam de validação jurídica antes da Fase 1.
@@ -102,10 +120,10 @@ As categorias abaixo **não existem no banco** e precisam de aprovação jurídi
 | Código | `risco_permuta_imoveis` | |
 | Nome | "Risco tributário na permuta de imóveis" | |
 | Severidade proposta | `alta` | |
-| Artigo-fonte | `Art. 259 LC 214/2025 + Arts. 365–366 Decreto 12.955/2026` | |
+| Artigo-fonte | ~~`Art. 259`~~ → **`Art. 252 §2º I e §5º LC 214/2025`** (✅ gate Dr. José) + Decreto `Art. 360` | |
 | CNAEs elegíveis | `41, 42, 43, 68` | |
 | Urgência proposta | `curto_prazo` | |
-| Justificativa | A permuta de imóveis tem tratamento específico no regime LC 214 (Art. 259). O não-reconhecimento da torna e do valor de mercado pode gerar base de cálculo incorreta. | |
+| Justificativa | A permuta de imóveis tem tratamento específico no regime LC 214 (**Art. 252 §2º I** — não incidência exceto torna; **§5º** — manutenção do redutor entre contribuintes). O não-reconhecimento da torna e do valor de mercado pode gerar base de cálculo incorreta. | |
 
 ---
 
@@ -167,12 +185,14 @@ As categorias abaixo **não existem no banco** e precisam de aprovação jurídi
 
 ---
 
-### B8 — `risco_revisao_contratos` (Revisão de Contratos)
+### B8 — `risco_sujeicao_passiva_scp` (Sujeição Passiva / SCP) — renomeado pós-gate
+
+> Gate Dr. José: Arts. 263–264 tratam de **sujeição passiva** (contribuintes) e **SCP** (sócio ostensivo, Art. 264), não de "revisão de contratos". Categoria renomeada de ~~`risco_revisao_contratos`~~.
 
 | Campo | Proposta CC | Decisão Dr. José |
 |-------|-------------|-----------------|
-| Código | `risco_revisao_contratos` | |
-| Nome | "Risco de contratos sem cláusula de revisão tributária" | |
+| Código | `risco_sujeicao_passiva_scp` (era `risco_revisao_contratos`) | |
+| Nome | "Risco de sujeição passiva / SCP (sócio ostensivo — Art. 264)" | |
 | Severidade proposta | `media` | |
 | Artigo-fonte | `Arts. 263–264 LC 214/2025 + Arts. 365–366 Decreto 12.955/2026` | |
 | CNAEs elegíveis | `41, 42, 43, 68` | |
@@ -199,15 +219,15 @@ As categorias abaixo existem no banco com `normative_status = 'pending_vigency'`
 |---|-----------|------|-----------------|
 | A1 | `risco_art_269_270` | Confirmar severidade (`media` → `alta`?) + urgência | |
 | A2 | `regime_especifico_imoveis` | Confirmar artigo-fonte + CNAEs | |
-| A3 | `regime_diferenciado_reabilitacao_urbana` | Confirmar CNAEs elegíveis | |
+| A3 | `regime_diferenciado_reabilitacao_urbana` | ❌ **Rejeitada** (Art. 234 = saúde) — 🟡 pendente D3 P.O.: descartar OU reescopar Arts. 158–163 | |
 | B1 | `risco_redutor_ajuste` | Aprovar criação (severidade `alta`, Art. 257) | |
 | B2 | `risco_sinter_avaliacao` | Aprovar criação (severidade `alta`, Art. 256) | |
-| B3 | `risco_permuta_imoveis` | Aprovar criação (severidade `alta`, Art. 259) | |
+| B3 | `risco_permuta_imoveis` | ✅ Aprovada — artigo **corrigido p/ Art. 252 §2º I e §5º** (gate) | |
 | B4 | `risco_controle_empreendimento` | Aprovar criação (severidade `alta`, Art. 270) | |
 | B5 | `risco_cib_cadastro` | Aprovar criação OU consolidar com A1 | |
 | B6 | `risco_custos_historicos` | Aprovar criação (severidade `alta`, Art. 258) | |
 | B7 | `risco_tributacao_parcelas` | Aprovar criação (severidade `media`, Art. 262) | |
-| B8 | `risco_revisao_contratos` | Aprovar criação (severidade `media`, Arts. 263–264) | |
+| B8 | `risco_sujeicao_passiva_scp` | ✅ Aprovada — **renomeada** de `risco_revisao_contratos` (sujeição passiva/SCP, Arts. 263–264) | |
 | C1 | `credito_presumido_bens_usados` | Confirmar vigência | |
 | C2 | `credito_presumido_reciclagem` | Confirmar vigência | |
 | C3 | `regime_diferenciado_produtor_rural_credito` | Confirmar vigência | |
@@ -216,13 +236,13 @@ As categorias abaixo existem no banco com `normative_status = 'pending_vigency'`
 
 ## Impacto após gate jurídico
 
-Com as 11 categorias aprovadas (B1–B8 + A1 revisada), a Fase 1 pode:
-1. Criar as 8 novas entradas em `risk_categories` (B1–B8)
-2. Atualizar `severidade` e `artigo_base` das 3 categorias existentes (A1–A3)
+Pós-gate (29/06 14h35): **9 categorias** (7 aprovadas + B3 corrigida + B8 renomeada; A3 fora até D3). A Fase 1 pode:
+1. Criar as **8 novas** entradas em `risk_categories` (B1, B2, B3 [Art. 252 §2º], B4, B5, B6, B7, B8 [`risco_sujeicao_passiva_scp`])
+2. Atualizar `severidade`/`artigo_base` das categorias existentes (A1, A2)
 3. Desbloquear a Fase 3a (8 regras Path B em `normative-inference.ts`)
 4. Desbloquear a Fase 3b (5 riscos Path A — perguntas SOLARIS para CNAE 41/42/43/68)
 
-**Resultado esperado:** construtora com CNAE `4120-4/00` passará de **3 categorias** (atual) para **11 categorias** na matriz de riscos.
+**Resultado esperado:** construtora com CNAE `4120-4/00` passará de **3 categorias** (atual) para **~11 categorias** na matriz (9 do gate + as 2 existentes A1/A2 revisadas). A3 entra se reescopada (D3).
 
 ---
 
