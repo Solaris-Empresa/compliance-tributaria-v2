@@ -60,7 +60,8 @@ interface ProjectRow {
   confirmedCnaes: string | null;       // camelCase no banco
   operationProfile: string | null;     // camelCase no banco
   product_answers: string | null;      // snake_case no banco (migration posterior)
-  taxRegime: string | null;            // camelCase no banco
+  taxRegime: string | null;            // camelCase no banco (coluna direta — prioridade 1)
+  companyProfile: string | null;       // CR-01: JSON com taxRegime quando coluna direta é null
   companySize: string | null;          // camelCase no banco
   archetype: string | null;            // M3 NOVA-06: JSON column (PerfilDimensional)
 }
@@ -121,6 +122,7 @@ export async function extractProjectProfile(
        operationProfile,
        product_answers,
        taxRegime,
+       companyProfile,
        companySize,
        archetype
      FROM projects
@@ -187,7 +189,9 @@ export async function extractProjectProfile(
   return {
     projectId: row.id,
     cnaes,
-    taxRegime: row.taxRegime ?? null,
+    // CR-01 fix: taxRegime pode estar na coluna direta (novo formulário) OU
+    // embutido no JSON companyProfile (formulário legado). Prioridade: coluna direta.
+    taxRegime: row.taxRegime ?? (safeParseObject(row.companyProfile)?.taxRegime as string | undefined) ?? null,
     companySize: row.companySize ?? null,
     tipoOperacao: tipoOperacaoRaw,
     tipoCliente: tipoClienteRaw,
