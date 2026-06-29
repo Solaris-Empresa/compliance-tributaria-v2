@@ -1,48 +1,68 @@
-# Despacho Manus — Sincronizar checkpoint com GitHub (R-SYNC-01) · NÃO criar commit
+# Despacho Manus — Publicar a Fase 3a em produção (deploy a partir do GitHub) · v2
 
-> **Para:** Manus · **De:** Claude Code (auditoria e419fceb) · **Data:** 2026-06-29
-> **Autorização P.O.:** sim (procedimento abaixo) · **Ref.:** REGRA-ORQ-25 · R-SYNC-01 · ADR-0037 · Lição #141
+> **Para:** Manus · **De:** Claude Code (auditoria e419fceb + verificação de tooling) · **Data:** 2026-06-29
+> **Autorização P.O.:** sim · **Ref.:** REGRA-ORQ-25 · R-SYNC-01/02 · ADR-0037 · Lição #141 · BUG-REGIME-FILTER-01 (#1536)
+> **v2:** substitui o "reset + checkpoint" da v1 pelo **script canônico `deploy-from-github.sh`** (resposta do Manus mostrou que reset não basta).
 
-## Veredito da auditoria (determinístico)
+---
 
-| Fato | Verificação |
-|---|---|
-| `origin/main` = **`da952313`** | `git cat-file -t da952313` → **commit** (git real) |
-| Fase 3a **presente** em `da952313` | `isConstrucaoCivilImoveis` em `normative-inference.ts` + `regime-imoveis-eligibility.ts`; 8 codigo no `Categoria` union (`risk-engine-v4.ts`) |
-| `da952313` = merge do #1636, filho de `3d10b62b` | histórico GitHub **linear, sem fork** |
-| **`e419fceb` / `df4dc954`** | `git cat-file -t` → **`Not a valid object name`** → checkpoints S3, **NÃO git** (REGRA-ORQ-25) |
+## 1. Veredito da auditoria (determinístico — não reabrir)
 
-**Conclusão:** GitHub é a fonte de verdade e está **íntegro e completo**. Os checkpoints são árvore paralela não-git. O código da Fase 3a **já existe** como `da952313`.
+| Fato | Verificação | Resultado |
+|---|---|---|
+| `origin/main` = **`da952313`** | `git cat-file -t da952313` | **commit** (git real) ✅ |
+| Fase 3a presente em `da952313` | `git grep isConstrucaoCivilImoveis origin/main` | normative-inference + regime-imoveis-eligibility + union ✅ |
+| `e419fceb` / `df4dc954` / `4e99ece8` | `git cat-file -t` | **`Not a valid object name`** → checkpoints S3, **NÃO git** (REGRA-ORQ-25) |
+| Banco produção | migration 0128 | 8 categorias aplicadas ✅ |
 
-## 🔴 NÃO FAZER
+**GitHub + banco estão corretos. O problema é só o ARTEFATO SERVIDO (deploy stale do checkpoint) — Lição #141.**
 
-**NÃO** criar um commit novo que "inclua os arquivos da Fase 3a". Isso recria mudanças que já são `da952313` → **commit divergente duplicado = bifurcação** (R-SYNC-01 / REGRA-ORQ-26 — anti-padrão da bifurcação Z-12 #473/#474). Proibido.
+## 2. O que NÃO fazer (proibido)
 
-## ✅ PROCEDIMENTO CORRETO (R-SYNC-01)
+- ❌ **NÃO** criar commit novo com "os arquivos da Fase 3a" → bifurcação (R-SYNC-01 / REGRA-ORQ-26; anti-padrão Z-12 #473/#474).
+- ❌ **NÃO** re-digitar arquivos "de memória" → risco de drift byte-a-byte (Lição #93/#154).
+- ❌ **NÃO** `git push` para `origin/main` (GitHub) — nada vai ao GitHub; `da952313` é a verdade.
 
-No sandbox, **antes** de qualquer save:
+## 3. CAMINHO 1 (canônico) — `deploy-from-github.sh` (#1536)
+
+Este script **já existe** e foi feito para EXATAMENTE este problema (deploy tree do Manus puxando S3/checkpoint em vez do GitHub). Ele detecta o remote `github.com` (mesmo no sandbox onde `origin`=S3), faz fetch com refspec explícito (R-SYNC-02) e deixa o working tree em `da952313`.
+
+```bash
+# no sandbox Manus:
+bash scripts/deploy-from-github.sh main
+
+# verificações OBRIGATÓRIAS antes de publicar:
+git rev-parse HEAD                                  # DEVE ser da952313c863235293cc99964d4fcffbd294f576
+git grep -c isConstrucaoCivilImoveis -- server/lib/regime-imoveis-eligibility.ts   # DEVE ser 1
+node scripts/deploy-guard.cjs || true               # guard do #1536 (build hash / sentinela)
+
+# só então publicar o tree resultante (webdev_save_checkpoint / publish)
+```
+
+## 4. CAMINHO 2 (fallback, só se o Caminho 1 não puser os arquivos no working tree)
+
+Extrair os 3 arquivos **do objeto git `da952313`** (byte-idêntico — NUNCA re-digitar):
 
 ```bash
 git fetch origin
-git reset --hard origin/main          # → da952313 (move o ponteiro, SEM commit novo)
-git rev-parse HEAD                      # DEVE imprimir da952313c863235293cc99964d4fcffbd294f576
-git grep -c "isConstrucaoCivilImoveis" -- server/lib/regime-imoveis-eligibility.ts   # DEVE ser 1
+git checkout da952313 -- \
+  server/lib/normative-inference.ts \
+  server/lib/regime-imoveis-eligibility.ts \
+  server/lib/risk-engine-v4.ts
+
+# conferir idêntico ao GitHub:
+git diff da952313 -- server/lib/normative-inference.ts server/lib/regime-imoveis-eligibility.ts server/lib/risk-engine-v4.ts   # DEVE ser vazio
+git grep -c isConstrucaoCivilImoveis -- server/lib/regime-imoveis-eligibility.ts   # =1
+
+# publicar o tree (sem commit no GitHub, sem push)
 ```
 
-Só **depois** das 2 verificações acima baterem:
+## 5. VERIFICAÇÃO DO ARTEFATO SERVIDO (Lição #141 / ADR-0037) — fecha o arco
 
-```bash
-webdev_save_checkpoint
-```
+Publicar não basta; **provar que produção serve o código novo**:
 
-O `reset --hard` move a branch do sandbox para `da952313` (que já tem a Fase 3a). O checkpoint vira **filho de `da952313`**, não de `df4dc954`. Nenhum código recriado; nenhuma bifurcação.
-
-## ⚠️ VERIFICAÇÃO DE DEPLOY (Lição #141 / ADR-0037) — obrigatória
-
-O risco real não é o commit — é **qual artefato produção serve**. Após o checkpoint:
-
-1. **Sentinela no artefato servido:** confirmar `isConstrucaoCivilImoveis` presente no bundle de produção (deploy-guard `scripts/deploy-guard.cjs`, PR #1536). Reportar `git=da952313 / checkpoint=<id>` (REGRA-ORQ-25 — nunca só o checkpoint).
-2. **Prova funcional (smoke):** regenerar riscos na **CONSTRUTORA VII (greenfield)** e confirmar via SQL que os **8 riscos** aparecem em `risks_v4`:
+1. **Sentinela:** `isConstrucaoCivilImoveis` presente no bundle servido em produção.
+2. **Smoke funcional (CONSTRUTORA VII greenfield):** regenerar riscos e consultar:
    ```sql
    SELECT categoria, confidence FROM risks_v4
     WHERE project_id = <CONSTRUTORA_VII_greenfield>
@@ -51,16 +71,20 @@ O risco real não é o commit — é **qual artefato produção serve**. Após o
                         'risco_tributacao_parcelas','risco_sujeicao_passiva_scp','risco_custos_historicos');
    -- esperado: 8 linhas · universais confidence≈0.85 · condicionais≈0.55
    ```
-   Esse smoke fecha o arco #1607 (recomendação #4 do parecer Dr. José).
+3. **Reportar:** `git=da952313 / checkpoint=<id>` (REGRA-ORQ-25 — nunca só o checkpoint).
 
-## DoD do despacho
+## 6. Se NEM ASSIM capturar (escalonamento estrutural)
 
-- [ ] `git rev-parse HEAD` no sandbox == `da952313...` antes do checkpoint
-- [ ] checkpoint salvo como filho de `da952313` (não `df4dc954`)
-- [ ] reporte `git=da952313 / checkpoint=<id>`
+Se, com o working tree comprovadamente em `da952313` (passos 3/4), o checkpoint/deploy **ainda** não servir a Fase 3a → o defeito é **mecânico no checkpoint** (não no código; cópia de arquivo não resolveria, mesma working tree). **Escalar ao P.O.:** o deploy precisa publicar do working tree / sair do GitHub direto (o que `deploy-from-github.sh` já habilita — "publicar o tree resultante"). Não insistir em workarounds de arquivo.
+
+## 7. DoD do despacho
+
+- [ ] `git rev-parse HEAD` no sandbox == `da952313...` antes de publicar
+- [ ] `origin/main` permanece `da952313` (nenhum push/commit novo)
 - [ ] sentinela `isConstrucaoCivilImoveis` no artefato servido
-- [ ] smoke CONSTRUTORA VII → 8 riscos em `risks_v4`
+- [ ] smoke CONSTRUTORA VII → **8 riscos** em `risks_v4`
+- [ ] reporte `git=da952313 / checkpoint=<id>`
 
-**NÃO criar commit. NÃO mergear nada. Apenas reset → checkpoint → verificar deploy.**
+**Resumo:** rode `deploy-from-github.sh` (Caminho 1). Se não puser os arquivos, extraia do objeto git `da952313` (Caminho 2, idêntico). Nunca re-digite, nunca `push`. Feche com sentinela + smoke. Se o checkpoint mecanicamente não captura → escalar.
 
 FIM.
