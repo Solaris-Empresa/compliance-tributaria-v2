@@ -39,9 +39,10 @@
 
 ## Classificação de risco (Gate 0 D3 / Gate 2.5)
 
-- [ ] **low** — hotfix, chore, docs: Gate 2.5 dispensado
-- [ ] **medium** — nova procedure, componente, migration: revisão Claude obrigatória
-- [ ] **high** — novo pipeline, integração externa, mudança de enum global: revisão Claude + parecer ChatGPT
+<!-- Marcar EXATAMENTE 1. As frases abaixo são as strings exatas que o validador (validate-pr-body.js) procura — NÃO editar o texto do checkbox. Guia: Baixo=hotfix/chore/docs · Médio=nova procedure/componente/migration · Alto=novo pipeline/integração externa/enum global. -->
+- [ ] Baixo — sem impacto em dados ou fluxo principal
+- [ ] Médio — impacto controlado e reversível
+- [ ] Alto — impacto estrutural, requer aprovação explícita
 
 **Risk Score (Gate 2.5):**
 
@@ -83,11 +84,13 @@ Se qualquer item acima for falso → explicar aqui:
   "head": "COMMIT_SHA",
   "branch": "nome-do-branch",
   "arquivos": ["arquivo1.ts", "arquivo2.ts"],
-  "testes_passando": 0,
+  "tests_passed": 0,
   "typescript_errors": 0,
   "risk_level": "low",
   "data_integrity": true,
-  "regression": false
+  "regression": false,
+  "rag_impact": false,
+  "unexpected_behavior": false
 }
 ```
 
