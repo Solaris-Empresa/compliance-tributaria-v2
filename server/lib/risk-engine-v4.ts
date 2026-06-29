@@ -68,7 +68,16 @@ export type Categoria =
   | "regime_diferenciado_transporte"
   | "regime_especifico_imoveis"
   | "regime_especifico_imoveis_locacao"
-  | "risco_art_269_270";
+  | "risco_art_269_270"
+  // ─── 8 categorias setoriais construção civil — Fase 3a #1607 (migration 0128) ───
+  | "risco_redutor_ajuste"
+  | "risco_sinter_avaliacao"
+  | "risco_cib_cadastro"
+  | "risco_controle_empreendimento"
+  | "risco_permuta_imoveis"
+  | "risco_tributacao_parcelas"
+  | "risco_sujeicao_passiva_scp"
+  | "risco_custos_historicos";
 
 export type Severity = "alta" | "media" | "oportunidade";
 export type Urgency = "imediata" | "curto_prazo" | "medio_prazo";

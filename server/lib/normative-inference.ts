@@ -12,6 +12,7 @@ import {
   isRegimeImoveisOportunidade,
   isRegimeImoveisLocacao,
   isRegimeImoveisRisco,
+  isConstrucaoCivilImoveis,
 } from "./regime-imoveis-eligibility";
 
 // ─── DB ──────────────────────────────────────────────────────────────────────
@@ -253,6 +254,72 @@ export async function inferNormativeRisks(
         "Art. 269 e 270",
         `Obrigação de cadastro de obra (CIB) e apuração por empreendimento de construção civil (${op})`,
         0.85, ctx,
+      ));
+    }
+
+    // ── Fase 3a (#1607): 8 riscos setoriais de construção civil ────────────────
+    // Gate jurídico Dr. José (29/06). Severidade/urgência = migration 0128 (Fase 1).
+    // SKIP SEVERITY_TABLE/TITULO (makeInferredRisk passa inline — D1).
+    // UNIVERSAIS (deveres gerais do regime → confidence afirmado ~0.85).
+    // CONDICIONAIS (dependem da operação → confidence ~0.55 + rag_validation_note "a confirmar
+    //   na Fase 3b"); Path B setorial dispara para todo 41/42/43/68 — qualificação por
+    //   pergunta SOLARIS é tech-debt TB-1/TB-2 (assemble≠consumption, Lição #59).
+    // NOTA: risco_cib_cadastro (265-266) e risco_controle_empreendimento (270) têm overlap
+    //   conceitual com risco_art_269_270 (acima) — mantidos separados por decisão do gate.
+    if (isConstrucaoCivilImoveis(profile.cnaes)) {
+      // Universais
+      results.push(makeInferredRisk(
+        projectId, "risco_redutor_ajuste", "risk", "alta", "imediata",
+        "Art. 257 LC 214/2025",
+        `Risco de perda do Redutor de Ajuste nas operações com bens imóveis (${op})`,
+        0.85, ctx,
+      ));
+      results.push(makeInferredRisk(
+        projectId, "risco_sinter_avaliacao", "risk", "alta", "imediata",
+        "Art. 256 LC 214/2025",
+        `Risco de divergência na avaliação dos imóveis pelo SINTER (${op})`,
+        0.85, ctx,
+      ));
+      results.push(makeInferredRisk(
+        projectId, "risco_cib_cadastro", "risk", "alta", "imediata",
+        "Arts. 265-266 LC 214/2025",
+        `Obrigação de inscrição dos imóveis no CIB (Cadastro Imobiliário Brasileiro) (${op})`,
+        0.85, ctx,
+      ));
+      results.push(makeInferredRisk(
+        projectId, "risco_controle_empreendimento", "risk", "alta", "imediata",
+        "Art. 270 LC 214/2025",
+        `Obrigação de apuração segregada por empreendimento de construção civil (${op})`,
+        0.85, ctx,
+      ));
+      // Condicionais (potenciais — confidence reduzido + nota; confirmar na Fase 3b)
+      results.push(makeInferredRisk(
+        projectId, "risco_permuta_imoveis", "risk", "alta", "curto_prazo",
+        "Art. 252 §2º I e §5º LC 214/2025",
+        `Risco tributário na permuta de imóveis — torna e manutenção do redutor (${op})`,
+        0.55, ctx,
+        "Risco potencial — aplica-se apenas a quem realiza permuta de imóveis; confirmar na Fase 3b.",
+      ));
+      results.push(makeInferredRisk(
+        projectId, "risco_tributacao_parcelas", "risk", "media", "medio_prazo",
+        "Art. 262 LC 214/2025",
+        `Tributação do IBS/CBS no recebimento de cada parcela na incorporação/parcelamento (${op})`,
+        0.55, ctx,
+        "Risco potencial — aplica-se apenas a incorporação imobiliária ou parcelamento de solo; confirmar na Fase 3b.",
+      ));
+      results.push(makeInferredRisk(
+        projectId, "risco_sujeicao_passiva_scp", "risk", "media", "medio_prazo",
+        "Arts. 263-264 LC 214/2025",
+        `Sujeição passiva — recolhimento pelo sócio ostensivo em sociedade em conta de participação (${op})`,
+        0.55, ctx,
+        "Risco potencial — aplica-se apenas a quem opera via SCP (sociedade em conta de participação); confirmar na Fase 3b.",
+      ));
+      results.push(makeInferredRisk(
+        projectId, "risco_custos_historicos", "risk", "alta", "curto_prazo",
+        "Art. 258 LC 214/2025",
+        `Levantamento dos custos históricos dos imóveis até 31/12/2026 para o Redutor de Ajuste (${op})`,
+        0.55, ctx,
+        "Risco potencial — aplica-se apenas a quem tinha imóvel ou imóvel em construção antes de 2027; confirmar na Fase 3b.",
       ));
     }
   }

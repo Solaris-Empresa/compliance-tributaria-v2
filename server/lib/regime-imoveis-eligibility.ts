@@ -59,6 +59,24 @@ export function isRegimeImoveisRisco(cnaes: string[]): boolean {
   return cnaes.some((c) => c.startsWith("41"));
 }
 
+/** Prefixos de 2 dígitos do setor de construção civil + atividades imobiliárias. */
+const CONSTRUCAO_IMOVEIS_PREFIXOS = ["41", "42", "43", "68"] as const;
+
+/**
+ * Fase 3a (#1607): gate setorial dos 8 riscos de construção civil (Arts. 252-270).
+ *
+ * Art. 251 sujeita ao regime específico TODO contribuinte que opere com bens imóveis →
+ * construção (41), obras de infraestrutura (42), serviços especializados (43) e
+ * atividades imobiliárias/incorporação (68) — cnaeGroups aprovados pelo gate jurídico
+ * (Dr. José, 29/06). Função NOVA — NÃO altera `isRegimeImoveisRisco` (41 só), preservando
+ * o comportamento de `risco_art_269_270` sem regressão.
+ */
+export function isConstrucaoCivilImoveis(cnaes: string[]): boolean {
+  return cnaes.some((c) =>
+    CONSTRUCAO_IMOVEIS_PREFIXOS.some((p) => c.startsWith(p)),
+  );
+}
+
 /**
  * FEAT-COB-01 (#1176) — diretriz/restrição IMPERATIVA injetada no prompt do briefing LLM
  * (fluxoV3.generateBriefing). Mesmo padrão de buildCreditoPresumidoRestriction (#1202) e
