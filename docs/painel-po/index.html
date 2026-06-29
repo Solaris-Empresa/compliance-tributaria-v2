@@ -792,18 +792,25 @@ mark.search-hl{
       <thead><tr><th>Arquivo</th><th>Última Atualização</th><th>Commit</th><th>Linhas</th><th>Status / Comentário</th></tr></thead>
       <tbody>
         <tr>
-          <td><a class="doc-link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/ADR-010-arquitetura-98pct.md" target="_blank">ADR-010 — Arquitetura 98%</a></td>
+          <td><a class="doc-link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-INDEX.md" target="_blank">ADR-INDEX — 31 ADRs reais</a></td>
+          <td>vivo</td>
+          <td><span class="doc-commit">docs/adr/</span></td>
+          <td>31</td>
+          <td><span class="doc-status-ok">&#10003; Fonte canônica</span><div class="doc-comment">Catálogo completo e atualizado na <strong>Seção 8E</strong> (ADR-0009..ADR-0039). As linhas abaixo são referências históricas.</div></td>
+        </tr>
+        <tr>
+          <td><a class="doc-link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-010-content-architecture-98.md" target="_blank">ADR-010 — Arquitetura 98%</a></td>
           <td>2026-03-23 22:17</td>
           <td><span class="doc-commit">135173e</span></td>
           <td>232</td>
-          <td><span class="doc-status-ok">&#10003; Estável</span><div class="doc-comment">ADR de arquitetura de conteúdo 98%</div></td>
+          <td><span class="doc-status-ok">&#10003; Estável</span><div class="doc-comment">ADR de arquitetura de conteúdo 98% (link corrigido → docs/adr/)</div></td>
         </tr>
         <tr>
-          <td><a class="doc-link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/ADR-008-F04-schema-migration-strategy.md" target="_blank">ADR-008 — F-04 Migration</a></td>
-          <td>2026-03-23 07:56</td>
-          <td><span class="doc-commit">e99bec4</span></td>
-          <td>201</td>
-          <td><span class="doc-status-ok">&#10003; Estável</span><div class="doc-comment">Estratégia F-04 aguarda UAT (bloqueio permanente)</div></td>
+          <td><a class="doc-link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/adr/ADR-INDEX.md" target="_blank">ADR-008 (não existe em docs/adr/)</a></td>
+          <td>—</td>
+          <td><span class="doc-commit">—</span></td>
+          <td>—</td>
+          <td><span class="doc-status-warn">&#9888; Corrigido</span><div class="doc-comment">Referência antiga a ADR-008/F-04 sem arquivo em docs/adr/. Numeração real começa em ADR-0009 — ver Seção 8E.</div></td>
         </tr>
         <tr>
           <td><a class="doc-link" href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/docs/product/cpie-v2/produto/MATRIZ-CANONICA-INPUTS-OUTPUTS-v1.1.md" target="_blank">MATRIZ-CANONICA-INPUTS-OUTPUTS v1.1</a></td>
@@ -1078,19 +1085,19 @@ mark.search-hl{
     <div class="ondas-subsection-title">6B &mdash; Rastreabilidade Viva</div>
     <div class="milestone-bars">
       <div class="milestone-bar">
-        <span class="milestone-bar-label">🟢 Sprint S &mdash; Encerrada ✅</span>
-        <span class="milestone-bar-label">🟢 Sprint T / Milestone 1 &mdash; Encerrado ✅ (Decision Kernel)</span>
-        <span class="milestone-bar-label">🟢 Sprint Z-22 &mdash; UAT ENCERRADA ✅</span>
-        <span class="milestone-bar-label">🟢 Sprint Z-22 &mdash; UAT ENCERRADA ✅</span>
+        <span class="milestone-bar-label">🟢 Sprints S · T/M1 (Decision Kernel) · Z-22 UAT &mdash; encerradas ✅</span>
+        <span class="milestone-bar-label">🟢 M3.x · P2 · GATE-NCM-NBS · ADR-0037/0038 (regime) &mdash; encerradas ✅</span>
+        <span class="milestone-bar-label">🟢 Form Wizard + corpus de governança v10 &mdash; ativo em prod ✅</span>
         <div class="milestone-bar-track"><div class="milestone-bar-fill" id="milestoneFillK" style="width:0%"></div></div>
         <span class="milestone-bar-pct" id="milestonePctK">⟳ buscando...</span>
       </div>
       <div class="milestone-bar">
-        <span class="milestone-bar-label">🟢 Sprint Z-22 &mdash; UAT ENCERRADA ✅</span>
+        <span class="milestone-bar-label">📋 Encerramentos recentes (data-driven &mdash; auditorias ORQ-19, não mais congelado)</span>
         <div class="milestone-bar-track"><div class="milestone-bar-fill" id="milestoneFillL" style="width:0%"></div></div>
         <span class="milestone-bar-pct" id="milestonePctL">⟳ buscando...</span>
       </div>
     </div>
+    <div id="gov6b-sessoes" style="margin:6px 0 4px;font-size:11px;color:var(--text-muted,#64748b)">⟳ carregando auditorias (Seção 8F)...</div>
     <div class="rastreabilidade-header">
       <div class="rastreabilidade-tabs">
         <button class="rastreabilidade-tab active" onclick="setRastrTab('sprint-k',this)">Sprint K &mdash; M2</button>
@@ -4046,6 +4053,17 @@ async function fetchRagUsageTelemetry(govPRs) {
         block("Auditorias (ORQ-19)", m.audits || { count: 0, recent: [] }) +
         block("Post-mortems", m.postMortems || { count: 0, recent: [] }) +
         block("Relatórios (AS-IS/TO-BE)", m.relatorios || { count: 0, recent: [] }) + "</div>";
+      // 6B — timeline data-driven (auditorias ORQ-19 = encerramentos reais; substitui o congelado em Z-22)
+      var sess = el("gov6b-sessoes");
+      if (sess) {
+        var aud = (m.audits && m.audits.recent) || [];
+        sess.innerHTML = aud.length
+          ? "<strong>Encerramentos recentes:</strong> " + aud.slice(0, 8).map(function (x) {
+              return gesc(x.updated) + " · " + gesc(x.file.replace(/\.md$/, ""));
+            }).join("  |  ") +
+            ' &middot; <a href="https://github.com/Solaris-Empresa/compliance-tributaria-v2/tree/main/docs/governance/audits" target="_blank">todas (' + gesc((m.audits && m.audits.count) || aud.length) + ')</a>'
+          : "(sem auditorias registradas)";
+      }
       // footer
       el("gov8-footer").innerHTML =
         "Manifesto gerado em <strong>" + gesc((m.generatedAt || "").slice(0, 19).replace("T", " ")) + "</strong> · HEAD <code>" + gesc(m.head || "?") +

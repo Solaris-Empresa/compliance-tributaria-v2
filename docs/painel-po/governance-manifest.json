@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-29T01:50:53.973Z",
-  "head": "5958095b",
+  "generatedAt": "2026-06-29T02:07:05.180Z",
+  "head": "fbc91ee1",
   "panelVersion": "v10",
   "summary": {
     "regraOrq": 44,
@@ -837,6 +837,26 @@
         "file": "v7.77.1-2026-06-17-adendo-corpus-fix.md",
         "updated": "2026-06-17",
         "path": "docs/governance/audits/v7.77.1-2026-06-17-adendo-corpus-fix.md"
+      },
+      {
+        "file": "v7.76-2026-06-16-sessao-gov-fixes-gate-ncm-nbs.md",
+        "updated": "2026-06-16",
+        "path": "docs/governance/audits/v7.76-2026-06-16-sessao-gov-fixes-gate-ncm-nbs.md"
+      },
+      {
+        "file": "v7.77-2026-06-16-sessao-corpus-reranker-parcial.md",
+        "updated": "2026-06-16",
+        "path": "docs/governance/audits/v7.77-2026-06-16-sessao-corpus-reranker-parcial.md"
+      },
+      {
+        "file": "v7.74-2026-06-14-sessao-spec-first-v1.2.md",
+        "updated": "2026-06-15",
+        "path": "docs/governance/audits/v7.74-2026-06-14-sessao-spec-first-v1.2.md"
+      },
+      {
+        "file": "v7.75-2026-06-14-gate-ncm-nbs-1219.md",
+        "updated": "2026-06-15",
+        "path": "docs/governance/audits/v7.75-2026-06-14-gate-ncm-nbs-1219.md"
       }
     ]
   },

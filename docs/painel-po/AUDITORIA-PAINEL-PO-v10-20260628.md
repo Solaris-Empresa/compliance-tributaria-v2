@@ -52,7 +52,7 @@ O PR #1608 patchou só os *doc-comments* da Seção 4 para v9.2, deixando o núc
 | E9 | "Blockers ativos: F-04 #56/#61/#62" (março/2026, obsoletos) | Seção 1 | backlog atual (M4 / construção civil #1607) |
 | E10 | Gold set "10 queries" (7E) diverge do gold set real (8 queries em `ragInventory.ts`) | 7E.4 | alinhar com `server/routers/ragInventory.ts:23-110` |
 
-**Corrigidos nesta v10:** E1–E5 (dados estáticos factuais). **Documentados como recomendação:** E6–E10 (exigem decisão/escopo — ver §4).
+**Corrigidos nesta v10:** E1–E5 (dados factuais) + **E6** (ADRs reais/links) + **E7** (timeline data-driven via auditorias). **Documentados como recomendação:** E8–E10 (exigem decisão/escopo — ver §4).
 
 ---
 
@@ -83,8 +83,8 @@ Header marca **Painel v10**; data do header é dinâmica (JS).
 
 | Prioridade | Item | Ação proposta |
 |---|---|---|
-| **P1** | E6 — Seção 4 + 6A com ADR-010/008 antigos e links quebrados | Trocar por `docs/adr/` real ou remover (Seção 8E já é a fonte viva). |
-| **P1** | E7 — Timeline de sprints congelada em Z-22 | Tornar data-driven (gerar de `docs/governance/audits/` via manifesto) ou atualizar manualmente até a sessão atual. |
+| ✅ feito | E6 — ADR-010/008 antigos e links quebrados | **Corrigido nesta v10:** linha ADR-010 → `docs/adr/`, ADR-008 marcado como inexistente, linha ADR-INDEX adicionada; Seção 8E é a fonte viva (31 ADRs). |
+| ✅ feito | E7 — Timeline de sprints congelada em Z-22 | **Corrigido nesta v10:** 6B agora renderiza encerramentos reais de `docs/governance/audits/` (data-driven via manifesto, limite 12); labels frozen substituídos. |
 | **P2** | E10 — gold set 10 (7E) vs 8 real (`ragInventory.ts`) | Alinhar a tabela 7E ao gold set efetivo do código. |
 | **P2** | E8 — Score de Saúde hardcoded | Derivar de CI/checks reais (a Consistência Global 6D já busca GitHub API). |
 | **P2** | E9 — Blockers obsoletos | Apontar para issues abertas atuais (ex.: #1607 construção civil). |

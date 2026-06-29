@@ -126,7 +126,7 @@ function summarizeDir(dirRel, limit = 8) {
     .sort((a, b) => (b.updated || "").localeCompare(a.updated || ""));
   return { count: files.length, recent: files.slice(0, limit) };
 }
-const audits = summarizeDir("docs/governance/audits");
+const audits = summarizeDir("docs/governance/audits", 12);
 const postMortems = summarizeDir("docs/governance/post-mortems");
 const relatorios = summarizeDir("docs/governance/relatorios");
 
