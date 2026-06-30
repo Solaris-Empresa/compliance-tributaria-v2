@@ -268,6 +268,15 @@ export async function inferNormativeRisks(
     //   conceitual com risco_art_269_270 (acima) — mantidos separados por decisão do gate.
     if (isConstrucaoCivilImoveis(profile.cnaes)) {
       // Universais
+      // ACHADO-1 #1647 — estorno de crédito da obra (Art. 255 §5º / Decreto 365). O "maior
+      // risco" do Dr. José: consequência patrimonial (estorno), distinta das obrigações
+      // de cadastro/apuração. Exceção administração pública (§6º) é nota informativa.
+      results.push(makeInferredRisk(
+        projectId, "risco_credito_condicionado_obra", "risk", "alta", "imediata",
+        "Art. 255 §5º LC 214/2025",
+        `Risco de perda/estorno de crédito de IBS/CBS sobre aquisições da obra — exige contabilidade por obra ou CIB (${op})`,
+        0.85, ctx,
+      ));
       results.push(makeInferredRisk(
         projectId, "risco_redutor_ajuste", "risk", "alta", "imediata",
         "Art. 257 LC 214/2025",

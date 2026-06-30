@@ -77,7 +77,9 @@ export type Categoria =
   | "risco_permuta_imoveis"
   | "risco_tributacao_parcelas"
   | "risco_sujeicao_passiva_scp"
-  | "risco_custos_historicos";
+  | "risco_custos_historicos"
+  // ─── ACHADO-1 #1647 (migration 0129) — estorno de crédito da obra ───
+  | "risco_credito_condicionado_obra";
 
 export type Severity = "alta" | "media" | "oportunidade";
 export type Urgency = "imediata" | "curto_prazo" | "medio_prazo";
