@@ -2292,3 +2292,19 @@ Greenfield via SQL direto (10800129, sem gaps) → 0 riscos → Manus copiou gap
 ### Vinculadas
 
 REGRA-ORQ-27 (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · #1643 · `risks-v4.ts:932` · `generate-risks-pipeline.ts:106-114` · arco #1607
+
+## Lição #162 — endpoints "irmãos" com pipeline assimétrico: nova categoria pode existir no banco e nunca aparecer no relatório
+
+**Origem:** BUG-ACTION-PLANS-01 (#1657, 29/06/2026) — DoD do PR #1655 (risco_credito_condicionado_obra).
+
+### Texto
+
+`generateRisksFromGaps` e `generateRisksAllSources` são endpoints distintos com **comportamento assimétrico**: o primeiro gera riscos **+ planos + tasks** (147-184+); o segundo só **riscos** (não chamava `buildActionPlans`). Ao adicionar uma categoria nova (migration + regra de engine), o risco passa a existir em `risks_v4` — mas se a **regeneração usa o endpoint que não completa o pipeline até `action_plans`**, a categoria **aparece na matriz e nunca vira plano** no relatório do cliente. Ao mexer numa categoria/risco, verificar **qual endpoint a regeneração usa** e se ele percorre o pipeline **até o output final** (risco → plano → tarefa), não só até o insert do risco.
+
+### Caso canônico
+
+#1655 inseriu `risco_credito_condicionado_obra` (migration 0129 + makeInferredRisk) — 17 riscos em `risks_v4`, **0 planos**. A regeneração (`generateRisksAllSources`) parava no insert dos riscos. Fix: replicar `buildActionPlans` + `insertActionPlanV4WithAudit` (paridade) com guard de idempotência (`riskIdsWithPlans`, padrão de `bulkGenerateActionPlans:1137-1141`).
+
+### Vinculadas
+
+[[Lição #65]] (rastrear fluxo end-to-end até o output) · [[Lição #59]] (assemble ≠ consumption) · [[Lição #88]] (categoria dispara, não só existe) · [[Lição #70]] (procedures "similares" com comportamento divergente) · REGRA-ORQ-34 (pipeline bugfix) · BUG-ACTION-PLANS-01 #1657 · PR #1655 (DoD)
