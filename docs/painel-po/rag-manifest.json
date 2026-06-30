@@ -1,0 +1,138 @@
+{
+  "generated_at": "2026-06-30T02:12:57.487Z",
+  "db_chunks_total": 16702,
+  "db_chunks_normative": 5435,
+  "db_chunks_reference": 11267,
+  "db_leis_total": 25,
+  "db_leis_normative": 23,
+  "rag_corpus_files": 16,
+  "build_chunks": 15494,
+  "drift_build_vs_db": 1208,
+  "breakdown": [
+    {
+      "lei": "tabela_ncm_completa",
+      "chunks": 10030,
+      "type": "reference"
+    },
+    {
+      "lei": "lc214",
+      "chunks": 1620,
+      "type": "normative"
+    },
+    {
+      "lei": "nbs_completa",
+      "chunks": 1237,
+      "type": "reference"
+    },
+    {
+      "lei": "decreto12955",
+      "chunks": 831,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgibs_6",
+      "chunks": 827,
+      "type": "normative"
+    },
+    {
+      "lei": "moc_mdfe_v3",
+      "chunks": 393,
+      "type": "normative"
+    },
+    {
+      "lei": "lc227",
+      "chunks": 333,
+      "type": "normative"
+    },
+    {
+      "lei": "moc_cte_v4",
+      "chunks": 316,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgsn_140",
+      "chunks": 302,
+      "type": "normative"
+    },
+    {
+      "lei": "lc123",
+      "chunks": 279,
+      "type": "normative"
+    },
+    {
+      "lei": "conv_icms",
+      "chunks": 278,
+      "type": "normative"
+    },
+    {
+      "lei": "lc87",
+      "chunks": 60,
+      "type": "normative"
+    },
+    {
+      "lei": "lc116",
+      "chunks": 60,
+      "type": "normative"
+    },
+    {
+      "lei": "lc224",
+      "chunks": 28,
+      "type": "normative"
+    },
+    {
+      "lei": "cg_ibs",
+      "chunks": 26,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgibs_4",
+      "chunks": 23,
+      "type": "normative"
+    },
+    {
+      "lei": "ec132",
+      "chunks": 18,
+      "type": "normative"
+    },
+    {
+      "lei": "nt_2025_002",
+      "chunks": 12,
+      "type": "normative"
+    },
+    {
+      "lei": "nt_008_2026",
+      "chunks": 10,
+      "type": "normative"
+    },
+    {
+      "lei": "rfb_cbs",
+      "chunks": 7,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgibs_5",
+      "chunks": 4,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgibs_1",
+      "chunks": 4,
+      "type": "normative"
+    },
+    {
+      "lei": "portaria_mf_cgibs_7",
+      "chunks": 2,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgibs_3",
+      "chunks": 1,
+      "type": "normative"
+    },
+    {
+      "lei": "resolucao_cgibs_2",
+      "chunks": 1,
+      "type": "normative"
+    }
+  ]
+}

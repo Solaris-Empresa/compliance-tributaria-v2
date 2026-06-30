@@ -1035,6 +1035,52 @@ export const risksV4Router = router({
         }
         console.log(`[Bug#1072-DIAG] Step 6 DONE: inserted ${insertedIds.length} risks`);
 
+        // 6b. BUG-ACTION-PLANS-01: gerar planos de ação para os riscos inseridos.
+        //     generateRisksAllSources inseria riscos SEM planos → categoria aparecia na
+        //     matriz mas sem plano de ação (DoD #1655 / risco_credito_condicionado_obra).
+        //     Paridade com generateRisksFromGaps:147-184. Idempotente: pula riscos que já
+        //     têm plano (mesmo guard de bulkGenerateActionPlans:1137-1141) → não duplica em 2x.
+        const existingPlansAS = await getActionPlansByProject(input.projectId);
+        const riskIdsWithPlansAS = new Set(existingPlansAS.map((p) => p.risk_id));
+        const actionPlansAS = buildActionPlans(
+          risks
+            .filter((r) => r.type === "risk")
+            .map((r) => ({
+              ruleId: r.rule_id,
+              categoria: r.categoria,
+              artigo: r.artigo,
+              fonte: r.source_priority,
+              severity: r.severidade as "alta" | "media" | "oportunidade",
+              urgency: r.urgencia as "imediata" | "curto_prazo" | "medio_prazo",
+              breadcrumb: (Array.isArray(r.breadcrumb) ? r.breadcrumb : []) as [string, string, string, string],
+              gapClassification: "consolidado",
+              requirementId: r.rule_id,
+              sourceReference: r.descricao ?? "",
+              domain: "",
+            }))
+        );
+        let plansGeneratedAS = 0;
+        for (let i = 0; i < actionPlansAS.length; i++) {
+          const plan = actionPlansAS[i];
+          const riskId = insertedIds.find((_id, idx) => risks[idx]?.rule_id === plan.riskRuleId);
+          if (!riskId || riskIdsWithPlansAS.has(riskId)) continue; // idempotência
+          await insertActionPlanV4WithAudit(
+            {
+              project_id: input.projectId,
+              risk_id: riskId,
+              titulo: plan.titulo,
+              responsavel: plan.responsavel,
+              prazo: plan.prazo as PrazoActionPlan,
+              created_by: ctx.user.id,
+              updated_by: ctx.user.id,
+            },
+            actor,
+          );
+          riskIdsWithPlansAS.add(riskId);
+          plansGeneratedAS++;
+        }
+        console.log(`[BUG-ACTION-PLANS-01] generateRisksAllSources: ${plansGeneratedAS} planos gerados (${actionPlansAS.length} candidatos, ${riskIdsWithPlansAS.size} riscos com plano)`);
+
         // 7. Snapshot da NOVA versão pós-insert.
         //    auto_generation     = primeira geração do projeto
         //    manual_regeneration = regeneração de matriz preexistente

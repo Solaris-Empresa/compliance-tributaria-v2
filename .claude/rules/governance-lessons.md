@@ -2292,3 +2292,35 @@ Greenfield via SQL direto (10800129, sem gaps) → 0 riscos → Manus copiou gap
 ### Vinculadas
 
 REGRA-ORQ-27 (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · #1643 · `risks-v4.ts:932` · `generate-risks-pipeline.ts:106-114` · arco #1607
+
+## Lição #161 — health-score / score de qualidade ≠ contagem de corpus
+
+**Origem:** D-E8 (painel P.O., #1652, 29/06/2026) — tentativa de tornar um "score" data-driven da contagem de chunks.
+
+### Texto
+
+Métricas de **produto/qualidade** (health-score 94/100; score de corpus 61.6/100 "em evolução") e métricas de **volume de dados** (contagem de chunks: 16.702 total / 5.435 normativos) são **dimensões distintas**. Tornar um "score /100" data-driven de uma **contagem** exige uma **fórmula de composição explícita e aprovada** — sem ela, apontar o score para `db_chunks_normative` é **hardcode disfarçado de automação** (pior que o hardcode honesto, porque parece automático e mente). Um score /100 só vira data-driven com fórmula declarada (cobertura, testes, gold set, etc.); senão permanece métrica manual.
+
+### Caso canônico
+
+Painel P.O.: `id="healthScore"` (94/100) e `id="rag7eScoreNum"` (61.6/100) — ambos scores de qualidade, mantidos manuais. O que É data-driven (E8-CORPUS) é a **contagem do corpus** (`7A — Estado do Corpus`), que renderizava de `RAG_CORPUS_BASELINE` hardcoded/defasado → passou a ler do `rag-manifest.json`.
+
+### Vinculadas
+
+REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-32 (no hardcode) · [[Lição #93]] (número verificado) · #1652 (painéis) · D-E8
+
+## Lição #162 — endpoints "irmãos" com pipeline assimétrico: nova categoria pode existir no banco e nunca aparecer no relatório
+
+**Origem:** BUG-ACTION-PLANS-01 (#1657, 29/06/2026) — DoD do PR #1655 (risco_credito_condicionado_obra).
+
+### Texto
+
+`generateRisksFromGaps` e `generateRisksAllSources` são endpoints distintos com **comportamento assimétrico**: o primeiro gera riscos **+ planos + tasks** (147-184+); o segundo só **riscos** (não chamava `buildActionPlans`). Ao adicionar uma categoria nova (migration + regra de engine), o risco passa a existir em `risks_v4` — mas se a **regeneração usa o endpoint que não completa o pipeline até `action_plans`**, a categoria **aparece na matriz e nunca vira plano** no relatório do cliente. Ao mexer numa categoria/risco, verificar **qual endpoint a regeneração usa** e se ele percorre o pipeline **até o output final** (risco → plano → tarefa), não só até o insert do risco.
+
+### Caso canônico
+
+#1655 inseriu `risco_credito_condicionado_obra` (migration 0129 + makeInferredRisk) — 17 riscos em `risks_v4`, **0 planos**. A regeneração (`generateRisksAllSources`) parava no insert dos riscos. Fix: replicar `buildActionPlans` + `insertActionPlanV4WithAudit` (paridade) com guard de idempotência (`riskIdsWithPlans`, padrão de `bulkGenerateActionPlans:1137-1141`).
+
+### Vinculadas
+
+[[Lição #65]] (rastrear fluxo end-to-end até o output) · [[Lição #59]] (assemble ≠ consumption) · [[Lição #88]] (categoria dispara, não só existe) · [[Lição #70]] (procedures "similares" com comportamento divergente) · REGRA-ORQ-34 (pipeline bugfix) · BUG-ACTION-PLANS-01 #1657 · PR #1655 (DoD)

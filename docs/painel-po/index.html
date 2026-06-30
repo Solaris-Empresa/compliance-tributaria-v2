@@ -2990,20 +2990,41 @@ function renderRagCorpusBars() {
   const tsEl = document.getElementById('ragCorpusTs');
   if (!el) return;
 
-  const html = RAG_CORPUS_BASELINE.map(lei => {
-    const pct = Math.round((lei.chunks / RAG_CORPUS_TOTAL) * 100);
-    const idRange = lei.idMin !== undefined ? `<span style="font-size:9px;color:var(--text-muted);margin-left:4px">id ${lei.idMin}–${lei.idMax}</span>` : '';
-    const statusHtml = lei.status ? `<span style="font-size:9px;color:#16A34A;margin-left:4px">${escHtml(lei.status)}</span>` : '';
-    return `<div class="rag-corpus-bar">
-      <span class="rag-corpus-bar-lei" title="${escHtml(lei.descricao)}">${escHtml(lei.lei)}</span>
-      <div class="rag-corpus-bar-track"><div class="rag-corpus-bar-fill" style="width:${pct}%"></div></div>
-      <span class="rag-corpus-bar-count">${lei.chunks} <span style="font-size:9px;color:var(--text-muted)">(${pct}%)</span>${idRange}${statusHtml}</span>
-    </div>`;
-  }).join('');
+  // E8 (#1652, F4): renderiza do rag-manifest.json (data-driven, COUNT(*) do banco).
+  // Fallback gracioso para RAG_CORPUS_BASELINE (estático) se o manifest não carregar.
+  function renderBars(rows, total) {
+    return rows.map(lei => {
+      const pct = total ? Math.round((lei.chunks / total) * 100) : 0;
+      const ref = lei.type === 'reference'
+        ? '<span style="font-size:9px;color:#0E7490;margin-left:4px" title="tabela de referência (NCM/NBS), não legislação">tabela</span>' : '';
+      const idRange = lei.idMin !== undefined && lei.idMin !== null ? `<span style="font-size:9px;color:var(--text-muted);margin-left:4px">id ${lei.idMin}–${lei.idMax}</span>` : '';
+      return `<div class="rag-corpus-bar">
+        <span class="rag-corpus-bar-lei" title="${escHtml(lei.descricao || lei.lei)}">${escHtml(lei.lei)}</span>
+        <div class="rag-corpus-bar-track"><div class="rag-corpus-bar-fill" style="width:${pct}%"></div></div>
+        <span class="rag-corpus-bar-count">${lei.chunks} <span style="font-size:9px;color:var(--text-muted)">(${pct}%)</span>${ref}${idRange}</span>
+      </div>`;
+    }).join('');
+  }
 
-  el.innerHTML = html;
-  if (totalEl) totalEl.innerHTML = `✅ ${RAG_CORPUS_TOTAL} chunks totais &middot; 25 leis &middot; 100% anchor_id &middot; <span style="font-size:9px;color:var(--text-muted)">Fonte: CORPUS-BASELINE.md v9.2 &middot; 2026-06-28 &middot; commit fa0db00b</span>`;
-  if (tsEl) tsEl.textContent = '⚙️ baseline v9.2 · 2026-06-28';
+  fetch('./rag-manifest.json', { cache: 'no-cache' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(m => {
+      const rows = (m.breakdown || []).slice().sort((a, b) => b.chunks - a.chunks);
+      el.innerHTML = renderBars(rows, m.db_chunks_total);
+      const fmt = n => Number(n).toLocaleString('pt-BR');
+      if (totalEl) totalEl.innerHTML =
+        `✅ <b>${fmt(m.db_chunks_total)}</b> chunks &middot; ${m.db_leis_total} leis<br>` +
+        `<span style="font-size:10px">└ Normativos: <b>${fmt(m.db_chunks_normative)}</b> (${m.db_leis_normative} leis) &middot; Tabelas NCM/NBS: ${fmt(m.db_chunks_reference)} (referência)</span>` +
+        (m.drift_build_vs_db ? `<br><span style="font-size:9px;color:#D97706">⚠️ drift build-time vs banco: ${m.drift_build_vs_db}</span>` : '') +
+        `<br><span style="font-size:9px;color:var(--text-muted)">Fonte: rag-manifest.json &middot; ${(m.generated_at || '').slice(0, 10)}</span>`;
+      if (tsEl) tsEl.textContent = '⟳ rag-manifest.json (data-driven)';
+    })
+    .catch(() => {
+      // Fallback: array baseline estático (se rag-manifest.json indisponível, ex: file://).
+      el.innerHTML = renderBars(RAG_CORPUS_BASELINE, RAG_CORPUS_TOTAL);
+      if (totalEl) totalEl.innerHTML = `✅ ${RAG_CORPUS_TOTAL} chunks &middot; 25 leis <span style="font-size:9px;color:var(--text-muted)">(fallback baseline — rag-manifest.json indisponível)</span>`;
+      if (tsEl) tsEl.textContent = '⚙️ baseline (fallback)';
+    });
 }
 
 // ── 7D: Documentos RAG vivos ───────────────────────────────────────────────
