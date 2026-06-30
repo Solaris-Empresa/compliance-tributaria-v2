@@ -7,6 +7,7 @@ import { inferNormativeRisks } from "./normative-inference";
 import type { ProjectProfile } from "./project-profile-extractor";
 
 const UNIVERSAIS = [
+  "risco_credito_condicionado_obra", // ACHADO-1 #1647
   "risco_redutor_ajuste",
   "risco_sinter_avaliacao",
   "risco_cib_cadastro",
