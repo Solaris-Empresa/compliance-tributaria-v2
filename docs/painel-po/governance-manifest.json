@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-06-30T01:38:31.442Z",
-  "head": "c72e6966",
+  "generatedAt": "2026-06-30T10:30:11.644Z",
+  "head": "3839705e",
   "panelVersion": "v10",
   "summary": {
     "regraOrq": 44,
-    "licoes": 74,
-    "licaoMax": 160,
+    "licoes": 76,
+    "licaoMax": 162,
     "skills": 9,
     "adrs": 31,
     "ruleFiles": 8,
     "audits": 35,
     "postMortems": 2,
-    "relatorios": 69
+    "relatorios": 70
   },
   "claudeMd": {
     "file": "CLAUDE.md",
@@ -59,10 +59,10 @@
     {
       "file": ".claude/rules/governance-lessons.md",
       "name": "governance-lessons.md",
-      "sizeKB": 152,
+      "sizeKB": 155,
       "updated": "2026-06-30",
       "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/governance-lessons.md",
-      "licoesCount": 74
+      "licoesCount": 76
     },
     {
       "file": ".claude/rules/governance-spec-first.md",
@@ -559,6 +559,14 @@
     {
       "n": 160,
       "title": "Riscos de perfil (Path B) gateados upstream por `gaps.length === 0`"
+    },
+    {
+      "n": 161,
+      "title": "health-score / score de qualidade ≠ contagem de corpus"
+    },
+    {
+      "n": 162,
+      "title": "endpoints \"irmãos\" com pipeline assimétrico: nova categoria pode existir no banco e nunca aparecer no relatório"
     }
   ],
   "skills": [
@@ -904,7 +912,7 @@
     ]
   },
   "relatorios": {
-    "count": 69,
+    "count": 70,
     "recent": [
       {
         "file": "AUDITORIA-10860001-13-RISCOS-DR-JOSE-20260629.md",
@@ -920,6 +928,11 @@
         "file": "DESPACHO-MANUS-SYNC-CHECKPOINT-FASE3A-20260629.md",
         "updated": "2026-06-30",
         "path": "docs/governance/relatorios/DESPACHO-MANUS-SYNC-CHECKPOINT-FASE3A-20260629.md"
+      },
+      {
+        "file": "DESPACHO-ORQUESTRACAO-PAINEIS-FRESCOR-DEFINITIVO-20260629.md",
+        "updated": "2026-06-30",
+        "path": "docs/governance/relatorios/DESPACHO-ORQUESTRACAO-PAINEIS-FRESCOR-DEFINITIVO-20260629.md"
       },
       {
         "file": "ANALISE-INVESTIGACAO-CR02-RETRIEVAL-VS-GERACAO-20260629.md",
@@ -940,11 +953,6 @@
         "file": "AS-IS-TO-BE-QCNAE-REQUIREMENT-LINK-20260628.md",
         "updated": "2026-06-29",
         "path": "docs/governance/relatorios/AS-IS-TO-BE-QCNAE-REQUIREMENT-LINK-20260628.md"
-      },
-      {
-        "file": "AUDITORIA-DET-CONSTRUCAO-CIVIL-1607-v2-20260628.md",
-        "updated": "2026-06-29",
-        "path": "docs/governance/relatorios/AUDITORIA-DET-CONSTRUCAO-CIVIL-1607-v2-20260628.md"
       }
     ]
   }
