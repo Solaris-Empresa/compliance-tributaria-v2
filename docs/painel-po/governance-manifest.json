@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-06-29T02:07:05.180Z",
-  "head": "fbc91ee1",
+  "generatedAt": "2026-06-30T10:30:11.644Z",
+  "head": "3839705e",
   "panelVersion": "v10",
   "summary": {
     "regraOrq": 44,
-    "licoes": 67,
-    "licaoMax": 153,
+    "licoes": 76,
+    "licaoMax": 162,
     "skills": 9,
     "adrs": 31,
     "ruleFiles": 8,
-    "audits": 34,
+    "audits": 35,
     "postMortems": 2,
-    "relatorios": 51
+    "relatorios": 70
   },
   "claudeMd": {
     "file": "CLAUDE.md",
@@ -59,10 +59,10 @@
     {
       "file": ".claude/rules/governance-lessons.md",
       "name": "governance-lessons.md",
-      "sizeKB": 140,
-      "updated": "2026-06-26",
+      "sizeKB": 155,
+      "updated": "2026-06-30",
       "githubUrl": "https://github.com/Solaris-Empresa/compliance-tributaria-v2/blob/main/.claude/rules/governance-lessons.md",
-      "licoesCount": 67
+      "licoesCount": 76
     },
     {
       "file": ".claude/rules/governance-spec-first.md",
@@ -531,6 +531,42 @@
     {
       "n": 153,
       "title": "Branch = frente: plano aprovado e implementação são branches separadas"
+    },
+    {
+      "n": 154,
+      "title": "Template do repo dessincronizado do validador: risco PT Baixo/Médio/Alto + chaves JSON (28/06/2026)"
+    },
+    {
+      "n": 155,
+      "title": "Dupla-atribuição CC×Manus gera colisão: despacho deve nomear UM implementador"
+    },
+    {
+      "n": 156,
+      "title": "Teste que chama getDb() é DB-dependente: extrair helper puro (padrão resolveTaxRegime)"
+    },
+    {
+      "n": 157,
+      "title": "Teste que chama `getDb()` é DB-dependente; extrair helper puro (padrão `resolveTaxRegime`)"
+    },
+    {
+      "n": 158,
+      "title": "Colisão de número de artigo entre Lei e Decreto"
+    },
+    {
+      "n": 159,
+      "title": "`buildActionPlans` não filtra por confidence; risco condicional vira plano completo"
+    },
+    {
+      "n": 160,
+      "title": "Riscos de perfil (Path B) gateados upstream por `gaps.length === 0`"
+    },
+    {
+      "n": 161,
+      "title": "health-score / score de qualidade ≠ contagem de corpus"
+    },
+    {
+      "n": 162,
+      "title": "endpoints \"irmãos\" com pipeline assimétrico: nova categoria pode existir no banco e nunca aparecer no relatório"
     }
   ],
   "skills": [
@@ -796,8 +832,13 @@
     }
   ],
   "audits": {
-    "count": 34,
+    "count": 35,
     "recent": [
+      {
+        "file": "v7.82-2026-06-29-arco-1607.md",
+        "updated": "2026-06-30",
+        "path": "docs/governance/audits/v7.82-2026-06-29-arco-1607.md"
+      },
       {
         "file": "v7.81-2026-06-24-sessao-mud1-4-silencioso.md",
         "updated": "2026-06-25",
@@ -852,11 +893,6 @@
         "file": "v7.74-2026-06-14-sessao-spec-first-v1.2.md",
         "updated": "2026-06-15",
         "path": "docs/governance/audits/v7.74-2026-06-14-sessao-spec-first-v1.2.md"
-      },
-      {
-        "file": "v7.75-2026-06-14-gate-ncm-nbs-1219.md",
-        "updated": "2026-06-15",
-        "path": "docs/governance/audits/v7.75-2026-06-14-gate-ncm-nbs-1219.md"
       }
     ]
   },
@@ -876,47 +912,47 @@
     ]
   },
   "relatorios": {
-    "count": 51,
+    "count": 70,
     "recent": [
+      {
+        "file": "AUDITORIA-10860001-13-RISCOS-DR-JOSE-20260629.md",
+        "updated": "2026-06-30",
+        "path": "docs/governance/relatorios/AUDITORIA-10860001-13-RISCOS-DR-JOSE-20260629.md"
+      },
+      {
+        "file": "COMUNICACAO-DR-JOSE-COBERTURA-13-RISCOS-20260629.md",
+        "updated": "2026-06-30",
+        "path": "docs/governance/relatorios/COMUNICACAO-DR-JOSE-COBERTURA-13-RISCOS-20260629.md"
+      },
+      {
+        "file": "DESPACHO-MANUS-SYNC-CHECKPOINT-FASE3A-20260629.md",
+        "updated": "2026-06-30",
+        "path": "docs/governance/relatorios/DESPACHO-MANUS-SYNC-CHECKPOINT-FASE3A-20260629.md"
+      },
+      {
+        "file": "DESPACHO-ORQUESTRACAO-PAINEIS-FRESCOR-DEFINITIVO-20260629.md",
+        "updated": "2026-06-30",
+        "path": "docs/governance/relatorios/DESPACHO-ORQUESTRACAO-PAINEIS-FRESCOR-DEFINITIVO-20260629.md"
+      },
+      {
+        "file": "ANALISE-INVESTIGACAO-CR02-RETRIEVAL-VS-GERACAO-20260629.md",
+        "updated": "2026-06-29",
+        "path": "docs/governance/relatorios/ANALISE-INVESTIGACAO-CR02-RETRIEVAL-VS-GERACAO-20260629.md"
+      },
+      {
+        "file": "ANALISE-SETORIAL-CONSTRUCAO-CIVIL-20260629.md",
+        "updated": "2026-06-29",
+        "path": "docs/governance/relatorios/ANALISE-SETORIAL-CONSTRUCAO-CIVIL-20260629.md"
+      },
       {
         "file": "AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md",
         "updated": "2026-06-29",
         "path": "docs/governance/relatorios/AS-IS-TO-BE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md"
       },
       {
-        "file": "ISSUE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md",
+        "file": "AS-IS-TO-BE-QCNAE-REQUIREMENT-LINK-20260628.md",
         "updated": "2026-06-29",
-        "path": "docs/governance/relatorios/ISSUE-CONSTRUCAO-CIVIL-RISCOS-SETORIAIS-20260628.md"
-      },
-      {
-        "file": "AS-IS-TO-BE-UX-PASSO1-MERGE-IDENTIFICACAO-20260626.md",
-        "updated": "2026-06-26",
-        "path": "docs/governance/relatorios/AS-IS-TO-BE-UX-PASSO1-MERGE-IDENTIFICACAO-20260626.md"
-      },
-      {
-        "file": "AS-IS-TO-BE-CSV-PARSER-NORMATIVO-B2-20260623.md",
-        "updated": "2026-06-24",
-        "path": "docs/governance/relatorios/AS-IS-TO-BE-CSV-PARSER-NORMATIVO-B2-20260623.md"
-      },
-      {
-        "file": "AS-IS-TO-BE-ADMIN-SOLARIS-QUESTIONS-UX-20260619.md",
-        "updated": "2026-06-20",
-        "path": "docs/governance/relatorios/AS-IS-TO-BE-ADMIN-SOLARIS-QUESTIONS-UX-20260619.md"
-      },
-      {
-        "file": "DESPACHO-UX-ADMIN-SOLARIS-QUESTIONS-v2-UNIFICADO.md",
-        "updated": "2026-06-20",
-        "path": "docs/governance/relatorios/DESPACHO-UX-ADMIN-SOLARIS-QUESTIONS-v2-UNIFICADO.md"
-      },
-      {
-        "file": "AS-IS-TO-BE-REGIME-TRIBUTARIO-QUESTIONARIO.md",
-        "updated": "2026-06-19",
-        "path": "docs/governance/relatorios/AS-IS-TO-BE-REGIME-TRIBUTARIO-QUESTIONARIO.md"
-      },
-      {
-        "file": "HANDOFF-DEPLOY-BUNDLE-STALE-20260619.md",
-        "updated": "2026-06-19",
-        "path": "docs/governance/relatorios/HANDOFF-DEPLOY-BUNDLE-STALE-20260619.md"
+        "path": "docs/governance/relatorios/AS-IS-TO-BE-QCNAE-REQUIREMENT-LINK-20260628.md"
       }
     ]
   }
