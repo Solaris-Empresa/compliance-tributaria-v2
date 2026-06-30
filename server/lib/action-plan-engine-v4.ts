@@ -69,6 +69,46 @@ export const PLANS: Record<string, ActionPlanSuggestion[]> = {
     { titulo: "Avaliar enquadramento em regime diferenciado aplicável",
       responsavel: "advogado", prazo: "60_dias" },
   ],
+
+  // ─── 9 categorias construção civil Fase 3a #1607 (migrations 0128-0129) ───
+  // D-1/T1b: títulos acionáveis. Antes caíam no defaultSuggestion genérico
+  // ("Avaliar e mitigar risco de {label}"). Lição #74/#137 (propagar a todos os consumers).
+  "risco_redutor_ajuste": [
+    { titulo: "Levantar e documentar o Redutor de Ajuste aplicável às operações com imóveis",
+      responsavel: "advogado", prazo: "30_dias" },
+  ],
+  "risco_sinter_avaliacao": [
+    { titulo: "Mapear imóveis sujeitos à avaliação pelo SINTER e contestar divergências",
+      responsavel: "advogado", prazo: "30_dias" },
+  ],
+  "risco_cib_cadastro": [
+    { titulo: "Regularizar inscrição dos imóveis no Cadastro Imobiliário Brasileiro (CIB)",
+      responsavel: "advogado", prazo: "30_dias" },
+  ],
+  "risco_controle_empreendimento": [
+    { titulo: "Implantar apuração segregada de IBS/CBS por empreendimento de construção civil",
+      responsavel: "gestor_fiscal", prazo: "30_dias" },
+  ],
+  "risco_permuta_imoveis": [
+    { titulo: "Avaliar impacto tributário nas operações de permuta de imóveis (torna e redutor)",
+      responsavel: "advogado", prazo: "60_dias" },
+  ],
+  "risco_tributacao_parcelas": [
+    { titulo: "Adequar sistema de apuração para tributar IBS/CBS no recebimento de cada parcela",
+      responsavel: "gestor_fiscal", prazo: "90_dias" },
+  ],
+  "risco_sujeicao_passiva_scp": [
+    { titulo: "Verificar sujeição passiva do sócio ostensivo em SCP para recolhimento de IBS/CBS",
+      responsavel: "advogado", prazo: "90_dias" },
+  ],
+  "risco_custos_historicos": [
+    { titulo: "Levantar custos históricos dos imóveis até 31/12/2026 para cálculo do Redutor de Ajuste",
+      responsavel: "gestor_fiscal", prazo: "60_dias" },
+  ],
+  "risco_credito_condicionado_obra": [
+    { titulo: "Mapear créditos de IBS/CBS condicionados à conclusão da obra e controlar estornos",
+      responsavel: "advogado", prazo: "30_dias" },
+  ],
 };
 
 /**
