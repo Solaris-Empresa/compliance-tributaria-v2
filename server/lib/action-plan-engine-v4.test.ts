@@ -146,3 +146,24 @@ describe("BUG-PLAN-TITLE — catálogo PLANS + defaultSuggestion", () => {
     });
   });
 });
+
+describe("D-1 / Lição #74 — PLANS com títulos acionáveis para as 9 categorias construção civil", () => {
+  const FASE3A = [
+    "risco_redutor_ajuste", "risco_sinter_avaliacao", "risco_cib_cadastro",
+    "risco_controle_empreendimento", "risco_permuta_imoveis", "risco_tributacao_parcelas",
+    "risco_sujeicao_passiva_scp", "risco_custos_historicos", "risco_credito_condicionado_obra",
+  ];
+
+  it("PLANS tem entrada para todas as 9 categorias Fase 3a", () => {
+    for (const cat of FASE3A) {
+      expect(PLANS[cat], `PLANS faltando para ${cat}`).toBeDefined();
+      expect(PLANS[cat].length).toBeGreaterThan(0);
+    }
+  });
+
+  it("nenhum título de plano contém snake_case (risco_)", () => {
+    for (const cat of FASE3A) {
+      expect(PLANS[cat][0].titulo).not.toMatch(/risco_/);
+    }
+  });
+});
