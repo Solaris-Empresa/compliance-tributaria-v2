@@ -52,4 +52,15 @@ export const CATEGORIA_LABELS: Record<string, string> = {
   regime_especifico_imoveis:                   "Regime Específico — Imóveis",
   regime_especifico_imoveis_locacao:           "Regime Específico — Imóveis (Locação 70%)",
   risco_art_269_270:                           "Obrigação — Cadastro e Apuração por Empreendimento",
+
+  // ─── 9 categorias setoriais construção civil (Fase 3a #1607 / migrations 0128-0129) ───
+  risco_redutor_ajuste:            "Redutor de Ajuste (Imóveis)",
+  risco_sinter_avaliacao:          "Avaliação SINTER",
+  risco_cib_cadastro:              "Cadastro de Imóveis (CIB)",
+  risco_controle_empreendimento:   "Apuração por Empreendimento",
+  risco_permuta_imoveis:           "Permuta de Imóveis",
+  risco_tributacao_parcelas:       "Tributação por Parcelas (Incorporação)",
+  risco_sujeicao_passiva_scp:      "Sujeição Passiva (SCP)",
+  risco_custos_historicos:         "Custos Históricos dos Imóveis",
+  risco_credito_condicionado_obra: "Crédito Condicionado da Obra",
 };
