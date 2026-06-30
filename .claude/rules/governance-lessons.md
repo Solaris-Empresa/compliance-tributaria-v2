@@ -2244,3 +2244,51 @@ O teste inicial do CR-01 chamava `extractProjectProfile(projectId)` → `query()
 ### Vinculadas
 
 REGRA-ORQ-CI-01 (dbDescribe / skipIf ambiental) · [[Lição #110]] (schema replicado / DB em teste) · [[Lição #72]] (mysql2 auto-parse) · CR-01 #1625 (`resolveTaxRegime`)
+
+## Lição #158 — Colisão de número de artigo entre Lei e Decreto
+
+**Origem:** ACHADO-1, arco #1607 (29/06/2026) — Dr. José citou "Art. 365"; verificação revelou que era do Decreto, não da LC.
+
+### Texto
+
+Artigos com o **mesmo número** podem existir em **diplomas diferentes** com conteúdos distintos. O **Art. 365 da LC 214** trata de alíquotas de referência 2033; o **Art. 365 do Decreto 12.955** funda-se no **Art. 255 §5º da LC** e trata de crédito condicionado em construção civil. Antes de declarar "citação errada", **verificar qual diploma (lei ou decreto)** o Consultor cita. Formulação precisa: *"Art. 365 do Decreto funda-se no Art. 255 §5º da LC"* — **não** *"Art. 365 = Art. 255 §5º"*.
+
+### Caso canônico
+
+O parecer/cruzamento (#1627) flagou "Art. 365 não casa" comparando com a **LC** (alíquotas). Mas Dr. José citava o **Decreto** (crédito construção). **Dr. José estava certo**; o erro era de comparação cross-diploma. Reconciliado pela fonte primária (`riscos-nao-identificados.pdf`).
+
+### Vinculadas
+
+REGRA-ORQ-35 (NUNCA ASSUMA) · [[Lição #126]] (fonte primária / PDF, não corpus) · [[Lição #133]] (curadoria jurídica) · ACHADO-1 #1647 · arco #1607
+
+## Lição #159 — `buildActionPlans` não filtra por confidence; risco condicional vira plano completo
+
+**Origem:** Q3 da auditoria 10860001, arco #1607 (29/06/2026).
+
+### Texto
+
+`buildActionPlans` (`action-plan-engine-v4.ts`) **não filtra por confidence** — um risco **condicional** (confidence 0.41, "potencial — a confirmar") gera **plano de ação completo** com prazo e responsável, igual a um risco afirmado. **Assemble ≠ consumption na camada de plano:** marcar o risco como condicional (confidence baixo + nota) **não impede** a geração do plano. Para um risco que pode não se aplicar (ex.: permuta numa construtora que nunca permutou), o usuário recebe um plano com prazo/responsável.
+
+### Caso canônico
+
+Auditoria 10860001 Q3: os 4 condicionais (`risco_permuta_imoveis`, `risco_tributacao_parcelas`, `risco_sujeicao_passiva_scp`, `risco_custos_historicos`, confidence 0.41) têm **1 plano aprovado cada**. Correção via qualificação por pergunta SOLARIS (TB-1, #1640).
+
+### Vinculadas
+
+REGRA-ORQ-27 (assemble ≠ consumption) · [[Lição #59]] · TB-1 #1640 · `action-plan-engine-v4.ts` · arco #1607 Fase 3a
+
+## Lição #160 — Riscos de perfil (Path B) gateados upstream por `gaps.length === 0`
+
+**Origem:** auditoria greenfield, arco #1607 (29/06/2026).
+
+### Texto
+
+Os riscos inferidos por **perfil** (Path B — CNAE + regime) são **gap-independentes** no pipeline interno (`generate-risks-pipeline.ts:106-114`), mas são **gateados upstream** por `gaps.length === 0` na procedure (`risks-v4.ts:932` — early-return antes do pipeline). Consequência: um projeto **pré-questionário** (sem gaps) vê **0 riscos setoriais**, mesmo o engine sendo capaz de inferi-los do CNAE+regime. No **fluxo real** (wizard → gaps → riscos) o guard é satisfeito; o efeito só aparece em projeto sem gaps (SQL direto). **Decisão de produto:** se a intenção é "construtora vê riscos setoriais desde o perfil", o guard `:932` deve deixar o Path B passar com `gaps=0`.
+
+### Caso canônico
+
+Greenfield via SQL direto (10800129, sem gaps) → 0 riscos → Manus copiou gaps. Greenfield via **wizard** (10860001, 149 gaps reais) → **8 riscos Fase 3a** ✅. Issue #1643.
+
+### Vinculadas
+
+REGRA-ORQ-27 (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · #1643 · `risks-v4.ts:932` · `generate-risks-pipeline.ts:106-114` · arco #1607
