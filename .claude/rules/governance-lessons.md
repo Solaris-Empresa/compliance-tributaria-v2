@@ -2369,3 +2369,31 @@ REGRA-ORQ-49 (#1662) instituiu a tabela manual → P.O. identificou o overhead �
 ### Vinculadas
 
 REGRA-ORQ-17 PC-1 (enforçado por CI) · REGRA-ORQ-45 (Gate 0 do emissor — pegou que "Bloco 3" era skeleton, não lista) · [[Lição #128]] (gate declarado ≠ enforçado — agora PC-1 é enforçado) · [[Lição #129]] (dogfooding) · GOV-AUDIT-CI-01 · revert #1665
+
+## Lição #165 — Gates de PR com chaves diferentes: autoaudit é branch-based, validate-pr-body é title-based
+
+**Origem:** GOV-AUDIT-CI-01 (PR #1667, 01/07/2026) — `chore()`-título em branch `feat/*` passou num gate e falhou no outro.
+
+### Texto
+
+Dois gates de PR decidem "é feat/fix?" por **chaves diferentes** e podem discordar:
+
+- **`autoaudit-check.yml:14,17`** — **branch-based**: exige a seção "Auto-auditoria" se `github.head_ref` casa `feat/*` **ou** `fix/*` (`:23` grepa `Q1|Auto-auditoria|auto.audit`).
+- **`validate-pr-body.js:143-145`** — **title-based**: dispensa o gate Q1–5 se o **título** casa `^chore[:(]` ou `^docs[:(]`.
+
+**Armadilha:** título **`chore(...)` em branch `feat/*`/`fix/*`** → `validate-pr-body` **dispensa** Q1–5 (título chore), mas `autoaudit` **exige** a seção (branch feat/*) → falha. O inverso também (título `feat(` em branch `chore/*` → autoaudit pula, validate-pr-body exige).
+
+**Caso canônico:** PR #1667 (`chore(ci)` em `feat/gov-audit-ci-01`) passou no Governance gate e **falhou o autoaudit** até adicionar "Auto-auditoria Q1–Q8".
+
+### Como evitar
+
+- **Alinhar branch e título:** `feat/*`/`fix/*` ⇔ `feat(`/`fix(`; `chore/*`/`docs/*` ⇔ `chore(`/`docs(`.
+- **OU** sempre incluir a seção "Auto-auditoria" (satisfaz ambos — o autoaudit só grepa "Q1"/"Auto-auditoria").
+
+### Refinamento futuro
+
+Padronizar os 2 gates na **mesma chave** (ambos por título **ou** ambos por branch) elimina a armadilha. Extensão da [[Lição #91]].
+
+### Vinculadas
+
+[[Lição #91]] (gotchas dos gates de CI) · [[Lição #128]] (gate declarado ≠ enforçado) · GOV-AUDIT-CI-01 PR #1667 · `.github/workflows/autoaudit-check.yml:14-23` · `.github/scripts/validate-pr-body.js:143-145`
