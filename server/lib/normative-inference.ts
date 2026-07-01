@@ -14,6 +14,9 @@ import {
   isRegimeImoveisRisco,
   isConstrucaoCivilImoveis,
 } from "./regime-imoveis-eligibility";
+// B1 Fase 2 (#1663): inferência data-driven atrás de flag.
+import { isFeatureEnabled } from "../config/feature-flags";
+import { getCategoryByCodigo } from "./risk-category.repository.drizzle";
 
 // ─── DB ──────────────────────────────────────────────────────────────────────
 
@@ -172,6 +175,77 @@ function makeInferredRisk(
   };
 }
 
+// ─── B1 Fase 2 (#1663): inferência data-driven (cnae_categoria_map) ───────────
+
+export interface CnaeCatMapRow {
+  cnae_prefix: string;
+  match_mode: "prefix" | "exact";
+  categoria_codigo: string;
+  condicional: number;
+  confidence: number | string;
+  titulo_template: string | null;
+  nota: string | null;
+  regime_scope: string | null;
+}
+
+/**
+ * Pura (testável sem DB — Lição #157): filtra as linhas do map que casam o perfil.
+ * Match por prefix (startsWith) ou exact; respeita regime_scope; dedup por categoria
+ * (uma categoria pode casar por 2+ prefixos → 1 risco só).
+ */
+export function matchMapRows(
+  cnaes: string[],
+  taxRegime: string | null,
+  rows: CnaeCatMapRow[],
+): CnaeCatMapRow[] {
+  const seen = new Set<string>();
+  const out: CnaeCatMapRow[] = [];
+  for (const row of rows) {
+    if (row.regime_scope === "exceto_simples_nacional" && taxRegime === "simples_nacional") continue;
+    const hit = cnaes.some((c) =>
+      row.match_mode === "exact" ? c === row.cnae_prefix : c.startsWith(row.cnae_prefix),
+    );
+    if (!hit) continue;
+    if (seen.has(row.categoria_codigo)) continue;
+    seen.add(row.categoria_codigo);
+    out.push(row);
+  }
+  return out;
+}
+
+/**
+ * Data-driven: lê cnae_categoria_map + risk_categories e reproduz os makeInferredRisk
+ * do hardcoded. severidade/urgência/tipo/artigo de risk_categories (D-B1-3); titulo do
+ * map (D-B1-4=A). Só chamada quando ENABLE_DATADRIVEN_INFERENCE=true.
+ */
+async function applyCnaeCategoriaMap(
+  projectId: number,
+  profile: ProjectProfile,
+  ctx: OperationalContext,
+): Promise<InsertRiskV4[]> {
+  const op = profile.tipoOperacao ?? "geral";
+  const rows = await query<CnaeCatMapRow>(
+    `SELECT cnae_prefix, match_mode, categoria_codigo, condicional, confidence, titulo_template, nota, regime_scope
+     FROM cnae_categoria_map WHERE ativo = 1`,
+  );
+  const matched = matchMapRows(profile.cnaes, profile.taxRegime ?? null, rows);
+  const results: InsertRiskV4[] = [];
+  for (const row of matched) {
+    const cat = await getCategoryByCodigo(row.categoria_codigo);
+    if (!cat) continue; // categoria inativa/inexistente → skip
+    const titulo = (row.titulo_template ?? cat.nome).replace("{op}", op);
+    results.push(makeInferredRisk(
+      projectId, row.categoria_codigo,
+      cat.tipo as "risk" | "opportunity",
+      cat.severidade as "alta" | "media" | "oportunidade",
+      cat.urgencia as "imediata" | "curto_prazo" | "medio_prazo",
+      cat.artigoBase, titulo, Number(row.confidence), ctx,
+      row.condicional ? (row.nota ?? undefined) : undefined,
+    ));
+  }
+  return results;
+}
+
 // ─── Função principal ────────────────────────────────────────────────────────
 
 /**
@@ -229,6 +303,11 @@ export async function inferNormativeRisks(
   // Gate por CNAE automático (D2 — Art. 360 V + §13 / Art. 263). Simples Nacional
   // excluído: o regime é do contribuinte sujeito ao regime regular (Art. 251).
   if (profile.taxRegime !== "simples_nacional") {
+    // B1 Fase 2 (#1663): se a flag está ON, usa o engine data-driven (cnae_categoria_map);
+    // senão, mantém o hardcoded abaixo (paridade — flag OFF por default até a Fase 4).
+    if (isFeatureEnabled("enable-datadriven-inference")) {
+      results.push(...(await applyCnaeCategoriaMap(projectId, profile, ctx)));
+    } else {
     // Oportunidade 50% (Art. 261 caput) — construção/incorporação/alienação/intermediação.
     if (isRegimeImoveisOportunidade(profile.cnaes)) {
       results.push(makeInferredRisk(
@@ -331,6 +410,7 @@ export async function inferNormativeRisks(
         "Risco potencial — aplica-se apenas a quem tinha imóvel ou imóvel em construção antes de 2027; confirmar na Fase 3b.",
       ));
     }
+    } // fim else (hardcoded — B1 Fase 2)
   }
 
   // ── Split payment ─────────────────────────────────────────────────────────
