@@ -842,8 +842,10 @@ export function RiskDashboardV4({ projectId }: RiskDashboardV4Props) {
       utils.risksV4.listRisks.invalidate({ projectId });
       toast.success(`${data.approved} riscos aprovados com sucesso`, { duration: 3000 });
       setShowBulkConfirm(false);
-      // Sprint Z-17 #668: NÃO chama bulkGenerateActionPlans aqui
-      // Advogado decide quando gerar planos via botão "Ver Planos de Ação"
+      // BUG-BULK-APPROVE-01 (reverte Z-17 #668 — decisão P.O. D-BULK=a): cumprir
+      // REGRA-ORQ-14 B-04 (bulk approve → gerar planos + redirect /planos-v4).
+      // bulkGenerateActionPlans já faz a geração + o redirect no próprio onSuccess (:835).
+      bulkGenerateActionPlansMutation.mutate({ projectId });
     },
     onError: () => toast.error("Erro ao aprovar riscos", { description: "Tentar novamente", duration: 6000 }),
   });

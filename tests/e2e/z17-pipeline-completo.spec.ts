@@ -572,10 +572,12 @@ test.describe("Z-17 Pipeline Completo", () => {
     // de uma execução anterior — aceitar como pass
   });
 
-  test("CT-15 — Bulk approve sem auto-geração nem redirect", async ({
+  // BUG-BULK-APPROVE-01 (reverte Z-17 #668 — decisão P.O. D-BULK=a): bulk approve
+  // volta a cumprir REGRA-ORQ-14 B-04 → auto-gera planos + redirect /planos-v4.
+  test("CT-15 — Bulk approve auto-gera planos + redirect /planos-v4 (B-04)", async ({
     page,
   }) => {
-    test.setTimeout(45_000);
+    test.setTimeout(180_000); // geração de planos + tarefas LLM é lenta
     expect(projectId).toBeTruthy();
 
     await page.goto(`/projetos/${projectId}/risk-dashboard-v4`);
@@ -602,19 +604,9 @@ test.describe("Z-17 Pipeline Completo", () => {
         await confirmBtn.click();
       }
 
-      // Aguardar toast de aprovação
-      await page.waitForTimeout(3000);
-
-      // Verificar que NÃO houve redirect para /planos-v4
-      const currentUrl = page.url();
-      expect(currentUrl).toContain("risk-dashboard-v4");
-      expect(currentUrl).not.toContain("planos-v4");
-
-      // Verificar toast de aprovação
-      const bodyText = await page.textContent("body") ?? "";
-      expect(
-        bodyText.includes("aprovado") || bodyText.includes("Aprovado")
-      ).toBeTruthy();
+      // B-04: após aprovar, auto-gera planos+tarefas (LLM, pode demorar) e redireciona.
+      await page.waitForURL(/planos-v4/, { timeout: 150_000 });
+      expect(page.url()).toContain("planos-v4");
     }
   });
 
