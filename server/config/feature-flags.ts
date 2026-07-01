@@ -45,7 +45,7 @@ export const FEATURE_FLAGS: Record<string, boolean> = {
   // B1 (#1663): inferência de risco por setor data-driven (lê cnae_categoria_map +
   // risk_categories) em vez do hardcoded em normative-inference.ts. OFF por default —
   // Fase 4 flipa após paridade validada (Fase 3). Ref: SPEC-B1 #1675.
-  'enable-datadriven-inference': false,
+  'enable-datadriven-inference': true,
 };
 
 /**
