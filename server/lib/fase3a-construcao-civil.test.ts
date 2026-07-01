@@ -1,8 +1,16 @@
 // Fase 3a (#1607) — 8 riscos setoriais de construção civil.
 // Testa inferNormativeRisks com perfil de construtora (CNAE 41xx, lucro_real).
-// Sem DB: construtora não é alimentar/atacadista → loadNormativeRules (getDb) não é chamado
-// (gate hasAlimentarCnae em normative-inference.ts:196). Lição #157.
-import { describe, it, expect } from "vitest";
+//
+// BUG-TEST-B1 (01/07/2026): com a flag `enable-datadriven-inference` = ON (Fase 4),
+// inferNormativeRisks passa a resolver as categorias via `applyCnaeCategoriaMap`
+// (consulta a tabela `cnae_categoria_map` → getDb()), tornando esta suite
+// DB-dependente. Sem DATABASE_URL, `getDb()` lança e a suite falha 5/6.
+// Fix: `dbDescribe` (REGRA-ORQ-CI-01 / CI-HYGIENE-02 #1585) — skipa graciosamente
+// em CI sem DB; roda como integração quando há DATABASE_URL (smoke Manus).
+// A cobertura de CATEGORIA (positivo/negativo/discriminante) permanece verde em
+// CI via `b1-fase3-paridade.test.ts` (matchMapRows — função pura, Lição #157).
+import { it, expect } from "vitest";
+import { dbDescribe } from "../test-helpers";
 import { inferNormativeRisks } from "./normative-inference";
 import type { ProjectProfile } from "./project-profile-extractor";
 
@@ -36,7 +44,7 @@ function profile(cnaes: string[], taxRegime: string | null = "lucro_real"): Proj
   };
 }
 
-describe("Fase 3a — 8 riscos construção civil (#1607)", () => {
+dbDescribe("Fase 3a — 8 riscos construção civil (#1607)", () => {
   it("gera as 8 categorias setoriais para CNAE 41xx lucro_real", async () => {
     const risks = await inferNormativeRisks(999, profile(["4120-4/00"]));
     const cats = risks.map((r) => r.categoria);

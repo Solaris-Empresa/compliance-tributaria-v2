@@ -9,13 +9,21 @@
 -- Detectado no smoke B1 Fase 3 (01/07/2026) e corrigido diretamente no banco.
 -- Esta migration cristaliza o hotfix para paridade histórica.
 --
--- Lição #166 (candidata): SHOW COLUMNS FROM <tabela> após migration de criação
--- de tabela, antes de assumir paridade com o DDL planejado.
+-- Lição #166: SHOW COLUMNS FROM <tabela> após migration de criação de tabela,
+-- antes de assumir paridade com o DDL planejado. E: catch-up de coluna DEVE
+-- usar IF NOT EXISTS — senão quebra greenfield (onde a 0130 já criou `ativo`).
+--
+-- HOTFIX (01/07/2026, BUG-TEST-B1): a versão original desta migration usava
+-- `ADD COLUMN ativo` (sem IF NOT EXISTS). Como a 0130 (:31) JÁ define `ativo`
+-- no CREATE TABLE, greenfield falhava com `Duplicate column name 'ativo'`
+-- (viola REGRA-ORQ-34 Protocolo 1 — migration deve rodar em greenfield).
+-- Corrigido para IF NOT EXISTS: no-op em greenfield, catch-up em ambientes
+-- onde a tabela foi criada divergente do DDL (Lição #141/#166).
 --
 -- Issue: #1663 · Hotfix identificado em Fase 3 smoke · Refs: #1681
 -- ═══════════════════════════════════════════════════════════════════════════
 -- UP
 ALTER TABLE cnae_categoria_map
-  ADD COLUMN ativo TINYINT NOT NULL DEFAULT 1;
+  ADD COLUMN IF NOT EXISTS ativo TINYINT NOT NULL DEFAULT 1;
 -- DOWN (reversão — não recomendada em produção)
 -- ALTER TABLE cnae_categoria_map DROP COLUMN ativo;

@@ -2397,3 +2397,21 @@ Padronizar os 2 gates na **mesma chave** (ambos por título **ou** ambos por bra
 ### Vinculadas
 
 [[Lição #91]] (gotchas dos gates de CI) · [[Lição #128]] (gate declarado ≠ enforçado) · GOV-AUDIT-CI-01 PR #1667 · `.github/workflows/autoaudit-check.yml:14-23` · `.github/scripts/validate-pr-body.js:143-145`
+
+## Lição #166 — Migration de catch-up de coluna DEVE usar `IF NOT EXISTS` (senão quebra greenfield)
+
+**Origem:** BUG-TEST-B1 / hotfix migration 0132 (01/07/2026) — a 0132 (`ADD COLUMN ativo`) quebrava greenfield porque a 0130 já criava a coluna.
+
+### Texto
+
+Uma migration de **catch-up** (que adiciona uma coluna para reconciliar um ambiente cujo estado divergiu do DDL planejado — Lição #141) DEVE usar `ADD COLUMN IF NOT EXISTS`. Sem o `IF NOT EXISTS`, ela **quebra greenfield**: no ambiente novo a coluna já foi criada pela migration de origem (o `CREATE TABLE`), e o `ADD COLUMN` puro falha com `Duplicate column name` — violando REGRA-ORQ-34 Protocolo 1 (toda migration deve rodar em greenfield). O `IF NOT EXISTS` torna a migration **no-op em greenfield** e **catch-up no ambiente divergente** — os dois estados que uma migration de reconciliação precisa cobrir. Precedente no repo: `0070`/`0071`/`0072`/`0117` + manuais (TiDB suporta `ADD COLUMN IF NOT EXISTS`; MySQL puro não — verificar o ambiente antes).
+
+**Corolário (Lição #141 aplicada):** quando o banco aplicado divergiu do committed (coluna que "deveria existir" pela migration de origem mas não existe), a correção é uma migration de catch-up idempotente **no repo** — não um `ALTER` manual só no banco. O `ALTER` manual reproduz a divergência que causou o bug. Verificar com `SHOW COLUMNS FROM <tabela>` após migration de criação de tabela, antes de assumir paridade com o DDL planejado.
+
+### Caso canônico
+
+Migration 0130 (`0130_categoria_map_setorial.sql:31`) cria `cnae_categoria_map` com `ativo TINYINT NOT NULL DEFAULT 1` no `CREATE TABLE`. Em produção a tabela foi criada **sem** `ativo` (divergência DDL — Lição #141) → engine `WHERE ativo = 1` → 0 riscos. A 0132 nasceu como catch-up, mas com `ADD COLUMN ativo` puro → greenfield falhava com `Duplicate column name 'ativo'`. Fix (BUG-TEST-B1): `ADD COLUMN IF NOT EXISTS ativo`.
+
+### Vinculadas
+
+[[Lição #141]] (artefato aplicado ≠ committed) · [[Lição #157]] (helper puro DB-independente) · REGRA-ORQ-34 Protocolo 1 (greenfield) · REGRA-ORQ-FILENAME-01 · Gate 0 schema · migration 0130/0132 · BUG-TEST-B1
