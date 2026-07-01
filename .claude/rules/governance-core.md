@@ -1805,35 +1805,3 @@ Mud.5 #1561: o `btn-pular-questionario-cnae` foi localizado em `QuestionarioCNAE
 
 REGRA-ORQ-35 (NUNCA ASSUMA) · REGRA-ORQ-45 (Gate 0 do emissor) · REGRA-ORQ-41 (impact-tree) · [[Lição #59]] (assemble ≠ consumption) · [[Lição #65]] (rastrear fluxo end-to-end) · [[Lição #147]] · Mud.5 #1561 · Issue #1010
 
-## REGRA-ORQ-49 — Encerramento com 3 produtos: auditoria planejado×realizado + teste automatizado + teste manual
-
-**Vigência:** permanente, a partir de 30/06/2026
-**Origem:** GOV-FIX-ENCERRAMENTO-01 — arco construção civil (#1607) onde o que foi planejado ≠ entregue em vários despachos (premissas erradas pegas só pelo Gate 0; diagnóstico Manus stale)
-**Severidade:** governança operacional — fecha a lacuna "PR mergeado sem comparar o entregue ao planejado"
-
-### Regra
-
-Todo PR de implementação (feat/fix que toca código) só **encerra** quando demonstra os **3 produtos**:
-
-| # | Produto | Responsável (RACI) | Conteúdo |
-|---|---|---|---|
-| 1 | **Auditoria planejado × realizado** | CC (no PR body) | tabela comparando o despacho/spec (planejado) vs o entregue, com **deltas explícitos** (inclui correções de Gate 0) |
-| 2 | **Teste automatizado green** | Manus (review) | `pnpm test` PASS + `tsc` 0 erros — evidência no PR/review |
-| 3 | **Teste manual** | P.O. | confirmação em produção/UI (screenshot, log, output, query SQL) |
-
-### Aplicação
-
-- O `.github/pull_request_template.md` traz a seção "Auditoria planejado × realizado (REGRA-ORQ-49)" + os 2 blocos de evidência (automatizado/manual).
-- A tabela planejado×realizado é **obrigatória** no PR body de implementação; deltas zero = declarar "sem desvios" explicitamente (não omitir a seção).
-- RACI canônico (18/06): **CC implementa + preenche auditoria · Manus review+merge+teste automatizado · P.O. teste manual. CC nunca mergeia.**
-- O **PR que institui esta regra é o primeiro a cumpri-la** (dogfooding — Lição #164/#129).
-
-### Não se aplica
-
-- PRs docs/chore puros sem código (a auditoria é opcional; a tabela pode declarar "docs-only, sem realizado a auditar").
-- Hotfix P0 (REGRA-ORQ-11) — auditoria mínima.
-
-### Vinculadas
-
-REGRA-ORQ-19 (auditoria fim de sessão) · REGRA-ORQ-28 (triade) · REGRA-ORQ-33 (RACI — Manus mergeia) · REGRA-ORQ-45 (Gate 0 do emissor) · [[Lição #129]] (template dogfooding) · [[Lição #164]] · GOV-FIX-ENCERRAMENTO-01
-
