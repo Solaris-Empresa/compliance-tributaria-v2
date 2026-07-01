@@ -1,0 +1,21 @@
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Migration 0132 — Hotfix B1: ADD COLUMN ativo em cnae_categoria_map
+--
+-- Contexto: A migration 0130 (PR #1677) define `ativo TINYINT NOT NULL DEFAULT 1`
+-- no DDL do CREATE TABLE. Porém, a tabela foi criada no banco sem essa coluna
+-- (divergência entre migration planejada e DDL efetivo — Lição #166).
+-- O engine (normative-inference.ts) usa `WHERE ativo = 1`, causando
+-- `Unknown column 'ativo' in 'where clause'` → catch silencioso → 0 riscos.
+-- Detectado no smoke B1 Fase 3 (01/07/2026) e corrigido diretamente no banco.
+-- Esta migration cristaliza o hotfix para paridade histórica.
+--
+-- Lição #166 (candidata): SHOW COLUMNS FROM <tabela> após migration de criação
+-- de tabela, antes de assumir paridade com o DDL planejado.
+--
+-- Issue: #1663 · Hotfix identificado em Fase 3 smoke · Refs: #1681
+-- ═══════════════════════════════════════════════════════════════════════════
+-- UP
+ALTER TABLE cnae_categoria_map
+  ADD COLUMN ativo TINYINT NOT NULL DEFAULT 1;
+-- DOWN (reversão — não recomendada em produção)
+-- ALTER TABLE cnae_categoria_map DROP COLUMN ativo;
