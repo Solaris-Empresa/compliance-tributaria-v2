@@ -206,6 +206,17 @@ PR de migration/docs NUNCA fecha issue de UI/frontend.
 Causa raiz: Sprint Z-16 — #614 fechada por PR #639 (migration)
 sem UI do modal implementada. 3/5 gates teriam bloqueado.
 
+### PC-1 ENFORÇADO por CI (GOV-AUDIT-CI-01, 01/07/2026)
+
+PC-1 ("PR toca os arquivos planejados da issue?") deixa de ser **checklist manual** e passa
+a ser **auditoria automática de CI**: `.github/workflows/audit-planejado-realizado.yml`
+compara a seção **`## Arquivos planejados`** da issue vinculada (`Closes #N`) com o diff do
+PR e posta a tabela planejado×realizado como comentário (planejado ✅/❌ · fora do escopo ➕).
+
+- **Fonte do planejado:** seção `## Arquivos planejados` no `sprint-issue.md` (fiel ao despacho — D-AUDIT-SRC Opção B). Fallback gracioso: `## Arquivos que serão tocados` do PR.
+- **Rastreabilidade é automação sobre a issue que já existe — nunca campo manual no PR body** (reverteu-se a REGRA-ORQ-49; ver [[Lição #164]]).
+- Zero overhead para P.O./CC: a issue é a referência; o CI é o auditor.
+
 ## REGRA-ORQ-18 — Sincronizacao board obrigatoria
 
 Issue na coluna "Bloqueada" DEVE ter bloqueio explicito:

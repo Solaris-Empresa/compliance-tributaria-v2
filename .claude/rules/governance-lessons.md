@@ -2349,3 +2349,23 @@ REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-32 (no hardcode) · [[Liç�
 ### Vinculadas
 
 [[Lição #74]] (fix downstream incompleto) · [[Lição #137]] (consolidação exige todos os consumers) · [[Lição #85]] (persistência exige verificação no estado gravado) · [[Lição #113]] (UI mostra ≠ DB persiste) · REGRA-ORQ-37 (evidência/pipeline) · #1659 · D-3
+
+## Lição #164 — Rastreabilidade planejado×realizado é automação CI sobre a issue, não campo manual no PR
+
+**Origem:** GOV-AUDIT-CI-01 (01/07/2026) — após reverter a REGRA-ORQ-49 (tabela manual no PR body = overhead).
+
+### Texto
+
+Rastreabilidade planejado×realizado **não é campo manual no PR** — é **automação CI sobre o que já existe**. A tentativa anterior (REGRA-ORQ-49) exigia o autor **re-digitar** a tabela planejado×realizado no PR body → transferia o custo para o operador humano (overhead + risco de drift: a tabela pode mentir). Foi **revertida**.
+
+O padrão correto: a **seção `## Arquivos planejados` da issue** (preenchida 1× antes de implementar) é o **contrato persistente fiel ao despacho**; o **CI é o auditor** (`audit-planejado-realizado.yml` compara com o diff do PR e posta a tabela automaticamente). Ninguém re-digita nada.
+
+**Princípio:** rastreabilidade deve ser **automação sobre a fonte que já existe** (issue), não **campo novo para preencher** (PR body). Quando a solução transfere custo para o humano, é a solução errada — procure o dado que já está lá e automatize a comparação.
+
+### Caso canônico
+
+REGRA-ORQ-49 (#1662) instituiu a tabela manual → P.O. identificou o overhead → revert (#1665) → GOV-AUDIT-CI-01: workflow que lê `## Arquivos planejados` da issue (`Closes #N`) × `git diff` do PR → comentário automático. Fonte do planejado = issue (D-AUDIT-SRC Opção B), não o PR (que é "declarado na entrega", não "planejado").
+
+### Vinculadas
+
+REGRA-ORQ-17 PC-1 (enforçado por CI) · REGRA-ORQ-45 (Gate 0 do emissor — pegou que "Bloco 3" era skeleton, não lista) · [[Lição #128]] (gate declarado ≠ enforçado — agora PC-1 é enforçado) · [[Lição #129]] (dogfooding) · GOV-AUDIT-CI-01 · revert #1665

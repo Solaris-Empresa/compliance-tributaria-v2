@@ -1,0 +1,102 @@
+name: Auditoria planejado × realizado (GOV-AUDIT-CI-01)
+
+# REGRA-ORQ-17 PC-1 enforçado: compara os arquivos planejados (seção "## Arquivos
+# planejados" da issue vinculada por Closes #N) com os arquivos entregues (diff do PR).
+# Posta/atualiza um comentário automático. Zero trabalho manual — a issue é a
+# referência; o CI é o auditor. Fonte: GOV-AUDIT-CI-01 (D-AUDIT-SRC Opção B).
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const MARKER = "<!-- GOV-AUDIT-CI-01 -->";
+            const pr = context.payload.pull_request;
+            const prBody = pr.body || "";
+
+            // Extrai lista limpa de paths de uma seção "## <titulo>".
+            // Remove HTML comments (o exemplo do template não conta como planejado).
+            function extractFiles(body, sectionTitle) {
+              const re = new RegExp("##\\s*" + sectionTitle + "\\s*\\r?\\n([\\s\\S]*?)(\\r?\\n##\\s|$)", "i");
+              const m = body.match(re);
+              if (!m) return null;
+              const block = m[1].replace(/<!--[\s\S]*?-->/g, ""); // tira comentários (exemplo)
+              const files = [];
+              for (let line of block.split("\n")) {
+                line = line.trim();
+                if (!line || line.startsWith(">")) continue;
+                const pm = line.match(/^[-*]?\s*`?([\w./-]+\.[a-z0-9]+)`?\s*$/i);
+                if (pm) files.push(pm[1]);
+              }
+              return files.length ? [...new Set(files)] : null;
+            }
+
+            // 1. Fonte do planejado: issue (Closes #N) → "Arquivos planejados";
+            //    fallback (degradação graciosa): PR "Arquivos que serão tocados".
+            let planned = null, source = "";
+            const closes = prBody.match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
+            if (closes) {
+              const n = parseInt(closes[1], 10);
+              try {
+                const issue = await github.rest.issues.get({ ...context.repo, issue_number: n });
+                planned = extractFiles(issue.data.body || "", "Arquivos planejados");
+                if (planned) source = `issue #${n} · seção "Arquivos planejados"`;
+              } catch (e) { core.info(`issue #${n} inacessível: ${e.message}`); }
+            }
+            if (!planned) {
+              planned = extractFiles(prBody, "Arquivos que serão tocados");
+              if (planned) source = 'PR · "Arquivos que serão tocados" (fallback — issue sem lista)';
+            }
+
+            // 2. Entregues: arquivos do diff do PR.
+            const changed = await github.paginate(github.rest.pulls.listFiles, {
+              ...context.repo, pull_number: pr.number, per_page: 100,
+            });
+            const delivered = changed.map(f => f.filename);
+            const deliveredSet = new Set(delivered);
+
+            // 3. Montar comentário.
+            let body = MARKER + "\n## Auditoria planejado × realizado (REGRA-ORQ-17 PC-1)\n\n";
+            if (!planned) {
+              body += "⚠️ Nenhuma lista de arquivos planejados encontrada — nem na issue "
+                + "(`## Arquivos planejados` via `Closes #N`) nem no PR (`## Arquivos que serão tocados`).\n\n"
+                + "> Adicione a seção `## Arquivos planejados` na issue vinculada para ativar a auditoria.";
+            } else {
+              const plannedSet = new Set(planned);
+              let rows = "", missing = 0, extra = 0;
+              for (const f of planned) {
+                const ok = deliveredSet.has(f);
+                if (!ok) missing++;
+                rows += `| \`${f}\` | ${ok ? "✅" : "❌ não entregue"} |\n`;
+              }
+              for (const f of delivered) {
+                if (!plannedSet.has(f)) { extra++; rows += `| \`${f}\` _(não planejado)_ | ➕ fora do escopo |\n`; }
+              }
+              body += `Fonte do planejado: ${source}\n\n`
+                + "| Arquivo | No diff? |\n|---|---|\n" + rows + "\n"
+                + (missing === 0 && extra === 0
+                    ? "🟢 **Planejado == realizado** (sem desvios)."
+                    : `🟡 **Desvios:** ${missing} planejado(s) não entregue(s) · ${extra} fora do escopo. Justifique no PR ou ajuste o planejado/entrega.`);
+            }
+
+            // 4. Upsert do comentário (não duplica).
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo, issue_number: pr.number, per_page: 100,
+            });
+            const existing = comments.find(c => (c.body || "").includes(MARKER));
+            if (existing) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body });
+            }

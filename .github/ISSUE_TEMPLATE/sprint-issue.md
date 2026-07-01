@@ -97,6 +97,18 @@ estado_B → [acao] → estado_C
 
 ---
 
+## Arquivos planejados
+
+<!-- Lista limpa de paths — UM POR LINHA — preenchida pelo CC antes de implementar. -->
+<!-- O CI (audit-planejado-realizado.yml / REGRA-ORQ-17 PC-1) compara esta lista com o -->
+<!-- diff do PR (planejado × realizado) e posta a tabela automática no PR. -->
+<!-- Exemplo (remover os comentários ao preencher):
+server/routers/risks-v4.ts
+client/src/components/RiskDashboardV4.tsx
+-->
+
+---
+
 ## Bloco 4 — Schema do banco
 
 > OBRIGATORIO: dados reais de SHOW FULL COLUMNS.
