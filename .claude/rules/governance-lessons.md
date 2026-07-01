@@ -2349,19 +2349,3 @@ REGRA-ORQ-27 (assemble ≠ consumption) · REGRA-ORQ-32 (no hardcode) · [[Liç�
 ### Vinculadas
 
 [[Lição #74]] (fix downstream incompleto) · [[Lição #137]] (consolidação exige todos os consumers) · [[Lição #85]] (persistência exige verificação no estado gravado) · [[Lição #113]] (UI mostra ≠ DB persiste) · REGRA-ORQ-37 (evidência/pipeline) · #1659 · D-3
-
-## Lição #164 — PR que institui uma regra deve ser o primeiro a cumpri-la (dogfooding de governança)
-
-**Origem:** GOV-FIX-ENCERRAMENTO-01 / REGRA-ORQ-49 (30/06/2026).
-
-### Texto
-
-Um PR que institui uma **regra/template/gate** deve **demonstrar a própria regra no seu corpo** — ser o primeiro caso de uso. Instituir "todo PR deve trazer auditoria planejado×realizado" sem que o PR instituidor traga essa auditoria é **declarar sem provar** (mesma classe de [[Lição #129]]: template que não passa no próprio gate; [[Lição #122]]: review precisa ser source-controlled, não narrado). O dogfooding **força o autor a viver a regra**, expondo atritos antes de impô-la aos outros.
-
-### Caso canônico
-
-O PR de **REGRA-ORQ-49** preencheu a tabela planejado×realizado e, ao fazê-lo, **expôs que os 3 paths do próprio despacho estavam errados** (GOVERNANCE-SPLIT-01 renomeou os arquivos): `governance.md`→`governance-core.md`, `PULL_REQUEST_TEMPLATE/implementation.md`→`pull_request_template.md`, `docs/governance/governance-lessons.md`→`.claude/rules/governance-lessons.md`. A auditoria planejado×realizado **provou seu próprio valor na estreia** — pegou 3 deltas no Gate 0 (REGRA-ORQ-45).
-
-### Vinculadas
-
-REGRA-ORQ-49 (origem) · REGRA-ORQ-45 (Gate 0 do emissor — os 3 paths errados) · [[Lição #129]] (template dogfooding) · [[Lição #122]] (evidência source-controlled) · GOV-FIX-ENCERRAMENTO-01

@@ -261,18 +261,6 @@ OU
 - [ ] Documentação atualizada se necessário
 - [ ] Feature flag criada se risk score ≥ medium
 
-## Auditoria planejado × realizado (REGRA-ORQ-49)
-<!-- CC: compare o despacho/spec (planejado) ao que foi entregue. Declare deltas explícitos (inclui correções de Gate 0). Se zero desvios, escreva "sem desvios". -->
-| Item planejado | Item entregue | Delta / observação |
-|---|---|---|
-| ... | ... | ... |
-
-## Evidência de teste automatizado (Manus)
-<!-- pnpm test PASS + tsc 0 (output ou SQL) -->
-
-## Evidência de teste manual (P.O.)
-<!-- screenshot, log ou output em produção -->
-
 ## Declaração final
 Declaro que a implementação é determinística, não há risco oculto,
 a alteração é auditável e atende o nível de confiabilidade exigido.
