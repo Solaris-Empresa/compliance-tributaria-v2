@@ -109,6 +109,14 @@ export const PLANS: Record<string, ActionPlanSuggestion[]> = {
     { titulo: "Mapear créditos de IBS/CBS condicionados à conclusão da obra e controlar estornos",
       responsavel: "advogado", prazo: "30_dias" },
   ],
+
+  // #1691 — art_269_270 re-escopado (269 cadastro da obra + 270 §único doc fiscal).
+  // Fecha o último título genérico (BUG-PLANS-TITLE residual). A apuração (270 caput)
+  // é coberta por risco_controle_empreendimento (plano próprio acima).
+  "risco_art_269_270": [
+    { titulo: "Cadastrar a obra no CIB e indicar o número do cadastro nos documentos fiscais",
+      responsavel: "gestor_fiscal", prazo: "30_dias" },
+  ],
 };
 
 /**

@@ -51,7 +51,7 @@ export const CATEGORIA_LABELS: Record<string, string> = {
   regime_diferenciado_transporte:              "Regime Diferenciado — Transporte",
   regime_especifico_imoveis:                   "Regime Específico — Imóveis",
   regime_especifico_imoveis_locacao:           "Regime Específico — Imóveis (Locação 70%)",
-  risco_art_269_270:                           "Obrigação — Cadastro e Apuração por Empreendimento",
+  risco_art_269_270:                           "Cadastro da Obra (CIB) e Documento Fiscal", // #1691: re-escopo (269 + 270 §único); apuração fica em controle_empreendimento
 
   // ─── 9 categorias setoriais construção civil (Fase 3a #1607 / migrations 0128-0129) ───
   risco_redutor_ajuste:            "Redutor de Ajuste (Imóveis)",
