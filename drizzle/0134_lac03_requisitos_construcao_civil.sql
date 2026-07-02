@@ -6,8 +6,14 @@
 -- que hoje só geram por inferência de perfil (cnae_categoria_map, B1). Desbloqueia o
 -- stub normalizeQcnaeOnda3Answers (#963).
 --
--- Migração de banco. Reversível (DOWN por DELETE dos códigos REQ-CC/CANON-CC + reverter
+-- Migração de banco. Reversível (DOWN por DELETE dos códigos REQ-CC + reverter
 -- UPDATEs). Testado em ambiente isolado. NÃO faz DROP.
+--
+-- ⚠️ APLICAR VIA CLIENTE MySQL (mysql CLI / driver), NÃO por split naïve em ';' — há
+--    ';' dentro de strings (citações legais e JSON de evaluation_criteria). Um splitter
+--    ingênuo fragmenta o INSERT. (Achado do smoke #1703.)
+-- ⚠️ description = COALESCE(risk_categories.descricao, nome): descricao é NULL nas 10 CC
+--    (Gate 0 miss corrigido no smoke #1703); nome é NOT NULL → fallback garantido.
 --
 -- Gate 0 (fechado): F-B evaluation_criteria/evidence_required são JSON array
 -- (db-requirements.ts:142); F-A cnae_scope match EXATO por CNAE completo em
@@ -28,8 +34,9 @@ UPDATE solaris_questions
   WHERE codigo = 'SOL-053';
 
 -- ── 4. ALTER — rastro de proveniência (mitigação DEBT #1697) ────────────────
+-- IF NOT EXISTS: idempotente (Lição #166 — greenfield + re-run seguro).
 ALTER TABLE requirement_question_mapping
-  ADD COLUMN source_question_code VARCHAR(20) NULL
+  ADD COLUMN IF NOT EXISTS source_question_code VARCHAR(20) NULL
   COMMENT 'Rastro de proveniência da pergunta (SOL-xxx) — não FK (DEBT #1697)';
 
 -- ── 5. seed regulatory_requirements_v3 (10 requisitos CC) ───────────────────
@@ -45,7 +52,7 @@ INSERT INTO regulatory_requirements_v3
 VALUES
  ('REQ-CC-CIB',
   (SELECT nome FROM risk_categories WHERE codigo='risco_cib_cadastro'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_cib_cadastro'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_cib_cadastro'), (SELECT nome FROM risk_categories WHERE codigo='risco_cib_cadastro')),
   'construcao_civil', @base+1, 'alta', 'cadastro', 'operacional', 'cnae', @cc,
   '["Verificar se todos os imóveis (urbanos/rurais) e cada obra de construção civil estão inscritos no CIB, dentro dos prazos do Art. 266 (12 ou 24 meses conforme o sujeito)."]',
   '["Comprovante de inscrição do imóvel e da obra no CIB (número de cadastro)."]',
@@ -53,7 +60,7 @@ VALUES
 
  ('REQ-CC-269270',
   (SELECT nome FROM risk_categories WHERE codigo='risco_art_269_270'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_art_269_270'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_art_269_270'), (SELECT nome FROM risk_categories WHERE codigo='risco_art_269_270')),
   'construcao_civil', @base+2, 'media', 'cadastro', 'operacional', 'cnae', @cc,
   '["Verificar se a obra recebeu identificação cadastral própria no CIB (Art. 269) e se esse número consta dos documentos fiscais de aquisição de bens/serviços da obra (Art. 270, §único)."]',
   '["Número de cadastro da obra + amostra de notas fiscais de aquisição com o número indicado."]',
@@ -61,7 +68,7 @@ VALUES
 
  ('REQ-CC-APURACAO',
   (SELECT nome FROM risk_categories WHERE codigo='risco_controle_empreendimento'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_controle_empreendimento'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_controle_empreendimento'), (SELECT nome FROM risk_categories WHERE codigo='risco_controle_empreendimento')),
   'construcao_civil', @base+3, 'alta', 'processo', 'operacional', 'cnae', @cc,
   '["Verificar se a apuração do IBS/CBS é segregada por empreendimento — CNPJ/CPF específico, cada obra como centro de custo distinto (Art. 270, caput)."]',
   '["Demonstrativo de apuração segregado por empreendimento/obra."]',
@@ -69,7 +76,7 @@ VALUES
 
  ('REQ-CC-CREDITO',
   (SELECT nome FROM risk_categories WHERE codigo='risco_credito_condicionado_obra'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_credito_condicionado_obra'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_credito_condicionado_obra'), (SELECT nome FROM risk_categories WHERE codigo='risco_credito_condicionado_obra')),
   'construcao_civil', @base+4, 'alta', 'financeiro', 'operacional', 'cnae', @cc,
   '["Verificar se, em prestação a não contribuinte com fornecimento de materiais, o crédito de CBS/IBS relativo aos materiais está limitado ao valor do débito da prestação do serviço (Art. 255, §5º; Decreto Art. 365; Resolução Art. 365)."]',
   '["Memória de cálculo do crédito apropriado vs. débito da prestação, por obra."]',
@@ -77,7 +84,7 @@ VALUES
 
  ('REQ-CC-CUSTOS',
   (SELECT nome FROM risk_categories WHERE codigo='risco_custos_historicos'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_custos_historicos'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_custos_historicos'), (SELECT nome FROM risk_categories WHERE codigo='risco_custos_historicos')),
   'construcao_civil', @base+5, 'alta', 'processo', 'operacional', 'cnae', @cc,
   '["Verificar se o valor inicial do redutor de ajuste está apurado conforme o Art. 258: valor de aquisição atualizado (imóvel pronto em 31/12/2026) ou soma do terreno + custos de produção documentados (imóvel em construção em 31/12/2026)."]',
   '["Documentos fiscais idôneos comprobatórios do valor de aquisição do terreno e dos custos de produção incorridos até 31/12/2026 (exigência literal do Art. 258, II, ''b'')."]',
@@ -85,7 +92,7 @@ VALUES
 
  ('REQ-CC-REDUTOR',
   (SELECT nome FROM risk_categories WHERE codigo='risco_redutor_ajuste'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_redutor_ajuste'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_redutor_ajuste'), (SELECT nome FROM risk_categories WHERE codigo='risco_redutor_ajuste')),
   'construcao_civil', @base+6, 'alta', 'financeiro', 'operacional', 'cnae', @cc,
   '["verificar se o contribuinte mantém, por imóvel, o valor do redutor de ajuste vinculado (valor inicial + acréscimos previstos), atualizado pelo IPCA, desde 01/01/2027"]',
   '["memória de cálculo do redutor de ajuste por imóvel, com histórico de correção monetária"]',
@@ -93,7 +100,7 @@ VALUES
 
  ('REQ-CC-SINTER',
   (SELECT nome FROM risk_categories WHERE codigo='risco_sinter_avaliacao'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_sinter_avaliacao'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_sinter_avaliacao'), (SELECT nome FROM risk_categories WHERE codigo='risco_sinter_avaliacao')),
   'construcao_civil', @base+7, 'alta', 'processo', 'operacional', 'cnae', @cc,
   '["verificar se o contribuinte confere o valor de referência Sinter contra o valor de mercado real da operação, e se aciona impugnação quando houver divergência relevante"]',
   '["consulta ao Sinter para o imóvel objeto da operação + registro de eventual impugnação protocolada"]',
@@ -101,7 +108,7 @@ VALUES
 
  ('REQ-CC-PERMUTA',
   (SELECT nome FROM risk_categories WHERE codigo='risco_permuta_imoveis'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_permuta_imoveis'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_permuta_imoveis'), (SELECT nome FROM risk_categories WHERE codigo='risco_permuta_imoveis')),
   'construcao_civil', @base+8, 'alta', 'contrato', 'operacional', 'cnae', @cc,
   '["identificar operações de permuta de imóveis; verificar não incidência sobre o valor permutado (só a torna é tributada) e a manutenção do redutor de ajuste do imóvel dado em permuta"]',
   '["contrato de permuta + memória de cálculo do redutor de ajuste transferido/mantido"]',
@@ -109,7 +116,7 @@ VALUES
 
  ('REQ-CC-PARCELAS',
   (SELECT nome FROM risk_categories WHERE codigo='risco_tributacao_parcelas'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_tributacao_parcelas'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_tributacao_parcelas'), (SELECT nome FROM risk_categories WHERE codigo='risco_tributacao_parcelas')),
   'construcao_civil', @base+9, 'media', 'financeiro', 'operacional', 'cnae', @cc,
   '["verificar se a apuração do IBS/CBS ocorre a cada pagamento (não no fechamento do contrato), com dedução proporcional do redutor de ajuste (Art. 258) e redutor social (Art. 259, se aplicável) em cada parcela"]',
   '["cronograma de pagamentos da incorporação/parcelamento + memória de cálculo do tributo devido por parcela"]',
@@ -117,7 +124,7 @@ VALUES
 
  ('REQ-CC-SCP',
   (SELECT nome FROM risk_categories WHERE codigo='risco_sujeicao_passiva_scp'),
-  (SELECT descricao FROM risk_categories WHERE codigo='risco_sujeicao_passiva_scp'),
+  COALESCE((SELECT descricao FROM risk_categories WHERE codigo='risco_sujeicao_passiva_scp'), (SELECT nome FROM risk_categories WHERE codigo='risco_sujeicao_passiva_scp')),
   'construcao_civil', @base+10, 'media', 'contrato', 'operacional', 'cnae', @cc,
   '["identificar se a empresa atua como sócia ostensiva em SCP com operações de bens imóveis, e se recolhe o IBS/CBS integral (sem excluir a parte dos sócios participantes)"]',
   '["contrato de SCP + registro contábil identificando o sócio ostensivo e o recolhimento consolidado"]',
