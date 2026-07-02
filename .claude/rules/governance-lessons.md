@@ -2415,3 +2415,33 @@ Migration 0130 (`0130_categoria_map_setorial.sql:31`) cria `cnae_categoria_map` 
 ### Vinculadas
 
 [[Lição #141]] (artefato aplicado ≠ committed) · [[Lição #157]] (helper puro DB-independente) · REGRA-ORQ-34 Protocolo 1 (greenfield) · REGRA-ORQ-FILENAME-01 · Gate 0 schema · migration 0130/0132 · BUG-TEST-B1
+
+## Lição #167 — Citação regulamentar dual CBS/IBS: confirmar nos DOIS diplomas
+
+**Origem:** LAC-03 Gate 0 (02/07/2026) — F4 de `risco_credito_condicionado_obra`.
+
+Categoria que afeta **IBS e CBS** tem regulamentação espelhada em **dois diplomas** — Decreto 12.955/2026 (CBS) + Resolução CGIBS 6/2026 (IBS). A numeração **costuma coincidir** (ambos Art. 365, ambos remetendo a Art. 255 §5º LC 214) **mas não é garantida** — confirmar literal nos **dois** PDFs. Citar só um diploma deixa a fonte **incompleta pelo outro tributo** (F4 silencioso). Padrão: sempre que um requisito de categoria conjunta precisar de regulamentação, extrair o artigo do Decreto (CBS) **e** da Resolução CGIBS 6 (IBS), confirmando cada número no PDF.
+
+**Caso canônico:** `risco_credito_condicionado_obra` → `"Art. 255 §5º LC 214/2025 c/c Art. 365 Decreto 12.955/2026 (CBS) e Art. 365 Resolução CGIBS 6/2026 (IBS)"`.
+
+**Vinculadas:** extensão de [[Lição #158]] (colisão numeração Lei/Decreto) · [[Lição #126]] (PDF primário) · F4 (261/251, 255/365) · LAC-03 #1664
+
+## Lição #168 — Schema novo com cópia-sem-FK nasce com divergência silenciosa: coluna de origem + DoD negativo
+
+**Origem:** LAC-03 Gate 0 (02/07/2026) — `requirement_question_mapping`.
+
+Schema que **copia** um valor de outra tabela **sem FK** (ex.: `question_template` copiado de `solaris_questions.texto`) nasce com o mesmo risco de **divergência silenciosa** que o F4 caça à mão (261/251, 255/365) — só que dentro do próprio schema, antes de existir. Detectar na fase de **esqueleto** (antes do seed), não depois. Mitigação barata (sem refactor FK): (a) coluna de **rastro de origem** (`source_*_code`) populada junto com a cópia; (b) **DoD negativo no seed** que falha se a cópia ≠ a fonte vigente (JOIN pela coluna de origem). É a checagem citação-a-citação do F4 **automatizada** no momento do seed. Refactor FK completo → DEBT registrada (não força a decisão).
+
+**Caso canônico:** `requirement_question_mapping` + coluna `source_question_code` + DoD negativo (DEBT-REQQUESTIONMAP-FK-01 #1697).
+
+**Vinculadas:** princípio de rastreabilidade (NCM/CNAE→categoria→artigo→gap→risco→plano→task) · REGRA-ORQ-44 (DoD negativo) · #1697 · LAC-03 #1664
+
+## Lição #169 — Infra que serve bundle pré-compilado é incompatível com metadado-no-build
+
+**Origem:** Sessão 02/07/2026 — Issue #1689 (health-SHA) + PRs #1694/#1695/#1696.
+
+Antes de injetar metadado no build (SHA git, build hash, versão) para leitura em runtime, **verificar o modelo build/runtime da plataforma**. O Manus Autoscale usa **containers separados** para build e runtime e **serve o `dist/` pré-compilado do checkpoint** → (a) arquivos gerados no build (`.env.production.local`, `build-meta.json`) **não persistem** ao runtime; (b) o container de build **não tem `.git`** → `git rev-parse` = `"unknown"`. Mesmo a injeção via **esbuild `--define`** (constante literal no bundle — abordagem correta, provada localmente `sha=93aa7fe`) é **inútil se a plataforma não recompila** (serve o `dist` pré-compilado). Consequência: no Manus, `/api/health` não expõe o SHA git → verificação de deploy por request é **infeasível**; permanece a checagem manual (`git=<sha>/checkpoint=<id>`, REGRA-ORQ-25). **Deferido para Google Cloud Run** (build + git reais). **NÃO re-tentar SHA-no-build no Manus.**
+
+**Fonte:** reportado e registrado (Issue #1689 reaberta, `blocked`) — não elevado para "confirmado pelo Orquestrador". Memória: `project_manus_autoscale_sha_incompativel`.
+
+**Vinculadas:** [[Lição #141]] (artefato servido ≠ claim) · REGRA-ORQ-25 (checkpoint ≠ git SHA) · R-SYNC-01 (bifurcação S3↔GitHub) · #1689
