@@ -108,8 +108,9 @@ export async function generateRisksV4Pipeline(
   if (profile) {
     try {
       inferred = await inferNormativeRisks(projectId, profile);
-    } catch {
+    } catch (err) {
       // Non-fatal — normative inference is additive
+      console.error(`[normative-inference] project=${projectId} THREW:`, err);
     }
   }
 
