@@ -232,7 +232,10 @@ async function applyCnaeCategoriaMap(
   const results: InsertRiskV4[] = [];
   for (const row of matched) {
     const cat = await getCategoryByCodigo(row.categoria_codigo);
-    if (!cat) continue; // categoria inativa/inexistente → skip
+    if (!cat) {
+      console.warn(`[normative-inference] getCategoryByCodigo returned null for ${row.categoria_codigo} — categoria inativa/inexistente`);
+      continue; // categoria inativa/inexistente → skip
+    }
     const titulo = (row.titulo_template ?? cat.nome).replace("{op}", op);
     results.push(makeInferredRisk(
       projectId, row.categoria_codigo,
