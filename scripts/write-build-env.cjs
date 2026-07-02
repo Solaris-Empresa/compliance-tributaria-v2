@@ -56,9 +56,12 @@ function resolveHash() {
   return "unknown";
 }
 
+const hash = resolveHash();
+const buildTime = new Date().toISOString();
+
 const content =
-  `VITE_BUILD_HASH=${resolveHash()}\n` +
-  `VITE_BUILD_TIME=${new Date().toISOString()}\n`;
+  `VITE_BUILD_HASH=${hash}\n` +
+  `VITE_BUILD_TIME=${buildTime}\n`;
 
 try {
   // `>` semântico: sobrescreve (não acumula — antes o `>>` empilhava e o dotenv usa o 1º).
@@ -66,6 +69,20 @@ try {
   console.log("[write-build-env] " + content.split("\n")[0]);
 } catch (e) {
   console.warn("[write-build-env] aviso (ignorado):", e && e.message);
+}
+
+// #1689: build-meta.json — fonte do SHA que SOBREVIVE do build-time até o RUNTIME do
+// servidor. O processo servidor NÃO carrega .env.production.local nem tem VITE_GIT_SHA
+// (esse é injetado só no bundle CLIENTE) → getDeploySha em health.ts lê ESTE arquivo.
+// Escrito na raiz (cwd), NÃO em dist/ (o Vite limpa o outDir no build).
+try {
+  fs.writeFileSync(
+    "build-meta.json",
+    JSON.stringify({ sha: hash, builtAt: buildTime }) + "\n",
+  );
+  console.log("[write-build-env] build-meta.json sha=" + hash);
+} catch (e) {
+  console.warn("[write-build-env] build-meta.json aviso (ignorado):", e && e.message);
 }
 
 process.exit(0); // SEMPRE sucesso — jamais bloqueia o `&& vite build`

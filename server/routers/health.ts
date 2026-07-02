@@ -18,11 +18,35 @@
 
 import { Router } from "express";
 import { execSync } from "child_process";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { getDb } from "../db";
 
 export const healthRouter = Router();
+
+/**
+ * #1689: parseia o build-meta.json (gerado por scripts/write-build-env.cjs no build).
+ * Função PURA — testável sem fs (Lição #157). Retorna o SHA git ou null.
+ */
+export function parseBuildMetaSha(content: string | undefined | null): string | null {
+  if (!content) return null;
+  try {
+    const meta = JSON.parse(content);
+    const sha = meta?.sha;
+    return typeof sha === "string" && /^[0-9a-f]{7,40}$/i.test(sha) ? sha : null;
+  } catch {
+    return null;
+  }
+}
+
+/** #1689: lê build-meta.json da raiz (cwd) — sobrevive build-time → runtime do servidor. */
+function readBuildMetaSha(): string | null {
+  try {
+    return parseBuildMetaSha(readFileSync(join(process.cwd(), "build-meta.json"), "utf8"));
+  } catch {
+    return null;
+  }
+}
 
 /** Obtém o SHA do commit atual (short, 7 chars) */
 function getDeploySha(): { short: string; full: string } {
@@ -30,6 +54,7 @@ function getDeploySha(): { short: string; full: string } {
   // ADR-0016 Etapa 1-B: VITE_GIT_SHA é injetado pelo vite.config.ts via execSync('git rev-parse --short HEAD')
   // É a variável correta para a plataforma Manus (não usa Railway/Render/Vercel)
   const full =
+    readBuildMetaSha() ??             // ← #1689: 1ª fonte — arquivo build-meta.json (build→runtime)
     process.env.DEPLOY_SHA ??
     process.env.RAILWAY_GIT_COMMIT_SHA ??
     process.env.RENDER_GIT_COMMIT ??
