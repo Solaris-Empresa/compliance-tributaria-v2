@@ -86,7 +86,7 @@ export const regulatoryRequirementsV3 = mysqlTable("regulatory_requirements_v3",
 
   // Referência legal
   legalReference: varchar("legal_reference", { length: 255 }),
-  legalArticle: varchar("legal_article", { length: 100 }),
+  legalArticle: varchar("legal_article", { length: 200 }), // LAC-03 #1664: citação dual CBS/IBS (Lição #167)
 
   // Metadados
   active: boolean("active").default(true).notNull(),

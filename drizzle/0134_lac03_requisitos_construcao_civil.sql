@@ -39,6 +39,13 @@ ALTER TABLE requirement_question_mapping
   ADD COLUMN IF NOT EXISTS source_question_code VARCHAR(20) NULL
   COMMENT 'Rastro de proveniência da pergunta (SOL-xxx) — não FK (DEBT #1697)';
 
+-- ── 4b. ALTER — alargar legal_article p/ citação dual CBS/IBS (aprovado P.O.) ─
+-- 3º bug do smoke #1703: legal_article era varchar(100); citações duais (ex.: CREDITO
+-- ~114 chars) truncariam, destruindo a precisão dual CBS/IBS (Lição #167). MODIFY é
+-- idempotente e ADITIVO — os 138 requisitos existentes têm legal_article=NULL (nada a
+-- reindexar/truncar). schema.ts atualizado para 200 (evita drift schema↔DB).
+ALTER TABLE regulatory_requirements_v3 MODIFY COLUMN legal_article VARCHAR(200) NULL;
+
 -- ── 5. seed regulatory_requirements_v3 (10 requisitos CC) ───────────────────
 -- name/description = verbatim de risk_categories (subquery). cnae_scope = 38 CNAEs
 -- validados. evaluation_criteria/evidence_required = JSON array (F-B).
