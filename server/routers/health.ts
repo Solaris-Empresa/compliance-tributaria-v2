@@ -18,34 +18,29 @@
 
 import { Router } from "express";
 import { execSync } from "child_process";
-import { existsSync, readFileSync } from "fs";
+import { existsSync } from "fs";
 import { join } from "path";
 import { getDb } from "../db";
 
 export const healthRouter = Router();
 
+// #1689: SHA git injetado no bundle do servidor via esbuild --define (scripts/build-server.cjs).
+// É o ÚNICO método que sobrevive ao split build/runtime container do Manus Autoscale — arquivos
+// (.env.production.local, build-meta.json) e env vars do build NÃO persistem para o runtime.
+// Em dev (tsx, sem esbuild --define) a constante não existe → `typeof` evita ReferenceError.
+declare const __BUILD_SHA__: string | undefined;
+
 /**
- * #1689: parseia o build-meta.json (gerado por scripts/write-build-env.cjs no build).
- * Função PURA — testável sem fs (Lição #157). Retorna o SHA git ou null.
+ * PURA (testável — Lição #157): normaliza o valor injetado. SHA git válido ou null.
+ * "unknown"/vazio/não-hex → null (cai no fallback da cadeia de env/git).
  */
-export function parseBuildMetaSha(content: string | undefined | null): string | null {
-  if (!content) return null;
-  try {
-    const meta = JSON.parse(content);
-    const sha = meta?.sha;
-    return typeof sha === "string" && /^[0-9a-f]{7,40}$/i.test(sha) ? sha : null;
-  } catch {
-    return null;
-  }
+export function resolveInjectedSha(v: string | undefined | null): string | null {
+  return typeof v === "string" && v !== "unknown" && /^[0-9a-f]{7,40}$/i.test(v) ? v : null;
 }
 
-/** #1689: lê build-meta.json da raiz (cwd) — sobrevive build-time → runtime do servidor. */
-function readBuildMetaSha(): string | null {
-  try {
-    return parseBuildMetaSha(readFileSync(join(process.cwd(), "build-meta.json"), "utf8"));
-  } catch {
-    return null;
-  }
+/** Lê a constante injetada com guard de dev (sem ReferenceError quando não definida). */
+function injectedSha(): string | null {
+  return resolveInjectedSha(typeof __BUILD_SHA__ !== "undefined" ? __BUILD_SHA__ : undefined);
 }
 
 /** Obtém o SHA do commit atual (short, 7 chars) */
@@ -54,7 +49,7 @@ function getDeploySha(): { short: string; full: string } {
   // ADR-0016 Etapa 1-B: VITE_GIT_SHA é injetado pelo vite.config.ts via execSync('git rev-parse --short HEAD')
   // É a variável correta para a plataforma Manus (não usa Railway/Render/Vercel)
   const full =
-    readBuildMetaSha() ??             // ← #1689: 1ª fonte — arquivo build-meta.json (build→runtime)
+    injectedSha() ??                  // ← #1689: 1ª fonte — SHA injetado no bundle (esbuild define)
     process.env.DEPLOY_SHA ??
     process.env.RAILWAY_GIT_COMMIT_SHA ??
     process.env.RENDER_GIT_COMMIT ??
