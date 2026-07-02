@@ -312,7 +312,7 @@ export async function inferNormativeRisks(
     if (isRegimeImoveisOportunidade(profile.cnaes)) {
       results.push(makeInferredRisk(
         projectId, "regime_especifico_imoveis", "opportunity", "oportunidade", "curto_prazo",
-        "Art. 261",
+        "Art. 261 c/c Art. 251 LC 214/2025", // #1691: Art. 261 (redução 50%) c/c Art. 251 (institui o regime)
         `Oportunidade de redução de 50% nas operações com bens imóveis (${op})`,
         0.85, ctx,
       ));
@@ -330,8 +330,8 @@ export async function inferNormativeRisks(
     if (isRegimeImoveisRisco(profile.cnaes)) {
       results.push(makeInferredRisk(
         projectId, "risco_art_269_270", "risk", "media", "curto_prazo",
-        "Art. 269 e 270",
-        `Obrigação de cadastro de obra (CIB) e apuração por empreendimento de construção civil (${op})`,
+        "Art. 269 e Art. 270, § único, LC 214/2025", // #1691: 269 (cadastro da obra) + 270 §único (doc fiscal); caput fica em controle_empreendimento
+        `Obrigação de cadastro da obra (CIB) e indicação do número do cadastro em documento fiscal (${op})`,
         0.85, ctx,
       ));
     }
@@ -376,7 +376,7 @@ export async function inferNormativeRisks(
       ));
       results.push(makeInferredRisk(
         projectId, "risco_controle_empreendimento", "risk", "alta", "imediata",
-        "Art. 270 LC 214/2025",
+        "Art. 270, caput, LC 214/2025", // #1691: só o caput (apuração); o §único fica em art_269_270
         `Obrigação de apuração segregada por empreendimento de construção civil (${op})`,
         0.85, ctx,
       ));
