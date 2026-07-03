@@ -2445,3 +2445,13 @@ Antes de injetar metadado no build (SHA git, build hash, versão) para leitura e
 **Fonte:** reportado e registrado (Issue #1689 reaberta, `blocked`) — não elevado para "confirmado pelo Orquestrador". Memória: `project_manus_autoscale_sha_incompativel`.
 
 **Vinculadas:** [[Lição #141]] (artefato servido ≠ claim) · REGRA-ORQ-25 (checkpoint ≠ git SHA) · R-SYNC-01 (bifurcação S3↔GitHub) · #1689
+
+## Lição #170 — Gate mal calibrado: corrigir o gate, não adulterar o dado que ele audita
+
+**Origem:** encerramento LAC-03 (02/07/2026) — PC-1 do `scripts/pre-close-check.sh`.
+
+Quando um gate de CI está **mal calibrado** (classifica errado, dispara indevidamente), a correção é **no gate** — nunca alterando o **dado que o gate audita** para escapar do regex. Editar uma issue/PR/documento para inserir uma referência **falsa** (trocar o arquivo real `gapRouter.ts` por `gap-engine.ts` inexistente) só para não casar um padrão é o anti-padrão **inverso** da [[Lição #128]]: em vez de "gate declarado mas não enforçado", é "**documento adulterado para escapar de um gate real**". Quebra a rastreabilidade — quem ler o doc depois procura um arquivo que não existe (o mesmo princípio de proveniência que a cadeia NCM/CNAE→…→task exige, agora aplicado à documentação de processo). Caminho correto: (a) desbloquear pela **via legítima** (label de exceção / skip documentado / admin-override registrado — mecanismos que já existem em `pre-close-check.sh:67,72` e no branch-protection), **ou** (b) corrigir o gate (issue própria), mantendo o dado verdadeiro.
+
+**Caso canônico:** `pre-close-check.sh:99` faz `grep -qi "server/\|router\|procedure"` no **corpo da issue** (não no diff do PR — apesar de já ter `PR_FILES` em `:89`). A issue #1664 (seed de dados, só `drizzle/`) citava `gapRouter.ts` como referência de consumo → o "router" no body disparou `IS_ENGINE=true` → PC-1 exigiu `server/`. Contornado editando o body para `gap-engine.ts` (inexistente). Revertido (#1664 restaurada); bug do regex rastreado em **#1704** (deve varrer `git diff --name-only`, não o body).
+
+**Vinculadas:** extensão de [[Lição #128]] (gate declarado ≠ enforçado) · [[Lição #164]] (rastreabilidade = automação sobre o diff, não campo/texto manual) · REGRA-ORQ-25 (report espelha o estado real) · #1664 · #1704 · PR #1703 · `scripts/pre-close-check.sh:99`
